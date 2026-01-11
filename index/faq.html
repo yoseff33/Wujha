@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | الأسئلة الشائعة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* أنماط خاصة لصفحة الأسئلة الشائعة */
+        .faq-item {
+            background: var(--card-bg-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        body.dark-mode .faq-item {
+            background: var(--card-bg-dark);
+            box-shadow: 0 15px 40px var(--shadow-color-dark);
+        }
+        .faq-question {
+            padding: 25px 30px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--heading-color-light);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color-light);
+            transition: var(--transition);
+        }
+        body.dark-mode .faq-question {
+            color: var(--heading-color-dark);
+            border-bottom: 1px solid var(--border-color-dark);
+        }
+        .faq-question:hover {
+            background: var(--light-gray);
+        }
+        body.dark-mode .faq-question:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .faq-question i {
+            transition: transform 0.3s ease;
+        }
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+        .faq-answer {
+            padding: 0 30px 25px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color-light);
+            display: none; /* مخفي افتراضيًا */
+        }
+        body.dark-mode .faq-answer {
+            color: var(--text-color-dark);
+        }
+        .faq-answer.open {
+            display: block; /* يظهر عند التفعيل */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="index.html#how-it-works">كيف تعمل</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة تحكم المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة تحكم المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="quiz.html">اختبار السيارة المناسبة</a></li>
+                    <li><a href="qassim-map.html">خريطة جامعة القصيم</a></li>
+                </ul>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
+                        <i class="fas fa-moon"></i>
+                        <span>الوضع</span> </button>
+                    <button id="desktop-chatbot-toggle" class="btn btn-outline" style="display: none;">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>اسالني</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">تسجيل دخول / جديد</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section id="faq-section" class="content-section" style="padding-top: 150px;">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>الأسئلة الشائعة</h2>
+                <p>إجابات لأكثر الأسئلة تكرارًا حول وُجْهَة.</p>
+            </div>
+            
+            <div class="faq-list" data-aos="fade-up" data-aos-delay="100">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>كيف يمكنني تأجير سيارة عبر وُجْهَة؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>يمكنك تأجير سيارة من خلال تطبيق وُجْهَة أو الموقع الإلكتروني. ابحث عن السيارة المناسبة، حدد تواريخ الإيجار، ثم أكمل الحجز والدفع.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>ما هي شروط تأجير السيارات؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>يجب أن تكون حاصلاً على رخصة قيادة سارية المفعول، وعادة ما يكون الحد الأدنى للعمر 21 عامًا. قد تختلف الشروط الإضافية حسب السيارة والمالك.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>هل السيارات مؤمن عليها؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم، جميع السيارات المتوفرة على منصة وُجْهَة مؤمنة بالكامل لضمان سلامتك وسلامة السيارة خلال فترة الإيجار.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>كيف يمكنني إضافة سيارتي للتأجير؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>يمكنك التسجيل كمالك سيارة عبر الموقع أو التطبيق، ثم إضافة تفاصيل سيارتك وصورها. بعد مراجعة واعتماد سيارتك، ستصبح متاحة للتأجير.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>ماذا أفعل في حالة وقوع حادث؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>في حالة وقوع حادث، يجب عليك أولاً التأكد من سلامة الجميع. ثم قم بإبلاغ وُجْهَة على الفور، وسنقدم لك الدعم والإرشادات اللازمة للتعامل مع الموقف.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; line-height: 1.8;">
+                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة. نسعى لتحويل السيارات الواقعة إلى أصول منتجة.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-snapchat-ghost"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="index.html#how-it-works">كيف تعمل</a></li>
+                        <li><a href="#">المدونة</a></li>
+                        <li><a href="https://wa.me/966565464718">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>للأفراد</h3>
+                    <ul>
+                        <li><a href="dashboard-renter.html">تسجيل كمستأجر</a></li>
+                        <li><a href="cars.html">البحث عن سيارة</a></li>
+                        <li><a href="rental-terms.html">شروط الاستئجار</a></li>
+                        <li><a href="faq.html" class="active">الأسئلة الشائعة</a></li>
+                        <li><a href="user-guide.html">دليل المستخدم</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>القصيم بريدة حي الاسكان</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <span>+966 56 546 4718</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span><a href="mailto:q_p@outlook.cl">q_p@outlook.cl</a></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | تم التطوير بكل ❤️ في المملكة العربية السعودية</p>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="cars.html" class="nav-item">
+            <i class="fas fa-car"></i>
+            <span>السيارات</span>
+        </a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>دخول</span>
+        </a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+        <a href="add-car.html" class="nav-item auth-link-bottom" data-role="owner">
+            <i class="fas fa-plus-circle"></i>
+            <span>أضف سيارة</span>
+        </a>
+        <a href="quiz.html" class="nav-item active">
+            <i class="fas fa-question-circle"></i>
+            <span>اختبار</span>
+        </a>
+        <a href="qassim-map.html" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>الخريطة</span>
+        </a>
+        <a href="#" class="nav-item" id="mobile-chatbot-toggle">
+            <i class="fas fa-comment-dots"></i>
+            <span>الدردشة</span>
+        </a>
+    </nav>
+
+    <div id="chatbot-popup" class="chatbot-popup">
+        <div class="chatbot-header">
+            <h3>اسالني</h3>
+            <button id="chatbot-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="bot-message">
+                مرحباً بك! أنا مساعد وُجْهَة، كيف يمكنني مساعدتك اليوم؟
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chatbot-input" placeholder="اكتب رسالتك هنا...">
+            <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    this.classList.toggle('active');
+                    answer.classList.toggle('open');
+                });
+            });
+        });
+    </script>
+    <script src="csr-content.js"></script>
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>

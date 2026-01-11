@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | دليل المستخدم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* أنماط خاصة لدليل المستخدم */
+        .guide-section {
+            background: var(--card-bg-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            padding: 30px;
+        }
+        body.dark-mode .guide-section {
+            background: var(--card-bg-dark);
+            box-shadow: 0 15px 40px var(--shadow-color-dark);
+        }
+        .guide-section h3 {
+            font-size: 2rem;
+            color: var(--heading-color-light);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        body.dark-mode .guide-section h3 {
+            color: var(--heading-color-dark);
+        }
+        .guide-section p, .guide-section ul {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color-light);
+            margin-bottom: 15px;
+        }
+        body.dark-mode .guide-section p, body.dark-mode .guide-section ul {
+            color: var(--text-color-dark);
+        }
+        .guide-section ul {
+            list-style: none;
+            padding-right: 20px;
+        }
+        .guide-section ul li {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .guide-section ul li:before {
+            content: "\f058"; /* Font Awesome check-circle icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--accent);
+            position: absolute;
+            right: 0;
+            top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="index.html#how-it-works">كيف تعمل</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة تحكم المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة تحكم المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="quiz.html">اختبار السيارة المناسبة</a></li>
+                    <li><a href="qassim-map.html">خريطة جامعة القصيم</a></li>
+                </ul>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
+                        <i class="fas fa-moon"></i>
+                        <span>الوضع</span> </button>
+                    <button id="desktop-chatbot-toggle" class="btn btn-outline" style="display: none;">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>اسالني</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">تسجيل دخول / جديد</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section id="user-guide-section" class="content-section" style="padding-top: 150px;">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>دليل المستخدم</h2>
+                <p>شرح مفصل لكيفية استخدام منصة وُجْهَة لكل من المستأجرين والمالكين.</p>
+            </div>
+            
+            <div class="guide-content">
+                <div class="guide-section" data-aos="fade-up" data-aos-delay="100">
+                    <h3>للمستأجرين: ابدأ رحلتك بسهولة</h3>
+                    <p>استئجار سيارة عبر وُجْهَة عملية سهلة ومباشرة. اتبع هذه الخطوات البسيطة:</p>
+                    <ul>
+                        <li><strong>التسجيل والدخول:</strong> قم بإنشاء حساب جديد أو سجل الدخول باستخدام بريدك الإلكتروني.</li>
+                        <li><strong>البحث عن سيارة:</strong> استخدم خاصية البحث والتصفية للعثور على السيارة المثالية التي تناسب احتياجاتك وميزانيتك. يمكنك تصفح السيارات حسب النوع، السعر، والموقع.</li>
+                        <li><strong>مراجعة التفاصيل:</strong> اضغط على أي سيارة لمراجعة صورها، مواصفاتها، ومراجعات المالكين الآخرين.</li>
+                        <li><strong>الحجز والدفع:</strong> اختر تواريخ الاستلام والإرجاع، ثم تابع عملية الدفع الآمنة عبر المنصة.</li>
+                        <li><strong>الاستلام والإرجاع:</strong> تواصل مع المالك لتنسيق استلام السيارة، وفي نهاية فترة الإيجار، أعد السيارة في نفس الحالة التي استلمتها بها.</li>
+                    </ul>
+                </div>
+
+                <div class="guide-section" data-aos="fade-up" data-aos-delay="200">
+                    <h3>للمالكين: اجعل سيارتك تعمل من أجلك</h3>
+                    <p>تحويل سيارتك إلى مصدر دخل إضافي لم يكن أسهل من أي وقت مضى. اتبع الخطوات التالية:</p>
+                    <ul>
+                        <li><strong>التسجيل كمالك:</strong> أنشئ حسابًا واختر خيار "تسجيل كمالك".</li>
+                        <li><strong>إضافة سيارتك:</strong> قم بملء نموذج إضافة السيارة بجميع التفاصيل المطلوبة مثل الموديل، النوع، الميزات، وأضف صورًا عالية الجودة لسيارتك.</li>
+                        <li><strong>تحديد التوفر والأسعار:</strong> حدد الأيام والأوقات التي تكون فيها سيارتك متاحة للتأجير، وضع سعرًا يوميًا مناسبًا.</li>
+                        <li><strong>إدارة الحجوزات:</strong> ستتلقى إشعارات عند وجود طلبات حجز جديدة. يمكنك قبول أو رفض الطلبات عبر لوحة التحكم الخاصة بك.</li>
+                        <li><strong>تسليم واستلام السيارة:</strong> التنسيق مع المستأجر لتسليم السيارة واستلامها. تأكد من فحص السيارة قبل وبعد كل إيجار.</li>
+                        <li><strong>استلام الأرباح:</strong> بعد انتهاء كل حجز، ستتم إضافة أرباحك إلى حسابك.</li>
+                    </ul>
+                </div>
+
+                <div class="guide-section" data-aos="fade-up" data-aos-delay="300">
+                    <h3>نصائح مهمة للجميع</h3>
+                    <ul>
+                        <li><strong>التواصل:</strong> حافظ على التواصل الفعال والودي مع الطرف الآخر لضمان تجربة سلسة.</li>
+                        <li><strong>التقييمات:</strong> قم بترك تقييمات صادقة بعد كل تجربة لتساعد المجتمع في بناء الثقة.</li>
+                        <li><strong>السلامة أولاً:</strong> احرص دائمًا على القيادة الآمنة والمسؤولة.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; line-height: 1.8;">
+                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة. نسعى لتحويل السيارات الواقعة إلى أصول منتجة.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-snapchat-ghost"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="index.html#how-it-works">كيف تعمل</a></li>
+                        <li><a href="#">المدونة</a></li>
+                        <li><a href="https://wa.me/966565464718">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>للأفراد</h3>
+                    <ul>
+                        <li><a href="dashboard-renter.html">تسجيل كمستأجر</a></li>
+                        <li><a href="cars.html">البحث عن سيارة</a></li>
+                        <li><a href="rental-terms.html">شروط الاستئجار</a></li>
+                        <li><a href="faq.html">الأسئلة الشائعة</a></li>
+                        <li><a href="user-guide.html" class="active">دليل المستخدم</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>القصيم بريدة حي الاسكان</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <span>+966 56 546 4718</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span><a href="mailto:q_p@outlook.cl">q_p@outlook.cl</a></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | تم التطوير بكل ❤️ في المملكة العربية السعودية</p>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="cars.html" class="nav-item">
+            <i class="fas fa-car"></i>
+            <span>السيارات</span>
+        </a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>دخول</span>
+        </a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+        <a href="add-car.html" class="nav-item auth-link-bottom" data-role="owner">
+            <i class="fas fa-plus-circle"></i>
+            <span>أضف سيارة</span>
+        </a>
+        <a href="quiz.html" class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>اختبار</span>
+        </a>
+        <a href="qassim-map.html" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>الخريطة</span>
+        </a>
+        <a href="#" class="nav-item" id="mobile-chatbot-toggle">
+            <i class="fas fa-comment-dots"></i>
+            <span>الدردشة</span>
+        </a>
+    </nav>
+
+    <div id="chatbot-popup" class="chatbot-popup">
+        <div class="chatbot-header">
+            <h3>اسالني</h3>
+            <button id="chatbot-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="bot-message">
+                مرحباً بك! أنا مساعد وُجْهَة، كيف يمكنني مساعدتك اليوم؟
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chatbot-input" placeholder="اكتب رسالتك هنا...">
+            <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+        });
+    </script>
+    <script src="csr-content.js"></script>
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>

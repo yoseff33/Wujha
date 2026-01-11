@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | شروط الاستئجار</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="index.html#how-it-works">كيف تعمل</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة تحكم المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة تحكم المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="quiz.html">اختبار السيارة المناسبة</a></li>
+                    <li><a href="qassim-map.html">خريطة جامعة القصيم</a></li>
+                </ul>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
+                        <i class="fas fa-moon"></i>
+                        <span>الوضع</span> </button>
+                    <button id="desktop-chatbot-toggle" class="btn btn-outline" style="display: none;">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>اسالني</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">تسجيل دخول / جديد</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section id="rental-terms-section" class="content-section" style="padding-top: 150px;">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>شروط وأحكام الاستئجار</h2>
+                <p>يرجى قراءة الشروط والأحكام التالية بعناية قبل المتابعة.</p>
+            </div>
+            
+            <div class="content-text" data-aos="fade-up" data-aos-delay="100">
+                <h3>1. الأهلية والمتطلبات</h3>
+                <p>يجب أن يكون المستأجر حاصلاً على رخصة قيادة سارية المفعول وصادرة من المملكة العربية السعودية أو رخصة قيادة دولية معترف بها. الحد الأدنى للعمر هو 21 عامًا. يجب تقديم بطاقة هوية سارية المفعول (هوية وطنية أو إقامة).</p>
+
+                <h3>2. فترة الإيجار</h3>
+                <p>تُحسب فترة الإيجار على أساس 24 ساعة لكل يوم. يتم تحديد وقت الاستلام والإرجاع في عقد الإيجار. أي تأخير في الإرجاع قد يؤدي إلى رسوم إضافية.</p>
+
+                <h3>3. التأمين والمسؤولية</h3>
+                <p>تشمل جميع الإيجارات تأمينًا ضد الغير. يمكن للمستأجر اختيار تأمين شامل إضافي للحماية من الأضرار التي تلحق بالسيارة. يتحمل المستأجر مسؤولية أي أضرار ناجمة عن سوء الاستخدام أو الإهمال.</p>
+
+                <h3>4. الوقود</h3>
+                <p>يتم تسليم السيارة للمستأجر بوقود كامل، ويجب إرجاعها بوقود كامل. في حالة عدم امتلاء خزان الوقود عند الإرجاع، سيتم احتساب رسوم إعادة تعبئة الوقود بالإضافة إلى تكلفة الوقود.</p>
+
+                <h3>5. إلغاء الحجز</h3>
+                <p>يمكن إلغاء الحجوزات قبل 24 ساعة من موعد الاستلام دون رسوم. الإلغاءات التي تتم في أقل من 24 ساعة قد تخضع لرسوم إلغاء.</p>
+
+                <h3>6. انتهاكات المرور</h3>
+                <p>المستأجر مسؤول عن جميع المخالفات المرورية والغرامات التي تحدث خلال فترة الإيجار.</p>
+
+                <p style="margin-top: 40px; font-style: italic; color: var(--gray);">هذه الشروط قابلة للتغيير. يرجى مراجعة العقد الفعلي عند الحجز للحصول على التفاصيل الكاملة.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; line-height: 1.8;">
+                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة. نسعى لتحويل السيارات الواقعة إلى أصول منتجة.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-snapchat-ghost"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="index.html#how-it-works">كيف تعمل</a></li>
+                        <li><a href="#">المدونة</a></li>
+                        <li><a href="https://wa.me/966565464718">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>للأفراد</h3>
+                    <ul>
+                        <li><a href="dashboard-renter.html">تسجيل كمستأجر</a></li>
+                        <li><a href="cars.html">البحث عن سيارة</a></li>
+                        <li><a href="rental-terms.html" class="active">شروط الاستئجار</a></li>
+                        <li><a href="faq.html">الأسئلة الشائعة</a></li>
+                        <li><a href="user-guide.html">دليل المستخدم</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>القصيم بريدة حي الاسكان</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <span>+966 56 546 4718</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span><a href="mailto:q_p@outlook.cl">q_p@outlook.cl</a></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | تم التطوير بكل ❤️ في المملكة العربية السعودية</p>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="cars.html" class="nav-item">
+            <i class="fas fa-car"></i>
+            <span>السيارات</span>
+        </a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>دخول</span>
+        </a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+        <a href="add-car.html" class="nav-item auth-link-bottom" data-role="owner">
+            <i class="fas fa-plus-circle"></i>
+            <span>أضف سيارة</span>
+        </a>
+        <a href="quiz.html" class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>اختبار</span>
+        </a>
+        <a href="qassim-map.html" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>الخريطة</span>
+        </a>
+        <a href="#" class="nav-item" id="mobile-chatbot-toggle">
+            <i class="fas fa-comment-dots"></i>
+            <span>الدردشة</span>
+        </a>
+    </nav>
+
+    <div id="chatbot-popup" class="chatbot-popup">
+        <div class="chatbot-header">
+            <h3>اسالني</h3>
+            <button id="chatbot-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="bot-message">
+                مرحباً بك! أنا مساعد وُجْهَة، كيف يمكنني مساعدتك اليوم؟
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chatbot-input" placeholder="اكتب رسالتك هنا...">
+            <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+        });
+    </script>
+    <script src="csr-content.js"></script>
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>

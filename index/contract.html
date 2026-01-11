@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | العقد الموحد الرسمي</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root { --primary: #0f2925; --secondary: #c5a065; --accent: #27ae60; --bg: #eef2f5; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+
+        /* زر البدء */
+        .demo-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border: none; padding: 15px 50px; border-radius: 50px;
+            font-size: 1.1rem; cursor: pointer; font-weight: bold;
+            box-shadow: 0 10px 30px rgba(15, 41, 37, 0.3); transition: 0.3s;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .demo-btn:hover { transform: translateY(-3px); }
+
+        /* نافذة العقد */
+        .contract-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 9999;
+            display: none; justify-content: center; align-items: flex-start;
+            padding-top: 40px; overflow-y: auto;
+        }
+        
+        /* ورقة العقد */
+        .contract-paper {
+            background: white; width: 210mm; min-height: 297mm; 
+            padding: 50px; margin-bottom: 80px; position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+            color: #333; display: flex; flex-direction: column; box-sizing: border-box; 
+        }
+
+        /* العلامة المائية */
+        .watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7rem; font-weight: 900; color: rgba(0,0,0,0.03);
+            white-space: nowrap; pointer-events: none; z-index: 0; text-transform: uppercase;
+            border: 8px solid rgba(0,0,0,0.03); padding: 20px 40px; border-radius: 20px;
+        }
+
+        /* شريط الحالة */
+        .contract-status-bar {
+            background: #fff8e1; color: #f39c12; padding: 10px; border-radius: 6px;
+            margin-bottom: 30px; text-align: center; font-weight: bold; font-size: 0.9rem;
+            border: 1px dashed #f39c12; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .contract-status-bar.verified {
+            background: #e8f5e9; color: #27ae60; border-style: solid; border-color: #27ae60;
+        }
+
+        /* الهيدر */
+        .contract-header { 
+            display: flex; justify-content: space-between; align-items: flex-start; 
+            border-bottom: 2px solid #0f2925; padding-bottom: 20px; margin-bottom: 30px; 
+            position: relative; z-index: 1;
+        }
+        
+        /* إصلاح شعار وجهة (منع تقطع الحروف) */
+        .wujha-logo-custom {
+            display: flex; align-items: center; gap: 8px;
+            border: 1px solid #0f2925; padding: 5px 12px; border-radius: 6px;
+        }
+        .w-icon { 
+            background: #0f2925; color: #c5a065; width: 28px; height: 28px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; font-size: 1rem; border-radius: 4px; 
+        }
+        .w-text { 
+            font-size: 1.2rem; 
+            font-weight: 800; 
+            color: #0f2925; 
+            letter-spacing: 0; /* تم التصفير لمنع التقطع */
+            font-family: 'Tajawal', sans-serif; /* تأكيد الخط */
+        }
+
+        /* البيانات */
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; position: relative; z-index: 1; }
+        .info-box { background: #fcfcfc; padding: 10px; border-radius: 4px; border: 1px solid #eee; }
+        .ib-label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 3px; }
+        .ib-value { font-weight: bold; color: #000; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* الجدول */
+        .car-details-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 0.8rem; z-index: 1; position: relative; }
+        .car-details-table th { background: #0f2925; color: white; padding: 10px; text-align: center; font-weight: normal; border: 1px solid #0f2925; }
+        .car-details-table td { border: 1px solid #ddd; padding: 10px; text-align: center; font-weight: bold; background: #fff; color: #333; }
+
+        /* الشروط */
+        .terms-box {
+            border-top: 1px solid #eee; padding-top: 15px;
+            font-size: 0.75rem; line-height: 1.6; margin-bottom: 30px; text-align: justify; position: relative; z-index: 1;
+        }
+        .terms-box h4 { margin: 0 0 8px; color: var(--primary); }
+
+        /* منطقة التواقيع */
+        .signatures-area {
+            display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; z-index: 1; gap: 20px;
+        }
+        .sig-block {
+            flex: 1; border: 1px dashed #ccc; padding: 0; text-align: center;
+            border-radius: 8px; position: relative; height: 130px; background: #fff;
+            display: flex; flex-direction: column;
+            overflow: visible; /* السماح بظهور الختم بالكامل */
+        }
+        .sig-head { width: 100%; background: #f9f9f9; padding: 8px 0; font-weight: bold; color: #555; border-radius: 8px 8px 0 0; font-size: 0.8rem; border-bottom: 1px dashed #ccc; }
+        .sig-body { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+
+        /* إصلاح الختم (استخدام التمركز المطلق الثابت) */
+        .digital-stamp {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0; /* تمديد لكل الجهات */
+            margin: auto; /* التوسيط السحري الثابت */
+            width: 100px; height: 100px;
+            border: 3px double; border-radius: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-weight: bold; text-transform: uppercase; pointer-events: none; z-index: 10;
+            background: rgba(255, 255, 255, 0.95);
+            font-size: 0.75rem; line-height: 1.2;
+            opacity: 0;
+            transform: rotate(-10deg) scale(0.5); /* البداية */
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .digital-stamp.show {
+            opacity: 1;
+            transform: rotate(-10deg) scale(1); /* النهاية الثابتة */
+        }
+
+        .stamp-nafath { border-color: #27ae60; color: #27ae60; }
+        .stamp-company { border-color: #2980b9; color: #2980b9; }
+
+        /* الفوتر والشركاء */
+        .contract-footer { margin-top: auto; border-top: 1px solid #ddd; padding-top: 15px; text-align: center; }
+        .partners-title { font-size: 0.75rem; color: #888; margin-bottom: 10px; }
+        .partners-grid { display: flex; justify-content: center; gap: 20px; align-items: center; opacity: 0.4; filter: grayscale(100%); transition: 0.5s; margin-bottom: 15px; flex-wrap: wrap; }
+        .partners-grid.verified { opacity: 1; filter: grayscale(0%); }
+        .partner-img { height: 35px; width: auto; object-fit: contain; }
+
+        /* الباركود كصورة (أضمن للطباعة) */
+        .barcode-img { height: 35px; opacity: 0.8; margin-top: 5px; }
+
+        /* الأزرار العائمة */
+        .actions-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 10000;
+            background: white; padding: 10px; border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .action-btn {
+            padding: 10px 25px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer;
+            font-size: 0.9rem; display: flex; align-items: center; gap: 8px; transition: 0.2s; white-space: nowrap;
+        }
+        .btn-approve { background: var(--secondary); color: var(--primary); }
+        .btn-pdf { background: #e74c3c; color: white; }
+        .btn-img { background: var(--primary); color: white; }
+        .btn-close { background: #f0f0f0; color: #333; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center;">
+        <h1 style="color: #0f2925; margin-bottom: 10px;">عقد تأجير "وُجْهَة"</h1>
+        <p style="color: #777;">تم إصلاح تقطع الخطوط وثبات التوقيع</p>
+        <button class="demo-btn" onclick="openContract()">
+            <i class="fas fa-file-contract"></i> فتح العقد
+        </button>
+    </div>
+
+    <div id="contract-modal" class="contract-modal">
+        <div class="contract-paper" id="official-contract">
+            
+            <div class="watermark">WUJHA OFFICIAL</div>
+
+            <div id="status-bar" class="contract-status-bar">
+                <i class="fas fa-clock"></i> حالة العقد: بانتظار التوثيق
+            </div>
+
+            <div class="contract-header">
+                <div>
+                    <h2 style="margin:0; color: var(--primary); font-size: 1.6rem;">عقد تأجير مركبة موحد</h2>
+                    <p style="margin:5px 0 0; font-size: 0.8rem; color:#666;">Unified Standard Car Rental Contract</p>
+                    <small style="color: #999;">رقم النموذج: TGA-V3.2025</small>
+                </div>
+                <div style="text-align: left; display: flex; gap: 15px; align-items: center;">
+                    <div class="wujha-logo-custom">
+                        <div class="w-icon">و</div>
+                        <div class="w-text">وُجْهَة</div>
+                    </div>
+                    <img src="https://th.bing.com/th?id=OIF.zUqQa8o1jd%2FhZwlWH%2FI2ow&cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" style="height: 50px;" alt="Vision 2030" crossorigin="anonymous">
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-box"><span class="ib-label">رقم العقد الموحد</span><span class="ib-value">WJ-2025-100293</span></div>
+                <div class="info-box"><span class="ib-label">تاريخ الإصدار</span><span class="ib-value" id="contract-date">--</span></div>
+                <div class="info-box"><span class="ib-label">مكان الإصدار</span><span class="ib-value">الرياض - الفرع الرئيسي</span></div>
+                <div class="info-box"><span class="ib-label">الطرف الأول (المؤجر)</span><span class="ib-value">شركة الأسطول الذكي</span></div>
+                <div class="info-box"><span class="ib-label">رقم الترخيص</span><span class="ib-value">1010992834</span></div>
+                <div class="info-box"><span class="ib-label">العنوان الوطني</span><span class="ib-value">RRRD2929 - حي العارض</span></div>
+                <div class="info-box"><span class="ib-label">الطرف الثاني (المستأجر)</span><span class="ib-value">يوسف المطيري</span></div>
+                <div class="info-box"><span class="ib-label">رقم الهوية الوطنية</span><span class="ib-value">10xxxxxxxx</span></div>
+                <div class="info-box"><span class="ib-label">رخصة القيادة</span><span class="ib-value">سارية المفعول (تم)</span></div>
+            </div>
+
+            <h4 style="margin-bottom: 10px; color: var(--primary); font-size: 0.9rem;">بيانات المركبة المؤجرة</h4>
+            <table class="car-details-table">
+                <thead>
+                    <tr>
+                        <th>نوع المركبة</th>
+                        <th>الموديل</th>
+                        <th>رقم اللوحة</th>
+                        <th>اللون</th>
+                        <th>رقم الهيكل</th>
+                        <th>العداد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>تويوتا - لاند كروزر</td>
+                        <td>2023</td>
+                        <td>ح ب ر 2030</td>
+                        <td>أبيض لؤلؤي</td>
+                        <td>JTMxxxxxxxx</td>
+                        <td>12,450 كم</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="terms-box">
+                <h4>إقرار وتعهد</h4>
+                <p>
+                    أقر أنا الطرف الثاني (المستأجر) بأنني استلمت المركبة الموضحة أعلاه وهي بحالة فنية سليمة وجاهزة للاستخدام، وأتعهد بالآتي:
+                    1. عدم استخدام المركبة في غير الغرض المخصص لها.
+                    2. تحمل كافة المخالفات المرورية المسجلة "ساهر" أو "باشر" طوال فترة سريان العقد.
+                    3. إعادة المركبة في الوقت والمكان المتفق عليهما.
+                    4. يعتبر هذا العقد سنداً تنفيذياً ملزماً وفقاً لنظام التنفيذ بالمملكة.
+                </p>
+            </div>
+
+            <div class="signatures-area">
+                <div class="sig-block">
+                    <div class="sig-head">الطرف الأول (المؤجر)</div>
+                    <div class="sig-body">
+                        <div style="font-size: 0.7rem; color: #aaa;">التوقيع الرقمي للمنشأة</div>
+                        <div id="stamp-1" class="digital-stamp stamp-company">
+                            <i class="fas fa-building" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                            Wujha Fleet<br><small>CONFIRMED</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sig-block">
+                    <div class="sig-head">الطرف الثاني (المستأجر)</div>
+                    <div class="sig-body">
+                        <div id="renter-sig-text" style="font-size: 0.7rem; color: #aaa;">بانتظار المصادقة...</div>
+                        <div id="stamp-2" class="digital-stamp stamp-nafath">
+                            <i class="fas fa-fingerprint" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                            تم التوثيق<br><small>IAM.GOV.SA</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-footer">
+                <div class="partners-title">وثيقة إلكترونية معتمدة بالربط التقني مع:</div>
+                <div class="partners-grid" id="partners-grid">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.wsZLumcMstGylhq--ZNISQHaE8?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="TGA" class="partner-img" crossorigin="anonymous">
+                    <img src="https://th.bing.com/th/id/R.6f1c6ad91c5ce7276e1653e5c04ebd83?rik=lFt4dQd%2fTfkkig&pid=ImgRaw&r=0" alt="Tamm" class="partner-img" crossorigin="anonymous">
+                    <img src="https://tse3.mm.bing.net/th/id/OIP.r-QVOMw552g1daSVkWP8kQHaC5?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Nafath" class="partner-img" crossorigin="anonymous">
+                </div>
+                <img src="https://bwipjs-api.metafloor.org/?bcid=code128&text=WUJHA-2025-SA&scale=2&height=8&incltext" alt="Barcode" class="barcode-img" crossorigin="anonymous">
+            </div>
+
+        </div>
+
+        <div class="actions-bar">
+            <button id="btn-approve" class="action-btn btn-approve" onclick="approveContract()">
+                <i class="fas fa-fingerprint"></i> مصادقة وتوثيق
+            </button>
+            <button id="btn-pdf" class="action-btn btn-pdf hidden" onclick="savePDF()">
+                <i class="fas fa-file-pdf"></i> حفظ PDF
+            </button>
+            <button id="btn-img" class="action-btn btn-img hidden" onclick="saveImage()">
+                <i class="fas fa-image"></i> حفظ صورة
+            </button>
+            <button class="action-btn btn-close" onclick="location.reload()">خروج</button>
+        </div>
+    </div>
+
+    <script>
+        const contractModal = document.getElementById('contract-modal');
+        const statusBar = document.getElementById('status-bar');
+        const partnersGrid = document.getElementById('partners-grid');
+
+        function openContract() {
+            const today = new Date();
+            document.getElementById('contract-date').innerText = today.toLocaleString('en-GB');
+            contractModal.style.display = 'flex';
+        }
+
+        function approveContract() {
+            const btn = document.getElementById('btn-approve');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري التوثيق...';
+            btn.disabled = true;
+            btn.style.background = '#ccc';
+            btn.style.color = '#555';
+
+            setTimeout(() => {
+                document.getElementById('stamp-1').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('stamp-2').classList.add('show');
+                    
+                    const renterText = document.getElementById('renter-sig-text');
+                    renterText.innerText = 'تم التوثيق عبر نفاذ';
+                    renterText.style.color = '#27ae60';
+                    renterText.style.fontWeight = 'bold';
+
+                    statusBar.classList.add('verified');
+                    statusBar.innerHTML = '<i class="fas fa-check-circle"></i> تم توثيق العقد رسمياً وأصبح ساري المفعول';
+                    partnersGrid.classList.add('verified');
+
+                    btn.classList.add('hidden');
+                    document.getElementById('btn-pdf').classList.remove('hidden');
+                    document.getElementById('btn-img').classList.remove('hidden');
+                }, 400);
+            }, 1500);
+        }
+
+        // دالة حفظ PDF
+        async function savePDF() {
+            const element = document.getElementById('official-contract');
+            const btn = document.getElementById('btn-pdf');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...';
+            document.querySelector('.actions-bar').style.display = 'none';
+
+            try {
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    scrollY: -window.scrollY
+                });
+                
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('Wujha-Contract.pdf');
+                
+            } catch (err) {
+                alert("تنبيه: قد لا تظهر بعض الصور بسبب قيود أمنية من المصدر.");
+            } finally {
+                btn.innerHTML = originalText;
+                document.querySelector('.actions-bar').style.display = 'flex';
+            }
+        }
+
+        // دالة حفظ صورة
+        function saveImage() {
+            const element = document.getElementById('official-contract');
+            const btn = document.getElementById('btn-img');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...';
+            document.querySelector('.actions-bar').style.display = 'none';
+
+            html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Wujha-Contract.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+                btn.innerHTML = originalText;
+                document.querySelector('.actions-bar').style.display = 'flex';
+            }).catch(err => {
+                 alert("تنبيه: قد لا تظهر بعض الصور بسبب قيود أمنية من المصدر.");
+                document.querySelector('.actions-bar').style.display = 'flex';
+                btn.innerHTML = originalText;
+            });
+        }
+    </script>
+</body>
+</html>

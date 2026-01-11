@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | الخريطة التفاعلية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* --- 1. التنسيقات الأساسية --- */
+        .centered-map-layout { max-width: 900px; margin: 0 auto; position: relative; }
+
+        .top-filter-bar {
+            background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px;
+            padding: 12px 15px; margin-bottom: 15px; /* هوامش أقل */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex;
+            align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+        }
+
+        .tf-item { display: flex; flex-direction: column; gap: 4px; min-width: 130px; flex: 1; }
+        .tf-label { font-size: 0.8rem; font-weight: bold; color: #666; display: flex; align-items: center; gap: 5px; }
+        .tf-pills { display: flex; gap: 4px; background: #f5f5f5; padding: 3px; border-radius: 50px; width: fit-content; }
+        .tf-pill { padding: 5px 10px; border-radius: 50px; font-size: 0.75rem; cursor: pointer; transition: 0.3s; color: #555; white-space: nowrap; }
+        .tf-pill.active { background: var(--primary, #1abc9c); color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tf-select { padding: 6px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-family: 'Tajawal'; cursor: pointer; width: 100%; font-size: 0.9rem; }
+        .tf-btn { background: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-weight: bold; height: 38px; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: auto; font-size: 0.9rem; white-space: nowrap; }
+
+        /* --- 2. الخريطة --- */
+        .new-map-container {
+            position: relative; height: 500px; width: 100%;
+            border-radius: 20px; overflow: hidden; border: 4px solid #fff;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1); z-index: 1;
+        }
+        #mapid { height: 100%; width: 100%; }
+
+        @media (max-width: 768px) {
+            .centered-map-layout { max-width: 100%; padding: 0 10px; }
+            .top-filter-bar { flex-direction: column; align-items: stretch; gap: 12px; }
+            .tf-item { width: 100%; }
+            .tf-pills { width: 100%; overflow-x: auto; justify-content: space-between; }
+            .new-map-container { height: 480px; }
+        }
+
+        /* --- 3. البطاقة المصغرة (Compact Popup) --- */
+        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+        
+        /* تصغير العرض الكلي للبطاقة */
+        .leaflet-popup-content { margin: 0 !important; width: 220px !important; } 
+        
+        .popup-car-card {
+            padding: 10px;
+            /* ارتفاع أقصى صغير مناسب للجوال */
+            max-height: 260px; 
+            overflow-y: auto;
+        }
+        /* تصغير الصورة */
+        .popup-img { width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 5px; }
+        
+        /* تصغير النصوص */
+        .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .popup-header h4 { margin: 0; font-size: 0.9rem; color: #1abc9c; }
+        .popup-rating { background: #fff9db; padding: 1px 6px; border-radius: 4px; font-weight: bold; color: #f39c12; font-size: 0.75rem; }
+
+        /* تصغير أشرطة التقييم */
+        .rating-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin: 3px 0; color: #666; align-items: center; }
+        .progress-bar { width: 60px; height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2ecc71; }
+
+        /* تصغير الزر */
+        .popup-btn { 
+            display: block; padding: 6px; font-size: 0.85rem; text-align: center; 
+            background: var(--primary, #1abc9c); color: white; border-radius: 6px; 
+            margin-top: 8px; text-decoration: none; 
+        }
+
+        /* زر الإغلاق */
+        .leaflet-popup-close-button {
+            font-size: 18px !important; color: #333 !important;
+            top: 5px !important; right: 5px !important;
+            width: 24px !important; height: 24px !important;
+            background: rgba(255,255,255,0.9); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* ستايلات الوضع الليلي والإضافات */
+        body.dark-mode .top-filter-bar { background: #2d3436; border-color: #444; }
+        body.dark-mode .tf-label { color: #ccc; }
+        body.dark-mode .tf-select { background: #444; color: white; border-color: #555; }
+        body.dark-mode .tf-pills { background: #333; }
+        body.dark-mode .tf-pill { color: #aaa; }
+        body.dark-mode .tf-pill.active { background: #f1c40f; color: #000; }
+        body.dark-mode .new-map-container { border-color: #444; }
+        body.dark-mode #mapid .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+
+        .price-marker-box {
+            background: white; border-radius: 30px; padding: 4px 10px;
+            font-weight: bold; font-family: 'Tajawal'; font-size: 0.8rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2); border: 2px solid white;
+            display: flex; align-items: center; gap: 4px; color: #333; transition: transform 0.2s;
+        }
+        .price-marker-box:hover { transform: scale(1.1); z-index: 1000; }
+        .price-marker-box.premium { background: #2c3e50; color: #f1c40f; border-color: #f1c40f; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">الأسطول</a></li>
+                    <li><a href="qassim-map.html" class="active">تصفح الخريطة</a></li>
+                </ul>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> الوضع</button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section style="padding-top: 120px; padding-bottom: 50px;">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>استكشف السيارات حولك</h2>
+                <p>اختر السيارة، شيك على تقييمها، وانطلق!</p>
+            </div>
+            
+            <div class="centered-map-layout">
+                <div class="top-filter-bar" data-aos="fade-up">
+                    <div class="tf-item">
+                        <span class="tf-label"><i class="fas fa-map-marker-alt"></i> المدينة</span>
+                        <select id="city-selector" class="tf-select" onchange="changeCity()">
+                            <option value="riyadh" selected>الرياض (واجهة روشن)</option>
+                            <option value="dammam">الدمام</option>
+                            <option value="khobar">الخبر</option>
+                            <option value="jeddah">جدة</option>
+                        </select>
+                    </div>
+                    <div class="tf-item">
+                        <span class="tf-label"><i class="fas fa-car"></i> الفئة</span>
+                        <div class="tf-pills">
+                            <div class="tf-pill active" onclick="filterMap('الكل', this)">الكل</div>
+                            <div class="tf-pill" onclick="filterMap('سيدان', this)">سيدان</div>
+                            <div class="tf-pill" onclick="filterMap('دفع رباعي', this)">عائلي</div>
+                            <div class="tf-pill" onclick="filterMap('فاخرة', this)">فاخرة</div>
+                        </div>
+                    </div>
+                    <div class="tf-item">
+                        <span class="tf-label"><i class="fas fa-tag"></i> الحد الأقصى: <span id="priceValue" style="color:var(--primary, green);">1000</span> ريال</span>
+                        <input type="range" min="50" max="1000" value="1000" style="width:100%; accent-color:var(--primary, green);" oninput="updatePriceLabel(this.value); renderCars()">
+                    </div>
+                    <button class="tf-btn" onclick="simulateSmartLocate()" id="smart-locate-btn"><i class="fas fa-crosshairs"></i> الأقرب</button>
+                </div>
+
+                <div class="new-map-container" data-aos="zoom-in">
+                    <div id="mapid"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+        <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
+        <a href="qassim-map.html" class="nav-item active"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
+    </nav>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({ once: true });</script>
+    
+    <script>
+        // تحديث الناف بار
+        function updateNavbar() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const userType = localStorage.getItem('userType');
+            const guestBtns = document.querySelectorAll('.guest-only');
+            const userBtns = document.getElementById('nav-user-profile-placeholder');
+            const mobileUserBtn = document.getElementById('mobile-bottom-user-button');
+            const mobileGuestBtn = document.getElementById('mobile-bottom-guest-button');
+
+            if (isLoggedIn) {
+                guestBtns.forEach(b => b.style.display = 'none');
+                if(mobileGuestBtn) mobileGuestBtn.style.display = 'none';
+                if (userBtns) {
+                    userBtns.innerHTML = `<a href="#" onclick="logout()" class="btn btn-outline" style="margin-right:10px">خروج</a>`;
+                    userBtns.style.display = 'flex';
+                }
+                if (mobileUserBtn) {
+                    mobileUserBtn.style.display = 'flex';
+                    mobileUserBtn.href = userType === 'owner' ? 'dashboard-owner.html' : 'dashboard-renter.html';
+                }
+            } else {
+                if (userBtns) userBtns.style.display = 'none';
+                if (mobileUserBtn) mobileUserBtn.style.display = 'none';
+                guestBtns.forEach(b => b.style.display = 'flex');
+                if(mobileGuestBtn) mobileGuestBtn.style.display = 'flex';
+            }
+        }
+        function logout() { localStorage.clear(); location.reload(); }
+        
+        function initTheme() {
+            const themeBtn = document.getElementById('theme-toggle-desktop');
+            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+            if(themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+                });
+            }
+        }
+
+        // --- الخريطة والبيانات ---
+        let map, carLayer, routeLine;
+        const centerPoint = [24.8375090, 46.7297325]; // واجهة روشن
+
+        const cars = [
+            { id: 'r1', type: 'سيدان', model: 'تويوتا كامري 2024', price: '120', rating: 4.9, lat: 24.8375090, lng: 46.7297325, score: 10, img: 'https://tse2.mm.bing.net/th/id/OIP.F3b-M0eckL0XjmywTpu8EgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3' },
+            { id: 'r2', type: 'دفع رباعي', model: 'لاندكروزر 2023', price: '450', rating: 5.0, lat: 24.8381000, lng: 46.7292000, score: 10, img: 'https://www.autopediame.com/userfiles/images/%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1/%D8%AA%D9%88%D9%8A%D9%88%D8%AA%D8%A7%20%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1%201.jpg' },
+            { id: 'r7', type: 'فاخرة', model: 'لوسيد آير', price: '700', rating: 5.0, lat: 24.8385000, lng: 46.7298000, score: 10, img: 'https://tse1.mm.bing.net/th/id/OIP.gH5S692_GzMVWiq6ui-sdQHaEA?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3' },
+            { id: 'r4', type: 'سيدان', model: 'هونداي النترا', price: '85', rating: 4.2, lat: 24.8378000, lng: 46.7305000, score: 8, img: 'https://static.sayidaty.net/styles/900_scale/public/2022-03/80578.jpeg.webp' },
+            { id: 'r6', type: 'دفع رباعي', model: 'شيفروليه تاهو', price: '380', rating: 4.9, lat: 24.8365000, lng: 46.7295000, score: 9, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_xL-R8y8f_Q_g_h_j_k_l_m_n_o_p' }
+        ];
+
+        function initMap() {
+            if(!document.getElementById('mapid')) return;
+            
+            map = L.map('mapid').setView(centerPoint, 15);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO', maxZoom: 20
+            }).addTo(map);
+            carLayer = L.layerGroup().addTo(map);
+            renderCars();
+            
+            setTimeout(() => { map.invalidateSize(); }, 500);
+
+            // إرجاع الكاميرا عند الإغلاق
+            map.on('popupclose', function() {
+                map.flyTo(centerPoint, 15, { duration: 1 });
+                if(routeLine) map.removeLayer(routeLine);
+            });
+        }
+
+        let currType = 'الكل';
+        let maxP = 1000;
+
+        window.updatePriceLabel = (v) => { maxP = v; document.getElementById('priceValue').innerText = v; }
+        window.filterMap = (t, el) => {
+            currType = t;
+            document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            renderCars();
+        }
+
+        function createIcon(price, type, isPrem) {
+            let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
+            if(type === 'فاخرة') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
+            if(type === 'دفع رباعي') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
+            return L.divIcon({
+                className: 'custom-none',
+                html: `<div class="price-marker-box ${isPrem ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
+                iconSize: [80, 30], iconAnchor: [40, 35], popupAnchor: [0, -35]
+            });
+        }
+
+        function renderCars() {
+            carLayer.clearLayers();
+            cars.filter(c => (currType === 'الكل' || c.type === currType) && c.price <= maxP).forEach(c => {
+                const marker = L.marker([c.lat, c.lng], { icon: createIcon(c.price, c.type, c.rating >= 5) }).addTo(carLayer);
+
+                marker.on('click', () => {
+                    // حركة الإزاحة الذكية (تنزل السيارة تحت شوي)
+                    // 0.0025 درجة كافية لرفع الكاميرا فوق السيارة
+                    const offsetLat = c.lat + 0.0025;
+                    map.flyTo([offsetLat, c.lng], 16, { duration: 1 });
+                    
+                    if(routeLine) map.removeLayer(routeLine);
+                    routeLine = L.polyline([centerPoint, [c.lat, c.lng]], { color: '#34495e', dashArray: '10, 10' }).addTo(map);
+                });
+
+                const content = `
+                    <div class="popup-car-card">
+                        <img src="${c.img}" class="popup-img">
+                        <div class="popup-header">
+                            <h4>${c.model}</h4>
+                            <span class="popup-rating">⭐ ${c.rating}</span>
+                        </div>
+                        <div style="margin:5px 0;">
+                            <div class="rating-row"><span>الميكانيكا</span><div class="progress-bar"><div class="progress-fill" style="width:${c.score*10}%"></div></div></div>
+                            <div class="rating-row"><span>النظافة</span><div class="progress-bar"><div class="progress-fill" style="width:${c.score*10}%"></div></div></div>
+                        </div>
+                        <a href="cars.html" class="popup-btn">حجز بـ ${c.price} ريال</a>
+                    </div>
+                `;
+
+                // autoPanPadding صغير (20) لأن البطاقة صغيرة أصلاً
+                marker.bindPopup(content, { autoPan: true, autoPanPadding: [20, 20], closeButton: true });
+            });
+        }
+
+        window.simulateSmartLocate = () => { map.flyTo(centerPoint, 16); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme(); updateNavbar(); setTimeout(initMap, 100);
+        });
+    </script>
+</body>
+</html>
