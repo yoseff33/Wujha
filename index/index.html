@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | تنقل بثقة واستثمر بأمان الآمن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* === تعريف الألوان الجديدة الموحدة === */
+        :root {
+            --brand-dark-teal: #0f2925; /* الزيتي الغامق */
+            --brand-gold: #c5a065;      /* الذهبي الفخم */
+            --brand-dark-bg: #1a1a1a;   /* الأسود الفاتح */
+            --light-bg: #f8f9fa;        /* خلفية فاتحة */
+        }
+
+        /* === إصلاح تأثير الهيدر عند التمرير === */
+        header {
+            transition: all 0.4s ease-in-out;
+        }
+        header.scrolled {
+            padding: 10px 0 !important;
+            background-color: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+        body.dark-mode header.scrolled {
+            background-color: rgba(20, 20, 20, 0.98);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        /* شريط الإحصائيات الحية */
+        .live-stats-bar {
+            background: var(--brand-dark-bg);
+            color: white;
+            padding: 15px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-bottom: 3px solid var(--brand-gold);
+        }
+        .stats-ticker {
+            display: inline-block;
+            animation: ticker 30s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .stat-item { display: inline-block; margin: 0 30px; font-size: 1.1rem; }
+        .stat-item i { color: var(--brand-gold); margin-left: 8px; }
+
+        /* === توحيد: قسم الرؤية (بنية رقمية) === */
+        .vision-section {
+            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%) !important;
+            color: white;
+            padding: 80px 0;
+            position: relative;
+        }
+        
+        .vision-card-new {
+            background: rgba(255,255,255,0.03); /* زجاجي شفاف */
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 16px;
+            transition: transform 0.3s, background 0.3s;
+            height: 100%;
+        }
+        /* أيقونات الرؤية باللون الذهبي */
+        .vision-card-new i {
+            color: var(--brand-gold) !important;
+        }
+        .vision-card-new:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.08);
+            border-color: var(--brand-gold);
+        }
+
+        /* === توحيد: قسم الميثاق الأمني === */
+        .security-quote-section {
+            background: var(--light-bg); /* خلفية فاتحة للنهار */
+            padding: 60px 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* إصلاح الخلفية في الوضع الليلي */
+        body.dark-mode .security-quote-section {
+            background-color: var(--brand-dark-bg) !important; /* تقلب غامق بالليل */
+            border-color: #333 !important;
+        }
+
+        .security-quote-box {
+            /* نفس تدرج قسم الرؤية لتوحيد الهوية */
+            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%);
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(15, 41, 37, 0.25); /* ظل زيتي */
+            border-right: 6px solid var(--brand-gold); /* حد ذهبي */
+            color: white;
+        }
+        .quote-icon {
+            font-size: 4rem;
+            color: rgba(255,255,255,0.05); /* شفاف جداً */
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        /* عنوان الميثاق */
+        .security-title {
+            color: var(--brand-gold);
+            margin-bottom: 25px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* =========================================
+           تحديث: قسم الشركاء (الشريط المتحرك)
+           ========================================= */
+        .partners-section {
+            padding: 40px 0; /* تقليل الارتفاع قليلاً */
+            background: var(--light-bg); /* خلفية فاتحة بدل الرمادي الداكن */
+            text-align: center;
+            position: relative;
+            overflow: hidden; /* مهم جداً لإخفاء الشريط خارج الحدود */
+            transition: background-color 0.3s ease;
+        }
+        
+        /* دعم الوضع الليلي للخلفية */
+        body.dark-mode .partners-section {
+            background: var(--brand-dark-bg);
+        }
+
+        /* عنوان القسم */
+        .partners-heading {
+            color: var(--brand-dark-teal); /* لون داكن للخلفية الفاتحة */
+            margin-bottom: 30px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        body.dark-mode .partners-heading {
+            color: white; /* لون أبيض للوضع الليلي */
+        }
+
+        /* حاوية الشريط المتحرك */
+        .partners-scroller {
+            width: 100%;
+            overflow: hidden;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); /* تأثير تلاشي في الأطراف */
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        /* المسار الذي يتحرك بداخله الصور */
+        .partners-track {
+            display: flex;
+            align-items: center;
+            gap: 50px; /* المسافة بين الشعارات */
+            width: max-content; /* عرض يتسع لكل الصور */
+            animation: scroll-ticker 35s linear infinite; /* سرعة الحركة ونوعها */
+        }
+        
+        /* تعريف حركة الشريط */
+        @keyframes scroll-ticker {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                /* يتحرك بمقدار نصف العرض الإجمالي لأننا كررنا الصور */
+                transform: translateX(calc(-50% - 25px)); /* -50% من العرض + نصف الـ gap */
+            }
+        }
+
+        /* عند وضع الماوس يتوقف الشريط */
+        .partners-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* تنسيق صور الشعارات */
+        .partner-img {
+            height: 60px; /* ارتفاع موحد */
+            width: auto;
+            /* تعديل الفلاتر لتناسب الخلفية الفاتحة */
+            filter: grayscale(100%) opacity(0.6); 
+            transition: all 0.3s ease;
+            object-fit: contain;
+            pointer-events: auto; /* لضمان عمل الهوفر */
+        }
+        
+        /* في الوضع الليلي نزيد سطوع الصور الرمادية */
+        body.dark-mode .partner-img {
+             filter: grayscale(100%) brightness(150%) opacity(0.7);
+        }
+
+        .partner-img:hover { 
+            filter: grayscale(0%) opacity(1) brightness(100%); /* إظهار الألوان الطبيعية */
+            transform: scale(1.1); 
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
+
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html" class="active">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="index.html#how-it-works">رحلة الأمان</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="quiz.html">اختبار السيارة</a></li>
+                    <li><a href="qassim-map.html">خرائط السيارات</a></li>
+                </ul>
+                
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
+                        <i class="fas fa-moon"></i>
+                        <span>الوضع</span>
+                    </button>
+                    <button id="desktop-chatbot-toggle" class="btn btn-outline" style="display: none;">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>اسالني</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول آمن (نفاذ)</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div id="particles-js"></div>
+        <div class="container">
+            <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
+                <h1>وُجْهَة | تنقل بثقة واستثمر بأمان </h1>
+                <p>أول منصة تدمج مرونة التنقل مع صرامة التوثيق الحكومي. نستخدم الذكاء الاصطناعي لسد العجز في وسائل النقل، ونمكن المجتمع من مشاركة الموارد في بيئة خالية من المخاطر</p>
+                <div class="hero-buttons">
+                    <a href="add-car.html" class="btn btn-primary">
+                        <i class="fas fa-key"></i> تمكين الأصول (شارك سيارتك)
+                    </a>
+                    <a href="cars.html" class="btn btn-secondary">
+                        <i class="fas fa-search"></i> تنقل بلا حدود (احجز رحلتك)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="live-stats-bar">
+        <div class="container">
+            <div class="stats-ticker">
+                <span class="stat-item"><i class="fas fa-check-circle"></i> عمليات موثقة عبر نفاذ 100%</span>
+                <span class="stat-item"><i class="fas fa-car"></i> تغطية شاملة لجميع مدن المملكة</span>
+                <span class="stat-item"><i class="fas fa-link"></i> تكامل رقمي شامل مع الأنظمة الحكومية</span> 
+                <span class="stat-item"><i class="fas fa-users"></i> مجتمع موثوق للمواطن والمقيم والزائر</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="vision-section">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2 style="color: white;">بنية رقمية تخدم الوطن</h2>
+                <p style="color: rgba(255,255,255,0.8);">وُجْهَة ليست مجرد تطبيق، بل هي حل مستدام لرفع جودة الحياة</p>
+            </div>
+            
+            <div class="features-grid"> 
+                <div class="vision-card-new" data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-coins" style="font-size: 2.5rem; margin-bottom: 20px;"></i>
+                    <h3 style="color: white;">للمواطن</h3>
+                    <p style="color: #ccc; font-size: 1.1rem;">مصدر دخل إضافي محمي وموثق. حول أصولك المتوقفة إلى استثمار ناجح بكل أمان.</p>
+                </div>
+                
+                <div class="vision-card-new" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-user-check" style="font-size: 2.5rem; margin-bottom: 20px;"></i>
+                    <h3 style="color: white;">للمستخدم</h3>
+                    <p style="color: #ccc; font-size: 1.1rem;">خيارات تنقل متنوعة وآمنة في كل مدينة وحي. سهولة في الوصول وموثوقية في التعامل.</p>
+                </div>
+                
+                <div class="vision-card-new" data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-globe-asia" style="font-size: 2.5rem; margin-bottom: 20px;"></i>
+                    <h3 style="color: white;">للوطن</h3>
+                    <p style="color: #ccc; font-size: 1.1rem;">جاهزية تامة لاستيعاب النمو السكاني والزوار في الأحداث العالمية الكبرى بكفاءة عالية.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>حلولنا الشاملة</h2>
+                <p>صممت لخدمة الجميع بمعايير وطنية</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon"><i class="fas fa-fingerprint"></i></div>
+                    <h3>تجربة مستخدم عالمية</h3>
+                    <p>واجهة سهلة وتوثيق فوري يخدم الجميع، سواء كنت مواطناً، مقيماً، أو زائراً، بهوية وطنية أو رقم حدود.</p>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <h3> أسطول من الناس وللناس</h3>
+                    <p> نحن لا نملك السيارات، بل نمكّن المجتمع من مشاركتها. لهذا السبب، ستجد خيارات لا حصر لها موزعة بذكاء داخل الأحياء السكنية وليست محصورة في فروع تجارية</p>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>تمكين الأصول</h3>
+                    <p>لا توقف سيارتك وتخسر قيمتها. شاركها مع مجتمع موثوق وحولها إلى أصل رابح تحت مظلة أمنية.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="security-quote-section">
+        <div class="container">
+            <div class="security-quote-box" data-aos="zoom-in">
+                <i class="fas fa-quote-right quote-icon"></i>
+                <h3 class="security-title">ميثاق وُجْهَة الأمني</h3>
+                <p style="font-size: 1.4rem; line-height: 1.8; color: white; font-weight: 500;">
+                    "سواء كنت صاحب السيارة أو قائدها، <strong>نفاذ</strong> هو الحكم، و <strong>أبشر</strong> هو الضامن.<br>
+                    في وُجْهَة، لا نتعامل مع المجهولين. كل عملية موثقة، كل طرف معروف، وكل حق محفوظ."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="partners-section">
+        <div class="container">
+            <h3 class="partners-heading" data-aos="fade-up">منظومة تكاملية مع</h3>
+            
+            <div class="partners-scroller" data-aos="fade-up" data-aos-delay="100">
+                <div class="partners-track">
+                    <img src="https://www.zarkachat.com/wp-content/uploads/2020/04/absherr.jpg" alt="أبشر" class="partner-img">
+                    <img src="https://kss.sa/wp-content/uploads/2022/05/kss-sa-241-450x176.png?v=1652731492" alt="نفاذ" class="partner-img">
+                    <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/bb/4a/93/bb4a9376-f7fc-8a7a-73f6-8835ee3d8668/AppIcon-0-0-1x_U007emarketing-0-7-0-0-sRGB-0-85-220.png/1200x630wa.png" alt="نجم" class="partner-img" style="border-radius: 10px;">
+                    <img src="https://khdmatsaudi.com/wp-content/uploads/2021/03/%D8%A8%D9%88%D8%A7%D8%A8%D8%A9-%D8%AA%D9%85-%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%AF%D8%A7%D8%AE%D9%84%D9%8A%D8%A9-1442-%D8%AA%D8%B3%D8%AC%D9%8A%D9%84-%D8%A7%D9%84%D8%AF%D8%AE%D9%88%D9%84-Tamm-login.jpg" alt="بوابة تم" class="partner-img">
+
+                    <img src="https://www.zarkachat.com/wp-content/uploads/2020/04/absherr.jpg" alt="أبشر" class="partner-img">
+                    <img src="https://kss.sa/wp-content/uploads/2022/05/kss-sa-241-450x176.png?v=1652731492" alt="نفاذ" class="partner-img">
+                    <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/bb/4a/93/bb4a9376-f7fc-8a7a-73f6-8835ee3d8668/AppIcon-0-0-1x_U007emarketing-0-7-0-0-sRGB-0-85-220.png/1200x630wa.png" alt="نجم" class="partner-img" style="border-radius: 10px;">
+                    <img src="https://khdmatsaudi.com/wp-content/uploads/2021/03/%D8%A8%D9%88%D8%A7%D8%A8%D8%A9-%D8%AA%D9%85-%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%AF%D8%A7%D8%AE%D9%84%D9%8A%D8%A9-1442-%D8%AA%D8%B3%D8%AC%D9%8A%D9%84-%D8%A7%D9%84%D8%AF%D8%AE%D9%88%D9%84-Tamm-login.jpg" alt="بوابة تم" class="partner-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; line-height: 1.8;">
+                        منصة وطنية للابتكار في التنقل الآمن. نعمل تحت مظلة التشريعات المحلية لتحقيق رؤية 2030 في الاقتصاد التشاركي.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>روابط هامة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="rental-terms.html">اتفاقية مستوى الخدمة</a></li>
+                        <li><a href="https://wa.me/966565464718">بلاغات الطوارئ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>الرياض، واجهة روشن (مقر الهاكاثون)</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <span>+966 56 546 4718</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span>security@wujha.sa</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦</p>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="cars.html" class="nav-item">
+            <i class="fas fa-car"></i>
+            <span>السيارات</span>
+        </a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>دخول</span>
+        </a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+        <a href="qassim-map.html" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>الخريطة</span>
+        </a>
+        <a href="#" class="nav-item" id="mobile-chatbot-toggle">
+            <i class="fas fa-comment-dots"></i>
+            <span>المساعد</span>
+        </a>
+    </nav>
+
+    <div id="chatbot-popup" class="chatbot-popup">
+        <div class="chatbot-header">
+            <h3>المساعد الأمني</h3>
+            <button id="chatbot-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="bot-message">
+                حياك الله! أنا مساعد وُجْهَة الذكي. كيف أقدر أساعدك في إجراءات الأمان أو التوثيق؟
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chatbot-input" placeholder="اكتب سؤالك...">
+            <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+
+        // كود تشغيل تأثير الهيدر المدمج (لضمان عمله)
+        window.addEventListener('scroll', function() {
+            var header = document.querySelector('header');
+            if(header) {
+                // إذا نزلنا أكثر من 50 بكسل، نضيف كلاس 'scrolled'
+                header.classList.toggle('scrolled', window.scrollY > 50);
+            }
+        });
+
+        // تشغيل البارتكلز
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#ffffff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5 },
+                "size": { "value": 3 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+                "move": { "enable": true, "speed": 6 }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" } }
+            },
+            "retina_detect": true
+        });
+    </script>
+    <script src="csr-content.js"></script>
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>
