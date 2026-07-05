@@ -307,29 +307,79 @@
     
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ once: true });
+        AOS.init({ once: true })
 
-        // سكربت محاكاة نفاذ
+        const API_URL = 'https://wujha-production-rjdqgr.laravel.cloud/api'
+
         function startNafathVerification() {
-            const idInput = document.getElementById('national-id');
+            const idInput = document.getElementById('national-id')
             if(idInput.value.length < 5) {
-                alert('الرجاء إدخال رقم هوية صحيح (للتجربة اكتب أي رقم)');
-                return;
+                alert('الرجاء إدخال رقم هوية صحيح للتجربة اكتب أي رقم')
+                return
             }
 
-            // الانتقال للخطوة 2 (رقم التحقق)
-            document.getElementById('step-1').classList.remove('active');
-            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-1').classList.remove('active')
+            document.getElementById('step-2').classList.add('active')
 
-            // توليد رقم عشوائي
-            const randomNum = Math.floor(Math.random() * 90) + 10;
-            document.getElementById('random-code').innerText = randomNum;
+            const randomNum = Math.floor(Math.random() * 90) + 10
+            document.getElementById('random-code').innerText = randomNum
 
-            // محاكاة الانتظار (3 ثواني) ثم الانتقال للنجاح
             setTimeout(() => {
-                document.getElementById('step-2').classList.remove('active');
-                document.getElementById('step-3').classList.add('active');
-            }, 3000);
+                document.getElementById('step-2').classList.remove('active')
+                document.getElementById('step-3').classList.add('active')
+            }, 3000)
+        }
+
+        async function loginUser(role) {
+            const nationalId = document.getElementById('national-id').value
+            const defaultPassword = 'password123' 
+
+            try {
+                let response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone: nationalId,
+                        password: defaultPassword
+                    })
+                })
+
+                let data = await response.json()
+
+                if (!response.ok) {
+                    response = await fetch(`${API_URL}/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: 'مستخدم موثق',
+                            phone: nationalId,
+                            password: defaultPassword,
+                            role: role
+                        })
+                    })
+                    data = await response.json()
+                }
+
+                if (data.token) {
+                    localStorage.setItem('auth_token', data.token)
+                    localStorage.setItem('user', JSON.stringify(data.user))
+
+                    if (role === 'owner') {
+                        window.location.href = 'dashboard-owner.html'
+                    } else {
+                        window.location.href = 'dashboard-renter.html'
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error)
+                alert('صار خطأ بالاتصال بالسيرفر تأكد من الرابط')
+            }
         }
     </script>
     <script src="script.js"></script>
