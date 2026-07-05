@@ -117,10 +117,18 @@ async function loginUser(type) {
             })
         })
 
-        let data = await response.json()
+        let responseText = await response.text()
+        let data
+        
+        try {
+            data = JSON.parse(responseText)
+        } catch (e) {
+            alert(`السيرفر رفض وما رجع JSON.\nكود الخطأ: ${response.status}\n\nالرد:\n${responseText.substring(0, 150)}`)
+            return
+        }
 
         if (!response.ok) {
-            response = await fetch(`${API_URL}/register`, {
+            let regResponse = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -133,7 +141,14 @@ async function loginUser(type) {
                     role: type
                 })
             })
-            data = await response.json()
+            
+            let regText = await regResponse.text()
+            try {
+                data = JSON.parse(regText)
+            } catch (e) {
+                alert(`فشل إنشاء حساب جديد.\nكود الخطأ: ${regResponse.status}\n\nالرد:\n${regText.substring(0, 150)}`)
+                return
+            }
         }
 
         if (data.token) {
@@ -151,11 +166,10 @@ async function loginUser(type) {
                 window.location.href = 'dashboard-renter.html'
             }
         } else {
-            alert('صار خطأ في تسجيل الدخول جرب مرة ثانية')
+            alert('رد غريب من السيرفر:\n' + JSON.stringify(data).substring(0, 100))
         }
     } catch (error) {
-        console.error('Error:', error)
-        alert('صار خطأ بالاتصال بالسيرفر حق لارافل كلاود شيك على الكونسول')
+        alert('خطأ مباشر في الاتصال (غالباً حماية CORS):\n' + error.message)
     }
 }
 
@@ -171,6 +185,7 @@ function logoutUser() {
 }
 
 document.addEventListener('DOMContentLoaded', updateNavbarBasedOnLoginStatus)
+
 
 // -------------------------------------
 // وظيفة تحديث بطاقة الولاء
