@@ -27,25 +27,25 @@ window.addEventListener('scroll', function() {
 // وظيفة إدارة حالة تسجيل الدخول وتحديث أشرطة التنقل
 // -------------------------------------
 function updateNavbarBasedOnLoginStatus() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const userType = localStorage.getItem('userType');
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    const userType = localStorage.getItem('userType')
 
-    const desktopNavLinks = document.querySelector('.desktop-nav-links'); 
-    const desktopAuthLinks = desktopNavLinks ? desktopNavLinks.querySelectorAll('.auth-link') : [];
-    const desktopGuestButton = document.getElementById('nav-guest-button');
-    const desktopUserProfilePlaceholder = document.getElementById('nav-user-profile-placeholder');
+    const desktopNavLinks = document.querySelector('.desktop-nav-links')
+    const desktopAuthLinks = desktopNavLinks ? desktopNavLinks.querySelectorAll('.auth-link') : []
+    const desktopGuestButton = document.getElementById('nav-guest-button')
+    const desktopUserProfilePlaceholder = document.getElementById('nav-user-profile-placeholder')
 
-    const mobileBottomNavGuestButton = document.getElementById('mobile-bottom-guest-button');
-    const mobileBottomNavUserButton = document.getElementById('mobile-bottom-user-button');
-    const mobileBottomNavAuthLinks = document.querySelectorAll('.mobile-bottom-navbar .auth-link-bottom');
+    const mobileBottomNavGuestButton = document.getElementById('mobile-bottom-guest-button')
+    const mobileBottomNavUserButton = document.getElementById('mobile-bottom-user-button')
+    const mobileBottomNavAuthLinks = document.querySelectorAll('.mobile-bottom-navbar .auth-link-bottom')
 
-    if (desktopGuestButton) desktopGuestButton.style.display = 'none';
-    if (desktopUserProfilePlaceholder) desktopUserProfilePlaceholder.style.display = 'none';
-    desktopAuthLinks.forEach(link => link.style.display = 'none');
+    if (desktopGuestButton) desktopGuestButton.style.display = 'none'
+    if (desktopUserProfilePlaceholder) desktopUserProfilePlaceholder.style.display = 'none'
+    desktopAuthLinks.forEach(link => link.style.display = 'none')
     
-    if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'none';
-    if (mobileBottomNavUserButton) mobileBottomNavUserButton.style.display = 'none';
-    mobileBottomNavAuthLinks.forEach(link => link.style.display = 'none');
+    if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'none'
+    if (mobileBottomNavUserButton) mobileBottomNavUserButton.style.display = 'none'
+    mobileBottomNavAuthLinks.forEach(link => link.style.display = 'none')
 
     if (isLoggedIn) {
         if (desktopUserProfilePlaceholder) {
@@ -56,61 +56,121 @@ function updateNavbarBasedOnLoginStatus() {
                 <a href="${userType === 'owner' ? 'dashboard-owner.html' : 'dashboard-renter.html'}" class="btn btn-secondary">
                     <i class="fas fa-user-circle"></i> ملفي
                 </a>
-            `;
-            desktopUserProfilePlaceholder.style.display = 'flex';
+            `
+            desktopUserProfilePlaceholder.style.display = 'flex'
         }
         
         desktopAuthLinks.forEach(link => {
-            const linkHref = link.getAttribute('href');
+            const linkHref = link.getAttribute('href')
             if (userType === 'owner') {
                 if (linkHref && (linkHref.includes('dashboard-owner.html') || linkHref.includes('add-car.html'))) {
-                    link.style.display = 'block';
+                    link.style.display = 'block'
                 }
             } else if (userType === 'renter') {
                 if (linkHref && linkHref.includes('dashboard-renter.html')) {
-                    link.style.display = 'block';
+                    link.style.display = 'block'
                 }
             }
-        });
+        })
 
         if (mobileBottomNavUserButton) {
-            mobileBottomNavUserButton.style.display = 'flex';
-            mobileBottomNavUserButton.href = userType === 'owner' ? 'dashboard-owner.html' : 'dashboard-renter.html';
+            mobileBottomNavUserButton.style.display = 'flex'
+            mobileBottomNavUserButton.href = userType === 'owner' ? 'dashboard-owner.html' : 'dashboard-renter.html'
         }
         mobileBottomNavAuthLinks.forEach(link => {
-            const linkDataRole = link.getAttribute('data-role');
+            const linkDataRole = link.getAttribute('data-role')
             if (linkDataRole === userType || linkDataRole === 'all') { 
-                link.style.display = 'flex';
+                link.style.display = 'flex'
             } else {
-                link.style.display = 'none';
+                link.style.display = 'none'
             }
-        });
+        })
 
     } else { 
-        if (desktopGuestButton) desktopGuestButton.style.display = 'flex';
-        if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'flex';
+        if (desktopGuestButton) desktopGuestButton.style.display = 'flex'
+        if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'flex'
     }
 }
 
-function loginUser(type) {
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userType', type);
-    localStorage.setItem('userName', type === 'owner' ? 'نواف السبيعي' : 'سارة الحربي'); 
-    updateNavbarBasedOnLoginStatus();
-    if (type === 'owner') {
-        window.location.href = 'dashboard-owner.html';
-    } else if (type === 'renter') {
-        window.location.href = 'dashboard-renter.html';
+async function loginUser(type) {
+    const idInput = document.getElementById('national-id')
+    const nationalId = idInput ? idInput.value : ''
+    
+    if (!nationalId || nationalId.length < 5) {
+        alert('الرجاء إدخال رقم هوية صحيح بالخطوة الأولى')
+        return
+    }
+
+    const defaultPassword = 'password123'
+    const API_URL = 'https://wujha-production-rjdqgr.laravel.cloud/api'
+
+    try {
+        let response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                phone: nationalId,
+                password: defaultPassword
+            })
+        })
+
+        let data = await response.json()
+
+        if (!response.ok) {
+            response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: 'مستخدم موثق نفاذ',
+                    phone: nationalId,
+                    password: defaultPassword,
+                    role: type
+                })
+            })
+            data = await response.json()
+        }
+
+        if (data.token) {
+            localStorage.setItem('auth_token', data.token)
+            localStorage.setItem('user', JSON.stringify(data.user))
+            localStorage.setItem('isLoggedIn', 'true')
+            localStorage.setItem('userType', type)
+            localStorage.setItem('userName', data.user.name || 'مستخدم موثق')
+            
+            updateNavbarBasedOnLoginStatus()
+            
+            if (type === 'owner') {
+                window.location.href = 'dashboard-owner.html'
+            } else {
+                window.location.href = 'dashboard-renter.html'
+            }
+        } else {
+            alert('صار خطأ في تسجيل الدخول جرب مرة ثانية')
+        }
+    } catch (error) {
+        console.error('Error:', error)
+        alert('صار خطأ بالاتصال بالسيرفر حق لارافل كلاود شيك على الكونسول')
     }
 }
 
 function logoutUser() {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
-    localStorage.removeItem('userName'); 
-    updateNavbarBasedOnLoginStatus();
-    window.location.href = 'index.html';
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('userType')
+    localStorage.removeItem('userName')
+    
+    updateNavbarBasedOnLoginStatus()
+    window.location.href = 'index.html'
 }
+
+document.addEventListener('DOMContentLoaded', updateNavbarBasedOnLoginStatus)
 
 // -------------------------------------
 // وظيفة تحديث بطاقة الولاء
