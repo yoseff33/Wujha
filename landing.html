@@ -9,14 +9,13 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        /* تنسيق صفحة الدخول الموحد */
         .login-wrapper {
             background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center center/cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 120px 20px 50px; /* مسافة للهيدر */
+            padding: 120px 20px 50px;
         }
 
         .nafath-card {
@@ -38,7 +37,7 @@
         }
 
         .login-step {
-            display: none; /* إخفاء الخطوات افتراضياً */
+            display: none;
         }
         .login-step.active {
             display: block;
@@ -66,11 +65,11 @@
             border: 2px solid #ddd;
             border-radius: 10px;
             font-size: 1.1rem;
-            text-align: center; /* لكتابة الهوية */
+            text-align: center;
             transition: 0.3s;
         }
         .nafath-input:focus {
-            border-color: #00ab6b; /* لون نفاذ الأخضر */
+            border-color: #00ab6b;
             outline: none;
         }
 
@@ -90,7 +89,6 @@
             background-color: #008f59;
         }
 
-        /* تنسيق رقم التحقق */
         .verification-number {
             font-size: 4rem;
             font-weight: 800;
@@ -104,7 +102,6 @@
             margin-bottom: 20px;
         }
         
-        /* تنسيق اختيار الدور */
         .role-btn {
             display: flex;
             align-items: center;
@@ -309,8 +306,6 @@
     <script>
         AOS.init({ once: true })
 
-        const API_URL = 'https://wujha-production-rjdqgr.laravel.cloud/api'
-
         function startNafathVerification() {
             const idInput = document.getElementById('national-id')
             if(idInput.value.length < 5) {
@@ -329,60 +324,8 @@
                 document.getElementById('step-3').classList.add('active')
             }, 3000)
         }
-
-        async function loginUser(role) {
-            const nationalId = document.getElementById('national-id').value
-            const defaultPassword = 'password123' 
-
-            try {
-                let response = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        phone: nationalId,
-                        password: defaultPassword
-                    })
-                })
-
-                let data = await response.json()
-
-                if (!response.ok) {
-                    response = await fetch(`${API_URL}/register`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: 'مستخدم موثق',
-                            phone: nationalId,
-                            password: defaultPassword,
-                            role: role
-                        })
-                    })
-                    data = await response.json()
-                }
-
-                if (data.token) {
-                    localStorage.setItem('auth_token', data.token)
-                    localStorage.setItem('user', JSON.stringify(data.user))
-
-                    if (role === 'owner') {
-                        window.location.href = 'dashboard-owner.html'
-                    } else {
-                        window.location.href = 'dashboard-renter.html'
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error)
-                alert('صار خطأ بالاتصال بالسيرفر تأكد من الرابط')
-            }
-        }
     </script>
-    <script src="script.js"></script>
+    <script src="script.js?v=3"></script>
     <script src="chatbot.js"></script>
 </body>
 </html>
