@@ -102,7 +102,8 @@ async function loginUser(type) {
     }
 
     const defaultPassword = 'password123'
-    const API_URL = 'https://wujha-production-rjdqgr.laravel.cloud/api'
+const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api'
+
 
     try {
         let response = await fetch(`${API_URL}/login`, {
