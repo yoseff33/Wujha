@@ -13,8 +13,15 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'phone',
         'email',
         'password',
+        'identity_number',
+        'role',
+        'status',
+        'city',
+        'address',
+        'iban',
     ];
 
     protected $hidden = [
@@ -25,7 +32,6 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
