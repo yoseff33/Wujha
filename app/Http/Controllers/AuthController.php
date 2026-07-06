@@ -24,9 +24,9 @@ class AuthController extends Controller
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password, // هنا شلنا التشفير وخلينا المودل يشفر تلقائي
             'identity_number' => $request->identity_number,
-            'role' => 'renter', // افتراضياً مستأجر
+            'role' => 'renter', // افتراضيا مستأجر
             'status' => 'approved',
         ]);
 
@@ -48,7 +48,7 @@ class AuthController extends Controller
 
         if (!Auth::attempt($request->only('phone', 'password'))) {
             throw ValidationException::withMessages([
-                'phone' => ['بيانات الدخول غير صحيحة.'],
+                'phone' => ['بيانات الدخول غير صحيحة'],
             ]);
         }
 
@@ -69,7 +69,6 @@ class AuthController extends Controller
 
     public function createAdmin(Request $request)
     {
-        // هذا الـ method محمي بـ middleware 'admin'
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|unique:users',
@@ -79,14 +78,14 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'phone' => $request->phone,
-            'password' => Hash::make($request->password),
+            'password' => $request->password, // شلنا التشفير هنا بعد
             'role' => 'admin',
             'status' => 'approved',
         ]);
 
         return response()->json([
             'user' => $user,
-            'message' => 'Admin created successfully.',
+            'message' => 'Admin created successfully',
         ], 201);
     }
 }
