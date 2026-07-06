@@ -11,12 +11,16 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
 
     <style>
         :root { --primary: #0f2925; --secondary: #c5a065; --accent: #27ae60; --bg: #eef2f5; }
         body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
 
-        /* زر البدء */
         .demo-btn {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white; border: none; padding: 15px 50px; border-radius: 50px;
@@ -26,7 +30,6 @@
         }
         .demo-btn:hover { transform: translateY(-3px); }
 
-        /* نافذة العقد (Modal) */
         .contract-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 9999;
@@ -34,7 +37,6 @@
             padding-top: 40px; overflow-y: auto;
         }
         
-        /* ورقة العقد A4 */
         .contract-paper {
             background: white; width: 210mm; min-height: 297mm; 
             padding: 60px; margin-bottom: 80px; position: relative;
@@ -139,13 +141,31 @@
         .btn-img { background: var(--primary); color: white; }
         .btn-close { background: #f0f0f0; color: #333; }
         .hidden { display: none !important; }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5); z-index:99999;
+            justify-content: center; align-items: center;
+            color: white; font-size: 1.5rem;
+        }
+        .loading-overlay i { font-size: 3rem; margin-bottom: 15px; display: block; }
     </style>
 </head>
 <body>
 
-    <div style="text-align: center;">
+    <!-- ===== تحميل ===== -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div style="text-align:center;">
+            <i class="fas fa-spinner fa-spin"></i>
+            <div>جاري تحميل بيانات العقد...</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; padding: 50px 0;">
         <h1 style="color: #0f2925; margin-bottom: 10px;">عقد تأجير "وُجْهَة"</h1>
-        <p style="color: #777;">تم ربط التوثيق مع لوحة التحكم</p>
+        <p style="color: #777;">تم الربط مع قاعدة البيانات</p>
         <button class="demo-btn" onclick="openContract()">
             <i class="fas fa-file-contract"></i> فتح العقد
         </button>
@@ -175,16 +195,16 @@
                 </div>
             </div>
 
-            <div class="info-grid">
-                <div class="info-box"><span class="ib-label">رقم العقد الموحد</span><span class="ib-value">WJ-2025-100293</span></div>
+            <div class="info-grid" id="contract-info-grid">
+                <div class="info-box"><span class="ib-label">رقم العقد الموحد</span><span class="ib-value" id="contract-number">WJ-2025-100293</span></div>
                 <div class="info-box"><span class="ib-label">تاريخ الإصدار</span><span class="ib-value" id="contract-date">--</span></div>
                 <div class="info-box"><span class="ib-label">مكان الإصدار</span><span class="ib-value">الرياض - المقر الرئيسي</span></div>
-                <div class="info-box"><span class="ib-label">الطرف الأول (المؤجر)</span><span class="ib-value">شركة الأسطول الذكي</span></div>
-                <div class="info-box"><span class="ib-label">رقم الترخيص</span><span class="ib-value">1010992834</span></div>
-                <div class="info-box"><span class="ib-label">العنوان الوطني</span><span class="ib-value">RRRD2929 - حي العارض</span></div>
-                <div class="info-box"><span class="ib-label">الطرف الثاني (المستأجر)</span><span class="ib-value">يوسف المطيري</span></div>
-                <div class="info-box"><span class="ib-label">رقم الهوية الوطنية</span><span class="ib-value">10xxxxxxxx</span></div>
-                <div class="info-box"><span class="ib-label">رخصة القيادة</span><span class="ib-value">سارية المفعول (تم)</span></div>
+                <div class="info-box"><span class="ib-label">الطرف الأول (المؤجر)</span><span class="ib-value" id="owner-name">--</span></div>
+                <div class="info-box"><span class="ib-label">رقم الترخيص</span><span class="ib-value" id="owner-license">--</span></div>
+                <div class="info-box"><span class="ib-label">العنوان الوطني</span><span class="ib-value" id="owner-address">--</span></div>
+                <div class="info-box"><span class="ib-label">الطرف الثاني (المستأجر)</span><span class="ib-value" id="renter-name">--</span></div>
+                <div class="info-box"><span class="ib-label">رقم الهوية الوطنية</span><span class="ib-value" id="renter-id">--</span></div>
+                <div class="info-box"><span class="ib-label">رخصة القيادة</span><span class="ib-value" id="renter-license">سارية المفعول (تم)</span></div>
             </div>
 
             <h4 style="margin-bottom: 10px; color: var(--primary); font-size: 0.9rem;">بيانات المركبة المؤجرة</h4>
@@ -201,12 +221,12 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td id="contract-car-name">تويوتا - لاند كروزر</td>
-                        <td id="contract-car-year">2023</td>
-                        <td id="contract-car-plate">ح ب ر 2030</td>
-                        <td>أبيض لؤلؤي</td>
-                        <td>JTMxxxxxxxx</td>
-                        <td id="contract-car-price">450 ر.س</td>
+                        <td id="contract-car-name">--</td>
+                        <td id="contract-car-year">--</td>
+                        <td id="contract-car-plate">--</td>
+                        <td id="contract-car-color">--</td>
+                        <td id="contract-car-vin">--</td>
+                        <td id="contract-car-price">--</td>
                     </tr>
                 </tbody>
             </table>
@@ -263,70 +283,144 @@
             <button id="btn-img" class="action-btn btn-img hidden" onclick="saveImage()">
                 <i class="fas fa-image"></i> حفظ صورة
             </button>
-            <button class="action-btn btn-close" onclick="window.location.href='dashboard.html'">
+            <button class="action-btn btn-close" onclick="window.location.href='dashboard-renter.html'">
                 الذهاب لرحلاتي <i class="fas fa-arrow-left"></i>
             </button>
         </div>
     </div>
 
     <script>
-        const contractModal = document.getElementById('contract-modal');
-        const statusBar = document.getElementById('status-bar');
-        const partnersGrid = document.getElementById('partners-grid');
+        // ===== متغيرات العقد =====
+        let currentBooking = null;
+        let currentCar = null;
+        let currentOwner = null;
+        let currentRenter = null;
+        let contractId = null;
 
-        function openContract() {
-            // تعبئة البيانات تلقائياً من الـ localStorage (اللي جت من cars.html)
-            const carName = localStorage.getItem('wujha_car_name');
-            const carYear = localStorage.getItem('wujha_car_year');
-            const carPlate = localStorage.getItem('wujha_car_plate');
-            const carPrice = localStorage.getItem('wujha_car_price');
+        // ===== فتح العقد وجلب البيانات =====
+        async function openContract() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
 
-            if(carName) {
-                document.getElementById('contract-car-name').innerText = carName;
-                document.getElementById('contract-car-year').innerText = carYear;
-                document.getElementById('contract-car-plate').innerText = carPlate;
-                document.getElementById('contract-car-price').innerText = carPrice + ' ر.س';
+            try {
+                // جلب بيانات الحجز من localStorage (تم حفظها عند الحجز)
+                const bookingId = localStorage.getItem('current_booking_id');
+                if (!bookingId) {
+                    alert('لا توجد عملية حجز حالية.');
+                    overlay.style.display = 'none';
+                    return;
+                }
+
+                // جلب تفاصيل الحجز
+                const { data: booking, error: bookingErr } = await supabase
+                    .from('bookings')
+                    .select('*, cars(*), users!renter_id(*), users!car_owner(*)')
+                    .eq('id', bookingId)
+                    .single();
+
+                if (bookingErr || !booking) {
+                    alert('حدث خطأ في جلب بيانات الحجز.');
+                    overlay.style.display = 'none';
+                    return;
+                }
+
+                currentBooking = booking;
+                currentCar = booking.cars;
+                currentOwner = booking.users; // المالك (لأن الجدول يحتوي على owner_id)
+                currentRenter = booking.users; // المستأجر
+
+                // تعبئة بيانات العقد
+                document.getElementById('contract-number').textContent = `WJ-${Date.now().toString().slice(-6)}`;
+                document.getElementById('contract-date').textContent = new Date().toLocaleString('ar-SA');
+                document.getElementById('owner-name').textContent = currentOwner?.name || 'غير معروف';
+                document.getElementById('renter-name').textContent = currentRenter?.name || 'غير معروف';
+                document.getElementById('renter-id').textContent = currentRenter?.id?.slice(0, 10) || '--';
+
+                document.getElementById('contract-car-name').textContent = `${currentCar?.brand || ''} ${currentCar?.model || ''}`;
+                document.getElementById('contract-car-year').textContent = currentCar?.year || '--';
+                document.getElementById('contract-car-plate').textContent = currentCar?.plate_number || '--';
+                document.getElementById('contract-car-color').textContent = currentCar?.color || '--';
+                document.getElementById('contract-car-vin').textContent = currentCar?.vin || '--';
+                document.getElementById('contract-car-price').textContent = `${currentCar?.daily_price || 0} ر.س`;
+
+                // إظهار العقد
+                contractModal.style.display = 'flex';
+                overlay.style.display = 'none';
+
+            } catch (err) {
+                console.error(err);
+                alert('حدث خطأ أثناء تحميل العقد.');
+                overlay.style.display = 'none';
             }
-
-            const today = new Date();
-            document.getElementById('contract-date').innerText = today.toLocaleString('en-GB');
-            contractModal.style.display = 'flex';
         }
 
-        function approveContract() {
+        // ===== الموافقة على العقد (إنشاء عقد في Supabase) =====
+        async function approveContract() {
+            if (!currentBooking) {
+                alert('لا توجد بيانات حجز.');
+                return;
+            }
+
             const btn = document.getElementById('btn-approve');
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري التوثيق...';
             btn.disabled = true;
             btn.style.background = '#ccc';
             btn.style.color = '#555';
 
-            setTimeout(() => {
-                document.getElementById('stamp-1').classList.add('stamp-effect');
-                setTimeout(() => {
-                    document.getElementById('stamp-2').classList.add('stamp-effect');
-                    
-                    const renterText = document.getElementById('renter-sig-text');
-                    renterText.innerText = 'تم التوثيق عبر نفاذ';
-                    renterText.style.color = '#27ae60';
-                    renterText.style.fontWeight = 'bold';
+            try {
+                // إنشاء عقد في Supabase
+                const contractData = {
+                    booking_id: currentBooking.id,
+                    contract_number: `WJ-${Date.now().toString().slice(-6)}`,
+                    start_date: currentBooking.start_date,
+                    end_date: currentBooking.end_date,
+                    status: 'active'
+                };
 
-                    statusBar.classList.add('verified');
-                    statusBar.innerHTML = '<i class="fas fa-check-circle"></i> تم توثيق العقد رسمياً وأصبح ساري المفعول';
-                    partnersGrid.classList.add('verified');
+                const contract = await createContract(contractData);
+                if (contract) {
+                    contractId = contract.id;
+                    // تخزين معرف العقد في localStorage
+                    localStorage.setItem('current_contract_id', contract.id);
                     
-                    // ==========================================
-                    // >>> هذا هو الكود اللي طلبته عشان يربط مع الداشبورد <<<
-                    localStorage.setItem('wujha_contract_signed', 'true');
-                    // ==========================================
+                    // تحديث واجهة العقد
+                    document.getElementById('stamp-1').classList.add('stamp-effect');
+                    setTimeout(() => {
+                        document.getElementById('stamp-2').classList.add('stamp-effect');
+                        const renterText = document.getElementById('renter-sig-text');
+                        renterText.innerText = 'تم التوثيق عبر نفاذ';
+                        renterText.style.color = '#27ae60';
+                        renterText.style.fontWeight = 'bold';
 
-                    btn.classList.add('hidden');
-                    document.getElementById('btn-pdf').classList.remove('hidden');
-                    document.getElementById('btn-img').classList.remove('hidden');
-                }, 400);
-            }, 1500);
+                        const statusBar = document.getElementById('status-bar');
+                        statusBar.classList.add('verified');
+                        statusBar.innerHTML = '<i class="fas fa-check-circle"></i> تم توثيق العقد رسمياً وأصبح ساري المفعول';
+                        document.getElementById('partners-grid').classList.add('verified');
+
+                        btn.classList.add('hidden');
+                        document.getElementById('btn-pdf').classList.remove('hidden');
+                        document.getElementById('btn-img').classList.remove('hidden');
+
+                        localStorage.setItem('wujha_contract_signed', 'true');
+                    }, 400);
+                } else {
+                    alert('فشل إنشاء العقد، حاول مرة أخرى.');
+                    btn.innerHTML = '<i class="fas fa-fingerprint"></i> مصادقة وتوثيق';
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }
+            } catch (err) {
+                console.error(err);
+                alert('حدث خطأ أثناء توثيق العقد.');
+                btn.innerHTML = '<i class="fas fa-fingerprint"></i> مصادقة وتوثيق';
+                btn.disabled = false;
+                btn.style.background = '';
+                btn.style.color = '';
+            }
         }
 
-        // دالة حفظ PDF
+        // ===== حفظ PDF =====
         async function savePDF() {
             const element = document.getElementById('official-contract');
             const btn = document.getElementById('btn-pdf');
@@ -341,16 +435,13 @@
                     allowTaint: true,
                     scrollY: -window.scrollY
                 });
-                
                 const imgData = canvas.toDataURL('image/jpeg', 0.95);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
-                
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save('Wujha-Contract.pdf');
-                
+                pdf.save(`Wujha-Contract-${contractId || Date.now()}.pdf`);
             } catch (err) {
                 alert("تم الحفظ (مع تنبيه: الصور الخارجية قد لا تظهر بسبب الأمان)");
             } finally {
@@ -359,7 +450,7 @@
             }
         }
 
-        // دالة حفظ صورة
+        // ===== حفظ صورة =====
         function saveImage() {
             const element = document.getElementById('official-contract');
             const btn = document.getElementById('btn-img');
@@ -369,17 +460,31 @@
 
             html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Wujha-Contract.jpg';
+                link.download = `Wujha-Contract-${contractId || Date.now()}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
                 btn.innerHTML = originalText;
                 document.querySelector('.actions-bar').style.display = 'flex';
-            }).catch(err => {
-                 alert("تم الحفظ (مع تنبيه: الصور الخارجية قد لا تظهر بسبب الأمان)");
+            }).catch(() => {
+                alert("تم الحفظ (مع تنبيه: الصور الخارجية قد لا تظهر بسبب الأمان)");
                 document.querySelector('.actions-bar').style.display = 'flex';
                 btn.innerHTML = originalText;
             });
         }
+
+        // ===== إغلاق العقد تلقائياً إذا لم يكن هناك حجز =====
+        (function checkBooking() {
+            const bookingId = localStorage.getItem('current_booking_id');
+            if (!bookingId) {
+                // لا يوجد حجز، نعرض رسالة ونغلق العقد
+                document.querySelector('.demo-btn').innerHTML = '<i class="fas fa-exclamation-triangle"></i> لا توجد حجوزات نشطة';
+                document.querySelector('.demo-btn').style.background = '#ccc';
+                document.querySelector('.demo-btn').style.cursor = 'not-allowed';
+                document.querySelector('.demo-btn').onclick = function() {
+                    alert('لا توجد عملية حجز حالية. قم بحجز سيارة أولاً.');
+                };
+            }
+        })();
     </script>
 </body>
 </html>
