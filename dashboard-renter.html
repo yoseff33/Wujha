@@ -6,7 +6,7 @@
     <title>وُجْهَة | لوحة المستأجر الذكية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         /* --- تنسيقات خاصة بلوحة المستأجر (الأصلية) --- */
@@ -57,7 +57,7 @@
         .risk-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
         .risk-low { background: #e8f5e9; color: #2e8b57; }
 
-        /* --- [جديد] تنسيقات تأثير المسح السينمائي (AI Scan Effect) --- */
+        /* تأثير المسح السينمائي (AI Scan Effect) */
         :root {
             --scan-color: #3498db;
             --scan-glow: 0 0 15px #3498db, 0 0 30px #3498db;
@@ -66,7 +66,7 @@
             position: relative; width: 100%; height: 200px;
             border-radius: 12px; overflow: hidden; margin-bottom: 20px;
             border: 2px solid var(--scan-color); background: #000;
-            display: none; /* مخفي افتراضياً */
+            display: none;
         }
         .scan-image-placeholder {
             width: 100%; height: 100%;
@@ -97,25 +97,25 @@
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo">
+                <a href="/index.html" class="logo">
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
                 <ul class="nav-links desktop-nav-links">
-                    <li><a href="index.html">الرئيسية</a></li>
-                    <li><a href="cars.html">استكشف السيارات</a></li>
-                    <li><a href="index.html#how-it-works">رحلة الأمان</a></li>
-                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link active" id="nav-renter-dashboard">لوحة المستأجر</a></li>
-                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
-                    <li><a href="quiz.html">اختبار السيارة</a></li>
-                    <li><a href="qassim-map.html">خريطة الرياض</a></li>
+                    <li><a href="/index.html">الرئيسية</a></li>
+                    <li><a href="/cars.html">استكشف السيارات</a></li>
+                    <li><a href="/index.html#how-it-works">رحلة الأمان</a></li>
+                    <li><a href="/dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
+                    <li><a href="/dashboard-renter.html" class="auth-link active" id="nav-renter-dashboard">لوحة المستأجر</a></li>
+                    <li><a href="/add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="/quiz.html">اختبار السيارة</a></li>
+                    <li><a href="/qassim-map.html">خريطة الرياض</a></li>
                 </ul>
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
                         <i class="fas fa-moon"></i> <span>الوضع</span> 
                     </button>
-                    <button class="btn btn-outline" onclick="window.location.href='index.html'">خروج</button>
+                    <button class="btn btn-outline" onclick="window.location.href='/index.html'">خروج</button>
                 </div>
             </nav>
         </div>
@@ -126,9 +126,9 @@
             <div class="dashboard" data-aos="fade-up">
                 <div class="dashboard-sidebar">
                     <div class="user-profile">
-                        <div class="user-avatar" style="background: #e91e63; color: white;">ي</div>
+                        <div class="user-avatar" id="renter-avatar" style="background: #e91e63; color: white;">ي</div>
                         <div class="user-info">
-                            <h3>يوسف المطيري</h3>
+                            <h3 id="renter-name-display">يوسف المطيري</h3>
                             <p><i class="fas fa-check-circle" style="color: #4cd137;"></i> موثق (نفاذ)</p>
                         </div>
                     </div>
@@ -368,7 +368,7 @@
                 <div class="footer-col">
                     <h3>روابط سريعة</h3>
                     <ul>
-                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="/cars.html">استكشف السيارات</a></li>
                         <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
                     </ul>
                 </div>
@@ -404,6 +404,20 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        // ===== جعل اسم المستخدم ديناميكياً =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const userName = localStorage.getItem('userName') || 'يوسف المطيري';
+            const nameDisplay = document.getElementById('renter-name-display');
+            if (nameDisplay) {
+                nameDisplay.textContent = userName;
+            }
+            // تحديث الحرف الأول في الدائرة
+            const avatar = document.getElementById('renter-avatar');
+            if (avatar && userName) {
+                avatar.textContent = userName.charAt(0);
+            }
+        });
+
         AOS.init({ once: true });
         
         // --- دالة معالجة رفع الصور ---
@@ -476,7 +490,7 @@
             }
         }
 
-        // التحقق من التعهد (الكود الأصلي)
+        // التحقق من التعهد
         document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
             e.preventDefault();
             // محاكاة تحميل بسيط
@@ -486,15 +500,16 @@
             btn.disabled = true;
             
             setTimeout(() => {
-                alert('تم التوثيق بنجاح! 🚗\n- تم إصدار تفويض القيادة.\n- تم تفعيل المفتاح الرقمي.\nنتمنى لك رحلة آمنة يا سارة.');
+                const userName = localStorage.getItem('userName') || 'صديقنا';
+                alert('تم التوثيق بنجاح! 🚗\n- تم إصدار تفويض القيادة.\n- تم تفعيل المفتاح الرقمي.\nنتمنى لك رحلة آمنة يا ' + userName + '.');
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> تم التوثيق وبدء الرحلة';
                 btn.style.background = '#2ecc71';
                 btn.style.borderColor = '#2ecc71';
             }, 1500);
         });
     </script>
-    <script src="csr-content.js"></script>
-    <script src="script.js"></script>
-    <script src="chatbot.js"></script>
+    <script src="/csr-content.js"></script>
+    <script src="/script.js"></script>
+    <script src="/chatbot.js"></script>
 </body>
 </html>
