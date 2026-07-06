@@ -372,6 +372,9 @@
 
     <!-- السكربتات الأساسية -->
     <script>
+        // تعريف الـ API URL ثابت
+        const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api';
+
         // جميع الدوال تُنفذ بعد تحميل DOM بالكامل
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -436,9 +439,12 @@
                 document.getElementById('login-success').style.display = 'none';
 
                 try {
-                    const response = await fetch('/api/login', {
+                    const response = await fetch(`${API_URL}/login`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify({ phone, password })
                     });
                     const data = await response.json();
@@ -481,9 +487,12 @@
                 }
 
                 try {
-                    const response = await fetch('/api/register', {
+                    const response = await fetch(`${API_URL}/register`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
                     });
                     const data = await response.json();
