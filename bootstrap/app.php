@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // تفعيل CORS على جميع الطلبات
         $middleware->append(HandleCors::class);
         $middleware->alias([
-            'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            // تم التعليق مؤقتاً لحين إنشاء الميدل وير
+            // 'admin' => \App\Http\Middleware\EnsureAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
