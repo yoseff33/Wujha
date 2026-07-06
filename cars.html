@@ -7,50 +7,344 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <!-- ===== ربط مكتبة Supabase وملفات المشروع ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
     
     <style>
-        /* ستايلات خاصة بكروت السيارات فقط (عشان ما تخرب شكل الكرت القديم) */
-        .page-header { text-align: center; margin: 50px 0 30px; }
-        .page-header h2 { color: var(--heading-color-light); font-size: 2rem; margin-bottom: 10px; }
+        /* Reset and base (مأخوذ من style.css مع تعديلات بسيطة) */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8f9fa; color: #1a1a1a; transition: background 0.3s, color 0.3s; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         
-        .cars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-bottom: 60px; }
-        
-        .car-card { 
-            background: var(--card-bg-light); border-radius: 16px; overflow: hidden; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s; 
-            border: 1px solid #eee; display: flex; flex-direction: column;
+        /* Header (مطابق للصفحات الأخرى) */
+        header {
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
         }
-        body.dark-mode .car-card { background: var(--card-bg-dark); border-color: #333; }
+        body.dark-mode header { background: rgba(20, 20, 20, 0.98); border-bottom: 1px solid #333; }
         
-        .car-card:hover { transform: translateY(-8px); border-color: var(--secondary); }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0f2925, #c5a065);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f2925;
+        }
+        body.dark-mode .logo-text { color: #f0f0f0; }
         
-        .car-img-box { height: 230px; overflow: hidden; position: relative; background: #f4f4f4; }
-        .car-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        .nav-links li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        body.dark-mode .nav-links li a { color: #ddd; }
+        .nav-links li a:hover { color: #c5a065; }
+        .nav-links li a.active { color: #c5a065; border-bottom: 2px solid #c5a065; }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.dark-mode .theme-toggle { color: #ddd; }
+        
+        .btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            border: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #0f2925;
+            color: white;
+        }
+        .btn-primary:hover { background: #1a4d45; transform: translateY(-2px); }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #0f2925;
+            color: #0f2925;
+        }
+        body.dark-mode .btn-outline { border-color: #ddd; color: #ddd; }
+        .btn-outline:hover { background: #0f2925; color: white; }
+        body.dark-mode .btn-outline:hover { background: #ddd; color: #0f2925; }
+        .btn-secondary {
+            background: #c5a065;
+            color: white;
+        }
+        .btn-secondary:hover { background: #b08a4e; }
+        
+        .guest-only { display: flex; }
+        .auth-link { display: none; }
+        #nav-user-profile-placeholder { display: none; align-items: center; gap: 10px; }
+        
+        /* Page header */
+        .page-header { text-align: center; margin: 120px 0 30px; }
+        .page-header h2 { color: #0f2925; font-size: 2rem; margin-bottom: 10px; }
+        body.dark-mode .page-header h2 { color: #f0f0f0; }
+        .page-header p { color: #666; }
+        body.dark-mode .page-header p { color: #aaa; }
+        
+        /* Cars grid */
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .car-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        body.dark-mode .car-card { background: #2a2a2a; border-color: #444; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        
+        .car-card:hover { transform: translateY(-8px); border-color: #c5a065; }
+        
+        .car-img-box {
+            height: 230px;
+            overflow: hidden;
+            position: relative;
+            background: #f4f4f4;
+        }
+        .car-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
         .car-card:hover .car-img-box img { transform: scale(1.05); }
-        .badge { position: absolute; top: 15px; right: 15px; background: rgba(15, 41, 37, 0.9); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; z-index: 2; backdrop-filter: blur(5px); }
+        
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(15, 41, 37, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 2;
+            backdrop-filter: blur(5px);
+        }
+        body.dark-mode .badge { background: rgba(0,0,0,0.8); }
         
         .car-info { padding: 25px; flex: 1; display: flex; flex-direction: column; }
-        .car-title { font-size: 1.3rem; font-weight: 800; color: var(--heading-color-light); margin: 0 0 5px; }
-        body.dark-mode .car-title { color: var(--heading-color-dark); }
-
+        .car-title { font-size: 1.3rem; font-weight: 800; color: #0f2925; margin: 0 0 5px; }
+        body.dark-mode .car-title { color: #f0f0f0; }
+        
         .car-year { color: #888; font-size: 0.9rem; margin-bottom: 15px; }
+        body.dark-mode .car-year { color: #aaa; }
         
-        .car-specs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .spec { display: flex; align-items: center; gap: 6px; background: #f8f9fa; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color: #555; border: 1px solid #eee; }
+        .car-specs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .spec {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #555;
+            border: 1px solid #eee;
+        }
         body.dark-mode .spec { background: #333; color: #ccc; border-color: #444; }
-
-        .price-box { display: flex; justify-content: space-between; align-items: center; margin-top: auto; border-top: 1px solid #eee; padding-top: 20px; }
-        .price { font-size: 1.4rem; font-weight: 800; color: var(--secondary); }
-        .price small { font-size: 0.8rem; color: #999; font-weight: normal; }
         
-        .btn-book { 
-            background: linear-gradient(135deg, var(--primary), #1a4d45); color: white; border: none; 
-            padding: 12px 30px; border-radius: 50px; cursor: pointer; 
-            font-weight: bold; transition: 0.2s; font-family: 'Tajawal';
+        .price-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        body.dark-mode .price-box { border-top-color: #444; }
+        
+        .price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #c5a065;
+        }
+        body.dark-mode .price { color: #d4b37a; }
+        .price small { font-size: 0.8rem; color: #999; font-weight: normal; }
+        body.dark-mode .price small { color: #777; }
+        
+        .btn-book {
+            background: linear-gradient(135deg, #0f2925, #1a4d45);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            font-family: 'Tajawal';
             box-shadow: 0 5px 15px rgba(15, 41, 37, 0.2);
         }
-        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 41, 37, 0.3); background: var(--secondary); }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 41, 37, 0.3); background: #c5a065; }
+        
+        /* Footer (مطابق) */
+        footer {
+            background: #0f2925;
+            color: white;
+            padding: 40px 0 20px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .footer-col h3 { margin-bottom: 15px; font-size: 1.2rem; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 8px; }
+        .footer-col ul li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .footer-col ul li a:hover { color: white; }
+        .footer-contact li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.7);
+        }
+        .copyright {
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .social-links a {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .social-links a:hover { background: #c5a065; }
+        
+        /* Bottom Navbar (Mobile) */
+        .bottom-navbar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 999;
+        }
+        body.dark-mode .bottom-navbar { background: #1a1a1a; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
+        
+        .bottom-navbar .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #888;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        body.dark-mode .bottom-navbar .nav-item { color: #aaa; }
+        .bottom-navbar .nav-item i { font-size: 1.3rem; margin-bottom: 3px; }
+        .bottom-navbar .nav-item.active { color: #0f2925; }
+        body.dark-mode .bottom-navbar .nav-item.active { color: #c5a065; }
+        
+        @media (max-width: 992px) {
+            .nav-links { display: none; }
+            .bottom-navbar { display: flex; }
+            body { padding-bottom: 70px; }
+            .page-header { margin-top: 100px; }
+        }
+        @media (max-width: 480px) {
+            .cars-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+        .loading-spinner i { font-size: 2rem; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
@@ -77,10 +371,6 @@
                         <i class="fas fa-moon"></i>
                         <span>الوضع</span>
                     </button>
-                    <button id="desktop-chatbot-toggle" class="btn btn-outline" style="display: none;">
-                        <i class="fas fa-comment-dots"></i>
-                        <span>اسالني</span>
-                    </button>
                     <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول / تسجيل</a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
@@ -94,74 +384,12 @@
             <p>اختر السيارة التي تناسب وجهتك القادمة، بكل سهولة وأمان</p>
         </div>
         
-        <div class="cars-grid">
-            
-            <div class="car-card">
-                <div class="car-img-box">
-                    <span class="badge"><i class="fas fa-crown"></i> الفئة الملكية</span>
-                    <img src="https://tse2.mm.bing.net/th/id/OIP.EfvaZPq7CIfMm0BK0ebCGQHaE8?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Land Cruiser">
-                </div>
-                <div class="car-info">
-                    <h3 class="car-title">تويوتا - لاند كروزر</h3>
-                    <div class="car-year">2023 | GXR فل كامل</div>
-                    <div class="car-specs">
-                        <div class="spec"><i class="fas fa-gas-pump"></i> بنزين</div>
-                        <div class="spec"><i class="fas fa-chair"></i> 7 ركاب</div>
-                        <div class="spec"><i class="fas fa-mountain"></i> دفع رباعي</div>
-                    </div>
-                    <div class="price-box">
-                        <div class="price">450 <small>ر.س/يوم</small></div>
-                        <button class="btn-book" onclick="bookCar('تويوتا - لاند كروزر', '2023', 'ح ب ر 2030', '450', 'https://tse2.mm.bing.net/th/id/OIP.EfvaZPq7CIfMm0BK0ebCGQHaE8?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3')">
-                            حجز الآن
-                        </button>
-                    </div>
-                </div>
+        <!-- ===== حاوية عرض السيارات ===== -->
+        <div id="cars-grid" class="cars-grid">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                جاري تحميل السيارات...
             </div>
-
-            <div class="car-card">
-                <div class="car-img-box">
-                    <span class="badge" style="background: var(--secondary);">كهربائية فاخرة</span>
-                    <img src="https://tse3.mm.bing.net/th/id/OIP.Gkml3yGhdHuvxKLWzXotzwHaEK?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Lucid">
-                </div>
-                <div class="car-info">
-                    <h3 class="car-title">لوسيد - Air Pure</h3>
-                    <div class="car-year">2024 | كهربائية بالكامل</div>
-                    <div class="car-specs">
-                        <div class="spec"><i class="fas fa-bolt"></i> 800 كم</div>
-                        <div class="spec"><i class="fas fa-snowflake"></i> تكييف ذكي</div>
-                        <div class="spec"><i class="fas fa-rocket"></i> تسارع عالي</div>
-                    </div>
-                    <div class="price-box">
-                        <div class="price">800 <small>ر.س/يوم</small></div>
-                        <button class="btn-book" onclick="bookCar('لوسيد - Air Pure', '2024', 'ل و س 2030', '800', 'https://tse3.mm.bing.net/th/id/OIP.Gkml3yGhdHuvxKLWzXotzwHaEK?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3')">
-                            حجز الآن
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="car-card">
-                <div class="car-img-box">
-                    <span class="badge" style="background: #2ecc71;">الاقتصادية</span>
-                    <img src="https://tse3.mm.bing.net/th/id/OIP.UXgUIDeetBafXRlNA13cJQAAAA?cb=ucfimg2&ucfimg=1&w=474&h=315&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Elantra">
-                </div>
-                <div class="car-info">
-                    <h3 class="car-title">هيونداي - النترا</h3>
-                    <div class="car-year">2023 | الفئة الذكية</div>
-                    <div class="car-specs">
-                        <div class="spec"><i class="fas fa-gas-pump"></i> موفرة جداً</div>
-                        <div class="spec"><i class="fas fa-user"></i> 5 ركاب</div>
-                        <div class="spec"><i class="fas fa-music"></i> بلوتوث</div>
-                    </div>
-                    <div class="price-box">
-                        <div class="price">180 <small>ر.س/يوم</small></div>
-                        <button class="btn-book" onclick="bookCar('هيونداي - النترا', '2023', 'هـ ي و 1234', '180', 'https://tse3.mm.bing.net/th/id/OIP.UXgUIDeetBafXRlNA13cJQAAAA?cb=ucfimg2&ucfimg=1&w=474&h=315&rs=1&pid=ImgDetMain&o=7&rm=3')">
-                            حجز الآن
-                        </button>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </section>
 
@@ -225,18 +453,103 @@
         </a>
     </nav>
 
+    <!-- ===== ربط script.js (يحتوي على دوال fetchCars, renderCars, createBooking, إلخ) ===== -->
     <script src="script.js"></script>
+    
+    <!-- ===== كود تشغيل الصفحة ===== -->
     <script>
-        // دالة حفظ البيانات والانتقال للعقد
-        function bookCar(name, year, plate, price, image) {
-            localStorage.setItem('wujha_car_name', name);
-            localStorage.setItem('wujha_car_year', year);
-            localStorage.setItem('wujha_car_plate', plate);
-            localStorage.setItem('wujha_car_price', price);
-            localStorage.setItem('wujha_car_image', image);
-            localStorage.setItem('wujha_contract_signed', 'false');
-            window.location.href = 'contract_final.html'; 
+        document.addEventListener('DOMContentLoaded', async function() {
+            // جلب السيارات النشطة فقط
+            const cars = await fetchCars({ status: 'active' });
+            const container = document.getElementById('cars-grid');
+            
+            if (cars.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding: 40px; color: #888;">لا توجد سيارات متاحة حالياً</p>';
+                return;
+            }
+            
+            // استخدام دالة renderCars من script.js
+            renderCars(cars, 'cars-grid');
+            
+            // تحديث شريط التنقل (في script.js)
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
+            }
+        });
+        
+        // ===== دالة الحجز الجديدة (تستخدم createBooking من script.js) =====
+        // تم تعديلها لتظهر نافذة اختيار التواريخ وحساب السعر
+        // لكننا نستدعي bookCar الموجودة في script.js، لكننا نعيد تعريفها هنا لتكون متوافقة مع الأزرار الموجودة.
+        // الأزرار في البطاقات تستدعي bookCar(carId) ولكن يجب تعديلها في renderCars.
+        // بما أن renderCars في script.js تقوم بإنشاء الأزرار باستخدام onclick="bookCar('${car.id}')"،
+        // فهي تستخدم الدالة bookCar الموجودة في script.js والتي تعمل مع Supabase.
+        // لذلك لا نحتاج إلى إعادة تعريفها هنا، فقط نتأكد من أن script.js تحتوي على bookCar الصحيحة.
+        // لكننا سنضيف دالة احتياطية في حال عدم وجودها.
+        if (typeof bookCar === 'undefined') {
+            // تعريف دالة bookCar محلياً إذا لم تكن موجودة في script.js
+            window.bookCar = async function(carId) {
+                const user = getCurrentUser();
+                if (!user) {
+                    alert('الرجاء تسجيل الدخول أولاً');
+                    window.location.href = 'landing.html';
+                    return;
+                }
+                
+                const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
+                const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
+                if (!startDate || !endDate) return;
+                
+                // جلب سعر السيارة اليومي
+                const { data: car, error } = await supabase
+                    .from('cars')
+                    .select('daily_price')
+                    .eq('id', carId)
+                    .single();
+                    
+                if (error || !car) {
+                    alert('حدث خطأ في جلب بيانات السيارة');
+                    return;
+                }
+                
+                const days = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000*60*60*24)));
+                const total = days * car.daily_price;
+                
+                const booking = await createBooking({
+                    car_id: carId,
+                    start_date: startDate,
+                    end_date: endDate,
+                    total_price: total
+                });
+                
+                if (booking) {
+                    alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
+                    window.location.href = 'dashboard-renter.html';
+                }
+            };
         }
+        
+        // ===== تبديل الوضع (داكن/فاتح) =====
+        (function setupTheme() {
+            const themeToggle = document.getElementById('theme-toggle-desktop');
+            if (!themeToggle) return;
+            
+            const applyTheme = (theme) => {
+                document.body.classList.toggle('dark-mode', theme === 'dark');
+                localStorage.setItem('theme', theme);
+                const icon = themeToggle.querySelector('i');
+                const span = themeToggle.querySelector('span');
+                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
+            };
+            
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(currentTheme);
+            
+            themeToggle.addEventListener('click', () => {
+                const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+        })();
     </script>
 </body>
 </html>
