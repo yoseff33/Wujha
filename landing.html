@@ -7,18 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
-    <!-- سكربت وقائي لتجنب أخطاء DOM -->
-    <script>
-        // هذا السكربت يُنفذ قبل أي شيء للتأكد من أن المتصفح جاهز
-        (function() {
-            // منع الأخطاء الشائعة بسبب عناصر غير موجودة
-            console.log('تم تحميل السكربت الوقائي');
-        })();
-    </script>
-
     <style>
-        /* إعادة استخدام نفس الأنماط مع تعديل بسيط */
         .login-wrapper {
             background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center center/cover;
             min-height: 100vh;
@@ -27,7 +16,6 @@
             justify-content: center;
             padding: 120px 20px 50px;
         }
-
         .auth-card {
             background: white;
             padding: 40px 30px;
@@ -37,19 +25,17 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.5s ease-out;
         }
-
         @keyframes slideUp {
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-
         .auth-header {
             text-align: center;
             margin-bottom: 30px;
         }
         .auth-header .logo-icon {
             font-size: 2.5rem;
-            background: var(--primary, #00ab6b);
+            background: #00ab6b;
             color: white;
             width: 70px;
             height: 70px;
@@ -66,7 +52,6 @@
             color: #666;
             font-size: 0.95rem;
         }
-
         .tab-switch {
             display: flex;
             background: #f0f0f0;
@@ -87,11 +72,10 @@
             color: #555;
         }
         .tab-switch button.active {
-            background: var(--primary, #00ab6b);
+            background: #00ab6b;
             color: white;
             box-shadow: 0 4px 10px rgba(0,171,107,0.3);
         }
-
         .auth-form {
             display: none;
             animation: fadeIn 0.3s;
@@ -99,12 +83,10 @@
         .auth-form.active {
             display: block;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .input-group {
             margin-bottom: 20px;
             text-align: right;
@@ -130,7 +112,6 @@
             background: white;
             box-shadow: 0 0 0 3px rgba(0,171,107,0.2);
         }
-
         .auth-btn {
             background-color: #00ab6b;
             color: white;
@@ -149,7 +130,6 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0,171,107,0.3);
         }
-
         .auth-error {
             color: #e74c3c;
             background: #fde8e8;
@@ -198,7 +178,6 @@
     </style>
 </head>
 <body>
-    <!-- الهيدر كما هو -->
     <header>
         <div class="container">
             <nav class="navbar">
@@ -226,7 +205,6 @@
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي -->
     <div class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
@@ -235,13 +213,11 @@
                 <p>تأجير السيارات بين الأفراد بثقة وأمان</p>
             </div>
 
-            <!-- أزرار التبديل -->
             <div class="tab-switch">
                 <button class="active" data-tab="login">تسجيل الدخول</button>
                 <button data-tab="register">إنشاء حساب</button>
             </div>
 
-            <!-- نموذج تسجيل الدخول -->
             <div id="login-form" class="auth-form active">
                 <form id="login-form-element" onsubmit="handleLogin(event)">
                     <div class="input-group">
@@ -262,7 +238,6 @@
                 </div>
             </div>
 
-            <!-- نموذج إنشاء حساب -->
             <div id="register-form" class="auth-form">
                 <form id="register-form-element" onsubmit="handleRegister(event)">
                     <div class="input-group">
@@ -298,7 +273,6 @@
         </div>
     </div>
 
-    <!-- الفوتر كما هو -->
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -345,7 +319,6 @@
         </div>
     </footer>
 
-    <!-- النافبار السفلي -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -355,7 +328,6 @@
         <a href="#" class="nav-item" id="mobile-chatbot-toggle"><i class="fas fa-comment-dots"></i><span>المساعد</span></a>
     </nav>
 
-    <!-- شات بوت -->
     <div id="chatbot-popup" class="chatbot-popup">
         <div class="chatbot-header">
             <h3>المساعد الأمني</h3>
@@ -370,31 +342,24 @@
         </div>
     </div>
 
-    <!-- السكربتات الأساسية -->
     <script>
-        // تعريف الـ API URL ثابت
+        // ===== الحل: تعريف الـ API URL الصحيح =====
         const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api';
 
-        // جميع الدوال تُنفذ بعد تحميل DOM بالكامل
         document.addEventListener('DOMContentLoaded', function() {
-
-            // التبديل بين التبويبات
             function switchTab(tab) {
                 const tabButtons = document.querySelectorAll('.tab-switch button');
                 const forms = document.querySelectorAll('.auth-form');
                 if (tabButtons.length === 0 || forms.length === 0) return;
-
                 tabButtons.forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.tab === tab);
                 });
                 forms.forEach(form => {
                     form.classList.toggle('active', form.id === tab + '-form');
                 });
-                // إخفاء الرسائل
                 document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
             }
 
-            // ربط أزرار التبديل (مع التحقق من وجودها)
             const tabBtns = document.querySelectorAll('.tab-switch button');
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -403,7 +368,6 @@
                 });
             });
 
-            // دالة إظهار/إخفاء كلمة المرور
             window.togglePassword = function(inputId, iconSpan) {
                 const input = document.getElementById(inputId);
                 if (!input) return;
@@ -420,7 +384,6 @@
                 }
             };
 
-            // دالة عرض الرسائل
             function showMessage(elementId, message, isSuccess = false) {
                 const el = document.getElementById(elementId);
                 if (!el) return;
@@ -429,7 +392,6 @@
                 el.className = isSuccess ? 'auth-success' : 'auth-error';
             }
 
-            // معالجة تسجيل الدخول
             window.handleLogin = async function(e) {
                 e.preventDefault();
                 const phone = document.getElementById('login-phone')?.value?.trim() || '';
@@ -439,6 +401,7 @@
                 document.getElementById('login-success').style.display = 'none';
 
                 try {
+                    // ===== هنا التعديل المهم =====
                     const response = await fetch(`${API_URL}/login`, {
                         method: 'POST',
                         headers: {
@@ -469,7 +432,6 @@
                 }
             };
 
-            // معالجة التسجيل
             window.handleRegister = async function(e) {
                 e.preventDefault();
                 const name = document.getElementById('register-name')?.value?.trim() || '';
@@ -487,6 +449,7 @@
                 }
 
                 try {
+                    // ===== هنا التعديل المهم =====
                     const response = await fetch(`${API_URL}/register`, {
                         method: 'POST',
                         headers: {
@@ -521,7 +484,6 @@
                 }
             };
 
-            // التحقق من وجود جلسة نشطة
             const token = localStorage.getItem('token');
             if (token) {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -532,7 +494,6 @@
                 }
             }
 
-            // معالجة زر إغلاق الشات بوت
             const closeChatBtn = document.getElementById('chatbot-close-btn');
             if (closeChatBtn) {
                 closeChatBtn.addEventListener('click', function() {
@@ -541,7 +502,6 @@
                 });
             }
 
-            // زر تبديل الثيم (إذا وجد)
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
@@ -552,8 +512,6 @@
             console.log('تم تحميل الصفحة بنجاح');
         });
     </script>
-
-    <!-- السكربتات الخارجية (تأكد من وجودها في المسار الصحيح) -->
     <script src="script.js?v=4"></script>
     <script src="chatbot.js"></script>
 </body>
