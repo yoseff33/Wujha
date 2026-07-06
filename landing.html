@@ -400,8 +400,12 @@
                 document.getElementById('login-error').style.display = 'none';
                 document.getElementById('login-success').style.display = 'none';
 
+                if (!phone || !password) {
+                    showMessage('login-error', 'يرجى إدخال رقم الجوال وكلمة المرور');
+                    return;
+                }
+
                 try {
-                    // ===== هنا التعديل المهم =====
                     const response = await fetch(`${API_URL}/login`, {
                         method: 'POST',
                         headers: {
@@ -415,10 +419,14 @@
                     if (response.ok && data.token) {
                         localStorage.setItem('token', data.token);
                         localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userType', data.user.role || 'renter');
                         showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
                         setTimeout(() => {
                             if (data.user.role === 'owner') {
                                 window.location.href = 'dashboard-owner.html';
+                            } else if (data.user.role === 'admin') {
+                                window.location.href = 'admin_dashboard.html';
                             } else {
                                 window.location.href = 'dashboard-renter.html';
                             }
@@ -448,8 +456,12 @@
                     return;
                 }
 
+                if (password.length < 6) {
+                    showMessage('register-error', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                    return;
+                }
+
                 try {
-                    // ===== هنا التعديل المهم =====
                     const response = await fetch(`${API_URL}/register`, {
                         method: 'POST',
                         headers: {
@@ -463,10 +475,14 @@
                     if (response.ok && data.token) {
                         localStorage.setItem('token', data.token);
                         localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userType', data.user.role || 'renter');
                         showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
                         setTimeout(() => {
                             if (data.user.role === 'owner') {
                                 window.location.href = 'dashboard-owner.html';
+                            } else if (data.user.role === 'admin') {
+                                window.location.href = 'admin_dashboard.html';
                             } else {
                                 window.location.href = 'dashboard-renter.html';
                             }
@@ -484,16 +500,20 @@
                 }
             };
 
+            // التحقق من وجود توكن وإعادة التوجيه
             const token = localStorage.getItem('token');
             if (token) {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 if (user.role === 'owner') {
                     window.location.href = 'dashboard-owner.html';
+                } else if (user.role === 'admin') {
+                    window.location.href = 'admin_dashboard.html';
                 } else if (user.role === 'renter') {
                     window.location.href = 'dashboard-renter.html';
                 }
             }
 
+            // إغلاق الدردشة
             const closeChatBtn = document.getElementById('chatbot-close-btn');
             if (closeChatBtn) {
                 closeChatBtn.addEventListener('click', function() {
