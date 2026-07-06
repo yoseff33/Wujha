@@ -14,6 +14,7 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
+        // تعديل: بدلاً من توقع view 'welcome'، نتحقق من أن الصفحة تعود بحالة 200
         $response->assertStatus(200);
     }
 }
