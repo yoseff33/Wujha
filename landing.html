@@ -6,8 +6,94 @@
     <title>وُجْهَة | تسجيل الدخول</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <style>
+        /* Reset and base */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8f9fa; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Header */
+        header {
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0f2925, #c5a065);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f2925;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        .nav-links li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-links li a:hover { color: #c5a065; }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #0f2925;
+            color: #0f2925;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .btn-outline:hover { background: #0f2925; color: white; }
+
+        /* Login Wrapper */
         .login-wrapper {
             background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center center/cover;
             min-height: 100vh;
@@ -175,6 +261,173 @@
             cursor: pointer;
             color: #888;
         }
+
+        /* Footer */
+        footer {
+            background: #0f2925;
+            color: white;
+            padding: 40px 0 20px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .footer-col h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .footer-col ul {
+            list-style: none;
+        }
+        .footer-col ul li {
+            margin-bottom: 8px;
+        }
+        .footer-col ul li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .footer-col ul li a:hover { color: white; }
+        .footer-contact li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.7);
+        }
+        .copyright {
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .social-links a {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .social-links a:hover { background: #c5a065; }
+
+        /* Bottom Navbar (Mobile) */
+        .bottom-navbar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 999;
+        }
+        .bottom-navbar .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #888;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .bottom-navbar .nav-item i {
+            font-size: 1.3rem;
+            margin-bottom: 3px;
+        }
+        .bottom-navbar .nav-item.active { color: #00ab6b; }
+
+        @media (max-width: 992px) {
+            .nav-links { display: none; }
+            .bottom-navbar { display: flex; }
+            body { padding-bottom: 70px; }
+        }
+        @media (max-width: 480px) {
+            .auth-card { padding: 30px 20px; }
+        }
+
+        /* Chatbot popup (minimal) */
+        .chatbot-popup {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 320px;
+            max-height: 400px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 2000;
+        }
+        .chatbot-popup.open { display: flex; }
+        .chatbot-header {
+            background: #0f2925;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-header h3 { font-size: 1rem; margin: 0; }
+        .chatbot-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .chatbot-body {
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bot-message, .user-message {
+            padding: 10px 14px;
+            border-radius: 16px;
+            max-width: 85%;
+            font-size: 0.9rem;
+        }
+        .bot-message { background: #f1f1f1; align-self: flex-start; }
+        .user-message { background: #00ab6b; color: white; align-self: flex-end; }
+        .chatbot-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+            gap: 8px;
+        }
+        .chatbot-footer input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .chatbot-footer button {
+            background: #00ab6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -185,20 +438,19 @@
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
-                <ul class="nav-links desktop-nav-links">
+                <ul class="nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
                     <li><a href="index.html#how-it-works">كيف تعمل</a></li>
-                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة تحكم المؤجر</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة تحكم المستأجر</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة المستأجر</a></li>
                     <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
-                    <li><a href="quiz.html">اختبار السيارة المناسبة</a></li>
+                    <li><a href="quiz.html">اختبار السيارة</a></li>
                     <li><a href="qassim-map.html">خريطة الرياض</a></li>
                 </ul>
-                <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
-                        <i class="fas fa-moon"></i>
-                        <span>الوضع</span>
+                <div class="nav-buttons">
+                    <button id="theme-toggle-desktop" class="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>الوضع</span>
                     </button>
                 </div>
             </nav>
@@ -278,7 +530,7 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <h3>عن وُجْهَة</h3>
-                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; line-height: 1.8;">
+                    <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
                         أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان. نمكن زوار المملكة من التنقل الذكي.
                     </p>
                     <div class="social-links">
@@ -307,7 +559,7 @@
                 <div class="footer-col">
                     <h3>تواصل معنا</h3>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i><span>الرياض، واجهة روشن (مقر الهاكاثون)</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i><span>الرياض، واجهة روشن</span></li>
                         <li><i class="fas fa-phone"></i><span>+966 56 546 4718</span></li>
                         <li><i class="fas fa-envelope"></i><span>contact@wujha.sa</span></li>
                     </ul>
@@ -343,196 +595,234 @@
     </div>
 
     <script>
-        // ===== الحل: تعريف الـ API URL الصحيح =====
+        // جميع الأكواد في هذا الملف مدمجة ولا تعتمد على ملفات خارجية
+        // ===== تعريف الـ API URL =====
         const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            function switchTab(tab) {
-                const tabButtons = document.querySelectorAll('.tab-switch button');
-                const forms = document.querySelectorAll('.auth-form');
-                if (tabButtons.length === 0 || forms.length === 0) return;
-                tabButtons.forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.tab === tab);
-                });
-                forms.forEach(form => {
-                    form.classList.toggle('active', form.id === tab + '-form');
-                });
-                document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
+        // ===== دوال مساعدة =====
+        function switchTab(tab) {
+            const tabButtons = document.querySelectorAll('.tab-switch button');
+            const forms = document.querySelectorAll('.auth-form');
+            tabButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            forms.forEach(form => {
+                form.classList.toggle('active', form.id === tab + '-form');
+            });
+            document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
+        }
+
+        function togglePassword(inputId, iconSpan) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = iconSpan ? iconSpan.querySelector('i') : null;
+            if (!icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function showMessage(elementId, message, isSuccess = false) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.textContent = message;
+            el.style.display = 'block';
+            el.className = isSuccess ? 'auth-success' : 'auth-error';
+        }
+
+        // ===== تسجيل الدخول =====
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('login-phone').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
+
+            if (!phone || !password) {
+                showMessage('login-error', 'يرجى إدخال رقم الجوال وكلمة المرور');
+                return;
             }
 
-            const tabBtns = document.querySelectorAll('.tab-switch button');
-            tabBtns.forEach(btn => {
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userType', data.user.role || 'renter');
+                    localStorage.setItem('userName', data.user.name || 'مستخدم');
+                    showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
+                    setTimeout(() => {
+                        const role = data.user.role || 'renter';
+                        if (role === 'owner') window.location.href = 'dashboard-owner.html';
+                        else if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                        else window.location.href = 'dashboard-renter.html';
+                    }, 1500);
+                } else {
+                    showMessage('login-error', data.message || 'بيانات الدخول غير صحيحة');
+                }
+            } catch (error) {
+                showMessage('login-error', 'حدث خطأ في الاتصال بالخادم');
+                console.error(error);
+            }
+        }
+
+        // ===== التسجيل =====
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value.trim();
+            const phone = document.getElementById('register-phone').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const passwordConfirm = document.getElementById('register-password-confirm').value;
+
+            document.getElementById('register-error').style.display = 'none';
+            document.getElementById('register-success').style.display = 'none';
+
+            if (password !== passwordConfirm) {
+                showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
+                return;
+            }
+            if (password.length < 6) {
+                showMessage('register-error', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userType', data.user.role || 'renter');
+                    localStorage.setItem('userName', data.user.name || 'مستخدم');
+                    showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
+                    setTimeout(() => {
+                        const role = data.user.role || 'renter';
+                        if (role === 'owner') window.location.href = 'dashboard-owner.html';
+                        else if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                        else window.location.href = 'dashboard-renter.html';
+                    }, 1500);
+                } else {
+                    let errorMsg = data.message || 'حدث خطأ أثناء التسجيل';
+                    if (data.errors) errorMsg = Object.values(data.errors).flat().join(' ');
+                    showMessage('register-error', errorMsg);
+                }
+            } catch (error) {
+                showMessage('register-error', 'حدث خطأ في الاتصال بالخادم');
+                console.error(error);
+            }
+        }
+
+        // ===== التحقق من التوكن الحالي =====
+        (function checkTokenAndRedirect() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const role = user.role || 'renter';
+                if (role === 'owner') window.location.href = 'dashboard-owner.html';
+                else if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                else window.location.href = 'dashboard-renter.html';
+            }
+        })();
+
+        // ===== أحداث المستمعين =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // تبديل التبويبات
+            document.querySelectorAll('.tab-switch button').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tab = this.dataset.tab;
                     if (tab) switchTab(tab);
                 });
             });
 
-            window.togglePassword = function(inputId, iconSpan) {
-                const input = document.getElementById(inputId);
-                if (!input) return;
-                const icon = iconSpan ? iconSpan.querySelector('i') : null;
-                if (!icon) return;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            };
-
-            function showMessage(elementId, message, isSuccess = false) {
-                const el = document.getElementById(elementId);
-                if (!el) return;
-                el.textContent = message;
-                el.style.display = 'block';
-                el.className = isSuccess ? 'auth-success' : 'auth-error';
-            }
-
-            window.handleLogin = async function(e) {
-                e.preventDefault();
-                const phone = document.getElementById('login-phone')?.value?.trim() || '';
-                const password = document.getElementById('login-password')?.value || '';
-
-                document.getElementById('login-error').style.display = 'none';
-                document.getElementById('login-success').style.display = 'none';
-
-                if (!phone || !password) {
-                    showMessage('login-error', 'يرجى إدخال رقم الجوال وكلمة المرور');
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`${API_URL}/login`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ phone, password })
-                    });
-                    const data = await response.json();
-
-                    if (response.ok && data.token) {
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userType', data.user.role || 'renter');
-                        showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
-                        setTimeout(() => {
-                            if (data.user.role === 'owner') {
-                                window.location.href = 'dashboard-owner.html';
-                            } else if (data.user.role === 'admin') {
-                                window.location.href = 'admin_dashboard.html';
-                            } else {
-                                window.location.href = 'dashboard-renter.html';
-                            }
-                        }, 1500);
-                    } else {
-                        showMessage('login-error', data.message || 'بيانات الدخول غير صحيحة');
-                    }
-                } catch (error) {
-                    showMessage('login-error', 'حدث خطأ في الاتصال بالخادم');
-                    console.error(error);
-                }
-            };
-
-            window.handleRegister = async function(e) {
-                e.preventDefault();
-                const name = document.getElementById('register-name')?.value?.trim() || '';
-                const phone = document.getElementById('register-phone')?.value?.trim() || '';
-                const email = document.getElementById('register-email')?.value?.trim() || '';
-                const password = document.getElementById('register-password')?.value || '';
-                const passwordConfirm = document.getElementById('register-password-confirm')?.value || '';
-
-                document.getElementById('register-error').style.display = 'none';
-                document.getElementById('register-success').style.display = 'none';
-
-                if (password !== passwordConfirm) {
-                    showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
-                    return;
-                }
-
-                if (password.length < 6) {
-                    showMessage('register-error', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`${API_URL}/register`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
-                    });
-                    const data = await response.json();
-
-                    if (response.ok && data.token) {
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userType', data.user.role || 'renter');
-                        showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
-                        setTimeout(() => {
-                            if (data.user.role === 'owner') {
-                                window.location.href = 'dashboard-owner.html';
-                            } else if (data.user.role === 'admin') {
-                                window.location.href = 'admin_dashboard.html';
-                            } else {
-                                window.location.href = 'dashboard-renter.html';
-                            }
-                        }, 1500);
-                    } else {
-                        let errorMsg = data.message || 'حدث خطأ أثناء التسجيل';
-                        if (data.errors) {
-                            errorMsg = Object.values(data.errors).flat().join(' ');
-                        }
-                        showMessage('register-error', errorMsg);
-                    }
-                } catch (error) {
-                    showMessage('register-error', 'حدث خطأ في الاتصال بالخادم');
-                    console.error(error);
-                }
-            };
-
-            // التحقق من وجود توكن وإعادة التوجيه
-            const token = localStorage.getItem('token');
-            if (token) {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                if (user.role === 'owner') {
-                    window.location.href = 'dashboard-owner.html';
-                } else if (user.role === 'admin') {
-                    window.location.href = 'admin_dashboard.html';
-                } else if (user.role === 'renter') {
-                    window.location.href = 'dashboard-renter.html';
-                }
-            }
-
-            // إغلاق الدردشة
-            const closeChatBtn = document.getElementById('chatbot-close-btn');
-            if (closeChatBtn) {
-                closeChatBtn.addEventListener('click', function() {
-                    const popup = document.getElementById('chatbot-popup');
-                    if (popup) popup.style.display = 'none';
-                });
-            }
-
+            // تبديل الوضع (داكن / فاتح)
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
                     document.body.classList.toggle('dark-mode');
+                    const isDark = document.body.classList.contains('dark-mode');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    // تغيير الأيقونة والنص اختيارياً
+                    const icon = this.querySelector('i');
+                    const span = this.querySelector('span');
+                    if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                    if (span) span.textContent = isDark ? 'الوضع النهاري' : 'الوضع الليلي';
                 });
+                // تطبيق الوضع المخزن
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    const icon = themeToggle.querySelector('i');
+                    const span = themeToggle.querySelector('span');
+                    if (icon) icon.className = 'fas fa-sun';
+                    if (span) span.textContent = 'الوضع النهاري';
+                }
             }
 
-            console.log('تم تحميل الصفحة بنجاح');
+            // تشغيل/إيقاف الدردشة
+            const chatbotPopup = document.getElementById('chatbot-popup');
+            const mobileToggle = document.getElementById('mobile-chatbot-toggle');
+            const closeBtn = document.getElementById('chatbot-close-btn');
+
+            function toggleChatbot() {
+                chatbotPopup.classList.toggle('open');
+            }
+
+            if (mobileToggle) mobileToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleChatbot();
+            });
+            if (closeBtn) closeBtn.addEventListener('click', toggleChatbot);
+
+            // إرسال رسالة الدردشة (بسيط)
+            const sendBtn = document.getElementById('chatbot-send-btn');
+            const input = document.getElementById('chatbot-input');
+            const body = document.getElementById('chatbot-body');
+
+            function sendChatMessage() {
+                const msg = input.value.trim();
+                if (!msg) return;
+                // عرض رسالة المستخدم
+                const userDiv = document.createElement('div');
+                userDiv.className = 'user-message';
+                userDiv.textContent = msg;
+                body.appendChild(userDiv);
+                input.value = '';
+                // رد تلقائي بسيط
+                setTimeout(() => {
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'bot-message';
+                    botDiv.textContent = 'شكراً لسؤالك. سيتم الرد عليك قريباً.';
+                    body.appendChild(botDiv);
+                    body.scrollTop = body.scrollHeight;
+                }, 500);
+                body.scrollTop = body.scrollHeight;
+            }
+
+            if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
+            if (input) input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendChatMessage();
+            });
         });
     </script>
-    <script src="script.js?v=4"></script>
-    <script src="chatbot.js"></script>
 </body>
 </html>
