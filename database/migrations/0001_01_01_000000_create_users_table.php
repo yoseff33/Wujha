@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('email')->unique()->nullable();
             $table->string('identity_number')->unique()->nullable();
-            $table->enum('role', ['admin', 'owner', 'renter'])->default('renter');
+            $table->string('role')->default('user');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('city')->nullable();
             $table->string('address')->nullable();

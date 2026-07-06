@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -13,45 +12,84 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|unique:users',
+            'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:6',
-            'role' => 'in:admin,owner,renter'
+            'role' => 'nullable|in:user,owner,renter',
         ]);
+
+        $role = $request->role ?? 'user';
+
+        if ($role === 'admin') {
+            return response()->json(['message' => 'Public registration cannot create admins.'], 403);
+        }
 
         $user = User::create([
             'name' => $request->name,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'renter',
-            'status' => $request->role == 'owner' ? 'pending' : 'approved'
+            'role' => $role,
+            'status' => $role === 'owner' ? 'pending' : 'approved',
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'success' => true,
+            'token' => $token,
+            'role' => $user->role,
             'user' => $user,
-            'token' => $token
-        ]);
+        ], 201);
     }
 
     public function login(Request $request)
     {
         $request->validate([
             'phone' => 'required|string',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ]);
 
         $user = User::where('phone', $request->phone)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'رقم الجوال او كلمة المرور غير صحيحة'], 401);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'success' => true,
+            'token' => $token,
+            'role' => $user->role,
             'user' => $user,
-            'token' => $token
         ]);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'user' => $request->user(),
+        ]);
+    }
+
+    public function createAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|unique:users,phone',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $admin = User::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'role' => 'admin',
+            'status' => 'approved',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'user' => $admin,
+        ], 201);
     }
 }

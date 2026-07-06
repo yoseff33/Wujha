@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; }
+        .card { max-width: 600px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Admin Dashboard</h1>
+        <p id="status">Checking access…</p>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/api';
+
+        async function verifyAdminAccess() {
+            const token = localStorage.getItem('auth_token');
+            const storedUser = localStorage.getItem('user');
+
+            if (!token) {
+                window.location.href = 'landing.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/me`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.user) {
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userType');
+                    window.location.href = 'landing.html';
+                    return;
+                }
+
+                const role = data.user.role || JSON.parse(storedUser || '{}').role || 'user';
+
+                if (role !== 'admin') {
+                    window.location.href = 'landing.html';
+                    return;
+                }
+
+                document.getElementById('status').textContent = `Welcome ${data.user.name || 'Admin'}`;
+            } catch (error) {
+                window.location.href = 'landing.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', verifyAdminAccess);
+    </script>
+</body>
+</html>

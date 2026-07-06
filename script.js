@@ -152,15 +152,18 @@ const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api'
         }
 
         if (data.token) {
+            const resolvedRole = data.role || data.user?.role || type
             localStorage.setItem('auth_token', data.token)
             localStorage.setItem('user', JSON.stringify(data.user))
             localStorage.setItem('isLoggedIn', 'true')
-            localStorage.setItem('userType', type)
+            localStorage.setItem('userType', resolvedRole)
             localStorage.setItem('userName', data.user.name || 'مستخدم موثق')
             
             updateNavbarBasedOnLoginStatus()
             
-            if (type === 'owner') {
+            if (resolvedRole === 'admin') {
+                window.location.href = 'admin_dashboard.html'
+            } else if (resolvedRole === 'owner') {
                 window.location.href = 'dashboard-owner.html'
             } else {
                 window.location.href = 'dashboard-renter.html'
