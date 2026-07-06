@@ -4,8 +4,8 @@
 // ============================================================
 
 // ===== قم بتعديل القيمتين التاليتين حسب مشروعك =====
-const SUPABASE_URL = 'https://your-project-id.supabase.co';   // استبدل برابط مشروعك
-const SUPABASE_ANON_KEY = 'Sb_publishable_2EelYQXGS1MHv6Qyp7rhug_aEJj454B'; // المفتاح العام
+const SUPABASE_URL = 'https://blnwohxbrundwiachkon.supabase.co';   // استبدل برابط مشروعك
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbndvaHhicnVuZHdpYWNoa29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc5ODUsImV4cCI6MjA5ODc2Mzk4NX0.4ffpJ_GcV51Znrt0mVz2VBWFI46HgxDcRE4SlAvk10Q'; // المفتاح العام
 
 // ===== التحقق من وجود المكتبة =====
 if (typeof window.supabase === 'undefined') {
