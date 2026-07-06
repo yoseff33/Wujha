@@ -6,6 +6,10 @@
     <title>وُجْهَة | تسجيل الدخول</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- ===== إضافة مكتبة Supabase وملفات المشروع ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
     <style>
         /* Reset and base */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
@@ -183,7 +187,7 @@
             font-weight: bold;
             color: #333;
         }
-        .auth-input {
+        .auth-input, .auth-select {
             width: 100%;
             padding: 14px 15px;
             border: 2px solid #ddd;
@@ -192,7 +196,7 @@
             transition: 0.3s;
             background: #fafafa;
         }
-        .auth-input:focus {
+        .auth-input:focus, .auth-select:focus {
             border-color: #00ab6b;
             outline: none;
             background: white;
@@ -470,11 +474,12 @@
                 <button data-tab="register">إنشاء حساب</button>
             </div>
 
+            <!-- ===== نموذج تسجيل الدخول ===== -->
             <div id="login-form" class="auth-form active">
                 <form id="login-form-element" onsubmit="handleLogin(event)">
                     <div class="input-group">
-                        <label for="login-phone">رقم الجوال <span style="color:red;">*</span></label>
-                        <input type="tel" class="auth-input" id="login-phone" placeholder="05xxxxxxxx" required>
+                        <label for="login-email">البريد الإلكتروني <span style="color:red;">*</span></label>
+                        <input type="email" class="auth-input" id="login-email" placeholder="example@domain.com" required>
                     </div>
                     <div class="input-group password-toggle">
                         <label for="login-password">كلمة المرور <span style="color:red;">*</span></label>
@@ -490,6 +495,7 @@
                 </div>
             </div>
 
+            <!-- ===== نموذج التسجيل ===== -->
             <div id="register-form" class="auth-form">
                 <form id="register-form-element" onsubmit="handleRegister(event)">
                     <div class="input-group">
@@ -497,12 +503,12 @@
                         <input type="text" class="auth-input" id="register-name" placeholder="أدخل اسمك" required>
                     </div>
                     <div class="input-group">
-                        <label for="register-phone">رقم الجوال <span style="color:red;">*</span></label>
-                        <input type="tel" class="auth-input" id="register-phone" placeholder="05xxxxxxxx" required>
+                        <label for="register-email">البريد الإلكتروني <span style="color:red;">*</span></label>
+                        <input type="email" class="auth-input" id="register-email" placeholder="example@domain.com" required>
                     </div>
                     <div class="input-group">
-                        <label for="register-email">البريد الإلكتروني (اختياري)</label>
-                        <input type="email" class="auth-input" id="register-email" placeholder="example@domain.com">
+                        <label for="register-phone">رقم الجوال (اختياري)</label>
+                        <input type="tel" class="auth-input" id="register-phone" placeholder="05xxxxxxxx">
                     </div>
                     <div class="input-group password-toggle">
                         <label for="register-password">كلمة المرور <span style="color:red;">*</span></label>
@@ -513,6 +519,16 @@
                         <label for="register-password-confirm">تأكيد كلمة المرور <span style="color:red;">*</span></label>
                         <input type="password" class="auth-input" id="register-password-confirm" placeholder="••••••••" required>
                         <span class="toggle-icon" onclick="togglePassword('register-password-confirm', this)"><i class="fas fa-eye"></i></span>
+                    </div>
+                    <!-- ===== إضافة اختيار الدور ===== -->
+                    <div class="input-group">
+                        <label for="register-role">نوع الحساب <span style="color:red;">*</span></label>
+                        <select class="auth-select" id="register-role" required>
+                            <option value="user">مستخدم عادي</option>
+                            <option value="renter">مستأجر</option>
+                            <option value="owner">مالك سيارة</option>
+                            <option value="admin">أدمن (للاستخدام الداخلي)</option>
+                        </select>
                     </div>
                     <button type="submit" class="auth-btn">إنشاء حساب</button>
                 </form>
@@ -571,6 +587,7 @@
         </div>
     </footer>
 
+    <!-- ===== الشريط السفلي للجوال ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -580,6 +597,7 @@
         <a href="#" class="nav-item" id="mobile-chatbot-toggle"><i class="fas fa-comment-dots"></i><span>المساعد</span></a>
     </nav>
 
+    <!-- ===== نافذة المساعد ===== -->
     <div id="chatbot-popup" class="chatbot-popup">
         <div class="chatbot-header">
             <h3>المساعد الأمني</h3>
@@ -594,12 +612,11 @@
         </div>
     </div>
 
+    <!-- ===================================================== -->
+    <!-- ===== الأكواد الخاصة بـ landing.html (محلية) ===== -->
+    <!-- ===================================================== -->
     <script>
-        // جميع الأكواد في هذا الملف مدمجة ولا تعتمد على ملفات خارجية
-        // ===== تعريف الـ API URL =====
-        const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api';
-
-        // ===== دوال مساعدة =====
+        // ===== دوال مساعدة محلية =====
         function switchTab(tab) {
             const tabButtons = document.querySelectorAll('.tab-switch button');
             const forms = document.querySelectorAll('.auth-form');
@@ -636,58 +653,52 @@
             el.className = isSuccess ? 'auth-success' : 'auth-error';
         }
 
-        // ===== تسجيل الدخول =====
+        // ===== معالج تسجيل الدخول (يستخدم signInUser من script.js) =====
         async function handleLogin(e) {
             e.preventDefault();
-            const phone = document.getElementById('login-phone').value.trim();
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
             document.getElementById('login-error').style.display = 'none';
             document.getElementById('login-success').style.display = 'none';
 
-            if (!phone || !password) {
-                showMessage('login-error', 'يرجى إدخال رقم الجوال وكلمة المرور');
+            if (!email || !password) {
+                showMessage('login-error', 'يرجى إدخال البريد الإلكتروني وكلمة المرور');
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ phone, password })
-                });
-                const data = await response.json();
-
-                if (response.ok && data.token) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userType', data.user.role || 'renter');
-                    localStorage.setItem('userName', data.user.name || 'مستخدم');
+                const result = await signInUser(email, password);
+                if (result.success) {
                     showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
+                    // تحديث شريط التنقل (في script.js)
+                    if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                        updateNavbarBasedOnLoginStatus();
+                    }
                     setTimeout(() => {
-                        const role = data.user.role || 'renter';
-                        if (role === 'owner') window.location.href = 'dashboard-owner.html';
-                        else if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                        const role = result.role || 'user';
+                        if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                        else if (role === 'owner') window.location.href = 'dashboard-owner.html';
                         else window.location.href = 'dashboard-renter.html';
                     }, 1500);
                 } else {
-                    showMessage('login-error', data.message || 'بيانات الدخول غير صحيحة');
+                    showMessage('login-error', result.error || 'فشل تسجيل الدخول، تأكد من البيانات');
                 }
             } catch (error) {
-                showMessage('login-error', 'حدث خطأ في الاتصال بالخادم');
+                showMessage('login-error', 'حدث خطأ غير متوقع: ' + error.message);
                 console.error(error);
             }
         }
 
-        // ===== التسجيل =====
+        // ===== معالج التسجيل (يستخدم signUpUser من script.js) =====
         async function handleRegister(e) {
             e.preventDefault();
             const name = document.getElementById('register-name').value.trim();
-            const phone = document.getElementById('register-phone').value.trim();
             const email = document.getElementById('register-email').value.trim();
+            const phone = document.getElementById('register-phone').value.trim();
             const password = document.getElementById('register-password').value;
             const passwordConfirm = document.getElementById('register-password-confirm').value;
+            const role = document.getElementById('register-role').value;
 
             document.getElementById('register-error').style.display = 'none';
             document.getElementById('register-success').style.display = 'none';
@@ -702,50 +713,46 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
-                });
-                const data = await response.json();
-
-                if (response.ok && data.token) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userType', data.user.role || 'renter');
-                    localStorage.setItem('userName', data.user.name || 'مستخدم');
+                const result = await signUpUser(email, password, role, name, phone);
+                if (result.success) {
                     showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
+                    // تحديث شريط التنقل
+                    if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                        updateNavbarBasedOnLoginStatus();
+                    }
                     setTimeout(() => {
-                        const role = data.user.role || 'renter';
-                        if (role === 'owner') window.location.href = 'dashboard-owner.html';
-                        else if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                        const userRole = role || 'user';
+                        if (userRole === 'admin') window.location.href = 'admin_dashboard.html';
+                        else if (userRole === 'owner') window.location.href = 'dashboard-owner.html';
                         else window.location.href = 'dashboard-renter.html';
                     }, 1500);
                 } else {
-                    let errorMsg = data.message || 'حدث خطأ أثناء التسجيل';
-                    if (data.errors) errorMsg = Object.values(data.errors).flat().join(' ');
-                    showMessage('register-error', errorMsg);
+                    showMessage('register-error', result.error || 'فشل إنشاء الحساب، حاول مرة أخرى');
                 }
             } catch (error) {
-                showMessage('register-error', 'حدث خطأ في الاتصال بالخادم');
+                showMessage('register-error', 'حدث خطأ غير متوقع: ' + error.message);
                 console.error(error);
             }
         }
 
-        // ===== التحقق من التوكن الحالي =====
-        (function checkTokenAndRedirect() {
-            const token = localStorage.getItem('token');
+        // ===== التحقق من وجود جلسة نشطة عند تحميل الصفحة =====
+        (function checkExistingSession() {
+            const token = localStorage.getItem('supabase_token');
             if (token) {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const role = user.role || 'renter';
-                if (role === 'owner') window.location.href = 'dashboard-owner.html';
-                else if (role === 'admin') window.location.href = 'admin_dashboard.html';
-                else window.location.href = 'dashboard-renter.html';
+                // إذا كان هناك توكن، نتحقق من صلاحيته ونوجه تلقائياً
+                (async () => {
+                    const { data: { user }, error } = await supabase.auth.getUser(token);
+                    if (user && !error) {
+                        const role = user.user_metadata?.role || 'user';
+                        if (role === 'admin') window.location.href = 'admin_dashboard.html';
+                        else if (role === 'owner') window.location.href = 'dashboard-owner.html';
+                        else window.location.href = 'dashboard-renter.html';
+                    }
+                })();
             }
         })();
 
-        // ===== أحداث المستمعين =====
+        // ===== أحداث المستمعين الإضافية =====
         document.addEventListener('DOMContentLoaded', function() {
             // تبديل التبويبات
             document.querySelectorAll('.tab-switch button').forEach(btn => {
@@ -755,14 +762,13 @@
                 });
             });
 
-            // تبديل الوضع (داكن / فاتح)
+            // تبديل الوضع (داكن / فاتح) - مأخوذ من script.js لكن نضيف نسخة محلية للتوافق
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
                     document.body.classList.toggle('dark-mode');
                     const isDark = document.body.classList.contains('dark-mode');
                     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                    // تغيير الأيقونة والنص اختيارياً
                     const icon = this.querySelector('i');
                     const span = this.querySelector('span');
                     if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
@@ -778,7 +784,7 @@
                 }
             }
 
-            // تشغيل/إيقاف الدردشة
+            // تشغيل/إيقاف الدردشة (محلي)
             const chatbotPopup = document.getElementById('chatbot-popup');
             const mobileToggle = document.getElementById('mobile-chatbot-toggle');
             const closeBtn = document.getElementById('chatbot-close-btn');
@@ -793,7 +799,7 @@
             });
             if (closeBtn) closeBtn.addEventListener('click', toggleChatbot);
 
-            // إرسال رسالة الدردشة (بسيط)
+            // إرسال رسالة الدردشة
             const sendBtn = document.getElementById('chatbot-send-btn');
             const input = document.getElementById('chatbot-input');
             const body = document.getElementById('chatbot-body');
@@ -801,13 +807,11 @@
             function sendChatMessage() {
                 const msg = input.value.trim();
                 if (!msg) return;
-                // عرض رسالة المستخدم
                 const userDiv = document.createElement('div');
                 userDiv.className = 'user-message';
                 userDiv.textContent = msg;
                 body.appendChild(userDiv);
                 input.value = '';
-                // رد تلقائي بسيط
                 setTimeout(() => {
                     const botDiv = document.createElement('div');
                     botDiv.className = 'bot-message';
