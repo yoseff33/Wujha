@@ -92,17 +92,21 @@ function updateNavbarBasedOnLoginStatus() {
     }
 }
 
+// ============ تم تعديل هذه الدالة (loginUser) ============
 async function loginUser(type) {
-    const idInput = document.getElementById('national-id')
-    const nationalId = idInput ? idInput.value : ''
+    const phoneInput = document.getElementById('phone-input') || document.getElementById('login-phone');
+    const phone = phoneInput ? phoneInput.value : '';
     
-    if (!nationalId || nationalId.length < 5) {
-        alert('الرجاء إدخال رقم هوية صحيح بالخطوة الأولى')
+    if (!phone || phone.length < 5) {
+        alert('الرجاء إدخال رقم جوال صحيح')
         return
     }
 
-    const defaultPassword = 'password123'
-const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api'
+    // استخدام كلمة المرور المدخلة، ولكن نعطي قيمة افتراضية لتوافق مع API
+    const passwordInput = document.getElementById('password-input') || document.getElementById('login-password');
+    const password = passwordInput ? passwordInput.value : 'password123';
+
+    const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api';
 
     try {
         let response = await fetch(`${API_URL}/login`, {
@@ -112,82 +116,64 @@ const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api'
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                phone: nationalId,
-                password: defaultPassword
+                phone: phone,
+                password: password
             })
-        })
+        });
 
-        let responseText = await response.text()
-        let data
+        let responseText = await response.text();
+        let data;
         
         try {
-            data = JSON.parse(responseText)
+            data = JSON.parse(responseText);
         } catch (e) {
-            alert(`السيرفر رفض وما رجع JSON.\nكود الخطأ: ${response.status}\n\nالرد:\n${responseText.substring(0, 150)}`)
-            return
+            alert(`السيرفر رفض وما رجع JSON.\nكود الخطأ: ${response.status}\n\nالرد:\n${responseText.substring(0, 150)}`);
+            return;
         }
 
         if (!response.ok) {
-            let regResponse = await fetch(`${API_URL}/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: 'مستخدم موثق نفاذ',
-                    phone: nationalId,
-                    password: defaultPassword,
-                    role: type
-                })
-            })
-            
-            let regText = await regResponse.text()
-            try {
-                data = JSON.parse(regText)
-            } catch (e) {
-                alert(`فشل إنشاء حساب جديد.\nكود الخطأ: ${regResponse.status}\n\nالرد:\n${regText.substring(0, 150)}`)
-                return
-            }
+            alert(data.message || 'فشل تسجيل الدخول، تأكد من البيانات');
+            return;
         }
 
         if (data.token) {
-            const resolvedRole = data.role || data.user?.role || type
-            localStorage.setItem('auth_token', data.token)
-            localStorage.setItem('user', JSON.stringify(data.user))
-            localStorage.setItem('isLoggedIn', 'true')
-            localStorage.setItem('userType', resolvedRole)
-            localStorage.setItem('userName', data.user.name || 'مستخدم موثق')
+            const resolvedRole = data.role || data.user?.role || type;
+            localStorage.setItem('auth_token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userType', resolvedRole);
+            localStorage.setItem('userName', data.user.name || 'مستخدم موثق');
             
-            updateNavbarBasedOnLoginStatus()
+            updateNavbarBasedOnLoginStatus();
             
             if (resolvedRole === 'admin') {
-                window.location.href = 'admin_dashboard.html'
+                window.location.href = 'admin_dashboard.html';
             } else if (resolvedRole === 'owner') {
-                window.location.href = 'dashboard-owner.html'
+                window.location.href = 'dashboard-owner.html';
             } else {
-                window.location.href = 'dashboard-renter.html'
+                window.location.href = 'dashboard-renter.html';
             }
         } else {
-            alert('رد غريب من السيرفر:\n' + JSON.stringify(data).substring(0, 100))
+            alert('رد غريب من السيرفر:\n' + JSON.stringify(data).substring(0, 100));
         }
     } catch (error) {
-        alert('خطأ مباشر في الاتصال (غالباً حماية CORS):\n' + error.message)
+        alert('خطأ مباشر في الاتصال (غالباً حماية CORS):\n' + error.message);
     }
 }
 
+// باقي الدوال كما هي (logoutUser, updateLoyaltyCard, setupThemeToggle, etc.)
 function logoutUser() {
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('user')
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('userType')
-    localStorage.removeItem('userName')
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('userName');
     
-    updateNavbarBasedOnLoginStatus()
-    window.location.href = 'index.html'
+    updateNavbarBasedOnLoginStatus();
+    window.location.href = 'index.html';
 }
 
-document.addEventListener('DOMContentLoaded', updateNavbarBasedOnLoginStatus)
+document.addEventListener('DOMContentLoaded', updateNavbarBasedOnLoginStatus);
 
 
 // -------------------------------------
