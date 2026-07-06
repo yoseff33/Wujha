@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وُجْهَة | الدخول الموحد (نفاذ)</title>
+    <title>وُجْهَة | تسجيل الدخول</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
+        /* إعادة استخدام نفس الأنماط مع تعديل بسيط */
         .login-wrapper {
             background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center center/cover;
             min-height: 100vh;
@@ -18,16 +18,13 @@
             padding: 120px 20px 50px;
         }
 
-        .nafath-card {
+        .auth-card {
             background: white;
-            padding: 40px;
+            padding: 40px 30px;
             border-radius: 20px;
             width: 100%;
             max-width: 450px;
-            text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
             animation: slideUp 0.5s ease-out;
         }
 
@@ -36,44 +33,95 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        .login-step {
-            display: none;
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .login-step.active {
+        .auth-header .logo-icon {
+            font-size: 2.5rem;
+            background: var(--primary, #00ab6b);
+            color: white;
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            font-weight: 800;
+        }
+        .auth-header h2 {
+            margin: 10px 0 5px;
+            color: #1a3d37;
+        }
+        .auth-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .tab-switch {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 30px;
+            padding: 5px;
+            margin-bottom: 30px;
+        }
+        .tab-switch button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #555;
+        }
+        .tab-switch button.active {
+            background: var(--primary, #00ab6b);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,171,107,0.3);
+        }
+
+        .auth-form {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .auth-form.active {
             display: block;
-            animation: fadeIn 0.5s;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .input-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-align: right;
         }
         .input-group label {
             display: block;
-            margin-bottom: 10px;
-            color: #333;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: #333;
         }
-        .nafath-input {
+        .auth-input {
             width: 100%;
-            padding: 15px;
+            padding: 14px 15px;
             border: 2px solid #ddd;
             border-radius: 10px;
-            font-size: 1.1rem;
-            text-align: center;
+            font-size: 1rem;
             transition: 0.3s;
+            background: #fafafa;
         }
-        .nafath-input:focus {
+        .auth-input:focus {
             border-color: #00ab6b;
             outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0,171,107,0.2);
         }
 
-        .nafath-btn {
+        .auth-btn {
             background-color: #00ab6b;
             color: white;
             width: 100%;
@@ -84,52 +132,63 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            margin-top: 10px;
         }
-        .nafath-btn:hover {
+        .auth-btn:hover {
             background-color: #008f59;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,171,107,0.3);
         }
 
-        .verification-number {
-            font-size: 4rem;
-            font-weight: 800;
-            color: #00ab6b;
-            margin: 20px 0;
-            letter-spacing: 5px;
-        }
-        .timer {
-            color: #777;
+        .auth-error {
+            color: #e74c3c;
+            background: #fde8e8;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
             font-size: 0.9rem;
-            margin-bottom: 20px;
+            display: none;
+            text-align: center;
         }
-        
-        .role-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 12px;
+        .auth-success {
+            color: #27ae60;
+            background: #e8f8ed;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: center;
+        }
+        .auth-extra {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        .auth-extra a {
+            color: #00ab6b;
             font-weight: bold;
             text-decoration: none;
-            transition: 0.3s;
+            cursor: pointer;
         }
-        .role-owner {
-            background: var(--primary);
-            color: white;
+        .auth-extra a:hover {
+            text-decoration: underline;
         }
-        .role-renter {
-            background: white;
-            border: 2px solid var(--primary);
-            color: var(--primary);
+        .password-toggle {
+            position: relative;
         }
-        .role-owner:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .role-renter:hover { background: var(--light-gray); }
-
+        .password-toggle .toggle-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+        }
     </style>
 </head>
 <body>
+    <!-- الهيدر كما هو -->
     <header>
         <div class="container">
             <nav class="navbar">
@@ -150,56 +209,86 @@
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
                         <i class="fas fa-moon"></i>
-                        <span>الوضع</span> </button>
-                    </div>
+                        <span>الوضع</span>
+                    </button>
+                </div>
             </nav>
         </div>
     </header>
 
+    <!-- المحتوى الرئيسي -->
     <div class="login-wrapper">
-        <div class="nafath-card">
-            <div style="margin-bottom: 30px;">
-                <img src="https://www.thaqfny.com/wp-content/uploads/2021/01/%D9%86%D9%81%D8%A7%D8%B0-%D8%A7%D9%84%D9%88%D8%B7%D9%86%D9%8A-%D8%A7%D9%84%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A.png" alt="نفاذ" style="width: 200px; max-width: 100%; object-fit: contain;">
-                <p style="color: #666; font-size: 0.9rem; margin-top: 15px;">بوابة النفاذ الوطني الموحد</p>
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo-icon">و</div>
+                <h2>مرحباً بك في وُجْهَة</h2>
+                <p>تأجير السيارات بين الأفراد بثقة وأمان</p>
             </div>
 
-            <div id="step-1" class="login-step active">
-                <h3 style="margin-bottom: 20px; color: var(--dark);">تسجيل الدخول</h3>
-                <div class="input-group">
-                    <label>رقم الهوية الوطنية / الإقامة</label>
-                    <input type="number" class="nafath-input" placeholder="أدخل رقم الهوية" id="national-id">
-                </div>
-                <button class="nafath-btn" onclick="startNafathVerification()">تسجيل الدخول</button>
+            <!-- أزرار التبديل -->
+            <div class="tab-switch">
+                <button class="active" data-tab="login">تسجيل الدخول</button>
+                <button data-tab="register">إنشاء حساب</button>
             </div>
 
-            <div id="step-2" class="login-step">
-                <h3 style="color: var(--dark);">التحقق عبر تطبيق نفاذ</h3>
-                <p style="color: #666; margin: 15px 0;">الرجاء فتح تطبيق نفاذ وتأكيد الطلب باختيار الرقم:</p>
-                <div class="verification-number" id="random-code">45</div>
-                <div class="timer">
-                    <i class="fas fa-spinner fa-spin"></i> بانتظار الموافقة...
+            <!-- نموذج تسجيل الدخول -->
+            <div id="login-form" class="auth-form active">
+                <form id="login-form-element" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label for="login-phone">رقم الجوال <span style="color:red;">*</span></label>
+                        <input type="tel" class="auth-input" id="login-phone" placeholder="05xxxxxxxx" required>
+                    </div>
+                    <div class="input-group password-toggle">
+                        <label for="login-password">كلمة المرور <span style="color:red;">*</span></label>
+                        <input type="password" class="auth-input" id="login-password" placeholder="••••••••" required>
+                        <span class="toggle-icon" onclick="togglePassword('login-password', this)"><i class="fas fa-eye"></i></span>
+                    </div>
+                    <button type="submit" class="auth-btn">دخول</button>
+                </form>
+                <div id="login-error" class="auth-error"></div>
+                <div id="login-success" class="auth-success"></div>
+                <div class="auth-extra">
+                    ليس لديك حساب؟ <a onclick="switchTab('register')">سجل الآن</a>
                 </div>
             </div>
 
-            <div id="step-3" class="login-step">
-                <div style="color: #00ab6b; font-size: 3rem; margin-bottom: 10px;">
-                    <i class="fas fa-check-circle"></i>
+            <!-- نموذج إنشاء حساب -->
+            <div id="register-form" class="auth-form">
+                <form id="register-form-element" onsubmit="handleRegister(event)">
+                    <div class="input-group">
+                        <label for="register-name">الاسم الكامل <span style="color:red;">*</span></label>
+                        <input type="text" class="auth-input" id="register-name" placeholder="أدخل اسمك" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-phone">رقم الجوال <span style="color:red;">*</span></label>
+                        <input type="tel" class="auth-input" id="register-phone" placeholder="05xxxxxxxx" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-email">البريد الإلكتروني (اختياري)</label>
+                        <input type="email" class="auth-input" id="register-email" placeholder="example@domain.com">
+                    </div>
+                    <div class="input-group password-toggle">
+                        <label for="register-password">كلمة المرور <span style="color:red;">*</span></label>
+                        <input type="password" class="auth-input" id="register-password" placeholder="••••••••" required minlength="6">
+                        <span class="toggle-icon" onclick="togglePassword('register-password', this)"><i class="fas fa-eye"></i></span>
+                    </div>
+                    <div class="input-group password-toggle">
+                        <label for="register-password-confirm">تأكيد كلمة المرور <span style="color:red;">*</span></label>
+                        <input type="password" class="auth-input" id="register-password-confirm" placeholder="••••••••" required>
+                        <span class="toggle-icon" onclick="togglePassword('register-password-confirm', this)"><i class="fas fa-eye"></i></span>
+                    </div>
+                    <button type="submit" class="auth-btn">إنشاء حساب</button>
+                </form>
+                <div id="register-error" class="auth-error"></div>
+                <div id="register-success" class="auth-success"></div>
+                <div class="auth-extra">
+                    لديك حساب؟ <a onclick="switchTab('login')">سجل دخول</a>
                 </div>
-                <h3 style="margin-bottom: 10px;">تم التوثيق بنجاح</h3>
-                <p style="margin-bottom: 25px; color: #666;">تم التحقق من الهوية الرقمية</p>
-                
-                <p style="margin-bottom: 15px; font-size: 0.95rem;">اختر نوع الحساب للمتابعة:</p>
-                
-                <a href="#" class="role-btn role-owner" onclick="loginUser('owner')">
-                    <i class="fas fa-car"></i> الدخول كـ (مؤجر)
-                </a>
-                <a href="#" class="role-btn role-renter" onclick="loginUser('renter')">
-                    <i class="fas fa-user"></i> الدخول كـ (مستأجر)
-                </a>
             </div>
         </div>
     </div>
 
+    <!-- الفوتر كما هو (نفس الفوتر الموجود) -->
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -213,7 +302,6 @@
                         <a href="#"><i class="fab fa-linkedin"></i></a>
                     </div>
                 </div>
-                
                 <div class="footer-col">
                     <h3>روابط سريعة</h3>
                     <ul>
@@ -223,7 +311,6 @@
                         <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-col">
                     <h3>للأفراد</h3>
                     <ul>
@@ -233,98 +320,202 @@
                         <li><a href="user-guide.html">دليل المستخدم</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-col">
                     <h3>تواصل معنا</h3>
                     <ul class="footer-contact">
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>الرياض، واجهة روشن (مقر الهاكاثون)</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-phone"></i>
-                            <span>+966 56 546 4718</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-envelope"></i>
-                            <span>contact@wujha.sa</span>
-                        </li>
+                        <li><i class="fas fa-map-marker-alt"></i><span>الرياض، واجهة روشن (مقر الهاكاثون)</span></li>
+                        <li><i class="fas fa-phone"></i><span>+966 56 546 4718</span></li>
+                        <li><i class="fas fa-envelope"></i><span>contact@wujha.sa</span></li>
                     </ul>
                 </div>
             </div>
-            
             <div class="copyright">
                 <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦</p>
             </div>
         </div>
     </footer>
 
+    <!-- نفس النافبار السفلي -->
     <nav class="bottom-navbar mobile-bottom-navbar">
-        <a href="index.html" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>الرئيسية</span>
-        </a>
-        <a href="cars.html" class="nav-item">
-            <i class="fas fa-car"></i>
-            <span>السيارات</span>
-        </a>
-        <a href="landing.html" class="nav-item active guest-only" id="mobile-bottom-guest-button">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>دخول</span>
-        </a>
-        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button">
-            <i class="fas fa-user-circle"></i>
-            <span>حسابي</span>
-        </a>
-        <a href="qassim-map.html" class="nav-item">
-            <i class="fas fa-map-marked-alt"></i>
-            <span>الخريطة</span>
-        </a>
-        <a href="#" class="nav-item" id="mobile-chatbot-toggle">
-            <i class="fas fa-comment-dots"></i>
-            <span>المساعد</span>
-        </a>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+        <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
+        <a href="landing.html" class="nav-item active"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
+        <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
+        <a href="#" class="nav-item" id="mobile-chatbot-toggle"><i class="fas fa-comment-dots"></i><span>المساعد</span></a>
     </nav>
 
+    <!-- شات بوت (نفسه) -->
     <div id="chatbot-popup" class="chatbot-popup">
         <div class="chatbot-header">
             <h3>المساعد الأمني</h3>
             <button id="chatbot-close-btn" class="close-btn">&times;</button>
         </div>
         <div class="chatbot-body" id="chatbot-body">
-            <div class="bot-message">
-                مرحباً بك في بوابة الدخول الآمن. هل تواجه مشكلة في تسجيل الدخول عبر نفاذ؟
-            </div>
+            <div class="bot-message">مرحباً بك في بوابة الدخول الآمن. هل تواجه مشكلة في تسجيل الدخول؟</div>
         </div>
         <div class="chatbot-footer">
             <input type="text" id="chatbot-input" placeholder="اكتب سؤالك...">
             <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
-    
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({ once: true })
 
-        function startNafathVerification() {
-            const idInput = document.getElementById('national-id')
-            if(idInput.value.length < 5) {
-                alert('الرجاء إدخال رقم هوية صحيح للتجربة اكتب أي رقم')
-                return
+    <script>
+        // التبديل بين التبويبات
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-switch button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.toggle('active', form.id === tab + '-form');
+            });
+            // إخفاء الرسائل
+            document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
+        }
+
+        // ربط أزرار التبديل
+        document.querySelectorAll('.tab-switch button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                switchTab(this.dataset.tab);
+            });
+        });
+
+        // إظهار/إخفاء كلمة المرور
+        function togglePassword(inputId, iconSpan) {
+            const input = document.getElementById(inputId);
+            const icon = iconSpan.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // إظهار رسالة الخطأ أو النجاح
+        function showMessage(elementId, message, isSuccess = false) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = 'block';
+            if (isSuccess) {
+                el.className = 'auth-success';
+            } else {
+                el.className = 'auth-error';
+            }
+        }
+
+        // معالجة تسجيل الدخول
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('login-phone').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            // إخفاء الرسائل السابقة
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    // حفظ التوكن (مثال: localStorage)
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
+                    // إعادة توجيه حسب الدور
+                    setTimeout(() => {
+                        if (data.user.role === 'owner') {
+                            window.location.href = 'dashboard-owner.html';
+                        } else {
+                            window.location.href = 'dashboard-renter.html';
+                        }
+                    }, 1500);
+                } else {
+                    showMessage('login-error', data.message || 'بيانات الدخول غير صحيحة');
+                }
+            } catch (error) {
+                showMessage('login-error', 'حدث خطأ في الاتصال بالخادم');
+                console.error(error);
+            }
+        }
+
+        // معالجة التسجيل
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value.trim();
+            const phone = document.getElementById('register-phone').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const passwordConfirm = document.getElementById('register-password-confirm').value;
+
+            // إخفاء الرسائل السابقة
+            document.getElementById('register-error').style.display = 'none';
+            document.getElementById('register-success').style.display = 'none';
+
+            // تحقق من تطابق كلمة المرور
+            if (password !== passwordConfirm) {
+                showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
+                return;
             }
 
-            document.getElementById('step-1').classList.remove('active')
-            document.getElementById('step-2').classList.add('active')
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
+                });
+                const data = await response.json();
 
-            const randomNum = Math.floor(Math.random() * 90) + 10
-            document.getElementById('random-code').innerText = randomNum
-
-            setTimeout(() => {
-                document.getElementById('step-2').classList.remove('active')
-                document.getElementById('step-3').classList.add('active')
-            }, 3000)
+                if (response.ok && data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
+                    setTimeout(() => {
+                        if (data.user.role === 'owner') {
+                            window.location.href = 'dashboard-owner.html';
+                        } else {
+                            window.location.href = 'dashboard-renter.html';
+                        }
+                    }, 1500);
+                } else {
+                    let errorMsg = data.message || 'حدث خطأ أثناء التسجيل';
+                    if (data.errors) {
+                        errorMsg = Object.values(data.errors).flat().join(' ');
+                    }
+                    showMessage('register-error', errorMsg);
+                }
+            } catch (error) {
+                showMessage('register-error', 'حدث خطأ في الاتصال بالخادم');
+                console.error(error);
+            }
         }
+
+        // إذا كان المستخدم مسجلاً مسبقاً، نعيد توجيهه تلقائياً
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // يمكن التحقق من صحة التوكن عبر API، أو توجيهه مباشرة
+                // لكن لتجنب التوجيه الخاطئ، الأفضل التحقق.
+                // سنقوم بطلب بسيط للتحقق، أو نكتفي بالتوجيه حسب الدور المخزن
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.role === 'owner') {
+                    window.location.href = 'dashboard-owner.html';
+                } else if (user.role === 'renter') {
+                    window.location.href = 'dashboard-renter.html';
+                }
+            }
+        });
     </script>
+
+    <!-- سكربتات أخرى (script.js, chatbot.js) -->
     <script src="script.js?v=4"></script>
     <script src="chatbot.js"></script>
 </body>
