@@ -10,13 +10,17 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="style.css">
 
+    <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+
     <style>
-        /* --- 1. التنسيقات الأساسية --- */
         .centered-map-layout { max-width: 900px; margin: 0 auto; position: relative; }
 
         .top-filter-bar {
             background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px;
-            padding: 12px 15px; margin-bottom: 15px; /* هوامش أقل */
+            padding: 12px 15px; margin-bottom: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex;
             align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
         }
@@ -29,7 +33,6 @@
         .tf-select { padding: 6px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-family: 'Tajawal'; cursor: pointer; width: 100%; font-size: 0.9rem; }
         .tf-btn { background: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-weight: bold; height: 38px; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: auto; font-size: 0.9rem; white-space: nowrap; }
 
-        /* --- 2. الخريطة --- */
         .new-map-container {
             position: relative; height: 500px; width: 100%;
             border-radius: 20px; overflow: hidden; border: 4px solid #fff;
@@ -45,49 +48,19 @@
             .new-map-container { height: 480px; }
         }
 
-        /* --- 3. البطاقة المصغرة (Compact Popup) --- */
         .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
-        
-        /* تصغير العرض الكلي للبطاقة */
         .leaflet-popup-content { margin: 0 !important; width: 220px !important; } 
-        
-        .popup-car-card {
-            padding: 10px;
-            /* ارتفاع أقصى صغير مناسب للجوال */
-            max-height: 260px; 
-            overflow-y: auto;
-        }
-        /* تصغير الصورة */
+        .popup-car-card { padding: 10px; max-height: 260px; overflow-y: auto; }
         .popup-img { width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 5px; }
-        
-        /* تصغير النصوص */
         .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .popup-header h4 { margin: 0; font-size: 0.9rem; color: #1abc9c; }
         .popup-rating { background: #fff9db; padding: 1px 6px; border-radius: 4px; font-weight: bold; color: #f39c12; font-size: 0.75rem; }
-
-        /* تصغير أشرطة التقييم */
         .rating-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin: 3px 0; color: #666; align-items: center; }
         .progress-bar { width: 60px; height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: #2ecc71; }
+        .popup-btn { display: block; padding: 6px; font-size: 0.85rem; text-align: center; background: var(--primary, #1abc9c); color: white; border-radius: 6px; margin-top: 8px; text-decoration: none; }
+        .leaflet-popup-close-button { font-size: 18px !important; color: #333 !important; top: 5px !important; right: 5px !important; width: 24px !important; height: 24px !important; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* تصغير الزر */
-        .popup-btn { 
-            display: block; padding: 6px; font-size: 0.85rem; text-align: center; 
-            background: var(--primary, #1abc9c); color: white; border-radius: 6px; 
-            margin-top: 8px; text-decoration: none; 
-        }
-
-        /* زر الإغلاق */
-        .leaflet-popup-close-button {
-            font-size: 18px !important; color: #333 !important;
-            top: 5px !important; right: 5px !important;
-            width: 24px !important; height: 24px !important;
-            background: rgba(255,255,255,0.9); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* ستايلات الوضع الليلي والإضافات */
         body.dark-mode .top-filter-bar { background: #2d3436; border-color: #444; }
         body.dark-mode .tf-label { color: #ccc; }
         body.dark-mode .tf-select { background: #444; color: white; border-color: #555; }
@@ -105,6 +78,14 @@
         }
         .price-marker-box:hover { transform: scale(1.1); z-index: 1000; }
         .price-marker-box.premium { background: #2c3e50; color: #f1c40f; border-color: #f1c40f; }
+
+        .loading-map {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.8); padding: 20px 30px; border-radius: 12px;
+            z-index: 1000; font-weight: bold; color: #555;
+            display: flex; align-items: center; gap: 10px;
+        }
+        body.dark-mode .loading-map { background: rgba(30,30,30,0.9); color: #ccc; }
     </style>
 </head>
 <body>
@@ -116,6 +97,9 @@
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">الأسطول</a></li>
                     <li><a href="qassim-map.html" class="active">تصفح الخريطة</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
                 </ul>
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> الوضع</button>
@@ -138,19 +122,21 @@
                     <div class="tf-item">
                         <span class="tf-label"><i class="fas fa-map-marker-alt"></i> المدينة</span>
                         <select id="city-selector" class="tf-select" onchange="changeCity()">
-                            <option value="riyadh" selected>الرياض (واجهة روشن)</option>
-                            <option value="dammam">الدمام</option>
-                            <option value="khobar">الخبر</option>
-                            <option value="jeddah">جدة</option>
+                            <option value="all">جميع المدن</option>
+                            <option value="الرياض">الرياض</option>
+                            <option value="جدة">جدة</option>
+                            <option value="الدمام">الدمام</option>
+                            <option value="الخبر">الخبر</option>
+                            <option value="بريدة">بريدة</option>
                         </select>
                     </div>
                     <div class="tf-item">
                         <span class="tf-label"><i class="fas fa-car"></i> الفئة</span>
                         <div class="tf-pills">
                             <div class="tf-pill active" onclick="filterMap('الكل', this)">الكل</div>
-                            <div class="tf-pill" onclick="filterMap('سيدان', this)">سيدان</div>
-                            <div class="tf-pill" onclick="filterMap('دفع رباعي', this)">عائلي</div>
-                            <div class="tf-pill" onclick="filterMap('فاخرة', this)">فاخرة</div>
+                            <div class="tf-pill" onclick="filterMap('sedan', this)">سيدان</div>
+                            <div class="tf-pill" onclick="filterMap('suv', this)">عائلي</div>
+                            <div class="tf-pill" onclick="filterMap('luxury', this)">فاخرة</div>
                         </div>
                     </div>
                     <div class="tf-item">
@@ -162,6 +148,9 @@
 
                 <div class="new-map-container" data-aos="zoom-in">
                     <div id="mapid"></div>
+                    <div id="loading-map-overlay" class="loading-map">
+                        <i class="fas fa-spinner fa-spin"></i> جاري تحميل السيارات...
+                    </div>
                 </div>
             </div>
         </div>
@@ -177,141 +166,210 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>AOS.init({ once: true });</script>
-    
     <script>
-        // تحديث الناف بار
-        function updateNavbar() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            const userType = localStorage.getItem('userType');
-            const guestBtns = document.querySelectorAll('.guest-only');
-            const userBtns = document.getElementById('nav-user-profile-placeholder');
-            const mobileUserBtn = document.getElementById('mobile-bottom-user-button');
-            const mobileGuestBtn = document.getElementById('mobile-bottom-guest-button');
+        AOS.init({ once: true });
 
-            if (isLoggedIn) {
-                guestBtns.forEach(b => b.style.display = 'none');
-                if(mobileGuestBtn) mobileGuestBtn.style.display = 'none';
-                if (userBtns) {
-                    userBtns.innerHTML = `<a href="#" onclick="logout()" class="btn btn-outline" style="margin-right:10px">خروج</a>`;
-                    userBtns.style.display = 'flex';
-                }
-                if (mobileUserBtn) {
-                    mobileUserBtn.style.display = 'flex';
-                    mobileUserBtn.href = userType === 'owner' ? 'dashboard-owner.html' : 'dashboard-renter.html';
-                }
-            } else {
-                if (userBtns) userBtns.style.display = 'none';
-                if (mobileUserBtn) mobileUserBtn.style.display = 'none';
-                guestBtns.forEach(b => b.style.display = 'flex');
-                if(mobileGuestBtn) mobileGuestBtn.style.display = 'flex';
+        // ===== متغيرات الخريطة =====
+        let map, carLayer, routeLine;
+        let currentCars = []; // سيتم تخزين السيارات المجلوبة من Supabase
+        const centerPoint = [24.8375090, 46.7297325]; // واجهة روشن
+        let currType = 'الكل';
+        let maxPrice = 1000;
+        let currCity = 'all';
+
+        // ===== تحديث شريط التنقل (من script.js) =====
+        function updateNavbarLocal() {
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
             }
         }
-        function logout() { localStorage.clear(); location.reload(); }
-        
-        function initTheme() {
+
+        // ===== جلب السيارات من Supabase =====
+        async function fetchCarsForMap() {
+            try {
+                // جلب السيارات النشطة فقط
+                const { data, error } = await supabase
+                    .from('cars')
+                    .select('*')
+                    .eq('status', 'active');
+
+                if (error) throw error;
+                return data;
+            } catch (err) {
+                console.error('خطأ في جلب السيارات:', err);
+                return [];
+            }
+        }
+
+        // ===== تهيئة الخريطة =====
+        async function initMap() {
+            const mapContainer = document.getElementById('mapid');
+            if (!mapContainer) return;
+
+            // عرض مؤشر التحميل
+            const overlay = document.getElementById('loading-map-overlay');
+            overlay.style.display = 'flex';
+
+            // جلب السيارات
+            currentCars = await fetchCarsForMap();
+
+            // إذا لم توجد سيارات، نستخدم بيانات وهمية (للاختبار)
+            if (currentCars.length === 0) {
+                console.warn('لا توجد سيارات نشطة، سيتم استخدام بيانات وهمية.');
+                currentCars = getFallbackCars();
+            }
+
+            // إخفاء التحميل
+            overlay.style.display = 'none';
+
+            // إنشاء الخريطة
+            map = L.map('mapid').setView(centerPoint, 14);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 20
+            }).addTo(map);
+
+            carLayer = L.layerGroup().addTo(map);
+            renderCars();
+
+            // تحديث حجم الخريطة بعد ثانية
+            setTimeout(() => map.invalidateSize(), 500);
+
+            // عند غلق البوب أب، نعيد الكاميرا
+            map.on('popupclose', function() {
+                map.flyTo(centerPoint, 14, { duration: 1 });
+                if (routeLine) map.removeLayer(routeLine);
+            });
+        }
+
+        // ===== بيانات وهمية (احتياطية) =====
+        function getFallbackCars() {
+            return [
+                { id: 'f1', type: 'sedan', brand: 'تويوتا', model: 'كامري 2024', daily_price: 120, city: 'الرياض', lat: 24.8375, lng: 46.7297, rating: 4.9, images: ['https://tse2.mm.bing.net/th/id/OIP.F3b-M0eckL0XjmywTpu8EgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'] },
+                { id: 'f2', type: 'suv', brand: 'تويوتا', model: 'لاندكروزر 2023', daily_price: 450, city: 'الرياض', lat: 24.8381, lng: 46.7292, rating: 5.0, images: ['https://www.autopediame.com/userfiles/images/%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1/%D8%AA%D9%88%D9%8A%D9%88%D8%AA%D8%A7%20%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1%201.jpg'] },
+                { id: 'f3', type: 'luxury', brand: 'لوسيد', model: 'آير', daily_price: 700, city: 'الرياض', lat: 24.8385, lng: 46.7298, rating: 5.0, images: ['https://tse1.mm.bing.net/th/id/OIP.gH5S692_GzMVWiq6ui-sdQHaEA?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3'] }
+            ];
+        }
+
+        // ===== عرض السيارات على الخريطة =====
+        function renderCars() {
+            if (!map || !carLayer) return;
+            carLayer.clearLayers();
+            if (routeLine) map.removeLayer(routeLine);
+
+            let filtered = currentCars.filter(car => {
+                const typeMatch = currType === 'الكل' ? true : car.type === currType;
+                const priceMatch = (car.daily_price || 0) <= maxPrice;
+                const cityMatch = currCity === 'all' ? true : car.city === currCity;
+                return typeMatch && priceMatch && cityMatch;
+            });
+
+            filtered.forEach(car => {
+                const lat = parseFloat(car.lat) || 24.8;
+                const lng = parseFloat(car.lng) || 46.7;
+                const price = car.daily_price || 0;
+                const isPremium = car.rating && car.rating >= 4.8;
+
+                const marker = L.marker([lat, lng], {
+                    icon: createPriceIcon(price, car.type, isPremium)
+                }).addTo(carLayer);
+
+                marker.on('click', () => {
+                    const offsetLat = lat + 0.0025;
+                    map.flyTo([offsetLat, lng], 16, { duration: 1 });
+                    if (routeLine) map.removeLayer(routeLine);
+                    routeLine = L.polyline([centerPoint, [lat, lng]], {
+                        color: '#34495e',
+                        dashArray: '10, 10'
+                    }).addTo(map);
+                });
+
+                const imgUrl = car.images && car.images.length > 0 ? car.images[0] : 'https://via.placeholder.com/300x200?text=سيارة';
+                const content = `
+                    <div class="popup-car-card">
+                        <img src="${imgUrl}" class="popup-img" alt="${car.brand || ''} ${car.model || ''}">
+                        <div class="popup-header">
+                            <h4>${car.brand || ''} ${car.model || ''}</h4>
+                            <span class="popup-rating">⭐ ${car.rating || 4.5}</span>
+                        </div>
+                        <div style="margin:5px 0;">
+                            <div class="rating-row"><span>الميكانيكا</span><div class="progress-bar"><div class="progress-fill" style="width:${(car.rating || 4.5)*10}%"></div></div></div>
+                            <div class="rating-row"><span>النظافة</span><div class="progress-bar"><div class="progress-fill" style="width:${(car.rating || 4.5)*10}%"></div></div></div>
+                        </div>
+                        <a href="cars.html" class="popup-btn">حجز بـ ${price} ريال</a>
+                    </div>
+                `;
+                marker.bindPopup(content, {
+                    autoPan: true,
+                    autoPanPadding: [20, 20],
+                    closeButton: true
+                });
+            });
+
+            // إذا لم تظهر أي سيارة، نعرض رسالة
+            if (filtered.length === 0) {
+                L.popup()
+                    .setLatLng(centerPoint)
+                    .setContent('لا توجد سيارات تطابق الفلتر الحالي.')
+                    .openOn(map);
+            }
+        }
+
+        // ===== إنشاء أيقونة السعر =====
+        function createPriceIcon(price, type, isPremium) {
+            let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
+            if (type === 'luxury') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
+            else if (type === 'suv') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
+            return L.divIcon({
+                className: 'custom-none',
+                html: `<div class="price-marker-box ${isPremium ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
+                iconSize: [80, 30],
+                iconAnchor: [40, 35],
+                popupAnchor: [0, -35]
+            });
+        }
+
+        // ===== دوال الفلاتر =====
+        window.updatePriceLabel = function(val) {
+            maxPrice = parseInt(val);
+            document.getElementById('priceValue').innerText = maxPrice;
+            renderCars();
+        };
+
+        window.filterMap = function(type, el) {
+            currType = type;
+            document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            renderCars();
+        };
+
+        window.changeCity = function() {
+            const select = document.getElementById('city-selector');
+            currCity = select.value;
+            renderCars();
+        };
+
+        window.simulateSmartLocate = function() {
+            if (map) map.flyTo(centerPoint, 16);
+        };
+
+        // ===== تهيئة الصفحة =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث شريط التنقل
+            updateNavbarLocal();
+
+            // تهيئة الثيم
             const themeBtn = document.getElementById('theme-toggle-desktop');
-            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-            if(themeBtn) {
+            if (themeBtn) {
+                if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
                 themeBtn.addEventListener('click', () => {
                     document.body.classList.toggle('dark-mode');
                     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
                 });
             }
-        }
 
-        // --- الخريطة والبيانات ---
-        let map, carLayer, routeLine;
-        const centerPoint = [24.8375090, 46.7297325]; // واجهة روشن
-
-        const cars = [
-            { id: 'r1', type: 'سيدان', model: 'تويوتا كامري 2024', price: '120', rating: 4.9, lat: 24.8375090, lng: 46.7297325, score: 10, img: 'https://tse2.mm.bing.net/th/id/OIP.F3b-M0eckL0XjmywTpu8EgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3' },
-            { id: 'r2', type: 'دفع رباعي', model: 'لاندكروزر 2023', price: '450', rating: 5.0, lat: 24.8381000, lng: 46.7292000, score: 10, img: 'https://www.autopediame.com/userfiles/images/%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1/%D8%AA%D9%88%D9%8A%D9%88%D8%AA%D8%A7%20%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1%201.jpg' },
-            { id: 'r7', type: 'فاخرة', model: 'لوسيد آير', price: '700', rating: 5.0, lat: 24.8385000, lng: 46.7298000, score: 10, img: 'https://tse1.mm.bing.net/th/id/OIP.gH5S692_GzMVWiq6ui-sdQHaEA?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3' },
-            { id: 'r4', type: 'سيدان', model: 'هونداي النترا', price: '85', rating: 4.2, lat: 24.8378000, lng: 46.7305000, score: 8, img: 'https://static.sayidaty.net/styles/900_scale/public/2022-03/80578.jpeg.webp' },
-            { id: 'r6', type: 'دفع رباعي', model: 'شيفروليه تاهو', price: '380', rating: 4.9, lat: 24.8365000, lng: 46.7295000, score: 9, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_xL-R8y8f_Q_g_h_j_k_l_m_n_o_p' }
-        ];
-
-        function initMap() {
-            if(!document.getElementById('mapid')) return;
-            
-            map = L.map('mapid').setView(centerPoint, 15);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; CARTO', maxZoom: 20
-            }).addTo(map);
-            carLayer = L.layerGroup().addTo(map);
-            renderCars();
-            
-            setTimeout(() => { map.invalidateSize(); }, 500);
-
-            // إرجاع الكاميرا عند الإغلاق
-            map.on('popupclose', function() {
-                map.flyTo(centerPoint, 15, { duration: 1 });
-                if(routeLine) map.removeLayer(routeLine);
-            });
-        }
-
-        let currType = 'الكل';
-        let maxP = 1000;
-
-        window.updatePriceLabel = (v) => { maxP = v; document.getElementById('priceValue').innerText = v; }
-        window.filterMap = (t, el) => {
-            currType = t;
-            document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
-            el.classList.add('active');
-            renderCars();
-        }
-
-        function createIcon(price, type, isPrem) {
-            let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
-            if(type === 'فاخرة') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
-            if(type === 'دفع رباعي') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
-            return L.divIcon({
-                className: 'custom-none',
-                html: `<div class="price-marker-box ${isPrem ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
-                iconSize: [80, 30], iconAnchor: [40, 35], popupAnchor: [0, -35]
-            });
-        }
-
-        function renderCars() {
-            carLayer.clearLayers();
-            cars.filter(c => (currType === 'الكل' || c.type === currType) && c.price <= maxP).forEach(c => {
-                const marker = L.marker([c.lat, c.lng], { icon: createIcon(c.price, c.type, c.rating >= 5) }).addTo(carLayer);
-
-                marker.on('click', () => {
-                    // حركة الإزاحة الذكية (تنزل السيارة تحت شوي)
-                    // 0.0025 درجة كافية لرفع الكاميرا فوق السيارة
-                    const offsetLat = c.lat + 0.0025;
-                    map.flyTo([offsetLat, c.lng], 16, { duration: 1 });
-                    
-                    if(routeLine) map.removeLayer(routeLine);
-                    routeLine = L.polyline([centerPoint, [c.lat, c.lng]], { color: '#34495e', dashArray: '10, 10' }).addTo(map);
-                });
-
-                const content = `
-                    <div class="popup-car-card">
-                        <img src="${c.img}" class="popup-img">
-                        <div class="popup-header">
-                            <h4>${c.model}</h4>
-                            <span class="popup-rating">⭐ ${c.rating}</span>
-                        </div>
-                        <div style="margin:5px 0;">
-                            <div class="rating-row"><span>الميكانيكا</span><div class="progress-bar"><div class="progress-fill" style="width:${c.score*10}%"></div></div></div>
-                            <div class="rating-row"><span>النظافة</span><div class="progress-bar"><div class="progress-fill" style="width:${c.score*10}%"></div></div></div>
-                        </div>
-                        <a href="cars.html" class="popup-btn">حجز بـ ${c.price} ريال</a>
-                    </div>
-                `;
-
-                // autoPanPadding صغير (20) لأن البطاقة صغيرة أصلاً
-                marker.bindPopup(content, { autoPan: true, autoPanPadding: [20, 20], closeButton: true });
-            });
-        }
-
-        window.simulateSmartLocate = () => { map.flyTo(centerPoint, 16); }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme(); updateNavbar(); setTimeout(initMap, 100);
+            // تشغيل الخريطة
+            initMap();
         });
     </script>
 </body>
