@@ -24,6 +24,7 @@ return [
         'https://app.wujha.sa',
         'http://localhost:3000',
         'http://127.0.0.1:8000',
+        'https://yoseff33.github.io',
     ],
 
     'allowed_origins_patterns' => [],
