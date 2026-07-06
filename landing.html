@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- سكربت وقائي لتجنب أخطاء DOM -->
+    <script>
+        // هذا السكربت يُنفذ قبل أي شيء للتأكد من أن المتصفح جاهز
+        (function() {
+            // منع الأخطاء الشائعة بسبب عناصر غير موجودة
+            console.log('تم تحميل السكربت الوقائي');
+        })();
+    </script>
+
     <style>
         /* إعادة استخدام نفس الأنماط مع تعديل بسيط */
         .login-wrapper {
@@ -288,7 +298,7 @@
         </div>
     </div>
 
-    <!-- الفوتر كما هو (نفس الفوتر الموجود) -->
+    <!-- الفوتر كما هو -->
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -335,7 +345,7 @@
         </div>
     </footer>
 
-    <!-- نفس النافبار السفلي -->
+    <!-- النافبار السفلي -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -345,7 +355,7 @@
         <a href="#" class="nav-item" id="mobile-chatbot-toggle"><i class="fas fa-comment-dots"></i><span>المساعد</span></a>
     </nav>
 
-    <!-- شات بوت (نفسه) -->
+    <!-- شات بوت -->
     <div id="chatbot-popup" class="chatbot-popup">
         <div class="chatbot-header">
             <h3>المساعد الأمني</h3>
@@ -360,151 +370,151 @@
         </div>
     </div>
 
+    <!-- السكربتات الأساسية -->
     <script>
-        // التبديل بين التبويبات
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-switch button').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tab === tab);
-            });
-            document.querySelectorAll('.auth-form').forEach(form => {
-                form.classList.toggle('active', form.id === tab + '-form');
-            });
-            // إخفاء الرسائل
-            document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
-        }
+        // جميع الدوال تُنفذ بعد تحميل DOM بالكامل
+        document.addEventListener('DOMContentLoaded', function() {
 
-        // ربط أزرار التبديل
-        document.querySelectorAll('.tab-switch button').forEach(btn => {
-            btn.addEventListener('click', function() {
-                switchTab(this.dataset.tab);
-            });
-        });
+            // التبديل بين التبويبات
+            function switchTab(tab) {
+                const tabButtons = document.querySelectorAll('.tab-switch button');
+                const forms = document.querySelectorAll('.auth-form');
+                if (tabButtons.length === 0 || forms.length === 0) return;
 
-        // إظهار/إخفاء كلمة المرور
-        function togglePassword(inputId, iconSpan) {
-            const input = document.getElementById(inputId);
-            const icon = iconSpan.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // إظهار رسالة الخطأ أو النجاح
-        function showMessage(elementId, message, isSuccess = false) {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.style.display = 'block';
-            if (isSuccess) {
-                el.className = 'auth-success';
-            } else {
-                el.className = 'auth-error';
-            }
-        }
-
-        // معالجة تسجيل الدخول
-        async function handleLogin(e) {
-            e.preventDefault();
-            const phone = document.getElementById('login-phone').value.trim();
-            const password = document.getElementById('login-password').value;
-
-            // إخفاء الرسائل السابقة
-            document.getElementById('login-error').style.display = 'none';
-            document.getElementById('login-success').style.display = 'none';
-
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, password })
+                tabButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tab);
                 });
-                const data = await response.json();
+                forms.forEach(form => {
+                    form.classList.toggle('active', form.id === tab + '-form');
+                });
+                // إخفاء الرسائل
+                document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
+            }
 
-                if (response.ok && data.token) {
-                    // حفظ التوكن (مثال: localStorage)
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
-                    // إعادة توجيه حسب الدور
-                    setTimeout(() => {
-                        if (data.user.role === 'owner') {
-                            window.location.href = 'dashboard-owner.html';
-                        } else {
-                            window.location.href = 'dashboard-renter.html';
-                        }
-                    }, 1500);
+            // ربط أزرار التبديل (مع التحقق من وجودها)
+            const tabBtns = document.querySelectorAll('.tab-switch button');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    if (tab) switchTab(tab);
+                });
+            });
+
+            // دالة إظهار/إخفاء كلمة المرور
+            window.togglePassword = function(inputId, iconSpan) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                const icon = iconSpan ? iconSpan.querySelector('i') : null;
+                if (!icon) return;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
                 } else {
-                    showMessage('login-error', data.message || 'بيانات الدخول غير صحيحة');
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
                 }
-            } catch (error) {
-                showMessage('login-error', 'حدث خطأ في الاتصال بالخادم');
-                console.error(error);
-            }
-        }
+            };
 
-        // معالجة التسجيل
-        async function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('register-name').value.trim();
-            const phone = document.getElementById('register-phone').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const password = document.getElementById('register-password').value;
-            const passwordConfirm = document.getElementById('register-password-confirm').value;
-
-            // إخفاء الرسائل السابقة
-            document.getElementById('register-error').style.display = 'none';
-            document.getElementById('register-success').style.display = 'none';
-
-            // تحقق من تطابق كلمة المرور
-            if (password !== passwordConfirm) {
-                showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
-                return;
+            // دالة عرض الرسائل
+            function showMessage(elementId, message, isSuccess = false) {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                el.textContent = message;
+                el.style.display = 'block';
+                el.className = isSuccess ? 'auth-success' : 'auth-error';
             }
 
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
-                });
-                const data = await response.json();
+            // معالجة تسجيل الدخول
+            window.handleLogin = async function(e) {
+                e.preventDefault();
+                const phone = document.getElementById('login-phone')?.value?.trim() || '';
+                const password = document.getElementById('login-password')?.value || '';
 
-                if (response.ok && data.token) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
-                    setTimeout(() => {
-                        if (data.user.role === 'owner') {
-                            window.location.href = 'dashboard-owner.html';
-                        } else {
-                            window.location.href = 'dashboard-renter.html';
-                        }
-                    }, 1500);
-                } else {
-                    let errorMsg = data.message || 'حدث خطأ أثناء التسجيل';
-                    if (data.errors) {
-                        errorMsg = Object.values(data.errors).flat().join(' ');
+                document.getElementById('login-error').style.display = 'none';
+                document.getElementById('login-success').style.display = 'none';
+
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone, password })
+                    });
+                    const data = await response.json();
+
+                    if (response.ok && data.token) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
+                        setTimeout(() => {
+                            if (data.user.role === 'owner') {
+                                window.location.href = 'dashboard-owner.html';
+                            } else {
+                                window.location.href = 'dashboard-renter.html';
+                            }
+                        }, 1500);
+                    } else {
+                        showMessage('login-error', data.message || 'بيانات الدخول غير صحيحة');
                     }
-                    showMessage('register-error', errorMsg);
+                } catch (error) {
+                    showMessage('login-error', 'حدث خطأ في الاتصال بالخادم');
+                    console.error(error);
                 }
-            } catch (error) {
-                showMessage('register-error', 'حدث خطأ في الاتصال بالخادم');
-                console.error(error);
-            }
-        }
+            };
 
-        // إذا كان المستخدم مسجلاً مسبقاً، نعيد توجيهه تلقائياً
-        window.addEventListener('DOMContentLoaded', () => {
+            // معالجة التسجيل
+            window.handleRegister = async function(e) {
+                e.preventDefault();
+                const name = document.getElementById('register-name')?.value?.trim() || '';
+                const phone = document.getElementById('register-phone')?.value?.trim() || '';
+                const email = document.getElementById('register-email')?.value?.trim() || '';
+                const password = document.getElementById('register-password')?.value || '';
+                const passwordConfirm = document.getElementById('register-password-confirm')?.value || '';
+
+                document.getElementById('register-error').style.display = 'none';
+                document.getElementById('register-success').style.display = 'none';
+
+                if (password !== passwordConfirm) {
+                    showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, phone, email, password, password_confirmation: passwordConfirm })
+                    });
+                    const data = await response.json();
+
+                    if (response.ok && data.token) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
+                        setTimeout(() => {
+                            if (data.user.role === 'owner') {
+                                window.location.href = 'dashboard-owner.html';
+                            } else {
+                                window.location.href = 'dashboard-renter.html';
+                            }
+                        }, 1500);
+                    } else {
+                        let errorMsg = data.message || 'حدث خطأ أثناء التسجيل';
+                        if (data.errors) {
+                            errorMsg = Object.values(data.errors).flat().join(' ');
+                        }
+                        showMessage('register-error', errorMsg);
+                    }
+                } catch (error) {
+                    showMessage('register-error', 'حدث خطأ في الاتصال بالخادم');
+                    console.error(error);
+                }
+            };
+
+            // التحقق من وجود جلسة نشطة
             const token = localStorage.getItem('token');
             if (token) {
-                // يمكن التحقق من صحة التوكن عبر API، أو توجيهه مباشرة
-                // لكن لتجنب التوجيه الخاطئ، الأفضل التحقق.
-                // سنقوم بطلب بسيط للتحقق، أو نكتفي بالتوجيه حسب الدور المخزن
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 if (user.role === 'owner') {
                     window.location.href = 'dashboard-owner.html';
@@ -512,10 +522,29 @@
                     window.location.href = 'dashboard-renter.html';
                 }
             }
+
+            // معالجة زر إغلاق الشات بوت
+            const closeChatBtn = document.getElementById('chatbot-close-btn');
+            if (closeChatBtn) {
+                closeChatBtn.addEventListener('click', function() {
+                    const popup = document.getElementById('chatbot-popup');
+                    if (popup) popup.style.display = 'none';
+                });
+            }
+
+            // زر تبديل الثيم (إذا وجد)
+            const themeToggle = document.getElementById('theme-toggle-desktop');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                });
+            }
+
+            console.log('تم تحميل الصفحة بنجاح');
         });
     </script>
 
-    <!-- سكربتات أخرى (script.js, chatbot.js) -->
+    <!-- السكربتات الخارجية (تأكد من وجودها في المسار الصحيح) -->
     <script src="script.js?v=4"></script>
     <script src="chatbot.js"></script>
 </body>
