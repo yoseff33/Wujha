@@ -3,35 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وُجْهَة | تنقل بثقة واستثمر بأمان الآمن</title>
+    <title>وُجْهَة | تنقل بثقة واستثمر بأمان</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <!-- ===== ربط مكتبة Supabase وملفات المشروع ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        /* === تعريف الألوان الجديدة الموحدة === */
+        /* === تعريف الألوان الموحدة === */
         :root {
-            --brand-dark-teal: #0f2925; /* الزيتي الغامق */
-            --brand-gold: #c5a065;      /* الذهبي الفخم */
-            --brand-dark-bg: #1a1a1a;   /* الأسود الفاتح */
-            --light-bg: #f8f9fa;        /* خلفية فاتحة */
+            --brand-dark-teal: #0f2925;
+            --brand-gold: #c5a065;
+            --brand-dark-bg: #1a1a1a;
+            --light-bg: #f8f9fa;
         }
 
-        /* === إصلاح تأثير الهيدر عند التمرير === */
+        /* === إصلاح الهيدر === */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--light-bg); color: #1a1a1a; transition: background 0.3s, color 0.3s; }
+        body.dark-mode { background-color: var(--brand-dark-bg); color: #e0e0e0; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
         header {
-            transition: all 0.4s ease-in-out;
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
         }
-        header.scrolled {
-            padding: 10px 0 !important;
-            background-color: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
-        }
-        body.dark-mode header.scrolled {
-            background-color: rgba(20, 20, 20, 0.98);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5) !important;
-        }
+        body.dark-mode header { background: rgba(20,20,20,0.98); border-bottom: 1px solid #333; }
+        header.scrolled { padding: 10px 0 !important; box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important; }
+        body.dark-mode header.scrolled { box-shadow: 0 5px 20px rgba(0,0,0,0.5) !important; }
 
-        /* شريط الإحصائيات الحية */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--brand-dark-teal), var(--brand-gold));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--brand-dark-teal);
+        }
+        body.dark-mode .logo-text { color: #f0f0f0; }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        .nav-links li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        body.dark-mode .nav-links li a { color: #ddd; }
+        .nav-links li a:hover, .nav-links li a.active { color: var(--brand-gold); }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.dark-mode .theme-toggle { color: #ddd; }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            border: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: var(--brand-dark-teal);
+            color: white;
+        }
+        .btn-primary:hover { background: #1a4d45; transform: translateY(-2px); }
+        .btn-secondary {
+            background: var(--brand-gold);
+            color: white;
+        }
+        .btn-secondary:hover { background: #b08a4e; transform: translateY(-2px); }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--brand-dark-teal);
+            color: var(--brand-dark-teal);
+        }
+        body.dark-mode .btn-outline { border-color: #ddd; color: #ddd; }
+        .btn-outline:hover { background: var(--brand-dark-teal); color: white; }
+        body.dark-mode .btn-outline:hover { background: #ddd; color: var(--brand-dark-teal); }
+
+        .guest-only { display: flex; }
+        .auth-link { display: none; }
+        #nav-user-profile-placeholder { display: none; align-items: center; gap: 10px; }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, #0a1a17 100%);
+            color: white;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            padding: 40px 0;
+        }
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        .hero-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+
+        /* Live stats */
         .live-stats-bar {
             background: var(--brand-dark-bg);
             color: white;
@@ -51,157 +199,329 @@
         .stat-item { display: inline-block; margin: 0 30px; font-size: 1.1rem; }
         .stat-item i { color: var(--brand-gold); margin-left: 8px; }
 
-        /* === توحيد: قسم الرؤية (بنية رقمية) === */
+        /* Vision section */
         .vision-section {
-            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%) !important;
+            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%);
             color: white;
             padding: 80px 0;
-            position: relative;
         }
-        
         .vision-card-new {
-            background: rgba(255,255,255,0.03); /* زجاجي شفاف */
+            background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 30px;
             border-radius: 16px;
-            transition: transform 0.3s, background 0.3s;
+            transition: 0.3s;
             height: 100%;
         }
-        /* أيقونات الرؤية باللون الذهبي */
-        .vision-card-new i {
-            color: var(--brand-gold) !important;
-        }
+        .vision-card-new i { color: var(--brand-gold) !important; font-size: 2.5rem; margin-bottom: 20px; display: block; }
         .vision-card-new:hover {
             transform: translateY(-5px);
             background: rgba(255,255,255,0.08);
             border-color: var(--brand-gold);
         }
+        .vision-card-new h3 { color: white; margin-bottom: 15px; }
+        .vision-card-new p { color: #ccc; font-size: 1.1rem; }
 
-        /* === توحيد: قسم الميثاق الأمني === */
-        .security-quote-section {
-            background: var(--light-bg); /* خلفية فاتحة للنهار */
-            padding: 60px 0;
+        /* Features */
+        .features {
+            padding: 80px 0;
+            background: var(--light-bg);
+            transition: background 0.3s;
+        }
+        body.dark-mode .features { background: var(--brand-dark-bg); }
+        .section-title { text-align: center; margin-bottom: 50px; }
+        .section-title h2 { font-size: 2.2rem; color: var(--brand-dark-teal); }
+        body.dark-mode .section-title h2 { color: #f0f0f0; }
+        .section-title p { color: #666; font-size: 1.1rem; }
+        body.dark-mode .section-title p { color: #aaa; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            border: 1px solid #eee;
             text-align: center;
+        }
+        body.dark-mode .feature-card { background: #2a2a2a; border-color: #444; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .feature-card:hover { transform: translateY(-8px); border-color: var(--brand-gold); }
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(15,41,37,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--brand-dark-teal);
+        }
+        body.dark-mode .feature-icon { background: rgba(197,160,101,0.2); color: var(--brand-gold); }
+        .feature-card h3 { margin-bottom: 15px; color: var(--brand-dark-teal); }
+        body.dark-mode .feature-card h3 { color: #f0f0f0; }
+        .feature-card p { color: #666; line-height: 1.8; }
+        body.dark-mode .feature-card p { color: #aaa; }
+
+        /* Security quote */
+        .security-quote-section {
+            background: var(--light-bg);
+            padding: 60px 0;
             border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background 0.3s, border-color 0.3s;
         }
-
-        /* إصلاح الخلفية في الوضع الليلي */
-        body.dark-mode .security-quote-section {
-            background-color: var(--brand-dark-bg) !important; /* تقلب غامق بالليل */
-            border-color: #333 !important;
-        }
-
+        body.dark-mode .security-quote-section { background: var(--brand-dark-bg); border-color: #333; }
         .security-quote-box {
-            /* نفس تدرج قسم الرؤية لتوحيد الهوية */
             background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%);
             max-width: 900px;
             margin: 0 auto;
-            position: relative;
             padding: 50px;
             border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(15, 41, 37, 0.25); /* ظل زيتي */
-            border-right: 6px solid var(--brand-gold); /* حد ذهبي */
+            box-shadow: 0 20px 50px rgba(15,41,37,0.25);
+            border-right: 6px solid var(--brand-gold);
             color: white;
+            position: relative;
         }
         .quote-icon {
             font-size: 4rem;
-            color: rgba(255,255,255,0.05); /* شفاف جداً */
+            color: rgba(255,255,255,0.05);
             position: absolute;
             top: 20px;
             right: 20px;
         }
-        /* عنوان الميثاق */
         .security-title {
             color: var(--brand-gold);
             margin-bottom: 25px;
             font-weight: 800;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
+        .security-quote-box p {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            font-weight: 500;
+        }
 
-        /* =========================================
-           تحديث: قسم الشركاء (الشريط المتحرك)
-           ========================================= */
+        /* Partners */
         .partners-section {
-            padding: 40px 0; /* تقليل الارتفاع قليلاً */
-            background: var(--light-bg); /* خلفية فاتحة بدل الرمادي الداكن */
+            padding: 40px 0;
+            background: var(--light-bg);
             text-align: center;
-            position: relative;
-            overflow: hidden; /* مهم جداً لإخفاء الشريط خارج الحدود */
-            transition: background-color 0.3s ease;
+            overflow: hidden;
+            transition: background 0.3s;
         }
-        
-        /* دعم الوضع الليلي للخلفية */
-        body.dark-mode .partners-section {
-            background: var(--brand-dark-bg);
-        }
-
-        /* عنوان القسم */
+        body.dark-mode .partners-section { background: var(--brand-dark-bg); }
         .partners-heading {
-            color: var(--brand-dark-teal); /* لون داكن للخلفية الفاتحة */
+            color: var(--brand-dark-teal);
             margin-bottom: 30px;
             font-weight: 700;
-            transition: color 0.3s ease;
         }
-        body.dark-mode .partners-heading {
-            color: white; /* لون أبيض للوضع الليلي */
-        }
-
-        /* حاوية الشريط المتحرك */
+        body.dark-mode .partners-heading { color: white; }
         .partners-scroller {
             width: 100%;
             overflow: hidden;
-            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); /* تأثير تلاشي في الأطراف */
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
             -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
-
-        /* المسار الذي يتحرك بداخله الصور */
         .partners-track {
             display: flex;
             align-items: center;
-            gap: 50px; /* المسافة بين الشعارات */
-            width: max-content; /* عرض يتسع لكل الصور */
-            animation: scroll-ticker 35s linear infinite; /* سرعة الحركة ونوعها */
+            gap: 50px;
+            width: max-content;
+            animation: scroll-ticker 35s linear infinite;
         }
-        
-        /* تعريف حركة الشريط */
         @keyframes scroll-ticker {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                /* يتحرك بمقدار نصف العرض الإجمالي لأننا كررنا الصور */
-                transform: translateX(calc(-50% - 25px)); /* -50% من العرض + نصف الـ gap */
-            }
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-50% - 25px)); }
         }
-
-        /* عند وضع الماوس يتوقف الشريط */
-        .partners-track:hover {
-            animation-play-state: paused;
-        }
-
-        /* تنسيق صور الشعارات */
+        .partners-track:hover { animation-play-state: paused; }
         .partner-img {
-            height: 60px; /* ارتفاع موحد */
+            height: 60px;
             width: auto;
-            /* تعديل الفلاتر لتناسب الخلفية الفاتحة */
-            filter: grayscale(100%) opacity(0.6); 
-            transition: all 0.3s ease;
+            filter: grayscale(100%) opacity(0.6);
+            transition: 0.3s;
             object-fit: contain;
-            pointer-events: auto; /* لضمان عمل الهوفر */
         }
-        
-        /* في الوضع الليلي نزيد سطوع الصور الرمادية */
-        body.dark-mode .partner-img {
-             filter: grayscale(100%) brightness(150%) opacity(0.7);
-        }
-
-        .partner-img:hover { 
-            filter: grayscale(0%) opacity(1) brightness(100%); /* إظهار الألوان الطبيعية */
-            transform: scale(1.1); 
+        body.dark-mode .partner-img { filter: grayscale(100%) brightness(150%) opacity(0.7); }
+        .partner-img:hover {
+            filter: grayscale(0%) opacity(1) brightness(100%);
+            transform: scale(1.1);
         }
 
+        /* Footer */
+        footer {
+            background: var(--brand-dark-teal);
+            color: white;
+            padding: 40px 0 20px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .footer-col h3 { margin-bottom: 15px; font-size: 1.2rem; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 8px; }
+        .footer-col ul li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .footer-col ul li a:hover { color: white; }
+        .footer-contact li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.7);
+        }
+        .copyright {
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .social-links a {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .social-links a:hover { background: var(--brand-gold); }
+
+        /* Bottom Navbar */
+        .bottom-navbar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 999;
+        }
+        body.dark-mode .bottom-navbar { background: #1a1a1a; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
+        .bottom-navbar .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #888;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        body.dark-mode .bottom-navbar .nav-item { color: #aaa; }
+        .bottom-navbar .nav-item i { font-size: 1.3rem; margin-bottom: 3px; }
+        .bottom-navbar .nav-item.active { color: var(--brand-dark-teal); }
+        body.dark-mode .bottom-navbar .nav-item.active { color: var(--brand-gold); }
+
+        @media (max-width: 992px) {
+            .nav-links { display: none; }
+            .bottom-navbar { display: flex; }
+            body { padding-bottom: 70px; }
+            .hero-content h1 { font-size: 2.2rem; }
+        }
+        @media (max-width: 480px) {
+            .hero-content h1 { font-size: 1.8rem; }
+            .security-quote-box { padding: 30px 20px; }
+            .security-quote-box p { font-size: 1.1rem; }
+        }
+
+        /* Chatbot (مدمج مع script.js لكن نضيف ستايلات) */
+        .chatbot-popup {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 320px;
+            max-height: 400px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 2000;
+        }
+        body.dark-mode .chatbot-popup { background: #2a2a2a; border: 1px solid #444; }
+        .chatbot-popup.open { display: flex; }
+        .chatbot-header {
+            background: var(--brand-dark-teal);
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-header h3 { font-size: 1rem; margin: 0; }
+        .chatbot-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .chatbot-body {
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bot-message, .user-message {
+            padding: 10px 14px;
+            border-radius: 16px;
+            max-width: 85%;
+            font-size: 0.9rem;
+        }
+        .bot-message { background: #f1f1f1; align-self: flex-start; }
+        body.dark-mode .bot-message { background: #3a3a3a; color: #eee; }
+        .user-message { background: var(--brand-gold); color: white; align-self: flex-end; }
+        .chatbot-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+            gap: 8px;
+        }
+        body.dark-mode .chatbot-footer { border-top-color: #444; }
+        .chatbot-footer input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background: #fafafa;
+        }
+        body.dark-mode .chatbot-footer input { background: #333; color: white; border-color: #555; }
+        .chatbot-footer button {
+            background: var(--brand-gold);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+        .chatbot-footer button:hover { background: #b08a4e; }
     </style>
 </head>
 <body>
@@ -229,10 +549,6 @@
                         <i class="fas fa-moon"></i>
                         <span>الوضع</span>
                     </button>
-                    <button id="desktop-chatbot-toggle" class="btn btn-outline" style="display: none;">
-                        <i class="fas fa-comment-dots"></i>
-                        <span>اسالني</span>
-                    </button>
                     <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول آمن (نفاذ)</a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
@@ -244,7 +560,7 @@
         <div id="particles-js"></div>
         <div class="container">
             <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
-                <h1>وُجْهَة | تنقل بثقة واستثمر بأمان </h1>
+                <h1>وُجْهَة | تنقل بثقة واستثمر بأمان</h1>
                 <p>أول منصة تدمج مرونة التنقل مع صرامة التوثيق الحكومي. نستخدم الذكاء الاصطناعي لسد العجز في وسائل النقل، ونمكن المجتمع من مشاركة الموارد في بيئة خالية من المخاطر</p>
                 <div class="hero-buttons">
                     <a href="add-car.html" class="btn btn-primary">
@@ -278,21 +594,21 @@
             
             <div class="features-grid"> 
                 <div class="vision-card-new" data-aos="fade-up" data-aos-delay="100">
-                    <i class="fas fa-coins" style="font-size: 2.5rem; margin-bottom: 20px;"></i>
-                    <h3 style="color: white;">للمواطن</h3>
-                    <p style="color: #ccc; font-size: 1.1rem;">مصدر دخل إضافي محمي وموثق. حول أصولك المتوقفة إلى استثمار ناجح بكل أمان.</p>
+                    <i class="fas fa-coins"></i>
+                    <h3>للمواطن</h3>
+                    <p>مصدر دخل إضافي محمي وموثق. حول أصولك المتوقفة إلى استثمار ناجح بكل أمان.</p>
                 </div>
                 
                 <div class="vision-card-new" data-aos="fade-up" data-aos-delay="200">
-                    <i class="fas fa-user-check" style="font-size: 2.5rem; margin-bottom: 20px;"></i>
-                    <h3 style="color: white;">للمستخدم</h3>
-                    <p style="color: #ccc; font-size: 1.1rem;">خيارات تنقل متنوعة وآمنة في كل مدينة وحي. سهولة في الوصول وموثوقية في التعامل.</p>
+                    <i class="fas fa-user-check"></i>
+                    <h3>للمستخدم</h3>
+                    <p>خيارات تنقل متنوعة وآمنة في كل مدينة وحي. سهولة في الوصول وموثوقية في التعامل.</p>
                 </div>
                 
                 <div class="vision-card-new" data-aos="fade-up" data-aos-delay="300">
-                    <i class="fas fa-globe-asia" style="font-size: 2.5rem; margin-bottom: 20px;"></i>
-                    <h3 style="color: white;">للوطن</h3>
-                    <p style="color: #ccc; font-size: 1.1rem;">جاهزية تامة لاستيعاب النمو السكاني والزوار في الأحداث العالمية الكبرى بكفاءة عالية.</p>
+                    <i class="fas fa-globe-asia"></i>
+                    <h3>للوطن</h3>
+                    <p>جاهزية تامة لاستيعاب النمو السكاني والزوار في الأحداث العالمية الكبرى بكفاءة عالية.</p>
                 </div>
             </div>
         </div>
@@ -314,8 +630,8 @@
                 
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-icon"><i class="fas fa-map-marked-alt"></i></div>
-                    <h3> أسطول من الناس وللناس</h3>
-                    <p> نحن لا نملك السيارات، بل نمكّن المجتمع من مشاركتها. لهذا السبب، ستجد خيارات لا حصر لها موزعة بذكاء داخل الأحياء السكنية وليست محصورة في فروع تجارية</p>
+                    <h3>أسطول من الناس وللناس</h3>
+                    <p>نحن لا نملك السيارات، بل نمكّن المجتمع من مشاركتها. لهذا السبب، ستجد خيارات لا حصر لها موزعة بذكاء داخل الأحياء السكنية وليست محصورة في فروع تجارية</p>
                 </div>
                 
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
@@ -332,7 +648,7 @@
             <div class="security-quote-box" data-aos="zoom-in">
                 <i class="fas fa-quote-right quote-icon"></i>
                 <h3 class="security-title">ميثاق وُجْهَة الأمني</h3>
-                <p style="font-size: 1.4rem; line-height: 1.8; color: white; font-weight: 500;">
+                <p>
                     "سواء كنت صاحب السيارة أو قائدها، <strong>نفاذ</strong> هو الحكم، و <strong>أبشر</strong> هو الضامن.<br>
                     في وُجْهَة، لا نتعامل مع المجهولين. كل عملية موثقة، كل طرف معروف، وكل حق محفوظ."
                 </p>
@@ -451,19 +767,14 @@
         </div>
     </div>
 
+    <!-- ===== مكتبات خارجية ===== -->
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- ===== كود تشغيل الصفحة ===== -->
     <script>
+        // تفعيل AOS
         AOS.init({ once: true });
-
-        // كود تشغيل تأثير الهيدر المدمج (لضمان عمله)
-        window.addEventListener('scroll', function() {
-            var header = document.querySelector('header');
-            if(header) {
-                // إذا نزلنا أكثر من 50 بكسل، نضيف كلاس 'scrolled'
-                header.classList.toggle('scrolled', window.scrollY > 50);
-            }
-        });
 
         // تشغيل البارتكلز
         particlesJS("particles-js", {
@@ -482,9 +793,91 @@
             },
             "retina_detect": true
         });
+
+        // ===== تحديث شريط التنقل بناءً على حالة تسجيل الدخول =====
+        // نستدعي الدالة من script.js (إذا كانت موجودة)
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث واجهة المستخدم (إظهار/إخفاء أزرار الدخول والملف الشخصي)
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
+            }
+
+            // تفعيل تأثير الهيدر عند التمرير
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (header) {
+                    header.classList.toggle('scrolled', window.scrollY > 50);
+                }
+            });
+
+            // ===== تشغيل الدردشة (مدمجة هنا) =====
+            const chatbotPopup = document.getElementById('chatbot-popup');
+            const mobileToggle = document.getElementById('mobile-chatbot-toggle');
+            const closeBtn = document.getElementById('chatbot-close-btn');
+            const sendBtn = document.getElementById('chatbot-send-btn');
+            const input = document.getElementById('chatbot-input');
+            const body = document.getElementById('chatbot-body');
+
+            function toggleChatbot() {
+                chatbotPopup.classList.toggle('open');
+            }
+
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleChatbot();
+                });
+            }
+            if (closeBtn) {
+                closeBtn.addEventListener('click', toggleChatbot);
+            }
+
+            function sendChatMessage() {
+                const msg = input.value.trim();
+                if (!msg) return;
+                const userDiv = document.createElement('div');
+                userDiv.className = 'user-message';
+                userDiv.textContent = msg;
+                body.appendChild(userDiv);
+                input.value = '';
+                setTimeout(() => {
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'bot-message';
+                    botDiv.textContent = 'شكراً لسؤالك. سيتم الرد عليك قريباً.';
+                    body.appendChild(botDiv);
+                    body.scrollTop = body.scrollHeight;
+                }, 500);
+                body.scrollTop = body.scrollHeight;
+            }
+
+            if (sendBtn) {
+                sendBtn.addEventListener('click', sendChatMessage);
+            }
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') sendChatMessage();
+                });
+            }
+
+            // ===== تبديل الوضع (داكن/فاتح) =====
+            const themeToggle = document.getElementById('theme-toggle-desktop');
+            if (themeToggle) {
+                const applyTheme = (theme) => {
+                    document.body.classList.toggle('dark-mode', theme === 'dark');
+                    localStorage.setItem('theme', theme);
+                    const icon = themeToggle.querySelector('i');
+                    const span = themeToggle.querySelector('span');
+                    if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                    if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
+                };
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                applyTheme(currentTheme);
+                themeToggle.addEventListener('click', () => {
+                    const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                    applyTheme(newTheme);
+                });
+            }
+        });
     </script>
-    <script src="csr-content.js"></script>
-    <script src="script.js"></script>
-    <script src="chatbot.js"></script>
 </body>
 </html>
