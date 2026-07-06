@@ -1,51 +1,465 @@
-// تنشيط فلتر السيارات (سيستخدم في صفحة السيارات)
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const currentActive = document.querySelector('.filter-btn.active');
-        if (currentActive) {
-            currentActive.classList.remove('active');
-        }
-        this.classList.add('active');
-    });
-});
+// ============================================================
+//  الملف: script.js - النسخة المعدلة للعمل مع Supabase مباشرة
+// ============================================================
 
-// تأثير التنقل عند التمرير
-window.addEventListener('scroll', function() {
-    const header = document.querySelector('header');
-    if (header) { 
-        if (window.scrollY > 100) {
-            header.style.padding = '10px 0';
-            header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
-        } else {
-            header.style.padding = '15px 0';
-            header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.05)';
+// ============================================================
+// 1. دوال المصادقة وإدارة الجلسة (Supabase)
+// ============================================================
+
+// نستخدم الكائن العام supabase الذي يتم تحميله من supabase-config.js
+// تأكد من تضمين supabase-config.js قبل هذا الملف في HTML
+
+/**
+ * تسجيل مستخدم جديد
+ * @param {string} email
+ * @param {string} password
+ * @param {string} role - 'user', 'renter', 'owner', 'admin'
+ * @param {string} name
+ * @param {string} phone
+ * @returns {Promise<{success: boolean, user?: any, error?: string}>}
+ */
+async function signUpUser(email, password, role, name, phone) {
+    try {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    name: name,
+                    phone: phone,
+                    role: role || 'user',
+                    status: role === 'owner' ? 'pending' : 'approved'
+                }
+            }
+        });
+        if (authError) throw authError;
+
+        // إضافة سجل في جدول users (اختياري، لكنه يسهل الاستعلامات)
+        const { error: insertError } = await supabase
+            .from('users')
+            .insert([{
+                id: authData.user.id,
+                name: name,
+                phone: phone,
+                email: email,
+                role: role || 'user',
+                status: role === 'owner' ? 'pending' : 'approved'
+            }]);
+        if (insertError) console.warn('فشل إدراج المستخدم في جدول users:', insertError);
+
+        // حفظ الجلسة في localStorage (يتم تلقائياً عبر supabase-js، لكننا نحفظ نسخة يدوية)
+        const session = authData.session;
+        if (session) {
+            localStorage.setItem('supabase_token', session.access_token);
+            localStorage.setItem('supabase_refresh_token', session.refresh_token);
+            localStorage.setItem('user', JSON.stringify(authData.user));
+            localStorage.setItem('userRole', role || 'user');
+            localStorage.setItem('isLoggedIn', 'true');
         }
+
+        return { success: true, user: authData.user };
+    } catch (error) {
+        console.error('خطأ في التسجيل:', error);
+        return { success: false, error: error.message };
     }
-});
+}
+
+/**
+ * تسجيل الدخول
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<{success: boolean, user?: any, role?: string, error?: string}>}
+ */
+async function signInUser(email, password) {
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        if (error) throw error;
+
+        const session = data.session;
+        const user = data.user;
+        const role = user.user_metadata?.role || 'user';
+
+        localStorage.setItem('supabase_token', session.access_token);
+        localStorage.setItem('supabase_refresh_token', session.refresh_token);
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userRole', role);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userName', user.user_metadata?.name || user.email || 'مستخدم');
+
+        return { success: true, user: user, role: role };
+    } catch (error) {
+        console.error('خطأ في تسجيل الدخول:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * تسجيل الخروج
+ */
+function signOutUser() {
+    supabase.auth.signOut();
+    localStorage.removeItem('supabase_token');
+    localStorage.removeItem('supabase_refresh_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userName');
+    // إعادة توجيه إلى landing.html أو index.html
+    window.location.href = '/index.html';
+}
+
+/**
+ * الحصول على المستخدم الحالي من localStorage
+ * @returns {object|null}
+ */
+function getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    try {
+        return JSON.parse(userStr);
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * الحصول على دور المستخدم
+ * @returns {string}
+ */
+function getUserRole() {
+    return localStorage.getItem('userRole') || 'user';
+}
+
+/**
+ * التحقق من صلاحية الأدمن (لحماية لوحة التحكم)
+ * @returns {Promise<boolean>} - true إذا كان أدمن، وإلا يوجه إلى landing.html ويعيد false
+ */
+async function checkAdminAccess() {
+    const token = localStorage.getItem('supabase_token');
+    if (!token) {
+        window.location.href = '/landing.html';
+        return false;
+    }
+
+    // التحقق من صحة التوكن مع Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+        localStorage.clear();
+        window.location.href = '/landing.html';
+        return false;
+    }
+
+    const role = user.user_metadata?.role || 'user';
+    if (role !== 'admin') {
+        window.location.href = '/landing.html';
+        return false;
+    }
+    return true;
+}
+
+// ============================================================
+// 2. دوال السيارات (Supabase)
+// ============================================================
+
+/**
+ * جلب السيارات مع إمكانية التصفية
+ * @param {object} filters - { city, status, brand, ... }
+ * @returns {Promise<Array>}
+ */
+async function fetchCars(filters = {}) {
+    let query = supabase.from('cars').select('*');
+    if (filters.city) query = query.eq('city', filters.city);
+    if (filters.status) query = query.eq('status', filters.status);
+    if (filters.brand) query = query.eq('brand', filters.brand);
+    // يمكن إضافة المزيد من التصفيات حسب الحاجة
+
+    const { data, error } = await query;
+    if (error) {
+        console.error('فشل جلب السيارات:', error);
+        return [];
+    }
+    return data;
+}
+
+/**
+ * إضافة سيارة جديدة (للمالك أو الأدمن)
+ * @param {object} carData - بيانات السيارة
+ * @returns {Promise<object|null>}
+ */
+async function createCar(carData) {
+    const token = localStorage.getItem('supabase_token');
+    if (!token) {
+        alert('الرجاء تسجيل الدخول');
+        return null;
+    }
+    const user = getCurrentUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+        .from('cars')
+        .insert([{ ...carData, owner_id: user.id, status: 'pending' }])
+        .select()
+        .single();
+
+    if (error) {
+        console.error('فشل إضافة السيارة:', error);
+        alert('حدث خطأ أثناء إضافة السيارة');
+        return null;
+    }
+    return data;
+}
+
+/**
+ * تحديث حالة سيارة (موافقة، رفض، تفعيل)
+ * @param {string|number} carId
+ * @param {string} newStatus - 'active', 'inactive', 'pending', 'rejected'
+ * @returns {Promise<object|null>}
+ */
+async function updateCarStatus(carId, newStatus) {
+    const token = localStorage.getItem('supabase_token');
+    if (!token) return null;
+
+    const { data, error } = await supabase
+        .from('cars')
+        .update({ status: newStatus })
+        .eq('id', carId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('فشل تحديث حالة السيارة:', error);
+        return null;
+    }
+    return data;
+}
+
+// ============================================================
+// 3. دوال الحجز والعقود (Supabase)
+// ============================================================
+
+/**
+ * إنشاء حجز جديد
+ * @param {object} bookingData - { car_id, start_date, end_date, total_price, delivery_method?, delivery_location? }
+ * @returns {Promise<object|null>}
+ */
+async function createBooking(bookingData) {
+    const token = localStorage.getItem('supabase_token');
+    if (!token) {
+        alert('الرجاء تسجيل الدخول');
+        return null;
+    }
+    const user = getCurrentUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+        .from('bookings')
+        .insert([{
+            car_id: bookingData.car_id,
+            renter_id: user.id,
+            start_date: bookingData.start_date,
+            end_date: bookingData.end_date,
+            total_price: bookingData.total_price,
+            status: 'pending_owner_approval',
+            delivery_method: bookingData.delivery_method || null,
+            delivery_location: bookingData.delivery_location || null
+        }])
+        .select()
+        .single();
+
+    if (error) {
+        console.error('فشل إنشاء الحجز:', error);
+        alert('حدث خطأ أثناء الحجز');
+        return null;
+    }
+    return data;
+}
+
+/**
+ * إنشاء عقد بعد الموافقة على الحجز
+ * @param {object} contractData - { booking_id, contract_number, pdf_link?, qr_code?, start_date, end_date }
+ * @returns {Promise<object|null>}
+ */
+async function createContract(contractData) {
+    const token = localStorage.getItem('supabase_token');
+    if (!token) return null;
+
+    const { data, error } = await supabase
+        .from('contracts')
+        .insert([contractData])
+        .select()
+        .single();
+
+    if (error) {
+        console.error('فشل إنشاء العقد:', error);
+        return null;
+    }
+    return data;
+}
+
+// ============================================================
+// 4. دوال العرض والتفاعل (تستدعي دوال Supabase)
+// ============================================================
+
+/**
+ * عرض السيارات في عنصر محدد
+ * @param {Array} cars - قائمة السيارات
+ * @param {string} containerId - id العنصر الحاوي
+ */
+function renderCars(cars, containerId = 'cars-grid') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!cars || cars.length === 0) {
+        container.innerHTML = '<p>لا توجد سيارات متاحة حالياً</p>';
+        return;
+    }
+
+    container.innerHTML = cars.map(car => `
+        <div class="car-card" data-car-id="${car.id}">
+            <div class="car-img-box">
+                <img src="${car.images?.[0] || 'https://via.placeholder.com/300x200?text=سيارة'}" alt="${car.brand} ${car.model}">
+                <span class="badge ${car.status === 'active' ? 'badge-success' : 'badge-warning'}">${car.status === 'active' ? 'متاحة' : 'قيد المراجعة'}</span>
+            </div>
+            <div class="car-info">
+                <h3 class="car-title">${car.brand} ${car.model}</h3>
+                <div class="car-year">${car.year} | ${car.city}</div>
+                <div class="price-box">
+                    <div class="price">${car.daily_price} <small>ر.س/يوم</small></div>
+                    <button class="btn-book" onclick="bookCar('${car.id}')">حجز الآن</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * دالة حجز سيارة (تستدعي createBooking وتطلب التواريخ)
+ * @param {string|number} carId
+ */
+async function bookCar(carId) {
+    const user = getCurrentUser();
+    if (!user) {
+        alert('الرجاء تسجيل الدخول أولاً');
+        window.location.href = '/landing.html';
+        return;
+    }
+
+    // طلب التواريخ من المستخدم
+    const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
+    const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
+    if (!startDate || !endDate) return;
+
+    // جلب سعر السيارة اليومي
+    const { data: car, error: carError } = await supabase
+        .from('cars')
+        .select('daily_price')
+        .eq('id', carId)
+        .single();
+
+    if (carError || !car) {
+        alert('حدث خطأ في جلب بيانات السيارة');
+        return;
+    }
+
+    const days = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)));
+    const total = days * car.daily_price;
+
+    const booking = await createBooking({
+        car_id: carId,
+        start_date: startDate,
+        end_date: endDate,
+        total_price: total
+    });
+
+    if (booking) {
+        alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
+        // يمكن الانتقال إلى لوحة المستأجر
+        window.location.href = '/dashboard-renter.html';
+    }
+}
+
+// ============================================================
+// 5. دوال التوافق مع الواجهات القديمة (لتعديل loginUser و logoutUser)
+// ============================================================
+
+/**
+ * دالة تسجيل الدخول القديمة - تم تعديلها لاستخدام Supabase
+ * يتم استدعاؤها من نموذج تسجيل الدخول في landing.html وغيره
+ * @param {string} type - غير مستخدم حالياً، يمكن إهماله
+ */
+async function loginUser(type) {
+    const emailInput = document.getElementById('email-input') || document.getElementById('login-email');
+    const passwordInput = document.getElementById('password-input') || document.getElementById('login-password');
+
+    if (!emailInput || !passwordInput) {
+        alert('يرجى التأكد من وجود حقول البريد الإلكتروني وكلمة المرور');
+        return;
+    }
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+        alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+        return;
+    }
+
+    const result = await signInUser(email, password);
+    if (result.success) {
+        const role = result.role;
+        // تحديث شريط التنقل
+        updateNavbarBasedOnLoginStatus();
+
+        if (role === 'admin') {
+            window.location.href = '/admin_dashboard.html';
+        } else if (role === 'owner') {
+            window.location.href = '/dashboard-owner.html';
+        } else {
+            window.location.href = '/dashboard-renter.html';
+        }
+    } else {
+        alert('فشل تسجيل الدخول: ' + result.error);
+    }
+}
+
+/**
+ * دالة تسجيل الخروج القديمة - تم تعديلها
+ */
+function logoutUser() {
+    signOutUser();
+    // التوجيه يتم داخل signOutUser
+}
+
+// ============================================================
+// 6. دوال مساعدة أخرى (موجودة مسبقاً - لم نغيرها)
+// ============================================================
 
 // -------------------------------------
-// وظيفة إدارة حالة تسجيل الدخول وتحديث أشرطة التنقل
+// تحديث شريط التنقل بناءً على حالة تسجيل الدخول
 // -------------------------------------
 function updateNavbarBasedOnLoginStatus() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
-    const userType = localStorage.getItem('userType')
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userType = localStorage.getItem('userRole');
 
-    const desktopNavLinks = document.querySelector('.desktop-nav-links')
-    const desktopAuthLinks = desktopNavLinks ? desktopNavLinks.querySelectorAll('.auth-link') : []
-    const desktopGuestButton = document.getElementById('nav-guest-button')
-    const desktopUserProfilePlaceholder = document.getElementById('nav-user-profile-placeholder')
+    const desktopNavLinks = document.querySelector('.desktop-nav-links');
+    const desktopAuthLinks = desktopNavLinks ? desktopNavLinks.querySelectorAll('.auth-link') : [];
+    const desktopGuestButton = document.getElementById('nav-guest-button');
+    const desktopUserProfilePlaceholder = document.getElementById('nav-user-profile-placeholder');
 
-    const mobileBottomNavGuestButton = document.getElementById('mobile-bottom-guest-button')
-    const mobileBottomNavUserButton = document.getElementById('mobile-bottom-user-button')
-    const mobileBottomNavAuthLinks = document.querySelectorAll('.mobile-bottom-navbar .auth-link-bottom')
+    const mobileBottomNavGuestButton = document.getElementById('mobile-bottom-guest-button');
+    const mobileBottomNavUserButton = document.getElementById('mobile-bottom-user-button');
+    const mobileBottomNavAuthLinks = document.querySelectorAll('.mobile-bottom-navbar .auth-link-bottom');
 
-    if (desktopGuestButton) desktopGuestButton.style.display = 'none'
-    if (desktopUserProfilePlaceholder) desktopUserProfilePlaceholder.style.display = 'none'
-    desktopAuthLinks.forEach(link => link.style.display = 'none')
-    
-    if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'none'
-    if (mobileBottomNavUserButton) mobileBottomNavUserButton.style.display = 'none'
-    mobileBottomNavAuthLinks.forEach(link => link.style.display = 'none')
+    if (desktopGuestButton) desktopGuestButton.style.display = 'none';
+    if (desktopUserProfilePlaceholder) desktopUserProfilePlaceholder.style.display = 'none';
+    desktopAuthLinks.forEach(link => link.style.display = 'none');
+
+    if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'none';
+    if (mobileBottomNavUserButton) mobileBottomNavUserButton.style.display = 'none';
+    mobileBottomNavAuthLinks.forEach(link => link.style.display = 'none');
 
     if (isLoggedIn) {
         if (desktopUserProfilePlaceholder) {
@@ -56,131 +470,43 @@ function updateNavbarBasedOnLoginStatus() {
                 <a href="${userType === 'owner' ? '/dashboard-owner.html' : '/dashboard-renter.html'}" class="btn btn-secondary">
                     <i class="fas fa-user-circle"></i> ملفي
                 </a>
-            `
-            desktopUserProfilePlaceholder.style.display = 'flex'
+            `;
+            desktopUserProfilePlaceholder.style.display = 'flex';
         }
-        
+
         desktopAuthLinks.forEach(link => {
-            const linkHref = link.getAttribute('href')
+            const linkHref = link.getAttribute('href');
             if (userType === 'owner') {
                 if (linkHref && (linkHref.includes('dashboard-owner.html') || linkHref.includes('add-car.html'))) {
-                    link.style.display = 'block'
+                    link.style.display = 'block';
                 }
             } else if (userType === 'renter') {
                 if (linkHref && linkHref.includes('dashboard-renter.html')) {
-                    link.style.display = 'block'
+                    link.style.display = 'block';
                 }
             }
-        })
-
-        if (mobileBottomNavUserButton) {
-            mobileBottomNavUserButton.style.display = 'flex'
-            mobileBottomNavUserButton.href = userType === 'owner' ? '/dashboard-owner.html' : '/dashboard-renter.html'
-        }
-        mobileBottomNavAuthLinks.forEach(link => {
-            const linkDataRole = link.getAttribute('data-role')
-            if (linkDataRole === userType || linkDataRole === 'all') { 
-                link.style.display = 'flex'
-            } else {
-                link.style.display = 'none'
-            }
-        })
-
-    } else { 
-        if (desktopGuestButton) desktopGuestButton.style.display = 'flex'
-        if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'flex'
-    }
-}
-
-// دالة تسجيل الدخول (تم إصلاحها)
-async function loginUser(type) {
-    const phoneInput = document.getElementById('phone-input') || document.getElementById('login-phone');
-    const phone = phoneInput ? phoneInput.value : '';
-    
-    if (!phone || phone.length < 5) {
-        alert('الرجاء إدخال رقم جوال صحيح')
-        return
-    }
-
-    const passwordInput = document.getElementById('password-input') || document.getElementById('login-password');
-    const password = passwordInput ? passwordInput.value : '';
-
-    if (!password) {
-        alert('الرجاء إدخال كلمة المرور');
-        return;
-    }
-
-    const API_URL = 'https://wujha-production-rjdagr.laravel.cloud/api';
-
-    try {
-        let response = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                phone: phone,
-                password: password
-            })
         });
 
-        let responseText = await response.text();
-        let data;
-        
-        try {
-            data = JSON.parse(responseText);
-        } catch (e) {
-            alert(`السيرفر رفض وما رجع JSON.\nكود الخطأ: ${response.status}\n\nالرد:\n${responseText.substring(0, 150)}`);
-            return;
+        if (mobileBottomNavUserButton) {
+            mobileBottomNavUserButton.style.display = 'flex';
+            mobileBottomNavUserButton.href = userType === 'owner' ? '/dashboard-owner.html' : '/dashboard-renter.html';
         }
-
-        if (!response.ok) {
-            alert(data.message || 'فشل تسجيل الدخول، تأكد من البيانات');
-            return;
-        }
-
-        if (data.token) {
-            const resolvedRole = data.role || data.user?.role || type;
-            localStorage.setItem('auth_token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userType', resolvedRole);
-            localStorage.setItem('userName', data.user.name || 'مستخدم موثق');
-            
-            updateNavbarBasedOnLoginStatus();
-            
-            if (resolvedRole === 'admin') {
-                window.location.href = '/admin_dashboard.html';
-            } else if (resolvedRole === 'owner') {
-                window.location.href = '/dashboard-owner.html';
+        mobileBottomNavAuthLinks.forEach(link => {
+            const linkDataRole = link.getAttribute('data-role');
+            if (linkDataRole === userType || linkDataRole === 'all') {
+                link.style.display = 'flex';
             } else {
-                window.location.href = '/dashboard-renter.html';
+                link.style.display = 'none';
             }
-        } else {
-            alert('رد غريب من السيرفر:\n' + JSON.stringify(data).substring(0, 100));
-        }
-    } catch (error) {
-        alert('خطأ مباشر في الاتصال (غالباً حماية CORS):\n' + error.message);
+        });
+    } else {
+        if (desktopGuestButton) desktopGuestButton.style.display = 'flex';
+        if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'flex';
     }
 }
 
-function logoutUser() {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
-    localStorage.removeItem('userName');
-    
-    updateNavbarBasedOnLoginStatus();
-    window.location.href = '/index.html';
-}
-
-document.addEventListener('DOMContentLoaded', updateNavbarBasedOnLoginStatus);
-
-
 // -------------------------------------
-// وظيفة تحديث بطاقة الولاء
+// تحديث بطاقة الولاء
 // -------------------------------------
 function updateLoyaltyCard(completedRentals) {
     const totalRentalsNeeded = 8;
@@ -218,7 +544,7 @@ function updateLoyaltyCard(completedRentals) {
 // الواجهة الليلية/النهارية
 // -------------------------------------
 function setupThemeToggle() {
-    const themeToggleBtn = document.getElementById('theme-toggle-desktop'); 
+    const themeToggleBtn = document.getElementById('theme-toggle-desktop');
 
     const applyTheme = (theme) => {
         document.body.classList.remove('light-mode', 'dark-mode');
@@ -226,16 +552,16 @@ function setupThemeToggle() {
         localStorage.setItem('theme', theme);
 
         if (themeToggleBtn) {
-            if (window.innerWidth <= 992) { 
+            if (window.innerWidth <= 992) {
                 themeToggleBtn.innerHTML = theme === 'light' ? '<i class="fas fa-moon"></i><span>الوضع الليلي</span>' : '<i class="fas fa-sun"></i><span>الوضع النهاري</span>';
-            } else { 
+            } else {
                 themeToggleBtn.innerHTML = theme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
             }
         }
     };
 
     const currentTheme = localStorage.getItem('theme') || 'light';
-    applyTheme(currentTheme); 
+    applyTheme(currentTheme);
 
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
@@ -284,7 +610,7 @@ function renderRecentlyViewedCars() {
 }
 
 // -------------------------------------
-// شهادات العملاء
+// شهادات العملاء (السلايدر)
 // -------------------------------------
 let slideIndex = 0;
 let slideInterval;
@@ -316,12 +642,12 @@ function currentSlide(n) {
 
     slides[slideIndex - 1].style.display = 'block';
     dots[slideIndex - 1].classList.add('active');
-    
-    slideInterval = setInterval(showSlides, 5000); 
+
+    slideInterval = setInterval(showSlides, 5000);
 }
 
 // -------------------------------------
-// أداة اختبار السيارة
+// أداة اختبار السيارة (Quiz)
 // -------------------------------------
 function setupQuiz() {
     const quizForm = document.getElementById('car-quiz-form');
@@ -373,7 +699,7 @@ function setupQuiz() {
 }
 
 // -------------------------------------
-// وظائف المسؤولية الاجتماعية
+// وظائف المسؤولية الاجتماعية (CSR)
 // -------------------------------------
 function displayRandomCsrFact() {
     const csrFactElement = document.getElementById('csr-fact-display');
@@ -385,13 +711,13 @@ function displayRandomCsrFact() {
 
 function setupPledgeGenerator() {
     const pledgeForm = document.getElementById('pledge-form');
-    const pledgeResultDiv = document.getElementById('pledge-result'); 
+    const pledgeResultDiv = document.getElementById('pledge-result');
     const userName = localStorage.getItem('userName') || 'صديقنا';
 
     if (pledgeForm && pledgeResultDiv && typeof pledgeOptions !== 'undefined') {
-        const pledgeOptionsContainer = pledgeForm.querySelector('.quiz-options'); 
+        const pledgeOptionsContainer = pledgeForm.querySelector('.quiz-options');
         if (pledgeOptionsContainer) {
-            pledgeOptionsContainer.innerHTML = ''; 
+            pledgeOptionsContainer.innerHTML = '';
             pledgeOptions.forEach(option => {
                 const label = document.createElement('label');
                 label.innerHTML = `<input type="radio" name="pledge-type" value="${option.id}"> ${option.text}`;
@@ -413,7 +739,7 @@ function setupPledgeGenerator() {
                         <button class="btn btn-secondary" onclick="window.location.reload()">تعهد آخر</button>
                     `;
                     pledgeResultDiv.style.display = 'block';
-                    pledgeForm.style.display = 'none'; 
+                    pledgeForm.style.display = 'none';
                 }
             } else {
                 pledgeResultDiv.innerHTML = `<p style="color:var(--text-color-light);">الرجاء اختيار تعهد أولاً للمتابعة.</p>`;
@@ -426,10 +752,10 @@ function setupPledgeGenerator() {
 function renderImpactDashboard() {
     const impactContainer = document.getElementById('impact-stats-container');
     if (impactContainer && typeof impactStats !== 'undefined' && impactStats.length > 0) {
-        impactContainer.innerHTML = ''; 
+        impactContainer.innerHTML = '';
         impactStats.forEach(stat => {
             const statCard = document.createElement('div');
-            statCard.classList.add('stat-card'); 
+            statCard.classList.add('stat-card');
             statCard.innerHTML = `
                 <h3>${stat.label}</h3>
                 <div class="value">${stat.value}${stat.unit}</div>
@@ -449,69 +775,70 @@ let carMarkersLayer;
 let currentRouteLine = null;
 const targetLocation = [24.8375090, 46.7297325];
 
+// بيانات السيارات الثابتة للخريطة (يمكن استبدالها بجلب من Supabase)
 const allCars = [
-    { 
-        id: 'r1', type: 'سيدان', model: 'تويوتا كامري 2024', price: '120', 
-        rating: 4.9, reviews: 52, lat: 24.8375090, lng: 46.7297325, 
+    {
+        id: 'r1', type: 'سيدان', model: 'تويوتا كامري 2024', price: '120',
+        rating: 4.9, reviews: 52, lat: 24.8375090, lng: 46.7297325,
         scores: { mech: 10, acc: 10, clean: 9 },
-        img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=300&fit=crop' 
+        img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=300&fit=crop'
     },
-    { 
-        id: 'r2', type: 'دفع رباعي', model: 'تويوتا لاندكروزر', price: '450', 
-        rating: 5.0, reviews: 18, lat: 24.8381000, lng: 46.7292000, 
+    {
+        id: 'r2', type: 'دفع رباعي', model: 'تويوتا لاندكروزر', price: '450',
+        rating: 5.0, reviews: 18, lat: 24.8381000, lng: 46.7292000,
         scores: { mech: 10, acc: 10, clean: 10 },
-        img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop' 
+        img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop'
     },
-    { 
-        id: 'r3', type: 'فاخرة', model: 'مرسيدس S500', price: '900', 
-        rating: 4.8, reviews: 12, lat: 24.8369000, lng: 46.7301000, 
-        scores: { mech: 10, acc: 9, clean: 10 }, 
-        img: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop' 
+    {
+        id: 'r3', type: 'فاخرة', model: 'مرسيدس S500', price: '900',
+        rating: 4.8, reviews: 12, lat: 24.8369000, lng: 46.7301000,
+        scores: { mech: 10, acc: 9, clean: 10 },
+        img: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop'
     },
-    { 
-        id: 'r4', type: 'سيدان', model: 'هونداي النترا', price: '85', 
-        rating: 4.2, reviews: 89, lat: 24.8378000, lng: 46.7305000, 
+    {
+        id: 'r4', type: 'سيدان', model: 'هونداي النترا', price: '85',
+        rating: 4.2, reviews: 89, lat: 24.8378000, lng: 46.7305000,
         scores: { mech: 8, acc: 7, clean: 8 },
-        img: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400&h=300&fit=crop' 
+        img: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400&h=300&fit=crop'
     },
-    { 
-        id: 'r5', type: 'سيدان', model: 'تويوتا كامري 2023', price: '115', 
-        rating: 4.7, reviews: 40, lat: 24.8372000, lng: 46.7289000, 
-        scores: { mech: 9, acc: 10, clean: 8 }, 
-        img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=300&fit=crop' 
+    {
+        id: 'r5', type: 'سيدان', model: 'تويوتا كامري 2023', price: '115',
+        rating: 4.7, reviews: 40, lat: 24.8372000, lng: 46.7289000,
+        scores: { mech: 9, acc: 10, clean: 8 },
+        img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=300&fit=crop'
     },
-    { 
-        id: 'r6', type: 'دفع رباعي', model: 'شيفروليه تاهو', price: '380', 
-        rating: 4.9, reviews: 22, lat: 24.8365000, lng: 46.7295000, 
-        scores: { mech: 10, acc: 10, clean: 9 }, 
-        img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop' 
+    {
+        id: 'r6', type: 'دفع رباعي', model: 'شيفروليه تاهو', price: '380',
+        rating: 4.9, reviews: 22, lat: 24.8365000, lng: 46.7295000,
+        scores: { mech: 10, acc: 10, clean: 9 },
+        img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop'
     },
-    { 
-        id: 'r7', type: 'فاخرة', model: 'لوسيد آير', price: '700', 
-        rating: 5.0, reviews: 4, lat: 24.8385000, lng: 46.7298000, 
-        scores: { mech: 10, acc: 10, clean: 10 }, 
-        img: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop' 
+    {
+        id: 'r7', type: 'فاخرة', model: 'لوسيد آير', price: '700',
+        rating: 5.0, reviews: 4, lat: 24.8385000, lng: 46.7298000,
+        scores: { mech: 10, acc: 10, clean: 10 },
+        img: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop'
     }
 ];
 
 function initMap() {
     if (document.getElementById('mapid') && typeof L !== 'undefined') {
-        if(map) { map.remove(); }
+        if (map) { map.remove(); }
         map = L.map('mapid').setView(targetLocation, 17);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO',
             maxZoom: 20
         }).addTo(map);
         carMarkersLayer = L.layerGroup().addTo(map);
-        renderCars();
+        renderCarsOnMap();
         setTimeout(() => { map.invalidateSize(); }, 500);
     }
 }
 
 function createPriceIcon(price, type, extraClass = '') {
     let iconHtml = '';
-    if(type === 'فاخرة') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
-    else if(type === 'دفع رباعي') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
+    if (type === 'فاخرة') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
+    else if (type === 'دفع رباعي') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
     else iconHtml = '<i class="fas fa-car" style="color:var(--primary)"></i>';
 
     return L.divIcon({
@@ -536,7 +863,7 @@ function getProgressBar(score) {
 }
 
 function drawRouteToCar(destLat, destLng) {
-    if(currentRouteLine) map.removeLayer(currentRouteLine);
+    if (currentRouteLine) map.removeLayer(currentRouteLine);
     const startPoint = targetLocation;
     const endPoint = [destLat, destLng];
     currentRouteLine = L.polyline([startPoint, endPoint], {
@@ -555,20 +882,20 @@ let maxPrice = 1000;
 window.updatePriceLabel = function(val) {
     maxPrice = parseInt(val);
     const label = document.getElementById('priceValue');
-    if(label) label.innerText = val + ' ريال';
-}
+    if (label) label.innerText = val + ' ريال';
+};
 
 window.filterMap = function(type, element) {
     currentType = type;
     document.querySelectorAll('.filter-tag').forEach(btn => btn.classList.remove('active'));
-    if(element) element.classList.add('active');
-    renderCars();
-}
+    if (element) element.classList.add('active');
+    renderCarsOnMap();
+};
 
-function renderCars() {
-    if(!map || !carMarkersLayer) return;
+function renderCarsOnMap() {
+    if (!map || !carMarkersLayer) return;
     carMarkersLayer.clearLayers();
-    if(currentRouteLine) map.removeLayer(currentRouteLine);
+    if (currentRouteLine) map.removeLayer(currentRouteLine);
 
     const filtered = allCars.filter(car => {
         const typeMatch = currentType === 'الكل' ? true : car.type === currentType;
@@ -608,7 +935,7 @@ function renderCars() {
 
 window.simulateSmartLocate = function() {
     const btn = document.getElementById('smart-locate-btn');
-    if(!btn) return;
+    if (!btn) return;
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
     setTimeout(() => {
@@ -620,16 +947,20 @@ window.simulateSmartLocate = function() {
             btn.style.background = '';
         }, 2000);
     }, 1000);
-}
+};
 
-// -------------------------------------
-// عند تحميل المحتوى (DOMContentLoaded)
-// -------------------------------------
+// ============================================================
+// 7. تهيئة الصفحة عند تحميل DOM
+// ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // تهيئة الثيم
     setupThemeToggle();
+
+    // تحديث شريط التنقل بناءً على حالة الدخول
     updateNavbarBasedOnLoginStatus();
 
+    // تفعيل العنصر النشط في القائمة السفلية
     const bottomNavItems = document.querySelectorAll('.mobile-bottom-navbar .nav-item');
     bottomNavItems.forEach(item => {
         item.classList.remove('active');
@@ -639,6 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (itemHref === 'index.html' && (currentPath === '' || currentPath === 'index.html')) item.classList.add('active');
     });
 
+    // ضبط padding-bottom للشريط السفلي على الموبايل
     function adjustBodyPadding() {
         const mobileBottomNavbar = document.querySelector('.mobile-bottom-navbar');
         if (mobileBottomNavbar && window.innerWidth <= 992) {
@@ -650,19 +982,28 @@ document.addEventListener('DOMContentLoaded', () => {
     adjustBodyPadding();
     window.addEventListener('resize', adjustBodyPadding);
 
+    // تحديث بطاقة الولاء (مثال: 3 تأجيرات مكتملة)
     const userCompletedRentals = 3;
     updateLoyaltyCard(userCompletedRentals);
+
+    // عرض السيارات التي تمت مشاهدتها مؤخراً
     renderRecentlyViewedCars();
+
+    // تشغيل سلايدر الشهادات
     if (document.querySelector('.testimonial-slider')) {
         showSlides();
         slideInterval = setInterval(showSlides, 5000);
     }
+
+    // إعداد اختبار السيارة
     setupQuiz();
 
-    if (document.getElementById('csr-fact-display')) displayRandomCsrFact(); 
-    if (document.getElementById('pledge-form')) setupPledgeGenerator(); 
-    if (document.getElementById('impact-stats-container')) renderImpactDashboard(); 
+    // CSR
+    if (document.getElementById('csr-fact-display')) displayRandomCsrFact();
+    if (document.getElementById('pledge-form')) setupPledgeGenerator();
+    if (document.getElementById('impact-stats-container')) renderImpactDashboard();
 
+    // تشغيل الخريطة إذا وجدت
     if (document.getElementById('mapid')) {
         setTimeout(() => {
             if (typeof L !== 'undefined') {
@@ -672,8 +1013,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100);
     }
+
+    // -------------------------------
+    // إذا كانت الصفحة هي صفحة السيارات (cars.html) نقوم بجلب السيارات وعرضها
+    // -------------------------------
+    if (window.location.pathname.includes('cars.html')) {
+        (async () => {
+            const cars = await fetchCars({ status: 'active' });
+            renderCars(cars);
+        })();
+    }
+
+    // -------------------------------
+    // إذا كانت الصفحة هي لوحة تحكم الأدمن (admin_dashboard.html) نتحقق من الصلاحية
+    // -------------------------------
+    if (window.location.pathname.includes('admin_dashboard.html')) {
+        (async () => {
+            const hasAccess = await checkAdminAccess();
+            if (hasAccess) {
+                // إظهار محتوى لوحة التحكم (يمكنك إضافة كود لعرض إحصائيات)
+                const adminContent = document.getElementById('admin-content');
+                if (adminContent) adminContent.style.display = 'block';
+            }
+            // إذا لم يكن لديه صلاحية، سيتم التوجيه تلقائياً
+        })();
+    }
 });
 
+// ============================================================
+// 8. إضافة مستمعين للأحداث الإضافية
+// ============================================================
+
+// تفعيل العنصر النشط في القائمة الجانبية
 document.querySelectorAll('.sidebar-menu a').forEach(link => {
     link.addEventListener('click', function(e) {
         const currentActive = document.querySelector('.sidebar-menu a.active');
@@ -682,12 +1053,15 @@ document.querySelectorAll('.sidebar-menu a').forEach(link => {
     });
 });
 
+// إضافة سيارة إلى "آخر مشاهدة" عند النقر على بطاقة سيارة
 document.addEventListener('click', (e) => {
     if (e.target.closest('.car-card')) {
         const carCard = e.target.closest('.car-card');
-        const carImg = carCard.querySelector('.car-img img').src;
-        const carTitle = carCard.querySelector('.car-title').textContent;
+        const carImg = carCard.querySelector('.car-img-box img')?.src || '';
+        const carTitle = carCard.querySelector('.car-title')?.textContent || '';
         const carId = carTitle.replace(/\s/g, '-');
-        addCarToRecentlyViewed(carId, carImg, carTitle);
+        if (carImg && carTitle) {
+            addCarToRecentlyViewed(carId, carImg, carTitle);
+        }
     }
 });
