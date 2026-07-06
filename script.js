@@ -1,13 +1,16 @@
 // ============================================================
 //  الملف: script.js - النسخة المعدلة للعمل مع Supabase مباشرة
+//  باستخدام window.supabaseClient لتجنب التعارضات
 // ============================================================
 
 // ============================================================
 // 1. دوال المصادقة وإدارة الجلسة (Supabase)
 // ============================================================
 
-// نستخدم الكائن العام supabase الذي يتم تحميله من supabase-config.js
-// تأكد من تضمين supabase-config.js قبل هذا الملف في HTML
+// التأكد من وجود عميل Supabase
+if (typeof window.supabaseClient === 'undefined') {
+    console.error('❌ window.supabaseClient غير معرف. تأكد من تحميل supabase-config.js قبل هذا الملف.');
+}
 
 /**
  * تسجيل مستخدم جديد
@@ -20,7 +23,7 @@
  */
 async function signUpUser(email, password, role, name, phone) {
     try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -35,7 +38,7 @@ async function signUpUser(email, password, role, name, phone) {
         if (authError) throw authError;
 
         // إضافة سجل في جدول users (اختياري، لكنه يسهل الاستعلامات)
-        const { error: insertError } = await supabase
+        const { error: insertError } = await window.supabaseClient
             .from('users')
             .insert([{
                 id: authData.user.id,
@@ -72,7 +75,7 @@ async function signUpUser(email, password, role, name, phone) {
  */
 async function signInUser(email, password) {
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         });
@@ -100,7 +103,7 @@ async function signInUser(email, password) {
  * تسجيل الخروج
  */
 function signOutUser() {
-    supabase.auth.signOut();
+    window.supabaseClient.auth.signOut();
     localStorage.removeItem('supabase_token');
     localStorage.removeItem('supabase_refresh_token');
     localStorage.removeItem('user');
@@ -145,7 +148,7 @@ async function checkAdminAccess() {
     }
 
     // التحقق من صحة التوكن مع Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const { data: { user }, error } = await window.supabaseClient.auth.getUser(token);
     if (error || !user) {
         localStorage.clear();
         window.location.href = '/landing.html';
@@ -170,7 +173,7 @@ async function checkAdminAccess() {
  * @returns {Promise<Array>}
  */
 async function fetchCars(filters = {}) {
-    let query = supabase.from('cars').select('*');
+    let query = window.supabaseClient.from('cars').select('*');
     if (filters.city) query = query.eq('city', filters.city);
     if (filters.status) query = query.eq('status', filters.status);
     if (filters.brand) query = query.eq('brand', filters.brand);
@@ -198,7 +201,7 @@ async function createCar(carData) {
     const user = getCurrentUser();
     if (!user) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await window.supabaseClient
         .from('cars')
         .insert([{ ...carData, owner_id: user.id, status: 'pending' }])
         .select()
@@ -222,7 +225,7 @@ async function updateCarStatus(carId, newStatus) {
     const token = localStorage.getItem('supabase_token');
     if (!token) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await window.supabaseClient
         .from('cars')
         .update({ status: newStatus })
         .eq('id', carId)
@@ -254,7 +257,7 @@ async function createBooking(bookingData) {
     const user = getCurrentUser();
     if (!user) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await window.supabaseClient
         .from('bookings')
         .insert([{
             car_id: bookingData.car_id,
@@ -286,7 +289,7 @@ async function createContract(contractData) {
     const token = localStorage.getItem('supabase_token');
     if (!token) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await window.supabaseClient
         .from('contracts')
         .insert([contractData])
         .select()
@@ -353,7 +356,7 @@ async function bookCar(carId) {
     if (!startDate || !endDate) return;
 
     // جلب سعر السيارة اليومي
-    const { data: car, error: carError } = await supabase
+    const { data: car, error: carError } = await window.supabaseClient
         .from('cars')
         .select('daily_price')
         .eq('id', carId)
@@ -376,7 +379,8 @@ async function bookCar(carId) {
 
     if (booking) {
         alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
-        // يمكن الانتقال إلى لوحة المستأجر
+        // حفظ معرف الحجز للاستخدام في العقد
+        localStorage.setItem('current_booking_id', booking.id);
         window.location.href = '/dashboard-renter.html';
     }
 }
@@ -767,7 +771,7 @@ function renderImpactDashboard() {
 }
 
 // -------------------------------------
-// وظائف الخريطة (واجهة روشن)
+// وظائف الخريطة (واجهة روشن) - تعمل ببيانات ثابتة
 // -------------------------------------
 
 let map;
