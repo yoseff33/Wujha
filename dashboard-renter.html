@@ -6,7 +6,7 @@
     <title>وُجْهَة | لوحة المستأجر الذكية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
@@ -59,6 +59,11 @@
             margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
             border: 1px solid #f0f0f0;
         }
+        body.dark-mode .smart-widget {
+            background: #2a2a2a;
+            border-color: #444;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
         .risk-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
         .risk-low { background: #e8f5e9; color: #2e8b57; }
 
@@ -95,30 +100,44 @@
         .booking-item {
             border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 10px;
         }
+        body.dark-mode .booking-item {
+            border-color: #444;
+        }
         .booking-item .status { font-weight: bold; }
         .booking-item .status.pending { color: #f39c12; }
         .booking-item .status.active { color: #2ecc71; }
         .booking-item .status.completed { color: #3498db; }
         .booking-item .status.cancelled { color: #e74c3c; }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        .loading-spinner i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="/index.html" class="logo">
+                <a href="index.html" class="logo">
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
                 <ul class="nav-links desktop-nav-links">
-                    <li><a href="/index.html">الرئيسية</a></li>
-                    <li><a href="/cars.html">استكشف السيارات</a></li>
-                    <li><a href="/index.html#how-it-works">رحلة الأمان</a></li>
-                    <li><a href="/dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
-                    <li><a href="/dashboard-renter.html" class="auth-link active" id="nav-renter-dashboard">لوحة المستأجر</a></li>
-                    <li><a href="/add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
-                    <li><a href="/quiz.html">اختبار السيارة</a></li>
-                    <li><a href="/qassim-map.html">خريطة الرياض</a></li>
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="index.html#how-it-works">رحلة الأمان</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link active" id="nav-renter-dashboard">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="quiz.html">اختبار السيارة</a></li>
+                    <li><a href="qassim-map.html">خريطة الرياض</a></li>
                 </ul>
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
@@ -329,7 +348,7 @@
                 <div class="footer-col">
                     <h3>روابط سريعة</h3>
                     <ul>
-                        <li><a href="/cars.html">استكشف السيارات</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
                         <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
                     </ul>
                 </div>
@@ -392,7 +411,8 @@
             }
 
             try {
-                const { data: bookings, error } = await supabase
+                // 🔥 التغيير هنا: استخدام window.supabaseClient بدلاً من supabase
+                const { data: bookings, error } = await window.supabaseClient
                     .from('bookings')
                     .select('*, cars(*)')
                     .eq('renter_id', user.id)
@@ -446,7 +466,8 @@
             }
 
             try {
-                const { data: contracts, error } = await supabase
+                // 🔥 التغيير هنا: استخدام window.supabaseClient بدلاً من supabase
+                const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
                     .select('*, bookings(*, cars(*))')
                     .eq('bookings.renter_id', user.id)
