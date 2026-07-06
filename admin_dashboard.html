@@ -8,6 +8,7 @@
     <!-- ===== الخطوط والأيقونات ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
     
     <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -39,7 +40,7 @@
             padding: 0 20px;
         }
 
-        /* ===== الهيدر (مطابق لباقي الصفحات) ===== */
+        /* ===== الهيدر ===== */
         header {
             background: rgba(255, 255, 255, 0.98);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -495,7 +496,7 @@
                 </div>
             </div>
 
-            <!-- ===== بطاقات الإحصائيات (سيتم تعبئتها عبر JavaScript) ===== -->
+            <!-- ===== بطاقات الإحصائيات ===== -->
             <div class="stats-grid" id="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="stat-cars">0</div>
@@ -580,16 +581,16 @@
     </div>
 
     <!-- ============================================================= -->
-    <!-- ===== السكربتات ===== -->
+    <!-- ===== السكربتات (المعدلة) ===== -->
     <!-- ============================================================= -->
     <script>
-        // ===== دالة تحديث البيانات =====
+        // ===== دالة تحديث البيانات (باستخدام window.supabaseClient) =====
         async function refreshData() {
             // عرض مؤشر التحميل
             document.querySelectorAll('.stat-number').forEach(el => el.textContent = '...');
 
             // جلب الإحصائيات
-            const { data: cars, error: carsError } = await supabase
+            const { data: cars, error: carsError } = await window.supabaseClient
                 .from('cars')
                 .select('status');
 
@@ -607,7 +608,7 @@
             document.getElementById('stat-active').textContent = active;
 
             // جلب عدد المستخدمين
-            const { count: usersCount, error: usersError } = await supabase
+            const { count: usersCount, error: usersError } = await window.supabaseClient
                 .from('users')
                 .select('*', { count: 'exact', head: true });
 
@@ -623,7 +624,7 @@
         async function loadPendingCars() {
             const container = document.getElementById('pending-cars-table');
 
-            const { data: pendingCars, error } = await supabase
+            const { data: pendingCars, error } = await window.supabaseClient
                 .from('cars')
                 .select('id, brand, model, year, daily_price, owner_id, created_at, status')
                 .eq('status', 'pending')
@@ -661,7 +662,7 @@
                 // جلب اسم المالك
                 let ownerName = 'غير معروف';
                 if (car.owner_id) {
-                    const { data: owner, error: ownerErr } = await supabase
+                    const { data: owner, error: ownerErr } = await window.supabaseClient
                         .from('users')
                         .select('name')
                         .eq('id', car.owner_id)
@@ -699,7 +700,7 @@
             container.innerHTML = html;
         }
 
-        // ===== دوال إدارة السيارات =====
+        // ===== دوال إدارة السيارات (تستخدم updateCarStatus من script.js) =====
         async function approveCar(carId) {
             if (!confirm('هل أنت متأكد من الموافقة على هذه السيارة؟')) return;
             const result = await updateCarStatus(carId, 'active');
@@ -723,8 +724,8 @@
         }
 
         function viewCar(carId) {
-            // يمكن توجيه المستخدم إلى صفحة تفاصيل السيارة (إذا كانت موجودة)
             alert(`سيتم عرض تفاصيل السيارة رقم ${carId}`);
+            // يمكنك توجيه المستخدم إلى صفحة تفاصيل السيارة إذا أردت
             // window.location.href = `car-details.html?id=${carId}`;
         }
 
