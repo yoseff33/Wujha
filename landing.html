@@ -99,7 +99,7 @@
 
         /* Login Wrapper */
         .login-wrapper {
-            background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center center/cover;
+            background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center/cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -547,7 +547,7 @@
                 <div class="footer-col">
                     <h3>عن وُجْهَة</h3>
                     <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
-                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان. نمكن زوار المملكة من التنقل الذكي.
+                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان. نمكن زوار المملكة من التنقل اليسير والآمن.
                     </p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -616,6 +616,26 @@
     <!-- ===== الأكواد الخاصة بـ landing.html (محلية) ===== -->
     <!-- ===================================================== -->
     <script>
+        // ===== انتظر تحميل script.js قبل استخدام دوال signInUser و signUpUser =====
+        function waitForScriptFunctions() {
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const maxAttempts = 50; // انتظر حتى 5 ثوان (50 × 100ms)
+                
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (typeof signInUser === 'function' && typeof signUpUser === 'function') {
+                        clearInterval(checkInterval);
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        console.error('❌ تحذير: دوال المصادقة لم تحمّل في الوقت المحدد');
+                        resolve(); // تابع على أي حال
+                    }
+                }, 100);
+            });
+        }
+
         // ===== دوال مساعدة محلية =====
         function switchTab(tab) {
             const tabButtons = document.querySelectorAll('.tab-switch button');
@@ -656,6 +676,14 @@
         // ===== معالج تسجيل الدخول (يستخدم signInUser من script.js) =====
         async function handleLogin(e) {
             e.preventDefault();
+            
+            // تأكد من وجود signInUser قبل الاستدعاء
+            if (typeof signInUser !== 'function') {
+                showMessage('login-error', 'خطأ: دوال المصادقة لم تحمّل بعد. يرجى تحديث الصفحة.');
+                console.error('❌ signInUser غير معرّف');
+                return;
+            }
+            
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
@@ -693,6 +721,14 @@
         // ===== معالج التسجيل (يستخدم signUpUser من script.js) =====
         async function handleRegister(e) {
             e.preventDefault();
+            
+            // تأكد من وجود signUpUser قبل الاستدعاء
+            if (typeof signUpUser !== 'function') {
+                showMessage('register-error', 'خطأ: دوال المصادقة لم تحمّل بعد. يرجى تحديث الصفحة.');
+                console.error('❌ signUpUser غير معرّف');
+                return;
+            }
+            
             const name = document.getElementById('register-name').value.trim();
             const email = document.getElementById('register-email').value.trim();
             const phone = document.getElementById('register-phone').value.trim();
@@ -738,10 +774,10 @@
         // ===== التحقق من وجود جلسة نشطة عند تحميل الصفحة =====
         (function checkExistingSession() {
             const token = localStorage.getItem('supabase_token');
-            if (token) {
+            if (token && typeof window.supabaseClient !== 'undefined') {
                 // إذا كان هناك توكن، نتحقق من صلاحيته ونوجه تلقائياً
                 (async () => {
-                    const { data: { user }, error } = await supabase.auth.getUser(token);
+                    const { data: { user }, error } = await window.supabaseClient.auth.getUser(token);
                     if (user && !error) {
                         const role = user.user_metadata?.role || 'user';
                         if (role === 'admin') window.location.href = 'admin_dashboard.html';
@@ -754,6 +790,9 @@
 
         // ===== أحداث المستمعين الإضافية =====
         document.addEventListener('DOMContentLoaded', function() {
+            // انتظر تحميل دوال المصادقة
+            waitForScriptFunctions();
+            
             // تبديل التبويبات
             document.querySelectorAll('.tab-switch button').forEach(btn => {
                 btn.addEventListener('click', function() {
