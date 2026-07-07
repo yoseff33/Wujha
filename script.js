@@ -253,20 +253,36 @@ async function createCar(carData) {
  */
 async function updateCarStatus(carId, newStatus) {
     const token = localStorage.getItem('supabase_token');
-    if (!token) return null;
+    if (!token) {
+        console.error('لا يوجد توكن');
+        return null;
+    }
+
+    // التأكد من أن carId ليس فارغاً
+    if (!carId) {
+        console.error('carId مطلوب');
+        return null;
+    }
 
     const { data, error } = await window.supabaseClient
         .from('cars')
         .update({ status: newStatus })
         .eq('id', carId)
-        .select()
-        .single();
+        .select();
 
     if (error) {
         console.error('فشل تحديث حالة السيارة:', error);
         return null;
     }
-    return data;
+
+    // التحقق من وجود بيانات
+    if (!data || data.length === 0) {
+        console.error('السيارة غير موجودة');
+        return null;
+    }
+
+    return data[0];
+}
 }
 
 // ============================================================
