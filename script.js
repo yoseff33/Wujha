@@ -1,6 +1,7 @@
 // ============================================================
 //  الملف: script.js - النسخة المعدلة للعمل مع Supabase مباشرة
 //  باستخدام window.supabaseClient لتجنب التعارضات
+//  تم إصلاح مشاكل إضافة السيارة وعرض الروابط حسب الصلاحية
 // ============================================================
 
 // ============================================================
@@ -37,7 +38,7 @@ async function signUpUser(email, password, role, name, phone) {
         });
         if (authError) throw authError;
 
-        // إضافة سجل في جدول users (اختياري، لكنه يسهل الاستعلامات)
+        // إضافة سجل في جدول users
         const { error: insertError } = await window.supabaseClient
             .from('users')
             .insert([{
@@ -50,7 +51,7 @@ async function signUpUser(email, password, role, name, phone) {
             }]);
         if (insertError) console.warn('فشل إدراج المستخدم في جدول users:', insertError);
 
-        // حفظ الجلسة في localStorage (يتم تلقائياً عبر supabase-js، لكننا نحفظ نسخة يدوية)
+        // حفظ الجلسة في localStorage
         const session = authData.session;
         if (session) {
             localStorage.setItem('supabase_token', session.access_token);
@@ -110,7 +111,6 @@ function signOutUser() {
     localStorage.removeItem('userRole');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
-    // إعادة توجيه إلى landing.html أو index.html
     window.location.href = '/index.html';
 }
 
@@ -147,7 +147,6 @@ async function checkAdminAccess() {
         return false;
     }
 
-    // التحقق من صحة التوكن مع Supabase
     const { data: { user }, error } = await window.supabaseClient.auth.getUser(token);
     if (error || !user) {
         localStorage.clear();
@@ -177,7 +176,6 @@ async function fetchCars(filters = {}) {
     if (filters.city) query = query.eq('city', filters.city);
     if (filters.status) query = query.eq('status', filters.status);
     if (filters.brand) query = query.eq('brand', filters.brand);
-    // يمكن إضافة المزيد من التصفيات حسب الحاجة
 
     const { data, error } = await query;
     if (error) {
@@ -188,18 +186,29 @@ async function fetchCars(filters = {}) {
 }
 
 /**
- * إضافة سيارة جديدة (للمالك أو الأدمن)
+ * إضافة سيارة جديدة - فقط للمالك أو الأدمن
  * @param {object} carData - بيانات السيارة
  * @returns {Promise<object|null>}
  */
 async function createCar(carData) {
     const token = localStorage.getItem('supabase_token');
     if (!token) {
-        alert('الرجاء تسجيل الدخول');
+        alert('الرجاء تسجيل الدخول أولاً');
         return null;
     }
+
     const user = getCurrentUser();
-    if (!user) return null;
+    if (!user) {
+        alert('المستخدم غير موجود');
+        return null;
+    }
+
+    // ✅ التحقق من الصلاحية: فقط المالك أو الأدمن يمكنه إضافة سيارة
+    const role = getUserRole();
+    if (role !== 'owner' && role !== 'admin') {
+        alert('❌ عذراً، فقط المالك يمكنه إضافة سيارة. يرجى تسجيل الدخول كمالك.');
+        return null;
+    }
 
     const { data, error } = await window.supabaseClient
         .from('cars')
@@ -209,7 +218,7 @@ async function createCar(carData) {
 
     if (error) {
         console.error('فشل إضافة السيارة:', error);
-        alert('حدث خطأ أثناء إضافة السيارة');
+        alert('حدث خطأ أثناء إضافة السيارة: ' + error.message);
         return null;
     }
     return data;
@@ -350,12 +359,10 @@ async function bookCar(carId) {
         return;
     }
 
-    // طلب التواريخ من المستخدم
     const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
     const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
     if (!startDate || !endDate) return;
 
-    // جلب سعر السيارة اليومي
     const { data: car, error: carError } = await window.supabaseClient
         .from('cars')
         .select('daily_price')
@@ -379,20 +386,17 @@ async function bookCar(carId) {
 
     if (booking) {
         alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
-        // حفظ معرف الحجز للاستخدام في العقد
         localStorage.setItem('current_booking_id', booking.id);
         window.location.href = '/dashboard-renter.html';
     }
 }
 
 // ============================================================
-// 5. دوال التوافق مع الواجهات القديمة (لتعديل loginUser و logoutUser)
+// 5. دوال التوافق مع الواجهات القديمة
 // ============================================================
 
 /**
  * دالة تسجيل الدخول القديمة - تم تعديلها لاستخدام Supabase
- * يتم استدعاؤها من نموذج تسجيل الدخول في landing.html وغيره
- * @param {string} type - غير مستخدم حالياً، يمكن إهماله
  */
 async function loginUser(type) {
     const emailInput = document.getElementById('email-input') || document.getElementById('login-email');
@@ -414,15 +418,16 @@ async function loginUser(type) {
     const result = await signInUser(email, password);
     if (result.success) {
         const role = result.role;
-        // تحديث شريط التنقل
         updateNavbarBasedOnLoginStatus();
 
         if (role === 'admin') {
             window.location.href = '/admin_dashboard.html';
         } else if (role === 'owner') {
             window.location.href = '/dashboard-owner.html';
-        } else {
+        } else if (role === 'renter') {
             window.location.href = '/dashboard-renter.html';
+        } else {
+            window.location.href = '/index.html';
         }
     } else {
         alert('فشل تسجيل الدخول: ' + result.error);
@@ -434,79 +439,116 @@ async function loginUser(type) {
  */
 function logoutUser() {
     signOutUser();
-    // التوجيه يتم داخل signOutUser
 }
 
 // ============================================================
-// 6. دوال مساعدة أخرى (موجودة مسبقاً - لم نغيرها)
+// 6. دوال مساعدة أخرى (تم إصلاح شريط التنقل)
 // ============================================================
 
 // -------------------------------------
-// تحديث شريط التنقل بناءً على حالة تسجيل الدخول
+// تحديث شريط التنقل بناءً على حالة تسجيل الدخول (✅ تم الإصلاح)
 // -------------------------------------
 function updateNavbarBasedOnLoginStatus() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const userType = localStorage.getItem('userRole');
 
+    // ===== عناصر سطح المكتب =====
     const desktopNavLinks = document.querySelector('.desktop-nav-links');
     const desktopAuthLinks = desktopNavLinks ? desktopNavLinks.querySelectorAll('.auth-link') : [];
     const desktopGuestButton = document.getElementById('nav-guest-button');
     const desktopUserProfilePlaceholder = document.getElementById('nav-user-profile-placeholder');
 
+    // ===== عناصر الجوال =====
     const mobileBottomNavGuestButton = document.getElementById('mobile-bottom-guest-button');
     const mobileBottomNavUserButton = document.getElementById('mobile-bottom-user-button');
     const mobileBottomNavAuthLinks = document.querySelectorAll('.mobile-bottom-navbar .auth-link-bottom');
 
+    // ===== 1. إخفاء الكل افتراضياً =====
     if (desktopGuestButton) desktopGuestButton.style.display = 'none';
     if (desktopUserProfilePlaceholder) desktopUserProfilePlaceholder.style.display = 'none';
     desktopAuthLinks.forEach(link => link.style.display = 'none');
-
     if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'none';
     if (mobileBottomNavUserButton) mobileBottomNavUserButton.style.display = 'none';
     mobileBottomNavAuthLinks.forEach(link => link.style.display = 'none');
 
-    if (isLoggedIn) {
-        if (desktopUserProfilePlaceholder) {
-            desktopUserProfilePlaceholder.innerHTML = `
-                <a href="#" class="btn btn-outline" onclick="logoutUser()" style="margin-right: 10px;">
-                    <i class="fas fa-sign-out-alt"></i> خروج
-                </a>
-                <a href="${userType === 'owner' ? '/dashboard-owner.html' : '/dashboard-renter.html'}" class="btn btn-secondary">
-                    <i class="fas fa-user-circle"></i> ملفي
-                </a>
-            `;
-            desktopUserProfilePlaceholder.style.display = 'flex';
-        }
-
-        desktopAuthLinks.forEach(link => {
-            const linkHref = link.getAttribute('href');
-            if (userType === 'owner') {
-                if (linkHref && (linkHref.includes('dashboard-owner.html') || linkHref.includes('add-car.html'))) {
-                    link.style.display = 'block';
-                }
-            } else if (userType === 'renter') {
-                if (linkHref && linkHref.includes('dashboard-renter.html')) {
-                    link.style.display = 'block';
-                }
-            }
-        });
-
-        if (mobileBottomNavUserButton) {
-            mobileBottomNavUserButton.style.display = 'flex';
-            mobileBottomNavUserButton.href = userType === 'owner' ? '/dashboard-owner.html' : '/dashboard-renter.html';
-        }
-        mobileBottomNavAuthLinks.forEach(link => {
-            const linkDataRole = link.getAttribute('data-role');
-            if (linkDataRole === userType || linkDataRole === 'all') {
-                link.style.display = 'flex';
-            } else {
-                link.style.display = 'none';
-            }
-        });
-    } else {
+    if (!isLoggedIn) {
+        // ===== 2. غير مسجل الدخول: عرض أزرار الدخول فقط =====
         if (desktopGuestButton) desktopGuestButton.style.display = 'flex';
         if (mobileBottomNavGuestButton) mobileBottomNavGuestButton.style.display = 'flex';
+        return;
     }
+
+    // ===== 3. مسجل الدخول: عرض ملف المستخدم =====
+    if (desktopUserProfilePlaceholder) {
+        let profileLink = '/index.html';
+        if (userType === 'owner') profileLink = '/dashboard-owner.html';
+        else if (userType === 'renter') profileLink = '/dashboard-renter.html';
+        else if (userType === 'admin') profileLink = '/admin_dashboard.html';
+
+        desktopUserProfilePlaceholder.innerHTML = `
+            <a href="#" class="btn btn-outline" onclick="logoutUser()" style="margin-right: 10px;">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </a>
+            <a href="${profileLink}" class="btn btn-secondary">
+                <i class="fas fa-user-circle"></i> ملفي
+            </a>
+        `;
+        desktopUserProfilePlaceholder.style.display = 'flex';
+    }
+
+    // ===== 4. عرض الروابط حسب الدور (سطح المكتب) =====
+    desktopAuthLinks.forEach(link => {
+        const linkHref = link.getAttribute('href');
+        let show = false;
+
+        if (userType === 'admin') {
+            // الأدمن يرى كل الروابط
+            show = true;
+        } else if (userType === 'owner') {
+            // المالك يرى: لوحة المؤجر + إضافة سيارة
+            if (linkHref && (linkHref.includes('dashboard-owner.html') || linkHref.includes('add-car.html'))) {
+                show = true;
+            }
+        } else if (userType === 'renter') {
+            // المستأجر يرى: لوحة المستأجر فقط
+            if (linkHref && linkHref.includes('dashboard-renter.html')) {
+                show = true;
+            }
+        }
+        // أي دور آخر (مثل 'user') لا يرى أي روابط مصادقة
+
+        if (show) {
+            link.style.display = 'block';
+        }
+    });
+
+    // ===== 5. عرض الروابط حسب الدور (الجوال) =====
+    if (mobileBottomNavUserButton) {
+        mobileBottomNavUserButton.style.display = 'flex';
+        if (userType === 'owner') mobileBottomNavUserButton.href = '/dashboard-owner.html';
+        else if (userType === 'renter') mobileBottomNavUserButton.href = '/dashboard-renter.html';
+        else if (userType === 'admin') mobileBottomNavUserButton.href = '/admin_dashboard.html';
+        else mobileBottomNavUserButton.href = '/index.html';
+    }
+
+    mobileBottomNavAuthLinks.forEach(link => {
+        const linkDataRole = link.getAttribute('data-role');
+        let show = false;
+
+        if (userType === 'admin') {
+            show = true;
+        } else if (userType === 'owner' && (linkDataRole === 'owner' || linkDataRole === 'all')) {
+            show = true;
+        } else if (userType === 'renter' && (linkDataRole === 'renter' || linkDataRole === 'all')) {
+            show = true;
+        } else if (linkDataRole === 'all') {
+            show = true;
+        }
+
+        if (show) {
+            link.style.display = 'flex';
+        }
+    });
 }
 
 // -------------------------------------
@@ -779,7 +821,7 @@ let carMarkersLayer;
 let currentRouteLine = null;
 const targetLocation = [24.8375090, 46.7297325];
 
-// بيانات السيارات الثابتة للخريطة (يمكن استبدالها بجلب من Supabase)
+// بيانات السيارات الثابتة للخريطة
 const allCars = [
     {
         id: 'r1', type: 'سيدان', model: 'تويوتا كامري 2024', price: '120',
@@ -1035,11 +1077,9 @@ document.addEventListener('DOMContentLoaded', () => {
         (async () => {
             const hasAccess = await checkAdminAccess();
             if (hasAccess) {
-                // إظهار محتوى لوحة التحكم (يمكنك إضافة كود لعرض إحصائيات)
                 const adminContent = document.getElementById('admin-content');
                 if (adminContent) adminContent.style.display = 'block';
             }
-            // إذا لم يكن لديه صلاحية، سيتم التوجيه تلقائياً
         })();
     }
 });
