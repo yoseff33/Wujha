@@ -8,127 +8,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
-
     <style>
-        .accessibility-toggle {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white; padding: 15px 20px; border-radius: 12px;
-            margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-        }
-        .wallet-card {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white; padding: 25px; border-radius: 16px;
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
-        }
-        .action-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px; margin-top: 20px;
-        }
-        .action-btn {
-            padding: 20px; border: 1px solid #eee; border-radius: 12px;
-            background: white; text-align: center; cursor: pointer;
-            transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(0,0,0,0.02);
-        }
-        .action-btn:hover { border-color: var(--primary); background: #f0fdf4; transform: translateY(-3px); }
-        .action-btn i { font-size: 1.8rem; margin-bottom: 12px; display: block; color: var(--primary); }
-        
-        .mandatory-pledge label {
-            display: flex; align-items: flex-start; background: #fff;
-            padding: 15px; margin-bottom: 10px; border: 1px solid #eee;
-            border-radius: 8px; cursor: pointer; transition: 0.2s;
-        }
-        .mandatory-pledge label:hover { background: #fafafa; border-color: #ddd; }
-        .mandatory-pledge input[type="checkbox"] { transform: scale(1.3); margin-left: 15px; margin-top: 3px; }
-        
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #2ecc71; }
-        input:checked + .slider:before { transform: translateX(24px); }
-        
-        .smart-widget {
-            background: white; border-radius: 16px; padding: 25px;
-            margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
-        }
-        body.dark-mode .smart-widget {
-            background: #2a2a2a;
-            border-color: #444;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-        .risk-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
-        .risk-low { background: #e8f5e9; color: #2e8b57; }
-
-        .scan-container {
-            position: relative; width: 100%; height: 200px;
-            border-radius: 12px; overflow: hidden; margin-bottom: 20px;
-            border: 2px solid #3498db; background: #000;
-            display: none;
-        }
-        .scan-image-placeholder {
-            width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            opacity: 0.6; filter: contrast(1.2) grayscale(0.2);
-        }
-        .scanner-beam {
-            position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: #3498db;
-            box-shadow: 0 0 15px #3498db, 0 0 30px #3498db;
-            z-index: 10;
-            animation: scanMove 2s infinite ease-in-out alternate;
-        }
-        .scan-status-text {
-            position: absolute; bottom: 10px; left: 0; width: 100%;
-            text-align: center; color: #3498db; font-weight: bold;
-            text-shadow: 0 0 5px black; z-index: 11; font-family: monospace;
-        }
-        @keyframes scanMove {
-            0% { top: 2%; opacity: 0.8; }
-            100% { top: 95%; opacity: 1; }
-        }
-        .inspection-widget { border: 2px solid #3498db; background: #f0f7fd; }
-        .inspection-widget.completed { border-color: #2ecc71; background: #e8f5e9; }
-
-        .booking-item {
-            border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 10px;
-        }
-        body.dark-mode .booking-item {
-            border-color: #444;
-        }
-        .booking-item .status { font-weight: bold; }
-        .booking-item .status.pending { color: #f39c12; }
-        .booking-item .status.active { color: #2ecc71; }
-        .booking-item .status.completed { color: #3498db; }
-        .booking-item .status.cancelled { color: #e74c3c; }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 30px;
-            color: #888;
-        }
-        .loading-spinner i {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 10px;
-        }
+        .accessibility-toggle { background: linear-gradient(135deg,#3498db,#2980b9); color:white; padding:15px 20px; border-radius:12px; margin-bottom:25px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; box-shadow:0 5px 15px rgba(52,152,219,0.3); }
+        .wallet-card { background: linear-gradient(135deg,#6c5ce7,#a29bfe); color:white; padding:25px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; box-shadow:0 8px 20px rgba(108,92,231,0.2); }
+        .action-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; margin-top:20px; }
+        .action-btn { padding:20px; border:1px solid #eee; border-radius:12px; background:white; text-align:center; cursor:pointer; transition:all 0.3s ease; box-shadow:0 3px 10px rgba(0,0,0,0.02); }
+        .action-btn:hover { border-color:var(--primary); background:#f0fdf4; transform:translateY(-3px); }
+        .action-btn i { font-size:1.8rem; margin-bottom:12px; display:block; color:var(--primary); }
+        .mandatory-pledge label { display:flex; align-items:flex-start; background:#fff; padding:15px; margin-bottom:10px; border:1px solid #eee; border-radius:8px; cursor:pointer; transition:0.2s; }
+        .mandatory-pledge label:hover { background:#fafafa; border-color:#ddd; }
+        .mandatory-pledge input[type="checkbox"] { transform:scale(1.3); margin-left:15px; margin-top:3px; }
+        .switch { position:relative; display:inline-block; width:50px; height:26px; }
+        .switch input { opacity:0; width:0; height:0; }
+        .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:34px; }
+        .slider:before { position:absolute; content:""; height:18px; width:18px; left:4px; bottom:4px; background-color:white; transition:.4s; border-radius:50%; }
+        input:checked + .slider { background-color:#2ecc71; }
+        input:checked + .slider:before { transform:translateX(24px); }
+        .smart-widget { background:white; border-radius:16px; padding:25px; margin-bottom:25px; box-shadow:0 5px 20px rgba(0,0,0,0.05); border:1px solid #f0f0f0; }
+        body.dark-mode .smart-widget { background:#2a2a2a; border-color:#444; box-shadow:0 5px 20px rgba(0,0,0,0.3); }
+        .risk-badge { padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold; }
+        .risk-low { background:#e8f5e9; color:#2e8b57; }
+        .scan-container { position:relative; width:100%; height:200px; border-radius:12px; overflow:hidden; margin-bottom:20px; border:2px solid #3498db; background:#000; display:none; }
+        .scan-image-placeholder { width:100%; height:100%; background-size:cover; background-position:center; opacity:0.6; filter:contrast(1.2) grayscale(0.2); }
+        .scanner-beam { position:absolute; top:0; left:0; width:100%; height:4px; background:#3498db; box-shadow:0 0 15px #3498db,0 0 30px #3498db; z-index:10; animation:scanMove 2s infinite ease-in-out alternate; }
+        .scan-status-text { position:absolute; bottom:10px; left:0; width:100%; text-align:center; color:#3498db; font-weight:bold; text-shadow:0 0 5px black; z-index:11; font-family:monospace; }
+        @keyframes scanMove { 0% { top:2%; opacity:0.8; } 100% { top:95%; opacity:1; } }
+        .inspection-widget { border:2px solid #3498db; background:#f0f7fd; }
+        .inspection-widget.completed { border-color:#2ecc71; background:#e8f5e9; }
+        .booking-item { border:1px solid #eee; border-radius:10px; padding:15px; margin-bottom:10px; }
+        body.dark-mode .booking-item { border-color:#444; }
+        .booking-item .status { font-weight:bold; }
+        .booking-item .status.pending { color:#f39c12; }
+        .booking-item .status.active { color:#2ecc71; }
+        .booking-item .status.completed { color:#3498db; }
+        .booking-item .status.cancelled { color:#e74c3c; }
+        .loading-spinner { text-align:center; padding:30px; color:#888; }
+        .loading-spinner i { font-size:2rem; display:block; margin-bottom:10px; }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo">
-                    <div class="logo-icon">و</div>
-                    <div class="logo-text">وُجْهَة</div>
-                </a>
+                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
@@ -140,25 +65,20 @@
                     <li><a href="qassim-map.html">خريطة الرياض</a></li>
                 </ul>
                 <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
-                        <i class="fas fa-moon"></i> <span>الوضع</span> 
-                    </button>
+                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> <span>الوضع</span></button>
                     <button class="btn btn-outline" onclick="logoutUser()">خروج</button>
                 </div>
             </nav>
         </div>
     </header>
 
-    <section class="dashboard-section" style="padding-top: 120px;">
+    <section class="dashboard-section" style="padding-top:120px;">
         <div class="container">
             <div class="dashboard" data-aos="fade-up">
                 <div class="dashboard-sidebar">
                     <div class="user-profile">
-                        <div class="user-avatar" id="renter-avatar" style="background: #e91e63; color: white;">م</div>
-                        <div class="user-info">
-                            <h3 id="renter-name-display">مستخدم</h3>
-                            <p><i class="fas fa-check-circle" style="color: #4cd137;"></i> موثق (نفاذ)</p>
-                        </div>
+                        <div class="user-avatar" id="renter-avatar" style="background:#e91e63; color:white;">م</div>
+                        <div class="user-info"><h3 id="renter-name-display">مستخدم</h3><p><i class="fas fa-check-circle" style="color:#4cd137;"></i> موثق (نفاذ)</p></div>
                     </div>
                     <ul class="sidebar-menu">
                         <li><a href="#" class="active"><i class="fas fa-columns"></i> لوحة التحكم</a></li>
@@ -167,167 +87,81 @@
                         <li><a href="#"><i class="fas fa-cog"></i> الإعدادات</a></li>
                     </ul>
                 </div>
-
                 <div class="dashboard-content">
-
-                    <!-- ===== عرض الحجوزات النشطة ===== -->
                     <div class="smart-widget" id="active-bookings-widget">
-                        <h3 style="margin-bottom: 15px;"><i class="fas fa-calendar-check"></i> حجوزاتي النشطة</h3>
-                        <div id="active-bookings-container">
-                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
-                        </div>
+                        <h3 style="margin-bottom:15px;"><i class="fas fa-calendar-check"></i> حجوزاتي النشطة</h3>
+                        <div id="active-bookings-container"><div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div></div>
                     </div>
-
-                    <!-- ===== عرض العقود ===== -->
                     <div class="smart-widget" id="contracts-widget">
-                        <h3 style="margin-bottom: 15px;"><i class="fas fa-file-signature"></i> عقودي</h3>
-                        <div id="contracts-container">
-                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
-                        </div>
+                        <h3 style="margin-bottom:15px;"><i class="fas fa-file-signature"></i> عقودي</h3>
+                        <div id="contracts-container"><div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div></div>
                     </div>
-
                     <div id="pre-trip-inspection" class="smart-widget inspection-widget">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 style="color: #2c3e50; margin: 0;">🤖 فحص استلام السيارة (AI)</h3>
-                            <span class="status-badge" style="background: #3498db; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem;">مطلوب للتوثيق</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3 style="color:#2c3e50; margin:0;">🤖 فحص استلام السيارة (AI)</h3>
+                            <span class="status-badge" style="background:#3498db; color:white; padding:5px 12px; border-radius:15px; font-size:0.8rem;">مطلوب للتوثيق</span>
                         </div>
-                        
-                        <p id="pre-desc" style="color: #555; font-size: 0.9rem; margin-bottom: 20px;">
-                            صور السيارة بجوالك الآن. سيقوم النظام بتوثيق أي خدوش قديمة وحفظها.
-                        </p>
-
-                        <div class="scan-container" id="pre-scan-visual">
-                            <div class="scan-image-placeholder"></div>
-                            <div class="scanner-beam"></div>
-                            <div class="scan-status-text">جاري تحليل صورتك... <span id="scan-progress">0%</span></div>
+                        <p id="pre-desc" style="color:#555; font-size:0.9rem; margin-bottom:20px;">صور السيارة بجوالك الآن. سيقوم النظام بتوثيق أي خدوش قديمة وحفظها.</p>
+                        <div class="scan-container" id="pre-scan-visual"><div class="scan-image-placeholder"></div><div class="scanner-beam"></div><div class="scan-status-text">جاري تحليل صورتك... <span id="scan-progress">0%</span></div></div>
+                        <div id="pre-scan-result" style="display:none; background:white; padding:15px; border-radius:10px; border-right:4px solid #f1c40f; margin-bottom:20px;">
+                            <h4 style="margin:0 0 10px; color:#f39c12;">📊 تقرير الحالة الأولي:</h4>
+                            <ul style="margin:0; padding-right:20px; color:#555; font-size:0.9rem;"><li>✅ الهيكل سليم بنسبة 95%.</li><li>⚠️ تم رصد (2) خدش سطحي بناءً على صورتك.</li></ul>
+                            <p style="margin:10px 0 0; font-size:0.8rem; color:#777;">* تم حفظ التقرير لحمايتك عند التسليم.</p>
                         </div>
-
-                        <div id="pre-scan-result" style="display:none; background: white; padding: 15px; border-radius: 10px; border-right: 4px solid #f1c40f; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 10px; color: #f39c12;">📊 تقرير الحالة الأولي:</h4>
-                            <ul style="margin: 0; padding-right: 20px; color: #555; font-size: 0.9rem;">
-                                <li>✅ الهيكل سليم بنسبة 95%.</li>
-                                <li>⚠️ تم رصد (2) خدش سطحي بناءً على صورتك.</li>
-                            </ul>
-                            <p style="margin: 10px 0 0; font-size: 0.8rem; color: #777;">* تم حفظ التقرير لحمايتك عند التسليم.</p>
-                        </div>
-
-                        <input type="file" id="pre-file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(this, 'pre')">
-                        
-                        <button id="start-pre-scan-btn" class="btn btn-primary" style="width: 100%; background: #3498db; border-color: #3498db;" onclick="document.getElementById('pre-file-input').click()">
-                            <i class="fas fa-camera"></i> رفع صورة وبدء الفحص
-                        </button>
+                        <input type="file" id="pre-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this, 'pre')">
+                        <button id="start-pre-scan-btn" class="btn btn-primary" style="width:100%; background:#3498db; border-color:#3498db;" onclick="document.getElementById('pre-file-input').click()"><i class="fas fa-camera"></i> رفع صورة وبدء الفحص</button>
                     </div>
-
                     <div class="accessibility-toggle">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <i class="fas fa-wheelchair" style="font-size: 1.5rem;"></i>
-                            <div>
-                                <strong>وضع "ذوي الهمم"</strong>
-                                <div style="font-size: 0.9rem; opacity: 0.9;">تصفية السيارات المجهزة والمريحة وخدمة التوصيل للمنزل.</div>
-                            </div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox">
-                            <span class="slider"></span>
-                        </label>
+                        <div style="display:flex; align-items:center; gap:15px;"><i class="fas fa-wheelchair" style="font-size:1.5rem;"></i><div><strong>وضع "ذوي الهمم"</strong><div style="font-size:0.9rem; opacity:0.9;">تصفية السيارات المجهزة والمريحة وخدمة التوصيل للمنزل.</div></div></div>
+                        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
                     </div>
-
-                    <div class="wallet-card">
-                        <div>
-                            <h3>المحفظة الذكية</h3>
-                            <p style="margin: 5px 0 10px; font-size: 1.2rem;">رصيد النقاط: <strong>450 نقطة</strong></p>
-                            <small style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px;">
-                                <i class="fas fa-exchange-alt"></i> استبدال مع "قطاف"
-                            </small>
-                        </div>
-                        <div style="font-size: 3rem; opacity: 0.8;"><i class="fas fa-coins"></i></div>
-                    </div>
-
-                    <div class="loyalty-card" style="margin-bottom: 25px;">
+                    <div class="wallet-card"><div><h3>المحفظة الذكية</h3><p style="margin:5px 0 10px; font-size:1.2rem;">رصيد النقاط: <strong>450 نقطة</strong></p><small style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:20px;"><i class="fas fa-exchange-alt"></i> استبدال مع "قطاف"</small></div><div style="font-size:3rem; opacity:0.8;"><i class="fas fa-coins"></i></div></div>
+                    <div class="loyalty-card" style="margin-bottom:25px;">
                         <div class="loyalty-card-content">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <h3><i class="fas fa-medal"></i> مكافأة السائق المثالي</h3>
-                                <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 15px; font-size: 0.9rem;">باقي رحلتين</span>
-                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3><i class="fas fa-medal"></i> مكافأة السائق المثالي</h3><span style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:15px; font-size:0.9rem;">باقي رحلتين</span></div>
                             <div class="loyalty-progress">
                                 <div class="loyalty-dot completed"><i class="fas fa-check"></i></div>
-                                <div class="loyalty-line"><div class="loyalty-line-fill" style="width: 100%;"></div></div>
+                                <div class="loyalty-line"><div class="loyalty-line-fill" style="width:100%;"></div></div>
                                 <div class="loyalty-dot completed"><i class="fas fa-check"></i></div>
-                                <div class="loyalty-line"><div class="loyalty-line-fill" style="width: 100%;"></div></div>
+                                <div class="loyalty-line"><div class="loyalty-line-fill" style="width:100%;"></div></div>
                                 <div class="loyalty-dot completed"><i class="fas fa-check"></i></div>
                                 <div class="loyalty-line"><div class="loyalty-line-fill"></div></div>
                                 <div class="loyalty-dot">4</div>
                                 <div class="loyalty-line"><div class="loyalty-line-fill"></div></div>
                                 <div class="loyalty-dot"><i class="fas fa-gift"></i></div>
                             </div>
-                            <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.9;">أكمل رحلاتك بدون مخالفات مرورية لتحصل على شهادة شكر وخصم 50%.</p>
+                            <p style="margin-top:15px; font-size:0.9rem; opacity:0.9;">أكمل رحلاتك بدون مخالفات مرورية لتحصل على شهادة شكر وخصم 50%.</p>
                         </div>
                     </div>
-
-                    <div class="pledge-section" style="border: 2px solid var(--primary); padding:25px; border-radius:16px; background:white; margin-top: 30px;">
-                        <h3 style="color: var(--primary); margin-bottom: 15px;"><i class="fas fa-hand-paper"></i> التعهد الأمني الملزم</h3>
-                        <p style="color: #d35400; font-size: 0.95rem; margin-bottom: 20px; background: #fff3cd; padding: 10px; border-radius: 8px;">
-                            <i class="fas fa-exclamation-triangle"></i> تنبيه: لن يعمل "المفتاح الرقمي" للسيارة إلا بعد الموافقة على كافة البنود أدناه.
-                        </p>
-                        
+                    <div class="pledge-section" style="border:2px solid var(--primary); padding:25px; border-radius:16px; background:white; margin-top:30px;">
+                        <h3 style="color:var(--primary); margin-bottom:15px;"><i class="fas fa-hand-paper"></i> التعهد الأمني الملزم</h3>
+                        <p style="color:#d35400; font-size:0.95rem; margin-bottom:20px; background:#fff3cd; padding:10px; border-radius:8px;"><i class="fas fa-exclamation-triangle"></i> تنبيه: لن يعمل "المفتاح الرقمي" للسيارة إلا بعد الموافقة على كافة البنود أدناه.</p>
                         <form id="mandatory-pledge-form" class="mandatory-pledge">
-                            <label>
-                                <input type="checkbox" required> 
-                                <span>أتعهد بالالتزام بالسرعة النظامية وعدم استخدام الجوال أثناء القيادة.</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" required> 
-                                <span>أتعهد بربط حزام الأمان لي ولجميع الركاب طوال الرحلة.</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" required> 
-                                <span>أتعهد بالمحافظة على نظافة السيارة (سيتم فحصها بالذكاء الاصطناعي عند الإرجاع).</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" required> 
-                                <span>أقر بأن تفويض "تم" ساري طوال مدة الحجز وأتحمل كافة المسؤوليات المترتبة.</span>
-                            </label>
-                            
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 15px; font-weight: bold; font-size: 1.1rem;">
-                                <i class="fas fa-fingerprint"></i> توثيق وبدء الرحلة
-                            </button>
+                            <label><input type="checkbox" required> <span>أتعهد بالالتزام بالسرعة النظامية وعدم استخدام الجوال أثناء القيادة.</span></label>
+                            <label><input type="checkbox" required> <span>أتعهد بربط حزام الأمان لي ولجميع الركاب طوال الرحلة.</span></label>
+                            <label><input type="checkbox" required> <span>أتعهد بالمحافظة على نظافة السيارة (سيتم فحصها بالذكاء الاصطناعي عند الإرجاع).</span></label>
+                            <label><input type="checkbox" required> <span>أقر بأن تفويض "تم" ساري طوال مدة الحجز وأتحمل كافة المسؤوليات المترتبة.</span></label>
+                            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px; padding:15px; font-weight:bold; font-size:1.1rem;"><i class="fas fa-fingerprint"></i> توثيق وبدء الرحلة</button>
                         </form>
                     </div>
-
                 </div>
             </div>
         </div>
     </section>
 
-    <div id="end-trip-modal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index: 1000; backdrop-filter: blur(8px);">
-        <div style="background:white; width: 90%; max-width:500px; margin: 80px auto; padding:30px; border-radius:20px; text-align:center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-            <button onclick="document.getElementById('end-trip-modal').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;">&times;</button>
-            
-            <h3 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-clipboard-check"></i> فحص تسليم السيارة</h3>
-            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">الرجاء رفع صورة حديثة للسيارة للمقارنة.</p>
-            
-            <div class="scan-container" id="post-scan-visual" style="height: 220px;">
-                <div class="scan-image-placeholder"></div>
-                <div class="scanner-beam" style="background: #e74c3c; box-shadow: 0 0 15px #e74c3c, 0 0 30px #e74c3c;"></div>
-                <div class="scan-status-text" style="color: #e74c3c;">جاري مقارنة صورتك (Pixel-by-Pixel)...</div>
-            </div>
-
-            <input type="file" id="post-file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(this, 'post')">
-
-            <div id="post-scan-start" style="background:#f8f9fa; border: 2px dashed #ccc; padding: 40px 20px; border-radius:15px; cursor:pointer; transition: 0.3s;" onclick="document.getElementById('post-file-input').click()">
-                <i class="fas fa-camera" style="font-size:3rem; color: #ccc; margin-bottom: 10px;"></i>
-                <div style="color: #777; font-weight: bold;">اضغط لرفع صورة التسليم</div>
-            </div>
-            
-            <div id="final-result-clear" style="display:none; margin-top:20px; text-align: center; background: #e8f5e9; padding: 25px; border-radius: 15px; border: 2px solid #2ecc71;">
-                <i class="fas fa-check-circle" style="font-size: 4rem; color: #2ecc71; margin-bottom: 15px;"></i>
-                <h3 style="color:#27ae60; margin: 0 0 10px;">صورك سليمة!</h3>
-                <p style="font-size:0.95rem; color: #555;">
-                    تمت مطابقة الصور ولم يرصد النظام أضرار جديدة.
-                </p>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 20px; background: #2ecc71; border-color: #2ecc71;" onclick="alert('تم إنهاء الرحلة وإعادة مبلغ التأمين. نراكم قريباً! 🌹')">
-                    إنهاء الرحلة واسترداد التأمين
-                </button>
+    <div id="end-trip-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; backdrop-filter:blur(8px);">
+        <div style="background:white; width:90%; max-width:500px; margin:80px auto; padding:30px; border-radius:20px; text-align:center; position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+            <button onclick="document.getElementById('end-trip-modal').style.display='none'" style="position:absolute; top:15px; right:20px; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#999;">&times;</button>
+            <h3 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-clipboard-check"></i> فحص تسليم السيارة</h3>
+            <p style="color:#666; margin-bottom:25px; font-size:0.9rem;">الرجاء رفع صورة حديثة للسيارة للمقارنة.</p>
+            <div class="scan-container" id="post-scan-visual" style="height:220px;"><div class="scan-image-placeholder"></div><div class="scanner-beam" style="background:#e74c3c; box-shadow:0 0 15px #e74c3c,0 0 30px #e74c3c;"></div><div class="scan-status-text" style="color:#e74c3c;">جاري مقارنة صورتك (Pixel-by-Pixel)...</div></div>
+            <input type="file" id="post-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this, 'post')">
+            <div id="post-scan-start" style="background:#f8f9fa; border:2px dashed #ccc; padding:40px 20px; border-radius:15px; cursor:pointer; transition:0.3s;" onclick="document.getElementById('post-file-input').click()"><i class="fas fa-camera" style="font-size:3rem; color:#ccc; margin-bottom:10px;"></i><div style="color:#777; font-weight:bold;">اضغط لرفع صورة التسليم</div></div>
+            <div id="final-result-clear" style="display:none; margin-top:20px; text-align:center; background:#e8f5e9; padding:25px; border-radius:15px; border:2px solid #2ecc71;">
+                <i class="fas fa-check-circle" style="font-size:4rem; color:#2ecc71; margin-bottom:15px;"></i>
+                <h3 style="color:#27ae60; margin:0 0 10px;">صورك سليمة!</h3>
+                <p style="font-size:0.95rem; color:#555;">تمت مطابقة الصور ولم يرصد النظام أضرار جديدة.</p>
+                <button class="btn btn-primary" style="width:100%; margin-top:20px; background:#2ecc71; border-color:#2ecc71;" onclick="alert('تم إنهاء الرحلة وإعادة مبلغ التأمين. نراكم قريباً! 🌹')">إنهاء الرحلة واسترداد التأمين</button>
             </div>
         </div>
     </div>
@@ -335,59 +169,32 @@
     <footer>
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <h3>عن وُجْهَة</h3>
-                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px;">
-                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان.
-                    </p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h3>روابط سريعة</h3>
-                    <ul>
-                        <li><a href="cars.html">استكشف السيارات</a></li>
-                        <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>تواصل معنا</h3>
-                    <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
-                        <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
-                    </ul>
-                </div>
+                <div class="footer-col"><h3>عن وُجْهَة</h3><p style="color:rgba(255,255,255,0.7); margin-bottom:25px;">أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان.</p><div class="social-links"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a></div></div>
+                <div class="footer-col"><h3>روابط سريعة</h3><ul><li><a href="cars.html">استكشف السيارات</a></li><li><a href="https://wa.me/966565464718">الدعم الفني</a></li></ul></div>
+                <div class="footer-col"><h3>تواصل معنا</h3><ul class="footer-contact"><li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li><li><i class="fas fa-phone"></i> +966 56 546 4718</li></ul></div>
             </div>
-            <div class="copyright">
-                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦</p>
-            </div>
+            <div class="copyright"><p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦</p></div>
         </div>
     </footer>
 
     <div id="chatbot-popup" class="chatbot-popup">
-        <div class="chatbot-header">
-            <h3>المساعد الأمني</h3>
-            <button id="chatbot-close-btn" class="close-btn">&times;</button>
-        </div>
-        <div class="chatbot-body" id="chatbot-body">
-            <div class="bot-message">
-                أهلاً. نتمنى لك رحلة آمنة. هل ترغبين في تمديد التفويض أو الإبلاغ عن مشكلة؟
-            </div>
-        </div>
-        <div class="chatbot-footer">
-            <input type="text" id="chatbot-input" placeholder="اكتب سؤالك...">
-            <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
-        </div>
+        <div class="chatbot-header"><h3>المساعد الأمني</h3><button id="chatbot-close-btn" class="close-btn">&times;</button></div>
+        <div class="chatbot-body" id="chatbot-body"><div class="bot-message">أهلاً. نتمنى لك رحلة آمنة. هل ترغبين في تمديد التفويض أو الإبلاغ عن مشكلة؟</div></div>
+        <div class="chatbot-footer"><input type="text" id="chatbot-input" placeholder="اكتب سؤالك..."><button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button></div>
     </div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({ once: true });
 
-        // ===== عرض اسم المستخدم =====
+        // ===== منع الوصول غير المصرح به =====
         document.addEventListener('DOMContentLoaded', function() {
+            const role = getUserRole();
+            if (role !== 'renter' && role !== 'admin') {
+                alert('هذه الصفحة مخصصة للمستأجرين فقط.');
+                window.location.href = 'index.html';
+                return;
+            }
             const user = getCurrentUser();
             if (user) {
                 const name = user.user_metadata?.name || user.email || 'مستخدم';
@@ -395,113 +202,59 @@
                 const avatar = document.getElementById('renter-avatar');
                 if (avatar) avatar.textContent = name.charAt(0);
             }
-            
-            // تحميل الحجوزات والعقود
             loadUserBookings();
             loadUserContracts();
         });
 
-        // ===== تحميل حجوزات المستخدم =====
         async function loadUserBookings() {
             const container = document.getElementById('active-bookings-container');
             const user = getCurrentUser();
-            if (!user) {
-                container.innerHTML = '<p style="color: #888;">الرجاء تسجيل الدخول لعرض حجوزاتك.</p>';
-                return;
-            }
-
+            if (!user) { container.innerHTML = '<p style="color:#888;">الرجاء تسجيل الدخول لعرض حجوزاتك.</p>'; return; }
             try {
-                // 🔥 التغيير هنا: استخدام window.supabaseClient بدلاً من supabase
-                const { data: bookings, error } = await window.supabaseClient
-                    .from('bookings')
-                    .select('*, cars(*)')
-                    .eq('renter_id', user.id)
-                    .order('created_at', { ascending: false });
-
+                const { data: bookings, error } = await window.supabaseClient.from('bookings').select('*, cars(*)').eq('renter_id', user.id).order('created_at', { ascending: false });
                 if (error) throw error;
-
-                if (!bookings || bookings.length === 0) {
-                    container.innerHTML = '<p style="color: #888;">لا توجد حجوزات حالية.</p>';
-                    return;
-                }
-
+                if (!bookings || bookings.length === 0) { container.innerHTML = '<p style="color:#888;">لا توجد حجوزات حالية.</p>'; return; }
                 container.innerHTML = bookings.map(b => `
                     <div class="booking-item">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                            <div>
-                                <strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong>
-                                <div style="font-size: 0.85rem; color: #777;">${b.cars?.city || ''}</div>
-                            </div>
-                            <div>
-                                <span class="status ${b.status}">${b.status === 'pending_owner_approval' ? 'قيد الموافقة' : b.status}</span>
-                            </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                            <div><strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong><div style="font-size:0.85rem; color:#777;">${b.cars?.city || ''}</div></div>
+                            <div><span class="status ${b.status}">${b.status === 'pending_owner_approval' ? 'قيد الموافقة' : b.status}</span></div>
                         </div>
-                        <div style="font-size: 0.85rem; color: #555; margin-top: 8px;">
+                        <div style="font-size:0.85rem; color:#555; margin-top:8px;">
                             <i class="fas fa-calendar-alt"></i> ${new Date(b.start_date).toLocaleDateString('ar-SA')} - ${new Date(b.end_date).toLocaleDateString('ar-SA')}
-                            <span style="margin-right: 15px;"><i class="fas fa-money-bill"></i> ${b.total_price} ر.س</span>
+                            <span style="margin-right:15px;"><i class="fas fa-money-bill"></i> ${b.total_price} ر.س</span>
                         </div>
                         ${b.status === 'approved' ? `<button class="btn btn-sm btn-primary" style="margin-top:8px;" onclick="openContractForBooking('${b.id}')">عرض العقد</button>` : ''}
                     </div>
                 `).join('');
-
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = '<p style="color: #e74c3c;">حدث خطأ في تحميل الحجوزات.</p>';
-            }
+            } catch (err) { console.error(err); container.innerHTML = '<p style="color:#e74c3c;">حدث خطأ في تحميل الحجوزات.</p>'; }
         }
 
-        // ===== فتح العقد لحجز معين =====
         async function openContractForBooking(bookingId) {
             localStorage.setItem('current_booking_id', bookingId);
             window.location.href = 'contract_final.html';
         }
 
-        // ===== تحميل عقود المستخدم =====
         async function loadUserContracts() {
             const container = document.getElementById('contracts-container');
             const user = getCurrentUser();
-            if (!user) {
-                container.innerHTML = '<p style="color: #888;">الرجاء تسجيل الدخول.</p>';
-                return;
-            }
-
+            if (!user) { container.innerHTML = '<p style="color:#888;">الرجاء تسجيل الدخول.</p>'; return; }
             try {
-                // 🔥 التغيير هنا: استخدام window.supabaseClient بدلاً من supabase
-                const { data: contracts, error } = await window.supabaseClient
-                    .from('contracts')
-                    .select('*, bookings(*, cars(*))')
-                    .eq('bookings.renter_id', user.id)
-                    .order('created_at', { ascending: false });
-
+                const { data: contracts, error } = await window.supabaseClient.from('contracts').select('*, bookings(*, cars(*))').eq('bookings.renter_id', user.id).order('created_at', { ascending: false });
                 if (error) throw error;
-
-                if (!contracts || contracts.length === 0) {
-                    container.innerHTML = '<p style="color: #888;">لا توجد عقود مسجلة.</p>';
-                    return;
-                }
-
+                if (!contracts || contracts.length === 0) { container.innerHTML = '<p style="color:#888;">لا توجد عقود مسجلة.</p>'; return; }
                 container.innerHTML = contracts.map(c => `
-                    <div class="booking-item" style="border-right: 3px solid #2ecc71;">
-                        <div>
-                            <strong>عقد رقم: ${c.contract_number}</strong>
-                            <div style="font-size: 0.85rem; color: #777;">
-                                السيارة: ${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}
-                            </div>
-                            <div style="font-size: 0.85rem; color: #555;">
-                                <i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}
-                            </div>
+                    <div class="booking-item" style="border-right:3px solid #2ecc71;">
+                        <div><strong>عقد رقم: ${c.contract_number}</strong>
+                            <div style="font-size:0.85rem; color:#777;">السيارة: ${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}</div>
+                            <div style="font-size:0.85rem; color:#555;"><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</div>
                             <span class="status active">ساري</span>
                         </div>
                     </div>
                 `).join('');
-
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = '<p style="color: #e74c3c;">حدث خطأ في تحميل العقود.</p>';
-            }
+            } catch (err) { console.error(err); container.innerHTML = '<p style="color:#e74c3c;">حدث خطأ في تحميل العقود.</p>'; }
         }
 
-        // ===== دالة معالجة رفع الصور (نفسها) =====
         function handleImageUpload(input, type) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
@@ -523,14 +276,7 @@
                 startBtn = document.getElementById('start-pre-scan-btn');
                 startBtn.style.display = 'none';
                 scanVisual.style.display = 'block';
-                const interval = setInterval(() => {
-                    timer += 2;
-                    document.getElementById('scan-progress').innerText = timer + '%';
-                    if (timer >= 100) {
-                        clearInterval(interval);
-                        finishScan('pre');
-                    }
-                }, 50);
+                const interval = setInterval(() => { timer += 2; document.getElementById('scan-progress').innerText = timer + '%'; if (timer >= 100) { clearInterval(interval); finishScan('pre'); } }, 50);
             } else {
                 document.getElementById('post-scan-start').style.display = 'none';
                 scanVisual = document.getElementById('post-scan-visual');
@@ -554,7 +300,6 @@
             }
         }
 
-        // ===== التعهد =====
         document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = this.querySelector('button');
