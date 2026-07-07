@@ -1,17 +1,22 @@
 // ============================================================
-//  الملف: script.js - النسخة المعدلة للعمل مع Supabase مباشرة
+//  الملف: script.js - النسخة النهائية المعدلة للعمل مع Supabase
 //  باستخدام window.supabaseClient لتجنب التعارضات
-//  تم إصلاح مشاكل إضافة السيارة وعرض الروابط حسب الصلاحية
+//  تم إصلاح جميع الأخطاء والمشاكل
 // ============================================================
+
+// ============================================================
+// 0. التأكد من وجود عميل Supabase
+// ============================================================
+
+if (typeof window.supabaseClient === 'undefined') {
+    console.error('❌ window.supabaseClient غير معرف. تأكد من تحميل supabase-config.js قبل هذا الملف.');
+} else {
+    console.log('✅ تم تحميل script.js بنجاح، window.supabaseClient جاهز.');
+}
 
 // ============================================================
 // 1. دوال المصادقة وإدارة الجلسة (Supabase)
 // ============================================================
-
-// التأكد من وجود عميل Supabase
-if (typeof window.supabaseClient === 'undefined') {
-    console.error('❌ window.supabaseClient غير معرف. تأكد من تحميل supabase-config.js قبل هذا الملف.');
-}
 
 /**
  * تسجيل مستخدم جديد
@@ -258,7 +263,6 @@ async function updateCarStatus(carId, newStatus) {
         return null;
     }
 
-    // التأكد من أن carId ليس فارغاً
     if (!carId) {
         console.error('carId مطلوب');
         return null;
@@ -275,14 +279,12 @@ async function updateCarStatus(carId, newStatus) {
         return null;
     }
 
-    // التحقق من وجود بيانات
     if (!data || data.length === 0) {
         console.error('السيارة غير موجودة');
         return null;
     }
 
     return data[0];
-}
 }
 
 // ============================================================
@@ -539,20 +541,16 @@ function updateNavbarBasedOnLoginStatus() {
         let show = false;
 
         if (userType === 'admin') {
-            // الأدمن يرى كل الروابط
             show = true;
         } else if (userType === 'owner') {
-            // المالك يرى: لوحة المؤجر + إضافة سيارة
             if (linkHref && (linkHref.includes('dashboard-owner.html') || linkHref.includes('add-car.html'))) {
                 show = true;
             }
         } else if (userType === 'renter') {
-            // المستأجر يرى: لوحة المستأجر فقط
             if (linkHref && linkHref.includes('dashboard-renter.html')) {
                 show = true;
             }
         }
-        // أي دور آخر (مثل 'user') لا يرى أي روابط مصادقة
 
         if (show) {
             link.style.display = 'block';
@@ -1037,6 +1035,8 @@ window.simulateSmartLocate = function() {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ DOMContentLoaded في script.js');
+    
     // تهيئة الثيم
     setupThemeToggle();
 
@@ -1146,3 +1146,5 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+console.log('✅ تم تحميل script.js بالكامل، جميع الدوال جاهزة للاستخدام.');
