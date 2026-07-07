@@ -203,22 +203,43 @@ async function createCar(carData) {
         return null;
     }
 
-    // ✅ التحقق من الصلاحية: فقط المالك أو الأدمن يمكنه إضافة سيارة
     const role = getUserRole();
     if (role !== 'owner' && role !== 'admin') {
-        alert('❌ عذراً، فقط المالك يمكنه إضافة سيارة. يرجى تسجيل الدخول كمالك.');
+        alert('❌ فقط المالك يمكنه إضافة سيارة.');
         return null;
     }
 
+    // ===== أرسل الأعمدة الأساسية فقط =====
+    const carPayload = {
+        owner_id: user.id,
+        brand: carData.brand,
+        model: carData.model,
+        year: carData.year,
+        daily_price: carData.daily_price,
+        city: carData.city,
+        status: 'pending'
+    };
+
+    // أضف الأعمدة الاختيارية فقط إذا كانت موجودة في الجدول
+    if (carData.color) carPayload.color = carData.color;
+    if (carData.location) carPayload.location = carData.location;
+    if (carData.description) carPayload.description = carData.description;
+    if (carData.type) carPayload.type = carData.type;
+    if (carData.passengers) carPayload.passengers = carData.passengers;
+    if (carData.transmission) carPayload.transmission = carData.transmission;
+    if (carData.fuel) carPayload.fuel = carData.fuel;
+    if (carData.images) carPayload.images = carData.images;
+    if (carData.plate_number) carPayload.plate_number = carData.plate_number;
+
     const { data, error } = await window.supabaseClient
         .from('cars')
-        .insert([{ ...carData, owner_id: user.id, status: 'pending' }])
+        .insert([carPayload])
         .select()
         .single();
 
     if (error) {
         console.error('فشل إضافة السيارة:', error);
-        alert('حدث خطأ أثناء إضافة السيارة: ' + error.message);
+        alert('حدث خطأ: ' + error.message);
         return null;
     }
     return data;
