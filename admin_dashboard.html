@@ -3,40 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>وجهة | لوحة تحكم الأدمن</title>
+  <title>وُجْهَة | لوحة تحكم الأدمن</title>
 
-  <!-- Font Awesome & Chart.js & Leaflet -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Fonts & Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Supabase -->
+
+  <!-- Supabase & Project Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+
   <style>
     /* ===== RESET & GLOBAL ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Tajawal', sans-serif;
-    }
-    body {
-      background: #f4f6f9;
-      color: #1e293b;
-      transition: background 0.3s, color 0.3s;
-      display: flex;
-      min-height: 100vh;
-    }
-    body.dark-mode {
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    /* ===== SCROLLBAR ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+    body { background: #f4f6f9; color: #1e293b; transition: background 0.3s, color 0.3s; display: flex; min-height: 100vh; }
+    body.dark-mode { background: #0f172a; color: #e2e8f0; }
+    a { text-decoration: none; color: inherit; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #c5a065; border-radius: 10px; }
@@ -55,9 +41,7 @@
       z-index: 1000;
       flex-shrink: 0;
     }
-    body.dark-mode .sidebar {
-      background: #1e293b;
-    }
+    body.dark-mode .sidebar { background: #1e293b; }
     .sidebar-brand {
       display: flex;
       align-items: center;
@@ -65,22 +49,13 @@
       padding: 0 24px 30px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .sidebar-brand i {
-      font-size: 2rem;
-      color: #c5a065;
-    }
-    .sidebar-brand span {
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-    }
+    .sidebar-brand i { font-size: 2rem; color: #c5a065; }
+    .sidebar-brand span { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
     .sidebar-menu {
       list-style: none;
       padding: 20px 12px 0;
     }
-    .sidebar-menu li {
-      margin-bottom: 6px;
-    }
+    .sidebar-menu li { margin-bottom: 6px; }
     .sidebar-menu a {
       display: flex;
       align-items: center;
@@ -92,11 +67,7 @@
       transition: 0.2s;
       font-size: 0.95rem;
     }
-    .sidebar-menu a i {
-      width: 22px;
-      font-size: 1.1rem;
-      text-align: center;
-    }
+    .sidebar-menu a i { width: 22px; font-size: 1.1rem; text-align: center; }
     .sidebar-menu a:hover,
     .sidebar-menu a.active {
       background: rgba(197, 160, 101, 0.15);
@@ -109,16 +80,11 @@
       color: rgba(255,255,255,0.3);
       padding: 16px 16px 8px;
     }
-    body.dark-mode .sidebar-menu a {
-      color: rgba(255,255,255,0.6);
-    }
+    body.dark-mode .sidebar-menu a { color: rgba(255,255,255,0.6); }
 
-    /* ===== MAIN CONTENT ===== */
-    .main {
-      flex: 1;
-      padding: 24px 30px 30px;
-      overflow-x: hidden;
-    }
+    /* ===== MAIN ===== */
+    .main { flex: 1; padding: 24px 30px 30px; overflow-x: hidden; }
+
     /* ===== TOP BAR ===== */
     .topbar {
       display: flex;
@@ -128,14 +94,8 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .topbar-left h1 {
-      font-size: 1.9rem;
-      font-weight: 800;
-    }
-    .topbar-left small {
-      font-size: 0.9rem;
-      color: #94a3b8;
-    }
+    .topbar-left h1 { font-size: 1.9rem; font-weight: 800; }
+    .topbar-left small { font-size: 0.9rem; color: #94a3b8; }
     .topbar-right {
       display: flex;
       align-items: center;
@@ -149,17 +109,9 @@
       color: #1e293b;
       transition: 0.2s;
     }
-    body.dark-mode .topbar-right .theme-toggle {
-      color: #e2e8f0;
-    }
-    .topbar-right .theme-toggle:hover {
-      color: #c5a065;
-    }
-    .notification-bell {
-      position: relative;
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
+    body.dark-mode .topbar-right .theme-toggle { color: #e2e8f0; }
+    .topbar-right .theme-toggle:hover { color: #c5a065; }
+    .notification-bell { position: relative; font-size: 1.4rem; cursor: pointer; }
     .notification-bell .badge {
       position: absolute;
       top: -6px;
@@ -172,7 +124,7 @@
       font-weight: 700;
     }
 
-    /* ===== KPIs GRID ===== */
+    /* ===== KPI GRID ===== */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -190,14 +142,8 @@
       align-items: center;
       gap: 14px;
     }
-    body.dark-mode .kpi-card {
-      background: #1e293b;
-      border-color: #2d3a4f;
-    }
-    .kpi-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-    }
+    body.dark-mode .kpi-card { background: #1e293b; border-color: #2d3a4f; }
+    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
     .kpi-icon {
       width: 48px;
       height: 48px;
@@ -228,11 +174,7 @@
       margin-bottom: 4px;
     }
     body.dark-mode .kpi-info h4 { color: #94a3b8; }
-    .kpi-info .value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      line-height: 1.2;
-    }
+    .kpi-info .value { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
 
     /* ===== CHARTS ROW ===== */
     .charts-row {
@@ -248,10 +190,7 @@
       border: 1px solid #e9edf2;
       box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
-    body.dark-mode .chart-box {
-      background: #1e293b;
-      border-color: #2d3a4f;
-    }
+    body.dark-mode .chart-box { background: #1e293b; border-color: #2d3a4f; }
     .chart-box h3 {
       font-size: 1rem;
       font-weight: 700;
@@ -259,15 +198,8 @@
       display: flex;
       justify-content: space-between;
     }
-    .chart-box h3 small {
-      font-weight: 400;
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }
-    .chart-box canvas {
-      max-height: 220px;
-      max-width: 100%;
-    }
+    .chart-box h3 small { font-weight: 400; font-size: 0.8rem; color: #94a3b8; }
+    .chart-box canvas { max-height: 220px; max-width: 100%; }
 
     /* ===== TABLES & MODULES ===== */
     .section-title {
@@ -276,15 +208,8 @@
       align-items: center;
       margin: 30px 0 16px;
     }
-    .section-title h2 {
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
-    .section-title a {
-      color: #c5a065;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
+    .section-title h2 { font-size: 1.3rem; font-weight: 700; }
+    .section-title a { color: #c5a065; font-weight: 600; font-size: 0.9rem; }
     .table-wrap {
       background: #fff;
       border-radius: 16px;
@@ -292,15 +217,8 @@
       border: 1px solid #e9edf2;
       overflow-x: auto;
     }
-    body.dark-mode .table-wrap {
-      background: #1e293b;
-      border-color: #2d3a4f;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
+    body.dark-mode .table-wrap { background: #1e293b; border-color: #2d3a4f; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th {
       text-align: right;
       padding: 14px 20px;
@@ -309,17 +227,12 @@
       border-bottom: 1px solid #e9edf2;
       white-space: nowrap;
     }
-    body.dark-mode th {
-      color: #94a3b8;
-      border-bottom-color: #2d3a4f;
-    }
+    body.dark-mode th { color: #94a3b8; border-bottom-color: #2d3a4f; }
     td {
       padding: 14px 20px;
       border-bottom: 1px solid #f1f5f9;
     }
-    body.dark-mode td {
-      border-bottom-color: #2d3a4f;
-    }
+    body.dark-mode td { border-bottom-color: #2d3a4f; }
     .status-badge {
       padding: 4px 14px;
       border-radius: 30px;
@@ -360,14 +273,22 @@
       margin-top: 20px;
       border: 1px solid #e9edf2;
     }
-    body.dark-mode .map-container {
-      border-color: #2d3a4f;
-    }
+    body.dark-mode .map-container { border-color: #2d3a4f; }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .charts-row { grid-template-columns: 1fr; }
-      .sidebar { transform: translateX(-110%); position: fixed; height: 100%; }
+      .sidebar {
+        transform: translateX(-110%);
+        position: fixed;
+        height: 100%;
+        width: 280px;
+        top: 0;
+        left: 0;
+        background: #0f2925;
+        z-index: 1000;
+        overflow-y: auto;
+      }
       .sidebar.open { transform: translateX(0); }
       .hamburger { display: flex !important; }
     }
@@ -381,7 +302,7 @@
     }
     body.dark-mode .hamburger { color: #e2e8f0; }
 
-    /* ===== MODAL (quick preview) ===== */
+    /* ===== MODAL ===== */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -403,16 +324,25 @@
       overflow-y: auto;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
     }
-    body.dark-mode .modal-box {
-      background: #1e293b;
-    }
+    body.dark-mode .modal-box { background: #1e293b; }
     .modal-box h2 { margin-bottom: 16px; }
+    .modal-box .close-modal {
+      float: left;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #94a3b8;
+    }
+    .modal-box .close-modal:hover { color: #e74c3c; }
 
     /* misc */
     .flex { display: flex; align-items: center; gap: 8px; }
     .gap-2 { gap: 12px; }
     .mt-4 { margin-top: 20px; }
     .text-muted { color: #94a3b8; }
+    .loading-spinner { text-align: center; padding: 20px; color: #94a3b8; }
+    .loading-spinner i { font-size: 2rem; display: block; margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -424,37 +354,38 @@
       <span>وجهة</span>
     </div>
     <ul class="sidebar-menu">
-      <li><a href="#" class="active"><i class="fas fa-chart-pie"></i> الرئيسية</a></li>
-      <li><a href="#"><i class="fas fa-users"></i> المستخدمين</a></li>
-      <li><a href="#"><i class="fas fa-car"></i> السيارات</a></li>
-      <li><a href="#"><i class="fas fa-calendar-check"></i> الحجوزات</a></li>
-      <li><a href="#"><i class="fas fa-file-signature"></i> العقود</a></li>
-      <li><a href="#"><i class="fas fa-flag"></i> البلاغات <span style="background:#e74c3c;padding:2px 10px;border-radius:30px;font-size:0.7rem;margin-right:auto;">4</span></a></li>
-      <li><a href="#"><i class="fas fa-credit-card"></i> المدفوعات</a></li>
-      <li><a href="#"><i class="fas fa-bell"></i> الإشعارات</a></li>
+      <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-chart-pie"></i> الرئيسية</a></li>
+      <li><a href="#" data-section="users"><i class="fas fa-users"></i> المستخدمين</a></li>
+      <li><a href="#" data-section="cars"><i class="fas fa-car"></i> السيارات</a></li>
+      <li><a href="#" data-section="bookings"><i class="fas fa-calendar-check"></i> الحجوزات</a></li>
+      <li><a href="#" data-section="contracts"><i class="fas fa-file-signature"></i> العقود</a></li>
+      <li><a href="#" data-section="reports"><i class="fas fa-flag"></i> البلاغات <span style="background:#e74c3c;padding:2px 10px;border-radius:30px;font-size:0.7rem;margin-right:auto;" id="reportBadge">0</span></a></li>
+      <li><a href="#" data-section="payments"><i class="fas fa-credit-card"></i> المدفوعات</a></li>
+      <li><a href="#" data-section="notifications"><i class="fas fa-bell"></i> الإشعارات</a></li>
       <li class="sub-label">الإدارة</li>
-      <li><a href="#"><i class="fas fa-cog"></i> الإعدادات</a></li>
-      <li><a href="#"><i class="fas fa-history"></i> سجل النظام</a></li>
-      <li><a href="#"><i class="fas fa-chart-bar"></i> التحليلات</a></li>
-      <li><a href="#"><i class="fas fa-map-marked-alt"></i> الخريطة</a></li>
-      <li><a href="#"><i class="fas fa-tags"></i> الكوبونات</a></li>
-      <li><a href="#"><i class="fas fa-star"></i> التقييمات</a></li>
+      <li><a href="#" data-section="settings"><i class="fas fa-cog"></i> الإعدادات</a></li>
+      <li><a href="#" data-section="audit"><i class="fas fa-history"></i> سجل النظام</a></li>
+      <li><a href="#" data-section="analytics"><i class="fas fa-chart-bar"></i> التحليلات</a></li>
+      <li><a href="#" data-section="map"><i class="fas fa-map-marked-alt"></i> الخريطة</a></li>
+      <li><a href="#" data-section="coupons"><i class="fas fa-tags"></i> الكوبونات</a></li>
+      <li><a href="#" data-section="reviews"><i class="fas fa-star"></i> التقييمات</a></li>
     </ul>
   </aside>
 
   <!-- ========== MAIN ========== -->
-  <main class="main">
+  <main class="main" id="mainContent">
+
     <!-- TOP BAR -->
     <div class="topbar">
       <div class="topbar-left">
         <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
-        <h1>لوحة التحكم</h1>
-        <small>مرحباً، أحمد — آخر تحديث: اليوم 12:30</small>
+        <h1 id="pageTitle">لوحة التحكم</h1>
+        <small id="lastUpdate">مرحباً، أحمد — آخر تحديث: ...</small>
       </div>
       <div class="topbar-right">
-        <span class="notification-bell">
+        <span class="notification-bell" onclick="fetchNotifications()">
           <i class="fas fa-bell"></i>
-          <span class="badge">3</span>
+          <span class="badge" id="notifBadge">0</span>
         </span>
         <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
         <div style="display:flex;align-items:center;gap:8px;background:#c5a065;padding:4px 14px 4px 10px;border-radius:40px;color:#fff;font-weight:600;">
@@ -463,126 +394,254 @@
       </div>
     </div>
 
-    <!-- ===== KPI CARDS ===== -->
-    <div class="kpi-grid" id="kpiGrid">
-      <!-- سيتم تعبئتها ديناميكياً بواسطة JS -->
-    </div>
-
-    <!-- ===== CHARTS ===== -->
-    <div class="charts-row">
-      <div class="chart-box">
-        <h3>📊 الإيرادات الشهرية <small>آخر 30 يوم</small></h3>
-        <canvas id="revenueChart"></canvas>
+    <!-- ===== DASHBOARD SECTION (default) ===== -->
+    <div id="section-dashboard">
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpiGrid">
+        <!-- سيتم تعبئتها بواسطة JS -->
       </div>
-      <div class="chart-box">
-        <h3>📍 أكثر المدن نشاطاً</h3>
-        <canvas id="cityChart"></canvas>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-box">
+          <h3>📊 الإيرادات الشهرية <small>آخر 30 يوم</small></h3>
+          <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>📍 أكثر المدن نشاطاً</h3>
+          <canvas id="cityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Bookings -->
+      <div class="section-title">
+        <h2>📄 آخر الحجوزات</h2>
+        <a href="#" onclick="switchSection('bookings')">عرض الكل</a>
+      </div>
+      <div class="table-wrap" id="recentBookingsTable">
+        <table>
+          <thead><tr><th>السيارة</th><th>المستأجر</th><th>المدة</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="bookingsBody">
+            <tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Map -->
+      <div class="section-title"><h2>🗺️ السيارات على الخريطة</h2></div>
+      <div class="map-container" id="mapContainer"></div>
+    </div>
+
+    <!-- ===== OTHER SECTIONS (hidden by default) ===== -->
+    <div id="section-users" style="display:none;">
+      <h2>إدارة المستخدمين</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الصورة</th><th>الاسم</th><th>الجوال</th><th>البريد</th><th>الهوية</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="usersBody"><tr><td colspan="7" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- ===== RECENT BOOKINGS ===== -->
-    <div class="section-title">
-      <h2>📄 آخر الحجوزات</h2>
-      <a href="#">عرض الكل</a>
-    </div>
-    <div class="table-wrap" id="recentBookingsTable">
-      <table>
-        <thead><tr><th>السيارة</th><th>المستأجر</th><th>المدة</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead>
-        <tbody id="bookingsBody">
-          <!-- يتم تعبئتها بواسطة JS -->
-        </tbody>
-      </table>
+    <div id="section-cars" style="display:none;">
+      <h2>إدارة السيارات</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الصورة</th><th>الماركة/الموديل</th><th>المالك</th><th>الحالة</th><th>التقييم</th><th></th></tr></thead>
+          <tbody id="carsBody"><tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- ===== MAP ===== -->
-    <div class="section-title"><h2>🗺️ السيارات على الخريطة</h2></div>
-    <div class="map-container" id="mapContainer"></div>
+    <!-- باقي الأقسام مشابهة، سيتم إضافتها حسب الحاجة -->
 
   </main>
 
-  <!-- ===== MODAL EXAMPLE ===== -->
+  <!-- ===== MODAL ===== -->
   <div class="modal-overlay" id="modal">
     <div class="modal-box">
-      <h2><i class="fas fa-car"></i> تفاصيل السيارة</h2>
-      <p>هنا ستظهر تفاصيل السيارة عند الضغط على زر العرض</p>
-      <button class="action-btn" onclick="closeModal()" style="margin-top:16px;background:#e9edf2;padding:8px 24px;border-radius:40px;">إغلاق</button>
+      <button class="close-modal" onclick="closeModal()">&times;</button>
+      <h2 id="modalTitle">تفاصيل</h2>
+      <div id="modalBody"></div>
     </div>
   </div>
 
   <!-- ========== SCRIPTS ========== -->
   <script>
-    // ------ Supabase Client (مفترض موجود في supabase-config.js) ------
-    // نحن نستخدم window.supabaseClient
-
     // ------ THEME TOGGLE ------
     const themeToggle = document.getElementById('themeToggle');
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
       const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('dark-mode')) {
-        icon.className = 'fas fa-sun';
-      } else {
-        icon.className = 'fas fa-moon';
-      }
+      icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
     });
+    // Restore theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+      themeToggle.querySelector('i').className = 'fas fa-sun';
+    }
 
-    // ------ HAMBURGER (mobile) ------
+    // ------ HAMBURGER ------
     document.getElementById('hamburger').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('open');
     });
 
-    // ------ CLOSE MODAL ------
-    window.closeModal = function() {
-      document.getElementById('modal').classList.remove('open');
-    };
-    // مثال: فتح المودال (يمكن ربطها بالأزرار)
-    window.openModal = function() {
+    // ------ SIDEBAR NAVIGATION ------
+    document.querySelectorAll('.sidebar-menu a[data-section]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = link.dataset.section;
+        switchSection(section);
+        // Highlight active
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+        // Close sidebar on mobile
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+
+    function switchSection(section) {
+      // Hide all sections
+      document.querySelectorAll('[id^="section-"]').forEach(el => el.style.display = 'none');
+      const target = document.getElementById('section-' + section);
+      if (target) target.style.display = 'block';
+      // Update title
+      const titles = {
+        dashboard: 'لوحة التحكم',
+        users: 'إدارة المستخدمين',
+        cars: 'إدارة السيارات',
+        bookings: 'إدارة الحجوزات',
+        contracts: 'العقود',
+        reports: 'البلاغات',
+        payments: 'المدفوعات',
+        notifications: 'مركز الإشعارات',
+        settings: 'الإعدادات',
+        audit: 'سجل النظام',
+        analytics: 'التحليلات',
+        map: 'الخريطة',
+        coupons: 'كوبونات الخصم',
+        reviews: 'التقييمات'
+      };
+      document.getElementById('pageTitle').textContent = titles[section] || section;
+      // Load data for section if needed
+      if (section === 'dashboard') loadDashboard();
+      else if (section === 'users') loadUsers();
+      else if (section === 'cars') loadCars();
+      // ... إلخ
+    }
+
+    // ------ MODAL ------
+    function openModal(title, bodyHTML) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = bodyHTML;
       document.getElementById('modal').classList.add('open');
-    };
+    }
 
-    // ============================================================
-    // 1. KPIs - تجلب من Supabase
-    // ============================================================
-    async function loadKPI() {
-      const kpiGrid = document.getElementById('kpiGrid');
-      // بيانات افتراضية لحين الاتصال (ستُستبدل)
-      const kpis = [
-        { icon: 'fa-coins', color: 'gold', label: 'إجمالي الإيرادات', value: '128,450 ر.س' },
-        { icon: 'fa-calendar-day', color: 'green', label: 'إيرادات اليوم', value: '3,220 ر.س' },
-        { icon: 'fa-car', color: 'blue', label: 'عدد السيارات', value: '142' },
-        { icon: 'fa-car-side', color: 'teal', label: 'السيارات المتاحة', value: '98' },
-        { icon: 'fa-clock', color: 'purple', label: 'بانتظار الموافقة', value: '12' },
-        { icon: 'fa-calendar-check', color: 'red', label: 'الحجوزات', value: '56' },
-        { icon: 'fa-file-contract', color: 'gold', label: 'العقود النشطة', value: '34' },
-        { icon: 'fa-users', color: 'blue', label: 'المستخدمين', value: '289' },
-        { icon: 'fa-star', color: 'green', label: 'متوسط التقييم', value: '4.8 ⭐' },
-        { icon: 'fa-flag', color: 'red', label: 'البلاغات الجديدة', value: '4' },
-      ];
-
-      kpiGrid.innerHTML = kpis.map(k => `
-        <div class="kpi-card">
-          <div class="kpi-icon ${k.color}"><i class="fas ${k.icon}"></i></div>
-          <div class="kpi-info">
-            <h4>${k.label}</h4>
-            <div class="value">${k.value}</div>
-          </div>
-        </div>
-      `).join('');
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
     }
 
     // ============================================================
-    // 2. CHARTS
+    //  DASHBOARD: LOAD KPI, CHARTS, BOOKINGS, MAP
     // ============================================================
-    function initCharts() {
-      // Revenue chart
+    async function loadDashboard() {
+      await loadKPI();
+      await loadCharts();
+      await loadRecentBookings();
+      loadMap();
+      updateLastUpdate();
+    }
+
+    // ------ KPI ------
+    async function loadKPI() {
+      const grid = document.getElementById('kpiGrid');
+      try {
+        // جلب البيانات من Supabase
+        const { data: cars } = await window.supabaseClient.from('cars').select('status');
+        const { data: bookings } = await window.supabaseClient.from('bookings').select('status,total_price,start_date');
+        const { data: users } = await window.supabaseClient.from('users').select('id', { count: 'exact' });
+        const { data: contracts } = await window.supabaseClient.from('contracts').select('status');
+
+        const totalCars = cars?.length || 0;
+        const activeCars = cars?.filter(c => c.status === 'active').length || 0;
+        const pendingCars = cars?.filter(c => c.status === 'pending').length || 0;
+        const totalBookings = bookings?.length || 0;
+        const totalRevenue = bookings?.reduce((sum, b) => sum + (b.total_price || 0), 0) || 0;
+        const todayRevenue = bookings?.filter(b => new Date(b.start_date).toDateString() === new Date().toDateString())
+          .reduce((sum, b) => sum + (b.total_price || 0), 0) || 0;
+        const activeContracts = contracts?.filter(c => c.status === 'active').length || 0;
+        const totalUsers = users?.length || 0;
+        // تقييم متوسط (نفترض وجود تقييمات في جدول reviews)
+        const { data: reviews } = await window.supabaseClient.from('reviews').select('rating');
+        const avgRating = reviews?.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '4.8';
+        // البلاغات الجديدة (نفترض جدول reports)
+        const { data: reports } = await window.supabaseClient.from('reports').select('status').eq('status', 'new');
+        const newReports = reports?.length || 0;
+
+        const kpis = [
+          { icon: 'fa-coins', color: 'gold', label: 'إجمالي الإيرادات', value: totalRevenue.toLocaleString() + ' ر.س' },
+          { icon: 'fa-calendar-day', color: 'green', label: 'إيرادات اليوم', value: todayRevenue.toLocaleString() + ' ر.س' },
+          { icon: 'fa-car', color: 'blue', label: 'عدد السيارات', value: totalCars },
+          { icon: 'fa-car-side', color: 'teal', label: 'السيارات المتاحة', value: activeCars },
+          { icon: 'fa-clock', color: 'purple', label: 'بانتظار الموافقة', value: pendingCars },
+          { icon: 'fa-calendar-check', color: 'red', label: 'الحجوزات', value: totalBookings },
+          { icon: 'fa-file-contract', color: 'gold', label: 'العقود النشطة', value: activeContracts },
+          { icon: 'fa-users', color: 'blue', label: 'المستخدمين', value: totalUsers },
+          { icon: 'fa-star', color: 'green', label: 'متوسط التقييم', value: avgRating + ' ⭐' },
+          { icon: 'fa-flag', color: 'red', label: 'البلاغات الجديدة', value: newReports },
+        ];
+
+        grid.innerHTML = kpis.map(k => `
+          <div class="kpi-card">
+            <div class="kpi-icon ${k.color}"><i class="fas ${k.icon}"></i></div>
+            <div class="kpi-info">
+              <h4>${k.label}</h4>
+              <div class="value">${k.value}</div>
+            </div>
+          </div>
+        `).join('');
+
+        // تحديث عداد البلاغات
+        document.getElementById('reportBadge').textContent = newReports;
+      } catch (err) {
+        console.error('خطأ في تحميل KPIs:', err);
+      }
+    }
+
+    // ------ CHARTS ------
+    let revenueChartInstance = null;
+    let cityChartInstance = null;
+
+    async function loadCharts() {
+      // Revenue chart (آخر 30 يوم)
       const ctx1 = document.getElementById('revenueChart').getContext('2d');
-      new Chart(ctx1, {
+      // جلب بيانات الإيرادات اليومية (نفترض جدول payments أو bookings)
+      const { data: bookings } = await window.supabaseClient
+        .from('bookings')
+        .select('total_price,created_at')
+        .gte('created_at', new Date(Date.now() - 30*24*60*60*1000).toISOString())
+        .order('created_at');
+
+      const days = Array.from({length: 30}, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (29 - i));
+        return d.toLocaleDateString('ar-SA');
+      });
+      const revenueData = days.map(day => {
+        const dayTotal = bookings?.filter(b => new Date(b.created_at).toDateString() === new Date(day).toDateString())
+          .reduce((s, b) => s + (b.total_price || 0), 0) || 0;
+        return dayTotal;
+      });
+
+      if (revenueChartInstance) revenueChartInstance.destroy();
+      revenueChartInstance = new Chart(ctx1, {
         type: 'line',
         data: {
-          labels: ['1', '5', '10', '15', '20', '25', '30'],
+          labels: days,
           datasets: [{
             label: 'الإيرادات (ر.س)',
-            data: [1200, 1900, 2800, 2500, 3400, 4100, 3800],
+            data: revenueData,
             borderColor: '#c5a065',
             backgroundColor: 'rgba(197,160,101,0.1)',
             tension: 0.3,
@@ -596,15 +655,25 @@
         }
       });
 
-      // City chart (دونات)
+      // City chart (أكثر المدن نشاطاً)
       const ctx2 = document.getElementById('cityChart').getContext('2d');
-      new Chart(ctx2, {
+      const { data: carsByCity } = await window.supabaseClient
+        .from('cars')
+        .select('city');
+      const cityCounts = {};
+      carsByCity?.forEach(c => { cityCounts[c.city] = (cityCounts[c.city] || 0) + 1; });
+      const sortedCities = Object.entries(cityCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      const labels = sortedCities.map(c => c[0]);
+      const values = sortedCities.map(c => c[1]);
+
+      if (cityChartInstance) cityChartInstance.destroy();
+      cityChartInstance = new Chart(ctx2, {
         type: 'doughnut',
         data: {
-          labels: ['الرياض', 'جدة', 'الدمام', 'الخبر'],
+          labels: labels.length ? labels : ['لا توجد بيانات'],
           datasets: [{
-            data: [42, 28, 18, 12],
-            backgroundColor: ['#c5a065', '#2ecc71', '#3498db', '#9b59b6'],
+            data: labels.length ? values : [1],
+            backgroundColor: ['#c5a065', '#2ecc71', '#3498db', '#9b59b6', '#f39c12'],
           }]
         },
         options: {
@@ -616,104 +685,241 @@
       });
     }
 
-    // ============================================================
-    // 3. RECENT BOOKINGS
-    // ============================================================
+    // ------ RECENT BOOKINGS ------
     async function loadRecentBookings() {
       const tbody = document.getElementById('bookingsBody');
-      // بيانات مؤقتة (سيتم جلبها من Supabase لاحقاً)
-      const bookings = [
-        { car: 'تويوتا كامري', renter: 'محمد السالم', from: '10/04', to: '12/04', amount: '360', status: 'نشط' },
-        { car: 'لاندكروزر', renter: 'فاطمة العتيبي', from: '11/04', to: '14/04', amount: '1350', status: 'قيد الموافقة' },
-        { car: 'هيونداي النترا', renter: 'خالد الحربي', from: '09/04', to: '10/04', amount: '200', status: 'مكتمل' },
-      ];
-      tbody.innerHTML = bookings.map(b => `
-        <tr>
-          <td><strong>${b.car}</strong></td>
-          <td>${b.renter}</td>
-          <td>${b.from} → ${b.to}</td>
-          <td>${b.amount} ر.س</td>
-          <td><span class="status-badge ${b.status === 'نشط' ? 'active' : b.status === 'قيد الموافقة' ? 'pending' : 'approved'}">${b.status}</span></td>
-          <td>
-            <button class="action-btn approve" onclick="openModal()"><i class="fas fa-eye"></i></button>
-            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-          </td>
-        </tr>
-      `).join('');
+      try {
+        const { data: bookings, error } = await window.supabaseClient
+          .from('bookings')
+          .select('*, cars(brand, model), users!renter_id(name)')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        if (error) throw error;
+
+        if (!bookings || bookings.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align:center;">لا توجد حجوزات حديثة</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = bookings.map(b => {
+          const statusMap = {
+            'pending_owner_approval': 'قيد الموافقة',
+            'approved': 'موافق عليه',
+            'active': 'نشط',
+            'completed': 'مكتمل',
+            'cancelled': 'ملغي',
+            'rejected': 'مرفوض'
+          };
+          const statusClass = b.status === 'pending_owner_approval' ? 'pending' :
+                             b.status === 'approved' ? 'approved' :
+                             b.status === 'active' ? 'active' : 'rejected';
+          return `
+            <tr>
+              <td><strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong></td>
+              <td>${b.users?.name || 'غير معروف'}</td>
+              <td>${new Date(b.start_date).toLocaleDateString('ar-SA')} → ${new Date(b.end_date).toLocaleDateString('ar-SA')}</td>
+              <td>${b.total_price || 0} ر.س</td>
+              <td><span class="status-badge ${statusClass}">${statusMap[b.status] || b.status}</span></td>
+              <td>
+                <button class="action-btn approve" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn edit" onclick="editBooking('${b.id}')"><i class="fas fa-edit"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('خطأ في تحميل الحجوزات:', err);
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">حدث خطأ: ${err.message}</td></tr>`;
+      }
     }
 
-    // ============================================================
-    // 4. MAP (Leaflet)
-    // ============================================================
-    function initMap() {
+    // ------ MAP ------
+    let mapInstance = null;
+
+    function loadMap() {
       const container = document.getElementById('mapContainer');
       if (typeof L === 'undefined') return;
 
-      const map = L.map(container).setView([24.7136, 46.6753], 12);
+      if (mapInstance) mapInstance.remove();
 
+      mapInstance = L.map(container).setView([24.7136, 46.6753], 12);
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO'
-      }).addTo(map);
+      }).addTo(mapInstance);
 
-      // إضافة نقاط للسيارات (افتراضية)
-      const cars = [
-        { lat: 24.7136, lng: 46.6753, status: 'available' },
-        { lat: 24.7336, lng: 46.6553, status: 'booked' },
-        { lat: 24.6936, lng: 46.6953, status: 'inactive' },
-        { lat: 24.7236, lng: 46.6653, status: 'available' },
-        { lat: 24.7036, lng: 46.6853, status: 'booked' },
-      ];
+      // جلب السيارات من Supabase
+      window.supabaseClient.from('cars').select('lat,lng,status,brand,model').then(({ data }) => {
+        if (!data) return;
+        data.forEach(car => {
+          if (!car.lat || !car.lng) return;
+          const color = car.status === 'active' ? '#2ecc71' :
+                        car.status === 'booked' ? '#f1c40f' : '#e74c3c';
+          L.circleMarker([car.lat, car.lng], {
+            radius: 8,
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.8,
+          }).addTo(mapInstance)
+            .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}`);
+        });
+      });
+    }
 
-      const getColor = (status) => {
-        if (status === 'available') return '#2ecc71';
-        if (status === 'booked') return '#f1c40f';
-        return '#e74c3c';
-      };
+    // ------ UPDATE LAST UPDATE TIME ------
+    function updateLastUpdate() {
+      document.getElementById('lastUpdate').textContent = `مرحباً، أحمد — آخر تحديث: ${new Date().toLocaleString('ar-SA')}`;
+    }
 
-      cars.forEach(c => {
-        L.circleMarker([c.lat, c.lng], {
-          radius: 10,
-          color: getColor(c.status),
-          fillColor: getColor(c.status),
-          fillOpacity: 0.8,
-        }).addTo(map)
-          .bindPopup(`<b>سيارة</b><br>الحالة: ${c.status}`);
+    // ============================================================
+    //  USER SECTION
+    // ============================================================
+    async function loadUsers() {
+      const tbody = document.getElementById('usersBody');
+      try {
+        const { data: users, error } = await window.supabaseClient
+          .from('users')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!users || users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-muted">لا يوجد مستخدمين</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td><div style="width:40px;height:40px;border-radius:50%;background:#c5a065;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;">${u.name?.charAt(0) || 'م'}</div></td>
+            <td>${u.name || 'غير معروف'}</td>
+            <td>${u.phone || '-'}</td>
+            <td>${u.email || '-'}</td>
+            <td>${u.id?.slice(0,8) || '-'}</td>
+            <td><span class="status-badge ${u.status === 'approved' ? 'active' : 'pending'}">${u.status || 'غير مفعل'}</span></td>
+            <td>
+              <button class="action-btn approve" onclick="alert('حظر المستخدم ${u.id}')"><i class="fas fa-ban"></i></button>
+              <button class="action-btn edit" onclick="alert('تعديل المستخدم ${u.id}')"><i class="fas fa-edit"></i></button>
+              <button class="action-btn" onclick="alert('إرسال رسالة إلى ${u.email}')"><i class="fas fa-envelope"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="7" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`;
+      }
+    }
+
+    // ============================================================
+    //  CARS SECTION
+    // ============================================================
+    async function loadCars() {
+      const tbody = document.getElementById('carsBody');
+      try {
+        const { data: cars, error } = await window.supabaseClient
+          .from('cars')
+          .select('*, users!owner_id(name)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!cars || cars.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سيارات</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = cars.map(c => `
+          <tr>
+            <td><img src="${c.images?.[0] || 'https://via.placeholder.com/50'}" style="width:50px;height:40px;object-fit:cover;border-radius:6px;" alt="car"></td>
+            <td><strong>${c.brand || ''} ${c.model || ''}</strong><br><small>${c.year || ''}</small></td>
+            <td>${c.users?.name || 'غير معروف'}</td>
+            <td><span class="status-badge ${c.status === 'active' ? 'active' : c.status === 'pending' ? 'pending' : 'rejected'}">${c.status || 'معلق'}</span></td>
+            <td>${c.rating || '4.5'}</td>
+            <td>
+              <button class="action-btn approve" onclick="approveCar('${c.id}')"><i class="fas fa-check"></i></button>
+              <button class="action-btn reject" onclick="rejectCar('${c.id}')"><i class="fas fa-times"></i></button>
+              <button class="action-btn edit" onclick="alert('تعديل السيارة ${c.id}')"><i class="fas fa-edit"></i></button>
+              <button class="action-btn" onclick="viewCar('${c.id}')"><i class="fas fa-eye"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`;
+      }
+    }
+
+    // دوال مساعدة لإدارة السيارات (تستخدم دوال script.js)
+    async function approveCar(carId) {
+      if (!confirm('هل أنت متأكد من الموافقة على هذه السيارة؟')) return;
+      const result = await updateCarStatus(carId, 'active');
+      if (result) { alert('تمت الموافقة'); loadCars(); }
+      else alert('حدث خطأ');
+    }
+
+    async function rejectCar(carId) {
+      if (!confirm('هل أنت متأكد من رفض هذه السيارة؟')) return;
+      const result = await updateCarStatus(carId, 'rejected');
+      if (result) { alert('تم الرفض'); loadCars(); }
+      else alert('حدث خطأ');
+    }
+
+    function viewCar(carId) {
+      openModal('تفاصيل السيارة', `<p>رقم السيارة: ${carId}</p><p>يمكن عرض جميع التفاصيل هنا.</p>`);
+    }
+
+    // ============================================================
+    //  SUPABASE REALTIME (تحديث فوري)
+    // ============================================================
+    function listenToRealtime() {
+      if (typeof window.supabaseClient === 'undefined') return;
+      // الاستماع لتغييرات في الجداول المهمة
+      const channels = ['cars', 'bookings', 'users', 'contracts', 'reports'];
+      channels.forEach(table => {
+        window.supabaseClient
+          .channel(`${table}-changes`)
+          .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+            console.log(`تغيير في ${table}، تحديث الواجهة...`);
+            // إعادة تحميل القسم الحالي فقط (يمكن تحسينه)
+            const activeSection = document.querySelector('.sidebar-menu a.active')?.dataset?.section || 'dashboard';
+            if (activeSection === 'dashboard') loadDashboard();
+            else if (activeSection === 'users') loadUsers();
+            else if (activeSection === 'cars') loadCars();
+          })
+          .subscribe();
       });
     }
 
     // ============================================================
-    // 5. Supabase Realtime (نموذج للاستماع)
-    // ============================================================
-    function listenToChanges() {
-      if (typeof window.supabaseClient === 'undefined') return;
-      // مثال: الاستماع لتغييرات جدول bookings
-      window.supabaseClient
-        .channel('bookings-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
-          console.log('تغيير في الحجوزات:', payload);
-          // تحديث الواجهة (سيتم تنفيذه لاحقاً)
-        })
-        .subscribe();
-    }
-
-    // ============================================================
-    // INIT
+    //  INIT
     // ============================================================
     (async function init() {
-      // يمكن إضافة شاشة تحميل مؤقتة
-      await loadKPI();
-      initCharts();
-      await loadRecentBookings();
-      initMap();
-      listenToChanges();
+      // تأكد من أن المستخدم أدمن
+      const hasAccess = await checkAdminAccess();
+      if (!hasAccess) {
+        alert('غير مصرح بالدخول');
+        window.location.href = 'landing.html';
+        return;
+      }
+
+      // تحميل البيانات الأولية
+      await loadDashboard();
+      listenToRealtime();
+      // تحديث الوقت كل 30 ثانية
+      setInterval(updateLastUpdate, 30000);
     })();
 
-    // ملاحظة: يمكنك استبدال البيانات الثابتة بجلب حقيقي من Supabase
-    // مثال لجلب الإيرادات: 
-    // const { data } = await window.supabaseClient.from('payments').select('amount');
-    // ثم حساب الإجمالي.
+    // ============================================================
+    //  EXPOSE GLOBALS للاستخدام من الأزرار
+    // ============================================================
+    window.switchSection = switchSection;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.viewBooking = function(id) {
+      openModal('تفاصيل الحجز', `<p>رقم الحجز: ${id}</p><p>جميع التفاصيل هنا.</p>`);
+    };
+    window.editBooking = function(id) {
+      openModal('تعديل الحجز', `<p>تعديل الحجز رقم ${id}</p><p>نموذج التعديل هنا.</p>`);
+    };
+    window.fetchNotifications = function() {
+      alert('جاري جلب الإشعارات...');
+    };
 
-    console.log('✅ لوحة تحكم الأدمن جاهزة (نسخة مطورة)');
+    console.log('✅ لوحة تحكم الأدمن (نسخة مطورة) جاهزة.');
   </script>
+
 </body>
 </html>
