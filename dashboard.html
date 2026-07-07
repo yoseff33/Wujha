@@ -7,91 +7,47 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
     <style>
         body { padding-bottom: 50px; }
-        
-        /* تنسيق منطقة الترحيب الجديدة */
-        .welcome-section {
-            background: linear-gradient(to left, var(--primary), #1a4d45);
-            color: white;
-            padding: 40px 0;
-            margin-bottom: 40px;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+        .welcome-section { background: linear-gradient(to left, var(--primary), #1a4d45); color: white; padding: 40px 0; margin-bottom: 40px; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .dashboard-header { display: flex; align-items: center; justify-content: space-between; }
         .user-info h2 { margin: 0; font-size: 1.8rem; }
         .user-info p { margin: 5px 0 0; opacity: 0.9; font-size: 0.95rem; }
-
-        .trip-card {
-            background: white; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: none; /* مخفي افتراضياً */
-            animation: slideUp 0.5s ease;
-            margin-bottom: 30px;
-            border: 1px solid #eee;
-        }
+        .trip-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: none; animation: slideUp 0.5s ease; margin-bottom: 30px; border: 1px solid #eee; }
         body.dark-mode .trip-card { background: #1e1e1e; border-color: #333; }
-
-        .trip-header {
-            background: #f8f9fa;
-            color: var(--primary); padding: 15px 25px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee;
-        }
+        .trip-header { background: #f8f9fa; color: var(--primary); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
         body.dark-mode .trip-header { background: #2a2a2a; border-color: #333; color: white; }
-
-        .status-badge { 
-            background: #2ecc71; color: white; padding: 5px 15px; 
-            border-radius: 20px; font-size: 0.85rem; font-weight: bold; 
-            display: flex; align-items: center; gap: 5px;
-        }
-
+        .status-badge { background: #2ecc71; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .trip-body { padding: 25px; display: flex; gap: 30px; flex-wrap: wrap; }
         .trip-img { width: 300px; height: 180px; border-radius: 10px; object-fit: cover; }
-        
         .trip-details { flex: 1; }
         .trip-details h3 { margin: 0 0 15px; color: var(--primary); font-size: 1.5rem; }
         body.dark-mode .trip-details h3 { color: white; }
-
         .trip-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .meta-item { background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
         body.dark-mode .meta-item { background: #2a2a2a; border-color: #444; }
-
         .meta-label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 3px; }
         .meta-value { font-weight: bold; color: #333; }
         body.dark-mode .meta-value { color: white; }
-
         .trip-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-action { 
-            flex: 1; padding: 12px; border: none; border-radius: 8px; 
-            font-weight: bold; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
-        }
+        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
         .btn-unlock { background: var(--secondary); color: white; }
         .btn-unlock:hover { background: #b08d55; }
         .btn-contract { background: white; border: 1px solid #ddd; color: #555; }
         body.dark-mode .btn-contract { background: #333; border-color: #444; color: #ccc; }
-
-        .no-trips { 
-            text-align: center; padding: 50px; background: white; 
-            border-radius: 16px; color: #777; border: 1px solid #eee;
-        }
+        .no-trips { text-align: center; padding: 50px; background: white; border-radius: 16px; color: #777; border: 1px solid #eee; }
         body.dark-mode .no-trips { background: #1e1e1e; border-color: #333; color: #aaa; }
-
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
-
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo">
-                    <div class="logo-icon">و</div>
-                    <div class="logo-text">وُجْهَة</div>
-                </a>
+                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
@@ -100,102 +56,59 @@
                 </ul>
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> الوضع</button>
-                    <div id="nav-user-profile-placeholder">
-                         </div>
+                    <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
 
-    <div class="welcome-section" style="padding-top: 120px;"> <div class="container dashboard-header">
+    <div class="welcome-section" style="padding-top: 120px;">
+        <div class="container dashboard-header">
             <div class="user-info">
-                <h2>أهلاً، يوسف 👋</h2>
+                <h2 id="welcome-user-name">أهلاً، مستخدم 👋</h2>
                 <p>عضوية ذهبية | توثيق نفاذ <i class="fas fa-check-circle" style="color: #2ecc71;"></i></p>
             </div>
-            <div style="text-align: left;">
-                <div style="font-size: 0.8rem; opacity: 0.8;">الرصيد في المحفظة</div>
-                <div style="font-size: 1.5rem; font-weight: bold; color: var(--secondary);">1,250 ر.س</div>
-            </div>
+            <div style="text-align: left;"><div style="font-size:0.8rem; opacity:0.8;">الرصيد في المحفظة</div><div style="font-size:1.5rem; font-weight:bold; color:var(--secondary);">1,250 ر.س</div></div>
         </div>
     </div>
 
     <div class="container">
-        <h3 style="margin-bottom: 20px; color: var(--primary);">الرحلات النشطة</h3>
-        
+        <h3 style="margin-bottom:20px; color:var(--primary);">الرحلات النشطة</h3>
         <div id="active-trip-card" class="trip-card">
             <div class="trip-header">
-                <div>
-                    <i class="fas fa-route"></i> <strong>رحلة جارية</strong>
-                    <span style="font-size: 0.8rem; opacity: 0.7; margin-right: 10px;">#WJ-2025-100293</span>
-                </div>
+                <div><i class="fas fa-route"></i> <strong>رحلة جارية</strong> <span style="font-size:0.8rem; opacity:0.7; margin-right:10px;">#WJ-2025-100293</span></div>
                 <div class="status-badge"><i class="fas fa-shield-alt"></i> مؤمنة وشاملة</div>
             </div>
             <div class="trip-body">
                 <img id="dashboard-car-img" src="" alt="Car" class="trip-img">
                 <div class="trip-details">
                     <h3 id="dashboard-car-name">--</h3>
-                    
                     <div class="trip-meta">
-                        <div class="meta-item">
-                            <span class="meta-label">اللوحة</span>
-                            <span id="dashboard-car-plate" class="meta-value">--</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">وقت الإرجاع</span>
-                            <span class="meta-value">غداً، 10:00 م</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">المفتاح الرقمي</span>
-                            <span class="meta-value" style="color: #2ecc71;">نشط (بلوتوث)</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">حالة المحرك</span>
-                            <span class="meta-value">يعمل 🟢</span>
-                        </div>
+                        <div class="meta-item"><span class="meta-label">اللوحة</span><span id="dashboard-car-plate" class="meta-value">--</span></div>
+                        <div class="meta-item"><span class="meta-label">وقت الإرجاع</span><span class="meta-value">غداً، 10:00 م</span></div>
+                        <div class="meta-item"><span class="meta-label">المفتاح الرقمي</span><span class="meta-value" style="color:#2ecc71;">نشط (بلوتوث)</span></div>
+                        <div class="meta-item"><span class="meta-label">حالة المحرك</span><span class="meta-value">يعمل 🟢</span></div>
                     </div>
-
                     <div class="trip-actions">
-                        <button class="btn-action btn-unlock" onclick="alert('تم إرسال إشارة فتح الأبواب 🔓')">
-                            <i class="fas fa-lock-open"></i> فتح السيارة
-                        </button>
-                        <button class="btn-action btn-contract" onclick="window.location.href='contract_final.html'">
-                            <i class="fas fa-file-contract"></i> عرض العقد
-                        </button>
+                        <button class="btn-action btn-unlock" onclick="alert('تم إرسال إشارة فتح الأبواب 🔓')"><i class="fas fa-lock-open"></i> فتح السيارة</button>
+                        <button class="btn-action btn-contract" onclick="window.location.href='contract_final.html'"><i class="fas fa-file-contract"></i> عرض العقد</button>
                     </div>
                 </div>
             </div>
         </div>
-
         <div id="no-trips-msg" class="no-trips">
-            <i class="fas fa-car" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
-            <p style="font-size: 1.2rem;">لا توجد رحلات نشطة حالياً.</p>
-            <a href="cars.html" class="btn btn-primary" style="margin-top: 15px;">
-                <i class="fas fa-search"></i> احجز سيارة الآن
-            </a>
+            <i class="fas fa-car" style="font-size:4rem; margin-bottom:20px; opacity:0.3;"></i>
+            <p style="font-size:1.2rem;">لا توجد رحلات نشطة حالياً.</p>
+            <a href="cars.html" class="btn btn-primary" style="margin-top:15px;"><i class="fas fa-search"></i> احجز سيارة الآن</a>
         </div>
     </div>
 
-    <footer style="margin-top: 50px;">
+    <footer style="margin-top:50px;">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <h3>عن وُجْهَة</h3>
-                    <p style="color: rgba(255, 255, 255, 0.7);">أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان.</p>
-                </div>
-                <div class="footer-col">
-                    <h3>روابط سريعة</h3>
-                    <ul>
-                        <li><a href="dashboard-renter.html">العودة للوحة المستأجر</a></li>
-                        <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>تواصل معنا</h3>
-                    <ul class="footer-contact">
-                        <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
-                        <li><i class="fas fa-envelope"></i> contact@wujha.sa</li>
-                    </ul>
-                </div>
+                <div class="footer-col"><h3>عن وُجْهَة</h3><p style="color:rgba(255,255,255,0.7);">أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان.</p></div>
+                <div class="footer-col"><h3>روابط سريعة</h3><ul><li><a href="dashboard-renter.html">العودة للوحة المستأجر</a></li><li><a href="https://wa.me/966565464718">الدعم الفني</a></li></ul></div>
+                <div class="footer-col"><h3>تواصل معنا</h3><ul class="footer-contact"><li><i class="fas fa-phone"></i> +966 56 546 4718</li><li><i class="fas fa-envelope"></i> contact@wujha.sa</li></ul></div>
             </div>
             <div class="copyright"><p>© 2025 وُجْهَة. جميع الحقوق محفوظة.</p></div>
         </div>
@@ -208,19 +121,20 @@
         <a href="dashboard.html" class="nav-item active"><i class="fas fa-route"></i><span>رحلاتي</span></a>
     </nav>
 
-    <script src="script.js"></script>
     <script>
-        window.onload = function() {
-            // محاكاة تسجيل الدخول لغرض العرض
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userType', 'renter');
-            updateNavbarBasedOnLoginStatus(); // دالة من script.js
-
-            // جلب بيانات السيارة المحجوزة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث شريط التنقل
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') updateNavbarBasedOnLoginStatus();
+            // عرض اسم المستخدم
+            const user = getCurrentUser();
+            if (user) {
+                const name = user.user_metadata?.name || user.email || 'مستخدم';
+                document.getElementById('welcome-user-name').textContent = `أهلاً، ${name} 👋`;
+            }
+            // جلب بيانات السيارة المحجوزة من localStorage
             const carName = localStorage.getItem('wujha_car_name');
             const carPlate = localStorage.getItem('wujha_car_plate');
             const carImage = localStorage.getItem('wujha_car_image');
-            
             if (carName) {
                 document.getElementById('no-trips-msg').style.display = 'none';
                 document.getElementById('active-trip-card').style.display = 'block';
@@ -231,8 +145,7 @@
                 document.getElementById('no-trips-msg').style.display = 'block';
                 document.getElementById('active-trip-card').style.display = 'none';
             }
-        };
+        });
     </script>
-
 </body>
 </html>
