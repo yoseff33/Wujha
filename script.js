@@ -305,13 +305,17 @@ async function createBooking(bookingData) {
     const user = getCurrentUser();
     if (!user) return null;
 
+    // التأكد من أن التواريخ بالتنسيق الصحيح
+    const startDate = new Date(bookingData.start_date).toISOString();
+    const endDate = new Date(bookingData.end_date).toISOString();
+
     const { data, error } = await window.supabaseClient
         .from('bookings')
         .insert([{
             car_id: bookingData.car_id,
             renter_id: user.id,
-            start_date: bookingData.start_date,
-            end_date: bookingData.end_date,
+            start_date: startDate,
+            end_date: endDate,
             total_price: bookingData.total_price,
             status: 'pending_owner_approval',
             delivery_method: bookingData.delivery_method || null,
@@ -322,7 +326,7 @@ async function createBooking(bookingData) {
 
     if (error) {
         console.error('فشل إنشاء الحجز:', error);
-        alert('حدث خطأ أثناء الحجز');
+        alert('حدث خطأ أثناء الحجز: ' + error.message);
         return null;
     }
     return data;
@@ -390,6 +394,7 @@ function renderCars(cars, containerId = 'cars-grid') {
  * دالة حجز سيارة (تستدعي createBooking وتطلب التواريخ)
  * @param {string|number} carId
  */
+// ===== دالة حجز سيارة (محسنة مع واجهة اختيار تاريخ) =====
 async function bookCar(carId) {
     const user = getCurrentUser();
     if (!user) {
@@ -398,10 +403,57 @@ async function bookCar(carId) {
         return;
     }
 
-    const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
-    const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
-    if (!startDate || !endDate) return;
+    // إنشاء نافذة منبثقة مخصصة لاختيار التواريخ
+    const modalHtml = `
+        <div id="booking-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;">
+            <div style="background:white;padding:30px;border-radius:16px;max-width:400px;width:90%;text-align:center;direction:rtl;">
+                <h3 style="margin-bottom:20px;">📅 اختر تواريخ الحجز</h3>
+                <div style="margin-bottom:15px;text-align:right;">
+                    <label style="display:block;font-weight:bold;margin-bottom:5px;">تاريخ البداية:</label>
+                    <input type="datetime-local" id="booking-start" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:1rem;">
+                </div>
+                <div style="margin-bottom:20px;text-align:right;">
+                    <label style="display:block;font-weight:bold;margin-bottom:5px;">تاريخ النهاية:</label>
+                    <input type="datetime-local" id="booking-end" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:1rem;">
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="confirmBooking('${carId}')" style="flex:1;padding:12px;background:#0f2925;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">تأكيد الحجز</button>
+                    <button onclick="closeBookingModal()" style="flex:1;padding:12px;background:#eee;color:#333;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    `;
 
+    // إضافة النافذة إلى الصفحة
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer.firstElementChild);
+
+    // تعيين الحد الأدنى للتاريخ (اليوم الحالي)
+    const now = new Date();
+    const localDateTime = now.toISOString().slice(0, 16);
+    document.getElementById('booking-start').min = localDateTime;
+    document.getElementById('booking-end').min = localDateTime;
+}
+
+// ===== تأكيد الحجز =====
+async function confirmBooking(carId) {
+    const startInput = document.getElementById('booking-start');
+    const endInput = document.getElementById('booking-end');
+    
+    if (!startInput.value || !endInput.value) {
+        alert('يرجى اختيار تاريخ البداية والنهاية.');
+        return;
+    }
+
+    // تحويل التنسيق إلى YYYY-MM-DD HH:MM:SS
+    const startDate = startInput.value.replace('T', ' ') + ':00';
+    const endDate = endInput.value.replace('T', ' ') + ':00';
+
+    // إغلاق النافذة
+    closeBookingModal();
+
+    // جلب سعر السيارة اليومي
     const { data: car, error: carError } = await window.supabaseClient
         .from('cars')
         .select('daily_price')
@@ -413,7 +465,9 @@ async function bookCar(carId) {
         return;
     }
 
-    const days = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)));
+    const start = new Date(startInput.value);
+    const end = new Date(endInput.value);
+    const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
     const total = days * car.daily_price;
 
     const booking = await createBooking({
@@ -424,10 +478,17 @@ async function bookCar(carId) {
     });
 
     if (booking) {
-        alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
+        alert('✅ تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
         localStorage.setItem('current_booking_id', booking.id);
         window.location.href = '/dashboard-renter.html';
     }
+}
+
+// ===== إغلاق نافذة الحجز =====
+function closeBookingModal() {
+    const modal = document.getElementById('booking-modal');
+    if (modal) modal.remove();
+
 }
 
 // ============================================================
