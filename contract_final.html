@@ -80,7 +80,7 @@
         .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; position: relative; z-index: 1; }
         .info-box { background: #fcfcfc; padding: 12px; border-radius: 6px; border: 1px solid #eee; }
         .ib-label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 4px; }
-        .ib-value { font-weight: bold; color: #000; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ib-value { font-weight: bold; color: #000; font-size: 0.9rem; }
 
         .car-details-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 0.85rem; z-index: 1; position: relative; }
         .car-details-table th { background: #0f2925; color: white; padding: 12px; text-align: center; font-weight: normal; border: 1px solid #0f2925; }
@@ -142,7 +142,6 @@
         .btn-close { background: #f0f0f0; color: #333; }
         .hidden { display: none !important; }
 
-        /* Loading */
         .loading-overlay {
             display: none;
             position: fixed; top:0; left:0; width:100%; height:100%;
@@ -155,7 +154,6 @@
 </head>
 <body>
 
-    <!-- ===== تحميل ===== -->
     <div id="loading-overlay" class="loading-overlay">
         <div style="text-align:center;">
             <i class="fas fa-spinner fa-spin"></i>
@@ -196,7 +194,7 @@
             </div>
 
             <div class="info-grid" id="contract-info-grid">
-                <div class="info-box"><span class="ib-label">رقم العقد الموحد</span><span class="ib-value" id="contract-number">WJ-2025-100293</span></div>
+                <div class="info-box"><span class="ib-label">رقم العقد الموحد</span><span class="ib-value" id="contract-number">--</span></div>
                 <div class="info-box"><span class="ib-label">تاريخ الإصدار</span><span class="ib-value" id="contract-date">--</span></div>
                 <div class="info-box"><span class="ib-label">مكان الإصدار</span><span class="ib-value">الرياض - المقر الرئيسي</span></div>
                 <div class="info-box"><span class="ib-label">الطرف الأول (المؤجر)</span><span class="ib-value" id="owner-name">--</span></div>
@@ -290,6 +288,25 @@
     </div>
 
     <script>
+        // ===== انتظار تحميل script.js =====
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const maxAttempts = 30;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (typeof window.supabaseClient !== 'undefined') {
+                        clearInterval(checkInterval);
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        console.error('❌ window.supabaseClient لم يحمّل');
+                        resolve();
+                    }
+                }, 200);
+            });
+        }
+
         // ===== متغيرات العقد =====
         let currentBooking = null;
         let currentCar = null;
@@ -303,31 +320,69 @@
             overlay.style.display = 'flex';
 
             try {
-                // جلب بيانات الحجز من localStorage (تم حفظها عند الحجز)
-                const bookingId = localStorage.getItem('current_booking_id');
-                if (!bookingId) {
-                    alert('لا توجد عملية حجز حالية.');
+                // انتظر تحميل Supabase
+                await waitForSupabase();
+                
+                if (typeof window.supabaseClient === 'undefined') {
+                    alert('❌ لم يتم تحميل عميل Supabase. يرجى تحديث الصفحة.');
                     overlay.style.display = 'none';
                     return;
                 }
 
-                // جلب تفاصيل الحجز
-                const { data: booking, error: bookingErr } = await supabase
+                // جلب بيانات الحجز من localStorage
+                const bookingId = localStorage.getItem('current_booking_id');
+                if (!bookingId) {
+                    alert('❌ لا توجد عملية حجز حالية.');
+                    overlay.style.display = 'none';
+                    return;
+                }
+
+                // جلب تفاصيل الحجز باستخدام window.supabaseClient
+                const { data: booking, error: bookingErr } = await window.supabaseClient
                     .from('bookings')
-                    .select('*, cars(*), users!renter_id(*), users!car_owner(*)')
+                    .select('*, cars(*), users!bookings_renter_id_fkey(*)')
                     .eq('id', bookingId)
                     .single();
 
                 if (bookingErr || !booking) {
-                    alert('حدث خطأ في جلب بيانات الحجز.');
+                    console.error('خطأ في جلب الحجز:', bookingErr);
+                    alert('❌ حدث خطأ في جلب بيانات الحجز: ' + (bookingErr?.message || 'بيانات غير موجودة'));
                     overlay.style.display = 'none';
                     return;
                 }
 
+                // جلب بيانات المالك من جدول users
+                const ownerId = booking.cars?.owner_id;
+                let ownerData = null;
+                if (ownerId) {
+                    const { data: owner, error: ownerErr } = await window.supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('id', ownerId)
+                        .single();
+                    if (!ownerErr && owner) {
+                        ownerData = owner;
+                    }
+                }
+
+                // جلب بيانات المستأجر
+                const renterId = booking.renter_id;
+                let renterData = null;
+                if (renterId) {
+                    const { data: renter, error: renterErr } = await window.supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('id', renterId)
+                        .single();
+                    if (!renterErr && renter) {
+                        renterData = renter;
+                    }
+                }
+
                 currentBooking = booking;
                 currentCar = booking.cars;
-                currentOwner = booking.users; // المالك (لأن الجدول يحتوي على owner_id)
-                currentRenter = booking.users; // المستأجر
+                currentOwner = ownerData;
+                currentRenter = renterData;
 
                 // تعبئة بيانات العقد
                 document.getElementById('contract-number').textContent = `WJ-${Date.now().toString().slice(-6)}`;
@@ -344,12 +399,12 @@
                 document.getElementById('contract-car-price').textContent = `${currentCar?.daily_price || 0} ر.س`;
 
                 // إظهار العقد
-                contractModal.style.display = 'flex';
+                document.getElementById('contract-modal').style.display = 'flex';
                 overlay.style.display = 'none';
 
             } catch (err) {
-                console.error(err);
-                alert('حدث خطأ أثناء تحميل العقد.');
+                console.error('خطأ في فتح العقد:', err);
+                alert('❌ حدث خطأ أثناء تحميل العقد: ' + err.message);
                 overlay.style.display = 'none';
             }
         }
@@ -357,7 +412,7 @@
         // ===== الموافقة على العقد (إنشاء عقد في Supabase) =====
         async function approveContract() {
             if (!currentBooking) {
-                alert('لا توجد بيانات حجز.');
+                alert('❌ لا توجد بيانات حجز.');
                 return;
             }
 
@@ -377,10 +432,24 @@
                     status: 'active'
                 };
 
-                const contract = await createContract(contractData);
+                const { data: contract, error: contractErr } = await window.supabaseClient
+                    .from('contracts')
+                    .insert([contractData])
+                    .select()
+                    .single();
+
+                if (contractErr) {
+                    console.error('خطأ في إنشاء العقد:', contractErr);
+                    alert('❌ فشل إنشاء العقد: ' + contractErr.message);
+                    btn.innerHTML = '<i class="fas fa-fingerprint"></i> مصادقة وتوثيق';
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    return;
+                }
+
                 if (contract) {
                     contractId = contract.id;
-                    // تخزين معرف العقد في localStorage
                     localStorage.setItem('current_contract_id', contract.id);
                     
                     // تحديث واجهة العقد
@@ -402,17 +471,13 @@
                         document.getElementById('btn-img').classList.remove('hidden');
 
                         localStorage.setItem('wujha_contract_signed', 'true');
+                        alert('✅ تم توثيق العقد بنجاح!');
                     }, 400);
-                } else {
-                    alert('فشل إنشاء العقد، حاول مرة أخرى.');
-                    btn.innerHTML = '<i class="fas fa-fingerprint"></i> مصادقة وتوثيق';
-                    btn.disabled = false;
-                    btn.style.background = '';
-                    btn.style.color = '';
                 }
+
             } catch (err) {
-                console.error(err);
-                alert('حدث خطأ أثناء توثيق العقد.');
+                console.error('خطأ:', err);
+                alert('❌ حدث خطأ غير متوقع: ' + err.message);
                 btn.innerHTML = '<i class="fas fa-fingerprint"></i> مصادقة وتوثيق';
                 btn.disabled = false;
                 btn.style.background = '';
@@ -476,12 +541,11 @@
         (function checkBooking() {
             const bookingId = localStorage.getItem('current_booking_id');
             if (!bookingId) {
-                // لا يوجد حجز، نعرض رسالة ونغلق العقد
                 document.querySelector('.demo-btn').innerHTML = '<i class="fas fa-exclamation-triangle"></i> لا توجد حجوزات نشطة';
                 document.querySelector('.demo-btn').style.background = '#ccc';
                 document.querySelector('.demo-btn').style.cursor = 'not-allowed';
                 document.querySelector('.demo-btn').onclick = function() {
-                    alert('لا توجد عملية حجز حالية. قم بحجز سيارة أولاً.');
+                    alert('❌ لا توجد عملية حجز حالية. قم بحجز سيارة أولاً.');
                 };
             }
         })();
