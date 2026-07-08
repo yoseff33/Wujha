@@ -19,31 +19,39 @@ if (typeof window.supabaseClient === 'undefined') {
 // ============================================================
 
 /**
- * تسجيل مستخدم جديد
+ * تسجيل مستخدم جديد مع بيانات إضافية
  * @param {string} email
  * @param {string} password
  * @param {string} role - 'user', 'renter', 'owner', 'admin'
  * @param {string} name
  * @param {string} phone
+ * @param {object} extraData - { national_id, birth_date, driver_license, gender }
  * @returns {Promise<{success: boolean, user?: any, error?: string}>}
  */
-async function signUpUser(email, password, role, name, phone) {
+async function signUpUser(email, password, role, name, phone, extraData = {}) {
     try {
+        // دمج البيانات الإضافية مع user_metadata
+        const userMetadata = {
+            name: name,
+            phone: phone,
+            role: role || 'user',
+            status: role === 'owner' ? 'pending' : 'approved',
+            national_id: extraData.national_id || null,
+            birth_date: extraData.birth_date || null,
+            driver_license: extraData.driver_license || null,
+            gender: extraData.gender || null
+        };
+
         const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
-                data: {
-                    name: name,
-                    phone: phone,
-                    role: role || 'user',
-                    status: role === 'owner' ? 'pending' : 'approved'
-                }
+                data: userMetadata
             }
         });
         if (authError) throw authError;
 
-        // إضافة سجل في جدول users
+        // إضافة سجل في جدول users مع البيانات الإضافية
         const { error: insertError } = await window.supabaseClient
             .from('users')
             .insert([{
@@ -52,7 +60,11 @@ async function signUpUser(email, password, role, name, phone) {
                 phone: phone,
                 email: email,
                 role: role || 'user',
-                status: role === 'owner' ? 'pending' : 'approved'
+                status: role === 'owner' ? 'pending' : 'approved',
+                national_id: extraData.national_id || null,
+                birth_date: extraData.birth_date || null,
+                driver_license: extraData.driver_license || null,
+                gender: extraData.gender || null
             }]);
         if (insertError) console.warn('فشل إدراج المستخدم في جدول users:', insertError);
 
