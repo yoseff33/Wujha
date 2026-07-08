@@ -111,7 +111,7 @@
             padding: 40px 30px;
             border-radius: 20px;
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.5s ease-out;
         }
@@ -495,32 +495,70 @@
                 </div>
             </div>
 
-            <!-- ===== نموذج التسجيل ===== -->
+            <!-- ===== نموذج التسجيل المطور ===== -->
             <div id="register-form" class="auth-form">
                 <form id="register-form-element" onsubmit="handleRegister(event)">
+                    <!-- الاسم الكامل -->
                     <div class="input-group">
                         <label for="register-name">الاسم الكامل <span style="color:red;">*</span></label>
-                        <input type="text" class="auth-input" id="register-name" placeholder="أدخل اسمك" required>
+                        <input type="text" class="auth-input" id="register-name" placeholder="أدخل اسمك الثلاثي" required>
                     </div>
+                    
+                    <!-- البريد الإلكتروني -->
                     <div class="input-group">
                         <label for="register-email">البريد الإلكتروني <span style="color:red;">*</span></label>
                         <input type="email" class="auth-input" id="register-email" placeholder="example@domain.com" required>
                     </div>
+                    
+                    <!-- رقم الجوال -->
                     <div class="input-group">
-                        <label for="register-phone">رقم الجوال (اختياري)</label>
-                        <input type="tel" class="auth-input" id="register-phone" placeholder="05xxxxxxxx">
+                        <label for="register-phone">رقم الجوال <span style="color:red;">*</span></label>
+                        <input type="tel" class="auth-input" id="register-phone" placeholder="05xxxxxxxx" required>
                     </div>
+
+                    <!-- رقم الهوية الوطنية -->
+                    <div class="input-group">
+                        <label for="register-national-id">رقم الهوية الوطنية <span style="color:red;">*</span></label>
+                        <input type="text" class="auth-input" id="register-national-id" placeholder="مثال: 1012345678" required pattern="[0-9]{10}" title="رقم الهوية مكون من 10 أرقام">
+                    </div>
+
+                    <!-- تاريخ الميلاد -->
+                    <div class="input-group">
+                        <label for="register-birthdate">تاريخ الميلاد <span style="color:red;">*</span></label>
+                        <input type="date" class="auth-input" id="register-birthdate" required>
+                    </div>
+
+                    <!-- رقم رخصة القيادة -->
+                    <div class="input-group">
+                        <label for="register-driver-license">رقم رخصة القيادة <span style="color:red;">*</span></label>
+                        <input type="text" class="auth-input" id="register-driver-license" placeholder="مثال: 1234567890" required>
+                    </div>
+
+                    <!-- الجنس -->
+                    <div class="input-group">
+                        <label for="register-gender">الجنس <span style="color:red;">*</span></label>
+                        <select class="auth-select" id="register-gender" required>
+                            <option value="">اختر</option>
+                            <option value="ذكر">ذكر</option>
+                            <option value="أنثى">أنثى</option>
+                        </select>
+                    </div>
+
+                    <!-- كلمة المرور -->
                     <div class="input-group password-toggle">
                         <label for="register-password">كلمة المرور <span style="color:red;">*</span></label>
                         <input type="password" class="auth-input" id="register-password" placeholder="••••••••" required minlength="6">
                         <span class="toggle-icon" onclick="togglePassword('register-password', this)"><i class="fas fa-eye"></i></span>
                     </div>
+                    
+                    <!-- تأكيد كلمة المرور -->
                     <div class="input-group password-toggle">
                         <label for="register-password-confirm">تأكيد كلمة المرور <span style="color:red;">*</span></label>
                         <input type="password" class="auth-input" id="register-password-confirm" placeholder="••••••••" required>
                         <span class="toggle-icon" onclick="togglePassword('register-password-confirm', this)"><i class="fas fa-eye"></i></span>
                     </div>
-                    <!-- ===== إضافة اختيار الدور ===== -->
+
+                    <!-- نوع الحساب (الدور) -->
                     <div class="input-group">
                         <label for="register-role">نوع الحساب <span style="color:red;">*</span></label>
                         <select class="auth-select" id="register-role" required>
@@ -530,6 +568,7 @@
                             <option value="admin">أدمن (للاستخدام الداخلي)</option>
                         </select>
                     </div>
+                    
                     <button type="submit" class="auth-btn">إنشاء حساب</button>
                 </form>
                 <div id="register-error" class="auth-error"></div>
@@ -718,7 +757,7 @@
             }
         }
 
-        // ===== معالج التسجيل (يستخدم signUpUser من script.js) =====
+        // ===== معالج التسجيل المطور (يستخدم signUpUser مع بيانات إضافية) =====
         async function handleRegister(e) {
             e.preventDefault();
             
@@ -729,16 +768,24 @@
                 return;
             }
             
+            // جمع البيانات الأساسية
             const name = document.getElementById('register-name').value.trim();
             const email = document.getElementById('register-email').value.trim();
             const phone = document.getElementById('register-phone').value.trim();
             const password = document.getElementById('register-password').value;
             const passwordConfirm = document.getElementById('register-password-confirm').value;
             const role = document.getElementById('register-role').value;
+            
+            // جمع البيانات الإضافية
+            const nationalId = document.getElementById('register-national-id').value.trim();
+            const birthDate = document.getElementById('register-birthdate').value;
+            const driverLicense = document.getElementById('register-driver-license').value.trim();
+            const gender = document.getElementById('register-gender').value;
 
             document.getElementById('register-error').style.display = 'none';
             document.getElementById('register-success').style.display = 'none';
 
+            // التحقق من صحة البيانات
             if (password !== passwordConfirm) {
                 showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
                 return;
@@ -747,21 +794,44 @@
                 showMessage('register-error', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
                 return;
             }
+            if (nationalId.length !== 10 || !/^\d{10}$/.test(nationalId)) {
+                showMessage('register-error', 'رقم الهوية يجب أن يكون 10 أرقام');
+                return;
+            }
+            if (!birthDate) {
+                showMessage('register-error', 'يرجى إدخال تاريخ الميلاد');
+                return;
+            }
+            if (!driverLicense) {
+                showMessage('register-error', 'يرجى إدخال رقم رخصة القيادة');
+                return;
+            }
+
+            // تجهيز البيانات الإضافية لإرسالها إلى Supabase
+            const extraData = {
+                national_id: nationalId,
+                birth_date: birthDate,
+                driver_license: driverLicense,
+                gender: gender
+            };
 
             try {
-                const result = await signUpUser(email, password, role, name, phone);
+                // استدعاء signUpUser مع البيانات الإضافية
+                // ملاحظة: يجب تعديل دالة signUpUser في script.js لتقبل معامل `extraUserData`
+                // وتضمين هذه البيانات في user_metadata وفي جدول users.
+                const result = await signUpUser(email, password, role, name, phone, extraData);
+                
                 if (result.success) {
-                    showMessage('register-success', 'تم إنشاء الحساب بنجاح، جاري التحويل...', true);
+                    showMessage('register-success', '✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.', true);
                     // تحديث شريط التنقل
                     if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                         updateNavbarBasedOnLoginStatus();
                     }
+                    // توجيه المستخدم إلى صفحة تسجيل الدخول بدلاً من لوحة التحكم
+                    // حتى يتمكن من تسجيل الدخول ببياناته الجديدة
                     setTimeout(() => {
-                        const userRole = role || 'user';
-                        if (userRole === 'admin') window.location.href = 'admin_dashboard.html';
-                        else if (userRole === 'owner') window.location.href = 'dashboard-owner.html';
-                        else window.location.href = 'dashboard-renter.html';
-                    }, 1500);
+                        window.location.href = 'landing.html';
+                    }, 2000);
                 } else {
                     showMessage('register-error', result.error || 'فشل إنشاء الحساب، حاول مرة أخرى');
                 }
@@ -867,5 +937,34 @@
             });
         });
     </script>
+
+    <!-- ===== ملاحظة هامة للمطور ===== -->
+    <!-- تم إضافة حقول جديدة في نموذج التسجيل: 
+         - رقم الهوية (national_id)
+         - تاريخ الميلاد (birth_date)
+         - رقم رخصة القيادة (driver_license)
+         - الجنس (gender)
+         
+         يجب تعديل دالة signUpUser في ملف script.js لتقبل معامل إضافي (extraData)
+         وتضمين هذه البيانات في user_metadata وفي جدول users.
+         
+         مثال لتعديل signUpUser:
+         async function signUpUser(email, password, role, name, phone, extraData = {}) {
+             const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
+                 email: email,
+                 password: password,
+                 options: {
+                     data: {
+                         name: name,
+                         phone: phone,
+                         role: role || 'user',
+                         status: role === 'owner' ? 'pending' : 'approved',
+                         ...extraData  // إضافة البيانات الإضافية
+                     }
+                 }
+             });
+             // ... باقي الكود مع إدراج extraData في جدول users أيضاً
+         }
+    -->
 </body>
 </html>
