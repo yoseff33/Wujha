@@ -696,7 +696,7 @@
         })();
 
         // =====================================================================
-        //  الخريطة — استخدام أسماء فريدة وتجنب إعادة التهيئة
+        //  الخريطة — استخدام IIFE لعزل المتغيرات ومنع التضارب
         // =====================================================================
         (function() {
 
@@ -704,6 +704,7 @@
             let mapInstance = null;
             let carLayerInstance = null;
             let routeLineInstance = null;
+            let isMapInitialized = false; // لتجنب إعادة التهيئة
 
             let currentCars = [];
             const centerPoint = [24.8375090, 46.7297325];
@@ -718,7 +719,6 @@
             const typePills = document.querySelectorAll('#type-pills .tf-pill');
             const locateBtn = document.getElementById('smart-locate-btn');
             const overlay = document.getElementById('loading-map-overlay');
-            const mapContainer = document.getElementById('mapid');
 
             // ---- جلب السيارات من Supabase ----
             async function fetchCarsForMap() {
@@ -893,24 +893,34 @@
                 });
             }
 
-            // ---- تهيئة الخريطة مع التحقق من عدم وجود خريطة مسبقة ----
+            // ---- تهيئة الخريطة (مرة واحدة) ----
             async function initMap() {
-                // التحقق من وجود العنصر
-                if (!mapContainer) {
-                    console.warn('عنصر الخريطة غير موجود');
+                // منع إعادة التهيئة
+                if (isMapInitialized) {
+                    console.warn('الخريطة مهيأة مسبقاً، لن يتم إعادة تهيئتها.');
                     return;
                 }
 
-                // منع إعادة التهيئة إذا كانت الخريطة موجودة بالفعل
-                if (mapInstance) {
-                    console.log('الخريطة موجودة بالفعل، لن يتم إعادة تهيئتها.');
-                    return;
-                }
+                const mapContainer = document.getElementById('mapid');
+                if (!mapContainer) return;
 
-                // التحقق من أن العنصر ليس به خريطة سابقة (Leaflet ID)
-                if (mapContainer._leaflet_id) {
-                    console.log('العنصر يحتوي بالفعل على خريطة Leaflet، لن تتم إعادة التهيئة.');
-                    return;
+                // التحقق مما إذا كان العنصر يحتوي بالفعل على خريطة (Leaflet يضيف class leaflet-container)
+                if (mapContainer.classList.contains('leaflet-container')) {
+                    console.warn('العنصر يحتوي بالفعل على خريطة Leaflet.');
+                    // قد نحتاج إلى إزالة الخريطة القديمة إذا كانت موجودة ولكننا سنتجاوزها
+                    // نفضل إنشاء خريطة جديدة مع الإزالة السابقة.
+                    // لكننا سنستخدم try/catch لتجنب الأخطاء.
+                    try {
+                        // محاولة إزالة الخريطة الموجودة (إذا أمكن)
+                        if (mapInstance) {
+                            mapInstance.remove();
+                            mapInstance = null;
+                        }
+                        // إزالة الكلاسات الإضافية
+                        mapContainer.classList.remove('leaflet-container');
+                    } catch (e) {
+                        console.warn('لا يمكن إزالة الخريطة القديمة، سنستمر في التهيئة الجديدة.');
+                    }
                 }
 
                 if (overlay) overlay.style.display = 'flex';
@@ -926,7 +936,7 @@
                     zoom: 14,
                     zoomControl: true,
                     fadeAnimation: true,
-                    attributionControl: true
+                    zoomAnimation: true
                 });
 
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -948,13 +958,20 @@
                         routeLineInstance = null;
                     }
                 });
+
+                isMapInitialized = true;
             }
 
-            // ---- بدء التشغيل بعد تحميل الصفحة ----
-            if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                initMap();
+            // ---- بدء التشغيل ----
+            if (typeof L !== 'undefined') {
+                // تأخير بسيط للتأكد من تحميل DOM بالكامل
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    initMap();
+                } else {
+                    document.addEventListener('DOMContentLoaded', initMap);
+                }
             } else {
-                document.addEventListener('DOMContentLoaded', initMap);
+                console.error('Leaflet لم يتم تحميلها');
             }
 
         })(); // نهاية IIFE
