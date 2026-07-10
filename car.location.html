@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | النطاق التقريبي للسيارة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+    <style>
+        body { padding: 0; margin: 0; }
+        #map { height: 100vh; width: 100%; }
+        .info-overlay {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            font-weight: 700;
+            color: #0f2925;
+            text-align: center;
+            max-width: 90%;
+        }
+        body.dark-mode .info-overlay {
+            background: rgba(30,41,59,0.9);
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="info-overlay">
+        <i class="fas fa-map-pin" style="color:#c5a065;"></i>
+        السيارة موجودة ضمن هذا النطاق التقريبي، وسيظهر الموقع الدقيق بعد تأكيد الحجز.
+    </div>
+    <script>
+        async function initPreview() {
+            const params = new URLSearchParams(window.location.search);
+            const carId = params.get('carId');
+            if (!carId) return;
+
+            const { data: car, error } = await window.supabaseClient
+                .from('cars')
+                .select('latitude, longitude, geofence_radius, brand, model')
+                .eq('id', carId)
+                .single();
+
+            if (error || !car || !car.latitude || !car.longitude) {
+                document.body.innerHTML = '<div style="text-align:center;margin-top:50px;">لم يتم تحديد موقع السيارة</div>';
+                return;
+            }
+
+            const center = [car.latitude, car.longitude];
+            const radius = car.geofence_radius || 500;
+
+            const map = L.map('map').setView(center, 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 20
+            }).addTo(map);
+
+            L.circle(center, {
+                color: '#c5a065',
+                fillColor: '#c5a065',
+                fillOpacity: 0.08,
+                radius: radius,
+                dashArray: '8, 4',
+                weight: 2
+            }).addTo(map);
+
+            // علامة تقريبية (بدون إحداثيات دقيقة)
+            L.marker(center, {
+                icon: L.divIcon({
+                    className: 'custom-car-icon',
+                    html: '<i class="fas fa-car" style="font-size:28px;color:#c5a065;background:white;padding:8px;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.2);"></i>',
+                    iconSize: [44, 44],
+                    iconAnchor: [22, 44]
+                })
+            }).addTo(map).bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>النطاق التقريبي`).openPopup();
+
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        document.addEventListener('DOMContentLoaded', initPreview);
+    </script>
+</body>
+</html>
