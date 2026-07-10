@@ -171,13 +171,13 @@
 
         // ===== متغيرات الخريطة =====
         let map, carLayer, routeLine;
-        let currentCars = []; // سيتم تخزين السيارات المجلوبة من Supabase
-        const centerPoint = [24.8375090, 46.7297325]; // واجهة روشن
+        let currentCars = [];
+        const centerPoint = [24.8375090, 46.7297325];
         let currType = 'الكل';
         let maxPrice = 1000;
         let currCity = 'all';
 
-        // ===== تحديث شريط التنقل (من script.js) =====
+        // ===== تحديث شريط التنقل =====
         function updateNavbarLocal() {
             if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                 updateNavbarBasedOnLoginStatus();
@@ -187,68 +187,32 @@
         // ===== جلب السيارات من Supabase =====
         async function fetchCarsForMap() {
             try {
-                // جلب السيارات النشطة فقط
-                const { data, error } = await supabase
+                // استخدام window.supabaseClient بدلاً من supabase
+                const { data, error } = await window.supabaseClient
                     .from('cars')
                     .select('*')
                     .eq('status', 'active');
 
                 if (error) throw error;
-                return data;
+                return data || [];
             } catch (err) {
                 console.error('خطأ في جلب السيارات:', err);
                 return [];
             }
         }
 
-        // ===== تهيئة الخريطة =====
-        async function initMap() {
-            const mapContainer = document.getElementById('mapid');
-            if (!mapContainer) return;
-
-            // عرض مؤشر التحميل
-            const overlay = document.getElementById('loading-map-overlay');
-            overlay.style.display = 'flex';
-
-            // جلب السيارات
-            currentCars = await fetchCarsForMap();
-
-            // إذا لم توجد سيارات، نستخدم بيانات وهمية (للاختبار)
-            if (currentCars.length === 0) {
-                console.warn('لا توجد سيارات نشطة، سيتم استخدام بيانات وهمية.');
-                currentCars = getFallbackCars();
-            }
-
-            // إخفاء التحميل
-            overlay.style.display = 'none';
-
-            // إنشاء الخريطة
-            map = L.map('mapid').setView(centerPoint, 14);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; CARTO',
-                maxZoom: 20
-            }).addTo(map);
-
-            carLayer = L.layerGroup().addTo(map);
-            renderCars();
-
-            // تحديث حجم الخريطة بعد ثانية
-            setTimeout(() => map.invalidateSize(), 500);
-
-            // عند غلق البوب أب، نعيد الكاميرا
-            map.on('popupclose', function() {
-                map.flyTo(centerPoint, 14, { duration: 1 });
-                if (routeLine) map.removeLayer(routeLine);
+        // ===== إنشاء أيقونة السعر (معرف قبل الاستخدام) =====
+        function createPriceIcon(price, type, isPremium) {
+            let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
+            if (type === 'luxury') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
+            else if (type === 'suv') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
+            return L.divIcon({
+                className: 'custom-none',
+                html: `<div class="price-marker-box ${isPremium ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
+                iconSize: [80, 30],
+                iconAnchor: [40, 35],
+                popupAnchor: [0, -35]
             });
-        }
-
-        // ===== بيانات وهمية (احتياطية) =====
-        function getFallbackCars() {
-            return [
-                { id: 'f1', type: 'sedan', brand: 'تويوتا', model: 'كامري 2024', daily_price: 120, city: 'الرياض', lat: 24.8375, lng: 46.7297, rating: 4.9, images: ['https://tse2.mm.bing.net/th/id/OIP.F3b-M0eckL0XjmywTpu8EgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'] },
-                { id: 'f2', type: 'suv', brand: 'تويوتا', model: 'لاندكروزر 2023', daily_price: 450, city: 'الرياض', lat: 24.8381, lng: 46.7292, rating: 5.0, images: ['https://www.autopediame.com/userfiles/images/%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1/%D8%AA%D9%88%D9%8A%D9%88%D8%AA%D8%A7%20%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1%201.jpg'] },
-                { id: 'f3', type: 'luxury', brand: 'لوسيد', model: 'آير', daily_price: 700, city: 'الرياض', lat: 24.8385, lng: 46.7298, rating: 5.0, images: ['https://tse1.mm.bing.net/th/id/OIP.gH5S692_GzMVWiq6ui-sdQHaEA?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3'] }
-            ];
         }
 
         // ===== عرض السيارات على الخريطة =====
@@ -264,6 +228,15 @@
                 return typeMatch && priceMatch && cityMatch;
             });
 
+            if (filtered.length === 0) {
+                // عرض رسالة على الخريطة
+                L.popup()
+                    .setLatLng(centerPoint)
+                    .setContent('لا توجد سيارات تطابق الفلتر الحالي.')
+                    .openOn(map);
+                return;
+            }
+
             filtered.forEach(car => {
                 const lat = parseFloat(car.lat) || 24.8;
                 const lng = parseFloat(car.lng) || 46.7;
@@ -274,7 +247,7 @@
                     icon: createPriceIcon(price, car.type, isPremium)
                 }).addTo(carLayer);
 
-                marker.on('click', () => {
+                marker.on('click', function() {
                     const offsetLat = lat + 0.0025;
                     map.flyTo([offsetLat, lng], 16, { duration: 1 });
                     if (routeLine) map.removeLayer(routeLine);
@@ -305,28 +278,6 @@
                     closeButton: true
                 });
             });
-
-            // إذا لم تظهر أي سيارة، نعرض رسالة
-            if (filtered.length === 0) {
-                L.popup()
-                    .setLatLng(centerPoint)
-                    .setContent('لا توجد سيارات تطابق الفلتر الحالي.')
-                    .openOn(map);
-            }
-        }
-
-        // ===== إنشاء أيقونة السعر =====
-        function createPriceIcon(price, type, isPremium) {
-            let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
-            if (type === 'luxury') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
-            else if (type === 'suv') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
-            return L.divIcon({
-                className: 'custom-none',
-                html: `<div class="price-marker-box ${isPremium ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
-                iconSize: [80, 30],
-                iconAnchor: [40, 35],
-                popupAnchor: [0, -35]
-            });
         }
 
         // ===== دوال الفلاتر =====
@@ -339,7 +290,7 @@
         window.filterMap = function(type, el) {
             currType = type;
             document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
-            el.classList.add('active');
+            if (el) el.classList.add('active');
             renderCars();
         };
 
@@ -353,12 +304,41 @@
             if (map) map.flyTo(centerPoint, 16);
         };
 
+        // ===== تهيئة الخريطة =====
+        async function initMap() {
+            const mapContainer = document.getElementById('mapid');
+            if (!mapContainer) return;
+
+            const overlay = document.getElementById('loading-map-overlay');
+            overlay.style.display = 'flex';
+
+            // جلب السيارات من Supabase
+            currentCars = await fetchCarsForMap();
+
+            overlay.style.display = 'none';
+
+            // إنشاء الخريطة
+            map = L.map('mapid').setView(centerPoint, 14);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 20
+            }).addTo(map);
+
+            carLayer = L.layerGroup().addTo(map);
+            renderCars();
+
+            setTimeout(() => map.invalidateSize(), 500);
+
+            map.on('popupclose', function() {
+                map.flyTo(centerPoint, 14, { duration: 1 });
+                if (routeLine) map.removeLayer(routeLine);
+            });
+        }
+
         // ===== تهيئة الصفحة =====
         document.addEventListener('DOMContentLoaded', function() {
-            // تحديث شريط التنقل
             updateNavbarLocal();
 
-            // تهيئة الثيم
             const themeBtn = document.getElementById('theme-toggle-desktop');
             if (themeBtn) {
                 if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
@@ -368,8 +348,12 @@
                 });
             }
 
-            // تشغيل الخريطة
-            initMap();
+            // انتظر تحميل leaflet وبدء الخريطة
+            if (typeof L !== 'undefined') {
+                initMap();
+            } else {
+                console.error('Leaflet library not loaded');
+            }
         });
     </script>
 </body>
