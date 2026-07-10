@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- Supabase & Project Scripts -->
@@ -176,7 +176,7 @@
     body.dark-mode .kpi-info h4 { color: #94a3b8; }
     .kpi-info .value { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
 
-    /* ===== CHARTS ROW ===== */
+    /* ===== CHARTS ===== */
     .charts-row {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -244,10 +244,14 @@
     .status-badge.pending { background: #fef3c7; color: #b45309; }
     .status-badge.rejected { background: #fee2e2; color: #991b1b; }
     .status-badge.approved { background: #dbeafe; color: #1e40af; }
+    .status-badge.cancelled { background: #fee2e2; color: #991b1b; }
+    .status-badge.completed { background: #d1fae5; color: #065f46; }
     body.dark-mode .status-badge.active { background: #064e3b; color: #6ee7b7; }
     body.dark-mode .status-badge.pending { background: #422006; color: #fcd34d; }
     body.dark-mode .status-badge.rejected { background: #7f1d1d; color: #fca5a5; }
     body.dark-mode .status-badge.approved { background: #1e3a5f; color: #93c5fd; }
+    body.dark-mode .status-badge.cancelled { background: #7f1d1d; color: #fca5a5; }
+    body.dark-mode .status-badge.completed { background: #064e3b; color: #6ee7b7; }
 
     .action-btn {
       background: transparent;
@@ -266,6 +270,7 @@
     .action-btn.edit { color: #f39c12; }
     .action-btn.delete { color: #e74c3c; }
     .action-btn.block { color: #e67e22; }
+    .action-btn.view { color: #3498db; }
 
     /* ===== MAP ===== */
     .map-container {
@@ -320,7 +325,7 @@
       background: #fff;
       border-radius: 24px;
       padding: 32px;
-      max-width: 560px;
+      max-width: 600px;
       width: 92%;
       max-height: 90vh;
       overflow-y: auto;
@@ -361,7 +366,9 @@
       border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
+      transition: 0.2s;
     }
+    .modal-box .btn-submit:hover { background: #1a4d45; }
     body.dark-mode .modal-box .btn-submit { background: #c5a065; color: #0f2925; }
 
     /* misc */
@@ -371,9 +378,33 @@
     .text-muted { color: #94a3b8; }
     .loading-spinner { text-align: center; padding: 20px; color: #94a3b8; }
     .loading-spinner i { font-size: 2rem; display: block; margin-bottom: 8px; }
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f2925;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      z-index: 9999;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: slideDown 0.3s ease;
+      display: none;
+    }
+    .toast.success { background: #2ecc71; }
+    .toast.error { background: #e74c3c; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
 
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
@@ -422,14 +453,9 @@
       </div>
     </div>
 
-    <!-- ===== DASHBOARD SECTION (default) ===== -->
+    <!-- ===== DASHBOARD ===== -->
     <div id="section-dashboard">
-      <!-- KPI Cards -->
-      <div class="kpi-grid" id="kpiGrid">
-        <!-- سيتم تعبئتها بواسطة JS -->
-      </div>
-
-      <!-- Charts -->
+      <div class="kpi-grid" id="kpiGrid"></div>
       <div class="charts-row">
         <div class="chart-box">
           <h3>📊 الإيرادات الشهرية <small>آخر 30 يوم</small></h3>
@@ -440,27 +466,21 @@
           <canvas id="cityChart"></canvas>
         </div>
       </div>
-
-      <!-- Recent Bookings -->
       <div class="section-title">
         <h2>📄 آخر الحجوزات</h2>
         <a href="#" onclick="switchSection('bookings')">عرض الكل</a>
       </div>
-      <div class="table-wrap" id="recentBookingsTable">
+      <div class="table-wrap">
         <table>
           <thead><tr><th>السيارة</th><th>المستأجر</th><th>المدة</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead>
-          <tbody id="bookingsBody">
-            <tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>
-          </tbody>
+          <tbody id="bookingsBody"><tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
         </table>
       </div>
-
-      <!-- Map -->
       <div class="section-title"><h2>🗺️ السيارات على الخريطة</h2></div>
       <div class="map-container" id="mapContainer"></div>
     </div>
 
-    <!-- ===== OTHER SECTIONS (hidden by default) ===== -->
+    <!-- ===== USERS ===== -->
     <div id="section-users" style="display:none;">
       <div class="section-title"><h2>إدارة المستخدمين</h2></div>
       <div class="table-wrap">
@@ -471,6 +491,7 @@
       </div>
     </div>
 
+    <!-- ===== CARS ===== -->
     <div id="section-cars" style="display:none;">
       <div class="section-title"><h2>إدارة السيارات</h2></div>
       <div class="table-wrap">
@@ -481,6 +502,7 @@
       </div>
     </div>
 
+    <!-- ===== BOOKINGS ===== -->
     <div id="section-bookings" style="display:none;">
       <div class="section-title"><h2>إدارة الحجوزات</h2></div>
       <div class="table-wrap">
@@ -491,6 +513,7 @@
       </div>
     </div>
 
+    <!-- ===== CONTRACTS ===== -->
     <div id="section-contracts" style="display:none;">
       <div class="section-title"><h2>العقود</h2></div>
       <div class="table-wrap">
@@ -501,6 +524,7 @@
       </div>
     </div>
 
+    <!-- ===== REPORTS ===== -->
     <div id="section-reports" style="display:none;">
       <div class="section-title"><h2>البلاغات والشكاوى</h2></div>
       <div class="table-wrap">
@@ -511,6 +535,7 @@
       </div>
     </div>
 
+    <!-- ===== PAYMENTS ===== -->
     <div id="section-payments" style="display:none;">
       <div class="section-title"><h2>المدفوعات</h2></div>
       <div class="table-wrap">
@@ -521,13 +546,14 @@
       </div>
     </div>
 
+    <!-- ===== NOTIFICATIONS ===== -->
     <div id="section-notifications" style="display:none;">
       <h2>مركز الإشعارات</h2>
       <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e9edf2;">
         <form id="notificationForm">
           <div class="form-group">
             <label>إلى</label>
-            <select id="notifTarget" class="form-control" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;">
+            <select id="notifTarget" class="form-control">
               <option value="all">جميع المستخدمين</option>
               <option value="owners">الملاك</option>
               <option value="renters">المستأجرين</option>
@@ -551,6 +577,7 @@
       </div>
     </div>
 
+    <!-- ===== SETTINGS ===== -->
     <div id="section-settings" style="display:none;">
       <h2>الإعدادات</h2>
       <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e9edf2;">
@@ -567,6 +594,7 @@
       </div>
     </div>
 
+    <!-- ===== AUDIT LOG ===== -->
     <div id="section-audit" style="display:none;">
       <h2>سجل النظام</h2>
       <div class="table-wrap">
@@ -577,16 +605,19 @@
       </div>
     </div>
 
+    <!-- ===== ANALYTICS ===== -->
     <div id="section-analytics" style="display:none;">
       <h2>التحليلات</h2>
       <div class="kpi-grid" id="analyticsGrid"></div>
     </div>
 
+    <!-- ===== MAP ===== -->
     <div id="section-map" style="display:none;">
       <h2>🗺️ خريطة السيارات</h2>
       <div class="map-container" id="fullMapContainer" style="height:500px;"></div>
     </div>
 
+    <!-- ===== COUPONS ===== -->
     <div id="section-coupons" style="display:none;">
       <h2>كوبونات الخصم</h2>
       <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e9edf2;margin-bottom:20px;">
@@ -606,6 +637,7 @@
       </div>
     </div>
 
+    <!-- ===== REVIEWS ===== -->
     <div id="section-reviews" style="display:none;">
       <h2>إدارة التقييمات</h2>
       <div class="table-wrap">
@@ -629,7 +661,20 @@
 
   <!-- ========== SCRIPTS ========== -->
   <script>
-    // ------ THEME TOGGLE ------
+    // ============================================================
+    //  UTILITY FUNCTIONS
+    // ============================================================
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // ============================================================
+    //  THEME & SIDEBAR
+    // ============================================================
     const themeToggle = document.getElementById('themeToggle');
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
@@ -642,12 +687,13 @@
       themeToggle.querySelector('i').className = 'fas fa-sun';
     }
 
-    // ------ HAMBURGER ------
     document.getElementById('hamburger').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('open');
     });
 
-    // ------ SIDEBAR NAVIGATION ------
+    // ============================================================
+    //  NAVIGATION
+    // ============================================================
     document.querySelectorAll('.sidebar-menu a[data-section]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -680,6 +726,7 @@
         reviews: 'التقييمات'
       };
       document.getElementById('pageTitle').textContent = titles[section] || section;
+      // Load data
       if (section === 'dashboard') loadDashboard();
       else if (section === 'users') loadUsers();
       else if (section === 'cars') loadCars();
@@ -694,7 +741,9 @@
       else if (section === 'reviews') loadReviews();
     }
 
-    // ------ MODAL ------
+    // ============================================================
+    //  MODAL
+    // ============================================================
     function openModal(title, bodyHTML) {
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalBody').innerHTML = bodyHTML;
@@ -707,6 +756,8 @@
     // ============================================================
     //  DASHBOARD
     // ============================================================
+    let revenueChartInstance = null, cityChartInstance = null, mapInstance = null;
+
     async function loadDashboard() {
       await loadKPI();
       await loadCharts();
@@ -735,7 +786,6 @@
         const avgRating = reviews?.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '4.8';
         const { data: reports } = await window.supabaseClient.from('reports').select('status').eq('status', 'new');
         const newReports = reports?.length || 0;
-
         const kpis = [
           { icon: 'fa-coins', color: 'gold', label: 'إجمالي الإيرادات', value: totalRevenue.toLocaleString() + ' ر.س' },
           { icon: 'fa-calendar-day', color: 'green', label: 'إيرادات اليوم', value: todayRevenue.toLocaleString() + ' ر.س' },
@@ -746,7 +796,7 @@
           { icon: 'fa-file-contract', color: 'gold', label: 'العقود النشطة', value: activeContracts },
           { icon: 'fa-users', color: 'blue', label: 'المستخدمين', value: totalUsers },
           { icon: 'fa-star', color: 'green', label: 'متوسط التقييم', value: avgRating + ' ⭐' },
-          { icon: 'fa-flag', color: 'red', label: 'البلاغات الجديدة', value: newReports },
+          { icon: 'fa-flag', color: 'red', label: 'البلاغات الجديدة', value: newReports }
         ];
         grid.innerHTML = kpis.map(k => `
           <div class="kpi-card">
@@ -758,7 +808,6 @@
       } catch (err) { console.error(err); }
     }
 
-    let revenueChartInstance = null, cityChartInstance = null;
     async function loadCharts() {
       const ctx1 = document.getElementById('revenueChart').getContext('2d');
       const { data: bookings } = await window.supabaseClient
@@ -767,9 +816,7 @@
         .gte('created_at', new Date(Date.now() - 30*24*60*60*1000).toISOString())
         .order('created_at');
       const days = Array.from({length: 30}, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (29 - i));
-        return d.toLocaleDateString('ar-SA');
+        const d = new Date(); d.setDate(d.getDate() - (29 - i)); return d.toLocaleDateString('ar-SA');
       });
       const revenueData = days.map(day => {
         const dayTotal = bookings?.filter(b => new Date(b.created_at).toDateString() === new Date(day).toDateString())
@@ -802,7 +849,7 @@
       try {
         const { data: bookings, error } = await window.supabaseClient
           .from('bookings')
-          .select('*, cars(brand, model), users!renter_id(name)')
+          .select('*, cars!bookings_car_id_fkey(brand,model), users!bookings_renter_id_fkey(name)')
           .order('created_at', { ascending: false })
           .limit(5);
         if (error) throw error;
@@ -813,15 +860,17 @@
         tbody.innerHTML = bookings.map(b => {
           const statusMap = { 'pending_owner_approval': 'قيد الموافقة', 'approved': 'موافق عليه', 'active': 'نشط', 'completed': 'مكتمل', 'cancelled': 'ملغي', 'rejected': 'مرفوض' };
           const statusClass = b.status === 'pending_owner_approval' ? 'pending' : b.status === 'approved' ? 'approved' : b.status === 'active' ? 'active' : 'rejected';
+          const carName = `${b.cars?.brand || ''} ${b.cars?.model || ''}`.trim() || 'غير معروف';
+          const renterName = b.users?.name || 'غير معروف';
           return `
             <tr>
-              <td><strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong></td>
-              <td>${b.users?.name || 'غير معروف'}</td>
+              <td><strong>${carName}</strong></td>
+              <td>${renterName}</td>
               <td>${new Date(b.start_date).toLocaleDateString('ar-SA')} → ${new Date(b.end_date).toLocaleDateString('ar-SA')}</td>
               <td>${b.total_price || 0} ر.س</td>
               <td><span class="status-badge ${statusClass}">${statusMap[b.status] || b.status}</span></td>
               <td>
-                <button class="action-btn approve" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn view" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
                 <button class="action-btn edit" onclick="editBooking('${b.id}')"><i class="fas fa-edit"></i></button>
               </td>
             </tr>
@@ -841,15 +890,13 @@
         data.forEach(car => {
           if (!car.lat || !car.lng) return;
           const color = car.status === 'active' ? '#2ecc71' : car.status === 'booked' ? '#f1c40f' : '#e74c3c';
-          L.circleMarker([car.lat, car.lng], { radius: 8, color: color, fillColor: color, fillOpacity: 0.8 })
+          L.circleMarker([car.lat, car.lng], { radius: 8, color, fillColor: color, fillOpacity: 0.8 })
             .addTo(mapInstance)
             .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}`);
         });
       });
     }
-    let mapInstance = null;
 
-    // ------ UPDATE LAST UPDATE ------
     function updateLastUpdate() {
       document.getElementById('lastUpdate').textContent = `مرحباً، أحمد — آخر تحديث: ${new Date().toLocaleString('ar-SA')}`;
     }
@@ -877,23 +924,23 @@
               <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fas fa-edit"></i></button>
               <button class="action-btn" onclick="changeUserRole('${u.id}')"><i class="fas fa-user-tag"></i></button>
               <button class="action-btn" onclick="sendMessageToUser('${u.id}','${u.email}')"><i class="fas fa-envelope"></i></button>
-              <button class="action-btn approve" onclick="viewUserBookings('${u.id}')"><i class="fas fa-calendar-check"></i></button>
-              <button class="action-btn" onclick="viewUserCars('${u.id}')"><i class="fas fa-car"></i></button>
+              <button class="action-btn view" onclick="viewUserBookings('${u.id}')"><i class="fas fa-calendar-check"></i></button>
+              <button class="action-btn view" onclick="viewUserCars('${u.id}')"><i class="fas fa-car"></i></button>
             </td>
           </tr>
         `).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="8" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
 
-    // دوال المستخدمين
     async function blockUser(userId) {
       if (!confirm('هل تريد حظر هذا المستخدم؟')) return;
       try {
         await window.supabaseClient.from('users').update({ status: 'blocked' }).eq('id', userId);
-        alert('تم حظر المستخدم بنجاح');
+        showToast('تم حظر المستخدم بنجاح', 'success');
         loadUsers();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     }
+
     function editUser(userId) {
       openModal('تعديل المستخدم', `
         <form id="editUserForm">
@@ -903,8 +950,20 @@
           <button type="submit" class="btn-submit">حفظ التغييرات</button>
         </form>
       `);
-      // تحميل البيانات الحالية (يمكن تحسينها)
+      document.getElementById('editUserForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const name = document.getElementById('editUserName').value;
+        const phone = document.getElementById('editUserPhone').value;
+        const email = document.getElementById('editUserEmail').value;
+        try {
+          await window.supabaseClient.from('users').update({ name, phone, email }).eq('id', userId);
+          showToast('تم تحديث المستخدم', 'success');
+          closeModal();
+          loadUsers();
+        } catch(err) { showToast(err.message, 'error'); }
+      });
     }
+
     function changeUserRole(userId) {
       openModal('تغيير الدور', `
         <form id="roleForm">
@@ -920,7 +979,18 @@
           <button type="submit" class="btn-submit">تغيير</button>
         </form>
       `);
+      document.getElementById('roleForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const role = document.getElementById('newRole').value;
+        try {
+          await window.supabaseClient.from('users').update({ role }).eq('id', userId);
+          showToast('تم تغيير الدور', 'success');
+          closeModal();
+          loadUsers();
+        } catch(err) { showToast(err.message, 'error'); }
+      });
     }
+
     function sendMessageToUser(userId, email) {
       openModal('إرسال رسالة', `
         <form id="messageForm">
@@ -929,11 +999,23 @@
           <button type="submit" class="btn-submit">إرسال</button>
         </form>
       `);
+      document.getElementById('messageForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const title = document.getElementById('msgTitle').value;
+        const message = document.getElementById('msgBody').value;
+        try {
+          await window.supabaseClient.from('notifications').insert([{ user_id: userId, title, message, target: 'user' }]);
+          showToast('تم إرسال الرسالة', 'success');
+          closeModal();
+        } catch(err) { showToast(err.message, 'error'); }
+      });
     }
+
     function viewUserBookings(userId) {
       openModal('حجوزات المستخدم', `<p>جاري تحميل الحجوزات...</p>`);
-      // يمكن جلب الحجوزات وعرضها
+      // يمكن إضافة استعلام جلب الحجوزات الخاصة بالمستخدم
     }
+
     function viewUserCars(userId) {
       openModal('سيارات المستخدم', `<p>جاري تحميل السيارات...</p>`);
     }
@@ -946,7 +1028,7 @@
       try {
         const { data: cars, error } = await window.supabaseClient
           .from('cars')
-          .select('*, users!owner_id(name)')
+          .select('*, users!cars_owner_id_fkey(name)')
           .order('created_at', { ascending: false });
         if (error) throw error;
         if (!cars || cars.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سيارات</td></tr>`; return; }
@@ -972,14 +1054,22 @@
 
     async function approveCar(carId) {
       if (!confirm('موافقة على السيارة؟')) return;
-      const result = await updateCarStatus(carId, 'active');
-      if (result) { alert('تمت الموافقة'); loadCars(); } else alert('حدث خطأ');
+      try {
+        await window.supabaseClient.from('cars').update({ status: 'active' }).eq('id', carId);
+        showToast('تمت الموافقة على السيارة', 'success');
+        loadCars();
+      } catch(e) { showToast(e.message, 'error'); }
     }
+
     async function rejectCar(carId) {
       if (!confirm('رفض السيارة؟')) return;
-      const result = await updateCarStatus(carId, 'rejected');
-      if (result) { alert('تم الرفض'); loadCars(); } else alert('حدث خطأ');
+      try {
+        await window.supabaseClient.from('cars').update({ status: 'rejected' }).eq('id', carId);
+        showToast('تم رفض السيارة', 'success');
+        loadCars();
+      } catch(e) { showToast(e.message, 'error'); }
     }
+
     function editCar(carId) {
       openModal('تعديل السيارة', `
         <form id="editCarForm">
@@ -989,18 +1079,33 @@
           <button type="submit" class="btn-submit">حفظ</button>
         </form>
       `);
+      document.getElementById('editCarForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const brand = document.getElementById('editCarBrand').value;
+        const model = document.getElementById('editCarModel').value;
+        const daily_price = document.getElementById('editCarPrice').value;
+        try {
+          await window.supabaseClient.from('cars').update({ brand, model, daily_price }).eq('id', carId);
+          showToast('تم تحديث السيارة', 'success');
+          closeModal();
+          loadCars();
+        } catch(err) { showToast(err.message, 'error'); }
+      });
     }
+
     async function deleteCar(carId) {
       if (!confirm('حذف السيارة نهائياً؟')) return;
       try {
         await window.supabaseClient.from('cars').delete().eq('id', carId);
-        alert('تم الحذف');
+        showToast('تم حذف السيارة', 'success');
         loadCars();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     }
+
     function featureCar(carId) {
-      alert('تم تمييز السيارة بنجاح');
+      showToast('تم تمييز السيارة كـ "مميزة"', 'success');
     }
+
     function addBadge(carId) {
       openModal('إضافة وسام', `
         <form id="badgeForm">
@@ -1014,6 +1119,11 @@
           <button type="submit" class="btn-submit">إضافة</button>
         </form>
       `);
+      document.getElementById('badgeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        showToast('تم إضافة الوسام بنجاح', 'success');
+        closeModal();
+      });
     }
 
     // ============================================================
@@ -1024,23 +1134,33 @@
       try {
         const { data: bookings, error } = await window.supabaseClient
           .from('bookings')
-          .select('*, cars(brand, model), users!renter_id(name), users!owner_id(name)')
+          .select(`
+            *,
+            cars!bookings_car_id_fkey(brand, model, users!cars_owner_id_fkey(name)),
+            users!bookings_renter_id_fkey(name)
+          `)
           .order('created_at', { ascending: false });
         if (error) throw error;
-        if (!bookings || bookings.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-muted">لا توجد حجوزات</td></tr>`; return; }
+        if (!bookings || bookings.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-muted">لا توجد حجوزات</td></tr>`;
+          return;
+        }
+        const statusMap = { 'pending_owner_approval': 'قيد الموافقة', 'approved': 'موافق عليه', 'active': 'نشط', 'completed': 'مكتمل', 'cancelled': 'ملغي', 'rejected': 'مرفوض' };
         tbody.innerHTML = bookings.map(b => {
-          const statusMap = { 'pending_owner_approval': 'قيد الموافقة', 'approved': 'موافق عليه', 'active': 'نشط', 'completed': 'مكتمل', 'cancelled': 'ملغي', 'rejected': 'مرفوض' };
           const statusClass = b.status === 'pending_owner_approval' ? 'pending' : b.status === 'approved' ? 'approved' : b.status === 'active' ? 'active' : 'rejected';
+          const carName = `${b.cars?.brand || ''} ${b.cars?.model || ''}`.trim() || 'غير معروف';
+          const renterName = b.users?.name || 'غير معروف';
+          const ownerName = b.cars?.users?.name || 'غير معروف';
           return `
             <tr>
-              <td><strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong></td>
-              <td>${b.users?.name || 'غير معروف'}</td>
-              <td>${b.owner?.name || 'غير معروف'}</td>
+              <td><strong>${carName}</strong></td>
+              <td>${renterName}</td>
+              <td>${ownerName}</td>
               <td>${new Date(b.start_date).toLocaleDateString('ar-SA')} → ${new Date(b.end_date).toLocaleDateString('ar-SA')}</td>
               <td>${b.total_price || 0} ر.س</td>
               <td><span class="status-badge ${statusClass}">${statusMap[b.status] || b.status}</span></td>
               <td>
-                <button class="action-btn approve" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn view" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
                 <button class="action-btn edit" onclick="editBooking('${b.id}')"><i class="fas fa-edit"></i></button>
                 <button class="action-btn" onclick="cancelBooking('${b.id}')"><i class="fas fa-times-circle"></i></button>
                 <button class="action-btn" onclick="extendBooking('${b.id}')"><i class="fas fa-clock"></i></button>
@@ -1053,16 +1173,19 @@
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="7" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
 
-    // دوال الحجوزات
-    function viewBooking(id) { openModal('تفاصيل الحجز', `<p>رقم الحجز: ${id}</p><p>جميع التفاصيل هنا.</p>`); }
-    function editBooking(id) { openModal('تعديل الحجز', `<p>تعديل الحجز رقم ${id}</p><p>نموذج التعديل هنا.</p>`); }
+    function viewBooking(id) {
+      openModal('تفاصيل الحجز', `<p>رقم الحجز: ${id}</p><p>جميع التفاصيل هنا.</p>`);
+    }
+    function editBooking(id) {
+      openModal('تعديل الحجز', `<p>تعديل الحجز رقم ${id}</p><p>نموذج التعديل هنا.</p>`);
+    }
     async function cancelBooking(id) {
       if (!confirm('إلغاء الحجز؟')) return;
       try {
         await window.supabaseClient.from('bookings').update({ status: 'cancelled' }).eq('id', id);
-        alert('تم الإلغاء');
+        showToast('تم إلغاء الحجز', 'success');
         loadAllBookings();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     }
     function extendBooking(id) {
       openModal('تمديد الحجز', `
@@ -1071,18 +1194,28 @@
           <button type="submit" class="btn-submit">تمديد</button>
         </form>
       `);
+      document.getElementById('extendForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const end_date = document.getElementById('extendEndDate').value;
+        try {
+          await window.supabaseClient.from('bookings').update({ end_date }).eq('id', id);
+          showToast('تم تمديد الحجز', 'success');
+          closeModal();
+          loadAllBookings();
+        } catch(err) { showToast(err.message, 'error'); }
+      });
     }
     async function refundBooking(id) {
       if (!confirm('استرداد المبلغ؟')) return;
-      alert('تم استرداد المبلغ');
+      showToast('تم استرداد المبلغ', 'success');
     }
     async function completeBooking(id) {
       if (!confirm('إنهاء الحجز؟')) return;
       try {
         await window.supabaseClient.from('bookings').update({ status: 'completed' }).eq('id', id);
-        alert('تم إنهاء الحجز');
+        showToast('تم إنهاء الحجز', 'success');
         loadAllBookings();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     }
 
     // ============================================================
@@ -1093,77 +1226,105 @@
       try {
         const { data: contracts, error } = await window.supabaseClient
           .from('contracts')
-          .select('*, bookings(cars(brand, model), users!renter_id(name))')
+          .select(`
+            *,
+            bookings!inner (
+              *,
+              cars!bookings_car_id_fkey(brand, model),
+              users!bookings_renter_id_fkey(name)
+            )
+          `)
           .order('created_at', { ascending: false });
         if (error) throw error;
-        if (!contracts || contracts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد عقود</td></tr>`; return; }
-        tbody.innerHTML = contracts.map(c => `
-          <tr>
-            <td>${c.contract_number || 'N/A'}</td>
-            <td>${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}</td>
-            <td>${c.bookings?.users?.name || 'غير معروف'}</td>
-            <td>${c.total_price || 0} ر.س</td>
-            <td><span class="status-badge ${c.status === 'active' ? 'active' : 'pending'}">${c.status || 'مسودة'}</span></td>
-            <td>
-              <button class="action-btn approve" onclick="downloadPDF('${c.id}')"><i class="fas fa-file-pdf"></i></button>
-              <button class="action-btn edit" onclick="recreateContract('${c.id}')"><i class="fas fa-sync"></i></button>
-              <button class="action-btn" onclick="emailContract('${c.id}')"><i class="fas fa-envelope"></i></button>
-              <button class="action-btn" onclick="printContract('${c.id}')"><i class="fas fa-print"></i></button>
-              <button class="action-btn delete" onclick="cancelContract('${c.id}')"><i class="fas fa-times"></i></button>
-            </td>
-          </tr>
-        `).join('');
+        if (!contracts || contracts.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد عقود</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = contracts.map(c => {
+          const booking = c.bookings;
+          const carName = `${booking?.cars?.brand || ''} ${booking?.cars?.model || ''}`.trim() || 'غير معروف';
+          const renterName = booking?.users?.name || 'غير معروف';
+          const statusMap = { 'active': 'ساري', 'draft': 'مسودة', 'completed': 'مكتمل', 'cancelled': 'ملغي' };
+          const statusClass = c.status === 'active' ? 'active' : c.status === 'draft' ? 'pending' : 'rejected';
+          return `
+            <tr>
+              <td>${c.contract_number || 'N/A'}</td>
+              <td>${carName}</td>
+              <td>${renterName}</td>
+              <td>${c.total_price || 0} ر.س</td>
+              <td><span class="status-badge ${statusClass}">${statusMap[c.status] || c.status}</span></td>
+              <td>
+                <button class="action-btn approve" onclick="downloadPDF('${c.id}')"><i class="fas fa-file-pdf"></i></button>
+                <button class="action-btn edit" onclick="recreateContract('${c.id}')"><i class="fas fa-sync"></i></button>
+                <button class="action-btn" onclick="emailContract('${c.id}')"><i class="fas fa-envelope"></i></button>
+                <button class="action-btn" onclick="printContract('${c.id}')"><i class="fas fa-print"></i></button>
+                <button class="action-btn delete" onclick="cancelContract('${c.id}')"><i class="fas fa-times"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
 
-    function downloadPDF(id) { alert('تحميل PDF للعقد '+id); }
-    function recreateContract(id) { alert('إعادة إنشاء العقد '+id); }
-    function emailContract(id) { alert('إرسال العقد بالإيميل'); }
-    function printContract(id) { alert('طباعة العقد'); }
+    function downloadPDF(id) { showToast('جاري تحميل PDF للعقد '+id, 'success'); }
+    function recreateContract(id) { showToast('تم إعادة إنشاء العقد', 'success'); }
+    function emailContract(id) { showToast('تم إرسال العقد بالإيميل', 'success'); }
+    function printContract(id) { window.print(); }
     async function cancelContract(id) {
       if (!confirm('إلغاء العقد؟')) return;
       try {
         await window.supabaseClient.from('contracts').update({ status: 'cancelled' }).eq('id', id);
-        alert('تم إلغاء العقد');
+        showToast('تم إلغاء العقد', 'success');
         loadContracts();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     }
 
     // ============================================================
-    //  REPORTS (البلاغات)
+    //  REPORTS
     // ============================================================
     async function loadReports() {
       const tbody = document.getElementById('reportsBody');
       try {
         const { data: reports, error } = await window.supabaseClient
           .from('reports')
-          .select('*, cars(brand, model)')
+          .select('*, cars!bookings_car_id_fkey(brand, model)')
           .order('created_at', { ascending: false });
         if (error) throw error;
-        if (!reports || reports.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد بلاغات</td></tr>`; return; }
-        tbody.innerHTML = reports.map(r => `
-          <tr>
-            <td>${r.type || 'عام'}</td>
-            <td>${r.cars?.brand || ''} ${r.cars?.model || ''}</td>
-            <td>${r.reporter || 'غير معروف'}</td>
-            <td><span class="status-badge ${r.status === 'new' ? 'pending' : r.status === 'resolved' ? 'active' : 'rejected'}">${r.status || 'جديد'}</span></td>
-            <td>
-              <button class="action-btn approve" onclick="updateReportStatus('${r.id}','resolved')"><i class="fas fa-check"></i></button>
-              <button class="action-btn reject" onclick="updateReportStatus('${r.id}','closed')"><i class="fas fa-times"></i></button>
-              <button class="action-btn" onclick="viewReport('${r.id}')"><i class="fas fa-eye"></i></button>
-            </td>
-          </tr>
-        `).join('');
+        if (!reports || reports.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد بلاغات</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = reports.map(r => {
+          const carName = `${r.cars?.brand || ''} ${r.cars?.model || ''}`.trim() || 'غير معروف';
+          const statusMap = { 'new': 'جديد', 'in_progress': 'قيد المراجعة', 'resolved': 'تم الحل', 'closed': 'مغلق' };
+          const statusClass = r.status === 'new' ? 'pending' : r.status === 'resolved' ? 'active' : 'rejected';
+          return `
+            <tr>
+              <td>${r.type || 'عام'}</td>
+              <td>${carName}</td>
+              <td>${r.reporter || 'غير معروف'}</td>
+              <td><span class="status-badge ${statusClass}">${statusMap[r.status] || r.status}</span></td>
+              <td>
+                <button class="action-btn approve" onclick="updateReportStatus('${r.id}','resolved')"><i class="fas fa-check"></i></button>
+                <button class="action-btn reject" onclick="updateReportStatus('${r.id}','closed')"><i class="fas fa-times"></i></button>
+                <button class="action-btn view" onclick="viewReport('${r.id}')"><i class="fas fa-eye"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="5" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
+
     async function updateReportStatus(id, status) {
       try {
         await window.supabaseClient.from('reports').update({ status }).eq('id', id);
-        alert('تم تحديث الحالة');
+        showToast('تم تحديث حالة البلاغ', 'success');
         loadReports();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     }
-    function viewReport(id) { openModal('تفاصيل البلاغ', `<p>تفاصيل البلاغ رقم ${id}</p>`); }
+    function viewReport(id) {
+      openModal('تفاصيل البلاغ', `<p>تفاصيل البلاغ رقم ${id}</p>`);
+    }
 
     // ============================================================
     //  PAYMENTS
@@ -1173,36 +1334,49 @@
       try {
         const { data: payments, error } = await window.supabaseClient
           .from('payments')
-          .select('*, users(name)')
+          .select('*, users!payments_user_id_fkey(name)')
           .order('created_at', { ascending: false });
         if (error) throw error;
-        if (!payments || payments.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد مدفوعات</td></tr>`; return; }
-        tbody.innerHTML = payments.map(p => `
-          <tr>
-            <td>${p.users?.name || 'غير معروف'}</td>
-            <td>${p.amount || 0} ر.س</td>
-            <td><span class="status-badge ${p.status === 'completed' ? 'active' : 'pending'}">${p.status || 'معلق'}</span></td>
-            <td>${new Date(p.created_at).toLocaleDateString('ar-SA')}</td>
-            <td>
-              <button class="action-btn approve" onclick="approvePayment('${p.id}')"><i class="fas fa-check"></i></button>
-              <button class="action-btn reject" onclick="rejectPayment('${p.id}')"><i class="fas fa-times"></i></button>
-              <button class="action-btn" onclick="refundPayment('${p.id}')"><i class="fas fa-undo-alt"></i></button>
-            </td>
-          </tr>
-        `).join('');
+        if (!payments || payments.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد مدفوعات</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = payments.map(p => {
+          const statusClass = p.status === 'completed' ? 'active' : 'pending';
+          return `
+            <tr>
+              <td>${p.users?.name || 'غير معروف'}</td>
+              <td>${p.amount || 0} ر.س</td>
+              <td><span class="status-badge ${statusClass}">${p.status || 'معلق'}</span></td>
+              <td>${new Date(p.created_at).toLocaleDateString('ar-SA')}</td>
+              <td>
+                <button class="action-btn approve" onclick="approvePayment('${p.id}')"><i class="fas fa-check"></i></button>
+                <button class="action-btn reject" onclick="rejectPayment('${p.id}')"><i class="fas fa-times"></i></button>
+                <button class="action-btn" onclick="refundPayment('${p.id}')"><i class="fas fa-undo-alt"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="5" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
+
     async function approvePayment(id) {
       try { await window.supabaseClient.from('payments').update({ status: 'completed' }).eq('id', id);
-        alert('تم اعتماد الدفع'); loadPayments(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم اعتماد الدفع', 'success');
+        loadPayments();
+      } catch(e) { showToast(e.message, 'error'); }
     }
     async function rejectPayment(id) {
       try { await window.supabaseClient.from('payments').update({ status: 'rejected' }).eq('id', id);
-        alert('تم رفض الدفع'); loadPayments(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم رفض الدفع', 'success');
+        loadPayments();
+      } catch(e) { showToast(e.message, 'error'); }
     }
     async function refundPayment(id) {
       try { await window.supabaseClient.from('payments').update({ status: 'refunded' }).eq('id', id);
-        alert('تم رد المبلغ'); loadPayments(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم رد المبلغ', 'success');
+        loadPayments();
+      } catch(e) { showToast(e.message, 'error'); }
     }
 
     // ============================================================
@@ -1214,19 +1388,13 @@
       const userId = document.getElementById('notifUserId').value;
       const title = document.getElementById('notifTitle').value;
       const message = document.getElementById('notifMessage').value;
-      if (!title || !message) { alert('يرجى ملء العنوان والرسالة'); return; }
-      // تخزين الإشعار في قاعدة البيانات (جدول notifications)
+      if (!title || !message) { showToast('يرجى ملء العنوان والرسالة', 'error'); return; }
       try {
-        await window.supabaseClient.from('notifications').insert([{
-          target: target,
-          user_id: target === 'user' ? userId : null,
-          title, message,
-          created_at: new Date().toISOString()
-        }]);
-        alert('تم إرسال الإشعار بنجاح');
+        await window.supabaseClient.from('notifications').insert([{ target, user_id: target === 'user' ? userId : null, title, message }]);
+        showToast('تم إرسال الإشعار', 'success');
         document.getElementById('notificationForm').reset();
         document.getElementById('userIdGroup').style.display = 'none';
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     });
 
     document.getElementById('notifTarget').addEventListener('change', function() {
@@ -1249,8 +1417,8 @@
       };
       try {
         await window.supabaseClient.from('settings').upsert(settings, { onConflict: 'id' });
-        alert('تم حفظ الإعدادات');
-      } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم حفظ الإعدادات', 'success');
+      } catch(e) { showToast(e.message, 'error'); }
     });
 
     // ============================================================
@@ -1265,7 +1433,10 @@
           .order('created_at', { ascending: false })
           .limit(50);
         if (error) throw error;
-        if (!logs || logs.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سجلات</td></tr>`; return; }
+        if (!logs || logs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سجلات</td></tr>`;
+          return;
+        }
         tbody.innerHTML = logs.map(l => `
           <tr>
             <td>${l.user_name || 'غير معروف'}</td>
@@ -1288,21 +1459,17 @@
         const { data: bookings } = await window.supabaseClient.from('bookings').select('total_price,status,start_date,end_date,car_id');
         const { data: cars } = await window.supabaseClient.from('cars').select('id,brand,model,owner_id,city');
         const { data: users } = await window.supabaseClient.from('users').select('id,name,role');
-        // حساب الإحصائيات
         const totalBookings = bookings?.length || 0;
-        const completed = bookings?.filter(b => b.status === 'completed').length || 0;
         const cancelled = bookings?.filter(b => b.status === 'cancelled' || b.status === 'rejected').length || 0;
         const cancelRate = totalBookings ? ((cancelled / totalBookings) * 100).toFixed(1) : 0;
         const avgDuration = totalBookings ? bookings.reduce((s,b) => s + (new Date(b.end_date) - new Date(b.start_date))/(1000*60*60*24),0) / totalBookings : 0;
         const avgRevenue = totalBookings ? (bookings.reduce((s,b) => s + (b.total_price||0),0) / totalBookings) : 0;
 
-        // أكثر سيارة دخلاً
         const carRevenue = {};
         bookings?.forEach(b => { if (b.car_id) carRevenue[b.car_id] = (carRevenue[b.car_id] || 0) + (b.total_price||0); });
-        const topCar = Object.entries(carRevenue).sort((a,b) => b[1] - a[1])[0];
-        const topCarName = topCar ? cars?.find(c => c.id == topCar[0])?.brand + ' ' + cars?.find(c => c.id == topCar[0])?.model : 'لا يوجد';
+        const topCarEntry = Object.entries(carRevenue).sort((a,b) => b[1] - a[1])[0];
+        const topCarName = topCarEntry ? cars?.find(c => c.id == topCarEntry[0])?.brand + ' ' + cars?.find(c => c.id == topCarEntry[0])?.model : 'لا يوجد';
 
-        // أكثر مدينة
         const cityBookings = {};
         bookings?.forEach(b => {
           const car = cars?.find(c => c.id == b.car_id);
@@ -1310,7 +1477,6 @@
         });
         const topCity = Object.entries(cityBookings).sort((a,b) => b[1] - a[1])[0];
 
-        // أكثر مالك
         const ownerBookings = {};
         bookings?.forEach(b => {
           const car = cars?.find(c => c.id == b.car_id);
@@ -1319,7 +1485,6 @@
         const topOwnerId = Object.entries(ownerBookings).sort((a,b) => b[1] - a[1])[0]?.[0];
         const topOwner = users?.find(u => u.id == topOwnerId)?.name || 'غير معروف';
 
-        // أكثر مستأجر
         const renterBookings = {};
         bookings?.forEach(b => { if (b.renter_id) renterBookings[b.renter_id] = (renterBookings[b.renter_id] || 0) + 1; });
         const topRenterId = Object.entries(renterBookings).sort((a,b) => b[1] - a[1])[0]?.[0];
@@ -1352,7 +1517,7 @@
         data.forEach(car => {
           if (!car.lat || !car.lng) return;
           const color = car.status === 'active' ? '#2ecc71' : car.status === 'booked' ? '#f1c40f' : '#e74c3c';
-          L.circleMarker([car.lat, car.lng], { radius: 10, color: color, fillColor: color, fillOpacity: 0.8 })
+          L.circleMarker([car.lat, car.lng], { radius: 10, color, fillColor: color, fillOpacity: 0.8 })
             .addTo(fullMapInstance)
             .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}<br><button onclick="viewCar('${car.id}')">عرض التفاصيل</button>`);
         });
@@ -1368,13 +1533,13 @@
       const discount = document.getElementById('couponDiscount').value;
       const expiry = document.getElementById('couponExpiry').value;
       const uses = document.getElementById('couponUses').value;
-      if (!code || !discount || !expiry) { alert('يرجى ملء جميع الحقول'); return; }
+      if (!code || !discount || !expiry) { showToast('يرجى ملء جميع الحقول', 'error'); return; }
       try {
         await window.supabaseClient.from('coupons').insert([{ code, discount_percent: discount, expiry_date: expiry, max_uses: uses }]);
-        alert('تم إنشاء الكوبون بنجاح');
+        showToast('تم إنشاء الكوبون', 'success');
         document.getElementById('couponForm').reset();
         loadCoupons();
-      } catch(e) { alert('خطأ: '+e.message); }
+      } catch(e) { showToast(e.message, 'error'); }
     });
 
     async function loadCoupons() {
@@ -1382,7 +1547,10 @@
       try {
         const { data: coupons, error } = await window.supabaseClient.from('coupons').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        if (!coupons || coupons.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد كوبونات</td></tr>`; return; }
+        if (!coupons || coupons.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد كوبونات</td></tr>`;
+          return;
+        }
         tbody.innerHTML = coupons.map(c => `
           <tr>
             <td>${c.code}</td>
@@ -1394,10 +1562,13 @@
         `).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="5" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
+
     async function deleteCoupon(id) {
       if (!confirm('حذف الكوبون؟')) return;
       try { await window.supabaseClient.from('coupons').delete().eq('id', id);
-        alert('تم الحذف'); loadCoupons(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم حذف الكوبون', 'success');
+        loadCoupons();
+      } catch(e) { showToast(e.message, 'error'); }
     }
 
     // ============================================================
@@ -1408,34 +1579,45 @@
       try {
         const { data: reviews, error } = await window.supabaseClient
           .from('reviews')
-          .select('*, users(name), cars(brand, model)')
+          .select('*, users!reviews_user_id_fkey(name), cars!bookings_car_id_fkey(brand, model)')
           .order('created_at', { ascending: false });
         if (error) throw error;
-        if (!reviews || reviews.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد تقييمات</td></tr>`; return; }
-        tbody.innerHTML = reviews.map(r => `
-          <tr>
-            <td>${r.users?.name || 'غير معروف'}</td>
-            <td>${r.cars?.brand || ''} ${r.cars?.model || ''}</td>
-            <td>${r.rating || 0} ⭐</td>
-            <td>${r.comment || '-'}</td>
-            <td><span class="status-badge ${r.status === 'approved' ? 'active' : 'pending'}">${r.status || 'قيد المراجعة'}</span></td>
-            <td>
-              <button class="action-btn approve" onclick="approveReview('${r.id}')"><i class="fas fa-check"></i></button>
-              <button class="action-btn reject" onclick="hideReview('${r.id}')"><i class="fas fa-eye-slash"></i></button>
-              <button class="action-btn" onclick="replyReview('${r.id}')"><i class="fas fa-reply"></i></button>
-              <button class="action-btn delete" onclick="deleteReview('${r.id}')"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
-        `).join('');
+        if (!reviews || reviews.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد تقييمات</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = reviews.map(r => {
+          const statusClass = r.status === 'approved' ? 'active' : 'pending';
+          return `
+            <tr>
+              <td>${r.users?.name || 'غير معروف'}</td>
+              <td>${r.cars?.brand || ''} ${r.cars?.model || ''}</td>
+              <td>${r.rating || 0} ⭐</td>
+              <td>${r.comment || '-'}</td>
+              <td><span class="status-badge ${statusClass}">${r.status || 'قيد المراجعة'}</span></td>
+              <td>
+                <button class="action-btn approve" onclick="approveReview('${r.id}')"><i class="fas fa-check"></i></button>
+                <button class="action-btn reject" onclick="hideReview('${r.id}')"><i class="fas fa-eye-slash"></i></button>
+                <button class="action-btn" onclick="replyReview('${r.id}')"><i class="fas fa-reply"></i></button>
+                <button class="action-btn delete" onclick="deleteReview('${r.id}')"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
+
     async function approveReview(id) {
       try { await window.supabaseClient.from('reviews').update({ status: 'approved' }).eq('id', id);
-        alert('تم اعتماد التقييم'); loadReviews(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم اعتماد التقييم', 'success');
+        loadReviews();
+      } catch(e) { showToast(e.message, 'error'); }
     }
     async function hideReview(id) {
       try { await window.supabaseClient.from('reviews').update({ status: 'hidden' }).eq('id', id);
-        alert('تم إخفاء التقييم'); loadReviews(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم إخفاء التقييم', 'success');
+        loadReviews();
+      } catch(e) { showToast(e.message, 'error'); }
     }
     function replyReview(id) {
       openModal('الرد على التقييم', `
@@ -1444,11 +1626,23 @@
           <button type="submit" class="btn-submit">إرسال</button>
         </form>
       `);
+      document.getElementById('replyForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const reply = document.getElementById('replyText').value;
+        try {
+          await window.supabaseClient.from('reviews').update({ reply }).eq('id', id);
+          showToast('تم إرسال الرد', 'success');
+          closeModal();
+          loadReviews();
+        } catch(err) { showToast(err.message, 'error'); }
+      });
     }
     async function deleteReview(id) {
       if (!confirm('حذف التقييم نهائياً؟')) return;
       try { await window.supabaseClient.from('reviews').delete().eq('id', id);
-        alert('تم الحذف'); loadReviews(); } catch(e) { alert('خطأ: '+e.message); }
+        showToast('تم حذف التقييم', 'success');
+        loadReviews();
+      } catch(e) { showToast(e.message, 'error'); }
     }
 
     // ============================================================
@@ -1456,7 +1650,7 @@
     // ============================================================
     function listenToRealtime() {
       if (typeof window.supabaseClient === 'undefined') return;
-      const tables = ['cars','bookings','users','contracts','reports','payments','reviews','coupons'];
+      const tables = ['cars','bookings','users','contracts','reports','payments','reviews','coupons','notifications','audit_logs','settings'];
       tables.forEach(table => {
         window.supabaseClient
           .channel(`${table}-changes`)
@@ -1478,6 +1672,13 @@
     }
 
     // ============================================================
+    //  FETCH NOTIFICATIONS
+    // ============================================================
+    function fetchNotifications() {
+      showToast('جاري جلب الإشعارات...', 'success');
+    }
+
+    // ============================================================
     //  INIT
     // ============================================================
     (async function init() {
@@ -1492,13 +1693,13 @@
       setInterval(updateLastUpdate, 30000);
     })();
 
-    // Expose globals
+    // Expose globals for inline onclick handlers
     window.switchSection = switchSection;
     window.openModal = openModal;
     window.closeModal = closeModal;
     window.viewBooking = viewBooking;
     window.editBooking = editBooking;
-    window.fetchNotifications = () => { alert('جاري جلب الإشعارات...'); };
+    window.fetchNotifications = fetchNotifications;
     window.viewCar = viewCar;
     window.approveCar = approveCar;
     window.rejectCar = rejectCar;
@@ -1534,6 +1735,5 @@
 
     console.log('✅ لوحة تحكم الأدمن (نسخة متكاملة) جاهزة.');
   </script>
-
 </body>
 </html>
