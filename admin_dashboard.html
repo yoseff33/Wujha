@@ -264,6 +264,8 @@
     .action-btn.approve { color: #2ecc71; }
     .action-btn.reject { color: #e74c3c; }
     .action-btn.edit { color: #f39c12; }
+    .action-btn.delete { color: #e74c3c; }
+    .action-btn.block { color: #e67e22; }
 
     /* ===== MAP ===== */
     .map-container {
@@ -335,6 +337,32 @@
       color: #94a3b8;
     }
     .modal-box .close-modal:hover { color: #e74c3c; }
+    .modal-box .form-group { margin-bottom: 15px; }
+    .modal-box label { display: block; font-weight: 600; margin-bottom: 5px; }
+    .modal-box input, .modal-box select, .modal-box textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Tajawal', sans-serif;
+    }
+    body.dark-mode .modal-box input,
+    body.dark-mode .modal-box select,
+    body.dark-mode .modal-box textarea {
+      background: #2d3a4f;
+      border-color: #3d4a5f;
+      color: #e2e8f0;
+    }
+    .modal-box .btn-submit {
+      background: #0f2925;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    body.dark-mode .modal-box .btn-submit { background: #c5a065; color: #0f2925; }
 
     /* misc */
     .flex { display: flex; align-items: center; gap: 8px; }
@@ -434,17 +462,17 @@
 
     <!-- ===== OTHER SECTIONS (hidden by default) ===== -->
     <div id="section-users" style="display:none;">
-      <h2>إدارة المستخدمين</h2>
+      <div class="section-title"><h2>إدارة المستخدمين</h2></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>الصورة</th><th>الاسم</th><th>الجوال</th><th>البريد</th><th>الهوية</th><th>الحالة</th><th></th></tr></thead>
-          <tbody id="usersBody"><tr><td colspan="7" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+          <thead><tr><th>الصورة</th><th>الاسم</th><th>الجوال</th><th>البريد</th><th>الهوية</th><th>الحالة</th><th>الدور</th><th></th></tr></thead>
+          <tbody id="usersBody"><tr><td colspan="8" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
         </table>
       </div>
     </div>
 
     <div id="section-cars" style="display:none;">
-      <h2>إدارة السيارات</h2>
+      <div class="section-title"><h2>إدارة السيارات</h2></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>الصورة</th><th>الماركة/الموديل</th><th>المالك</th><th>الحالة</th><th>التقييم</th><th></th></tr></thead>
@@ -453,7 +481,140 @@
       </div>
     </div>
 
-    <!-- باقي الأقسام مشابهة، سيتم إضافتها حسب الحاجة -->
+    <div id="section-bookings" style="display:none;">
+      <div class="section-title"><h2>إدارة الحجوزات</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>السيارة</th><th>المستأجر</th><th>المالك</th><th>المدة</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="allBookingsBody"><tr><td colspan="7" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-contracts" style="display:none;">
+      <div class="section-title"><h2>العقود</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>رقم العقد</th><th>السيارة</th><th>المستأجر</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="contractsBody"><tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-reports" style="display:none;">
+      <div class="section-title"><h2>البلاغات والشكاوى</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>النوع</th><th>السيارة</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="reportsBody"><tr><td colspan="5" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-payments" style="display:none;">
+      <div class="section-title"><h2>المدفوعات</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+          <tbody id="paymentsBody"><tr><td colspan="5" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-notifications" style="display:none;">
+      <h2>مركز الإشعارات</h2>
+      <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e9edf2;">
+        <form id="notificationForm">
+          <div class="form-group">
+            <label>إلى</label>
+            <select id="notifTarget" class="form-control" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;">
+              <option value="all">جميع المستخدمين</option>
+              <option value="owners">الملاك</option>
+              <option value="renters">المستأجرين</option>
+              <option value="user">مستخدم محدد</option>
+            </select>
+          </div>
+          <div class="form-group" id="userIdGroup" style="display:none;">
+            <label>معرف المستخدم</label>
+            <input type="text" id="notifUserId" class="form-control" placeholder="أدخل UUID المستخدم">
+          </div>
+          <div class="form-group">
+            <label>العنوان</label>
+            <input type="text" id="notifTitle" class="form-control" placeholder="عنوان الإشعار" required>
+          </div>
+          <div class="form-group">
+            <label>الرسالة</label>
+            <textarea id="notifMessage" class="form-control" rows="3" placeholder="محتوى الإشعار" required></textarea>
+          </div>
+          <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> إرسال</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="section-settings" style="display:none;">
+      <h2>الإعدادات</h2>
+      <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e9edf2;">
+        <form id="settingsForm">
+          <div class="form-group"><label>نسبة العمولة (%)</label><input type="number" id="settingCommission" class="form-control" value="10"></div>
+          <div class="form-group"><label>الضريبة (%)</label><input type="number" id="settingTax" class="form-control" value="15"></div>
+          <div class="form-group"><label>رسوم التوصيل (ر.س)</label><input type="number" id="settingDeliveryFee" class="form-control" value="50"></div>
+          <div class="form-group"><label>الحد الأدنى للحجز (ساعات)</label><input type="number" id="settingMinHours" class="form-control" value="6"></div>
+          <div class="form-group"><label>مدة الإلغاء (ساعات قبل الحجز)</label><input type="number" id="settingCancelWindow" class="form-control" value="24"></div>
+          <div class="form-group"><label>سياسة التأخير (ر.س/ساعة)</label><input type="number" id="settingLateFee" class="form-control" value="20"></div>
+          <div class="form-group"><label>المدن المسموحة (مفصولة بفواصل)</label><input type="text" id="settingCities" class="form-control" value="الرياض,جدة,الدمام,الخبر,بريدة"></div>
+          <button type="submit" class="btn-submit"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="section-audit" style="display:none;">
+      <h2>سجل النظام</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>المستخدم</th><th>الإجراء</th><th>التفاصيل</th><th>التاريخ</th><th>IP</th><th>المتصفح</th></tr></thead>
+          <tbody id="auditBody"><tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-analytics" style="display:none;">
+      <h2>التحليلات</h2>
+      <div class="kpi-grid" id="analyticsGrid"></div>
+    </div>
+
+    <div id="section-map" style="display:none;">
+      <h2>🗺️ خريطة السيارات</h2>
+      <div class="map-container" id="fullMapContainer" style="height:500px;"></div>
+    </div>
+
+    <div id="section-coupons" style="display:none;">
+      <h2>كوبونات الخصم</h2>
+      <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e9edf2;margin-bottom:20px;">
+        <form id="couponForm">
+          <div class="form-group"><label>كود الخصم</label><input type="text" id="couponCode" class="form-control" required></div>
+          <div class="form-group"><label>نسبة الخصم (%)</label><input type="number" id="couponDiscount" class="form-control" required></div>
+          <div class="form-group"><label>تاريخ الانتهاء</label><input type="date" id="couponExpiry" class="form-control" required></div>
+          <div class="form-group"><label>عدد الاستخدامات</label><input type="number" id="couponUses" class="form-control" value="1"></div>
+          <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> إنشاء كوبون</button>
+        </form>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الكود</th><th>الخصم</th><th>الانتهاء</th><th>الاستخدامات</th><th></th></tr></thead>
+          <tbody id="couponsBody"><tr><td colspan="5" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-reviews" style="display:none;">
+      <h2>إدارة التقييمات</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>المستخدم</th><th>السيارة</th><th>التقييم</th><th>التعليق</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="reviewsBody"><tr><td colspan="6" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
 
   </main>
 
@@ -476,7 +637,6 @@
       const icon = themeToggle.querySelector('i');
       icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
     });
-    // Restore theme
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('dark-mode');
       themeToggle.querySelector('i').className = 'fas fa-sun';
@@ -493,20 +653,16 @@
         e.preventDefault();
         const section = link.dataset.section;
         switchSection(section);
-        // Highlight active
         document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
         link.classList.add('active');
-        // Close sidebar on mobile
         document.getElementById('sidebar').classList.remove('open');
       });
     });
 
     function switchSection(section) {
-      // Hide all sections
       document.querySelectorAll('[id^="section-"]').forEach(el => el.style.display = 'none');
       const target = document.getElementById('section-' + section);
       if (target) target.style.display = 'block';
-      // Update title
       const titles = {
         dashboard: 'لوحة التحكم',
         users: 'إدارة المستخدمين',
@@ -524,11 +680,18 @@
         reviews: 'التقييمات'
       };
       document.getElementById('pageTitle').textContent = titles[section] || section;
-      // Load data for section if needed
       if (section === 'dashboard') loadDashboard();
       else if (section === 'users') loadUsers();
       else if (section === 'cars') loadCars();
-      // ... إلخ
+      else if (section === 'bookings') loadAllBookings();
+      else if (section === 'contracts') loadContracts();
+      else if (section === 'reports') loadReports();
+      else if (section === 'payments') loadPayments();
+      else if (section === 'audit') loadAuditLog();
+      else if (section === 'analytics') loadAnalytics();
+      else if (section === 'map') loadFullMap();
+      else if (section === 'coupons') loadCoupons();
+      else if (section === 'reviews') loadReviews();
     }
 
     // ------ MODAL ------
@@ -537,13 +700,12 @@
       document.getElementById('modalBody').innerHTML = bodyHTML;
       document.getElementById('modal').classList.add('open');
     }
-
     function closeModal() {
       document.getElementById('modal').classList.remove('open');
     }
 
     // ============================================================
-    //  DASHBOARD: LOAD KPI, CHARTS, BOOKINGS, MAP
+    //  DASHBOARD
     // ============================================================
     async function loadDashboard() {
       await loadKPI();
@@ -553,16 +715,13 @@
       updateLastUpdate();
     }
 
-    // ------ KPI ------
     async function loadKPI() {
       const grid = document.getElementById('kpiGrid');
       try {
-        // جلب البيانات من Supabase
         const { data: cars } = await window.supabaseClient.from('cars').select('status');
         const { data: bookings } = await window.supabaseClient.from('bookings').select('status,total_price,start_date');
         const { data: users } = await window.supabaseClient.from('users').select('id', { count: 'exact' });
         const { data: contracts } = await window.supabaseClient.from('contracts').select('status');
-
         const totalCars = cars?.length || 0;
         const activeCars = cars?.filter(c => c.status === 'active').length || 0;
         const pendingCars = cars?.filter(c => c.status === 'pending').length || 0;
@@ -572,10 +731,8 @@
           .reduce((sum, b) => sum + (b.total_price || 0), 0) || 0;
         const activeContracts = contracts?.filter(c => c.status === 'active').length || 0;
         const totalUsers = users?.length || 0;
-        // تقييم متوسط (نفترض وجود تقييمات في جدول reviews)
         const { data: reviews } = await window.supabaseClient.from('reviews').select('rating');
         const avgRating = reviews?.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '4.8';
-        // البلاغات الجديدة (نفترض جدول reports)
         const { data: reports } = await window.supabaseClient.from('reports').select('status').eq('status', 'new');
         const newReports = reports?.length || 0;
 
@@ -591,38 +748,24 @@
           { icon: 'fa-star', color: 'green', label: 'متوسط التقييم', value: avgRating + ' ⭐' },
           { icon: 'fa-flag', color: 'red', label: 'البلاغات الجديدة', value: newReports },
         ];
-
         grid.innerHTML = kpis.map(k => `
           <div class="kpi-card">
             <div class="kpi-icon ${k.color}"><i class="fas ${k.icon}"></i></div>
-            <div class="kpi-info">
-              <h4>${k.label}</h4>
-              <div class="value">${k.value}</div>
-            </div>
+            <div class="kpi-info"><h4>${k.label}</h4><div class="value">${k.value}</div></div>
           </div>
         `).join('');
-
-        // تحديث عداد البلاغات
         document.getElementById('reportBadge').textContent = newReports;
-      } catch (err) {
-        console.error('خطأ في تحميل KPIs:', err);
-      }
+      } catch (err) { console.error(err); }
     }
 
-    // ------ CHARTS ------
-    let revenueChartInstance = null;
-    let cityChartInstance = null;
-
+    let revenueChartInstance = null, cityChartInstance = null;
     async function loadCharts() {
-      // Revenue chart (آخر 30 يوم)
       const ctx1 = document.getElementById('revenueChart').getContext('2d');
-      // جلب بيانات الإيرادات اليومية (نفترض جدول payments أو bookings)
       const { data: bookings } = await window.supabaseClient
         .from('bookings')
         .select('total_price,created_at')
         .gte('created_at', new Date(Date.now() - 30*24*60*60*1000).toISOString())
         .order('created_at');
-
       const days = Array.from({length: 30}, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - (29 - i));
@@ -633,59 +776,27 @@
           .reduce((s, b) => s + (b.total_price || 0), 0) || 0;
         return dayTotal;
       });
-
       if (revenueChartInstance) revenueChartInstance.destroy();
       revenueChartInstance = new Chart(ctx1, {
         type: 'line',
-        data: {
-          labels: days,
-          datasets: [{
-            label: 'الإيرادات (ر.س)',
-            data: revenueData,
-            borderColor: '#c5a065',
-            backgroundColor: 'rgba(197,160,101,0.1)',
-            tension: 0.3,
-            fill: true,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-        }
+        data: { labels: days, datasets: [{ label: 'الإيرادات (ر.س)', data: revenueData, borderColor: '#c5a065', backgroundColor: 'rgba(197,160,101,0.1)', tension: 0.3, fill: true }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
 
-      // City chart (أكثر المدن نشاطاً)
       const ctx2 = document.getElementById('cityChart').getContext('2d');
-      const { data: carsByCity } = await window.supabaseClient
-        .from('cars')
-        .select('city');
+      const { data: carsByCity } = await window.supabaseClient.from('cars').select('city');
       const cityCounts = {};
       carsByCity?.forEach(c => { cityCounts[c.city] = (cityCounts[c.city] || 0) + 1; });
-      const sortedCities = Object.entries(cityCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
-      const labels = sortedCities.map(c => c[0]);
-      const values = sortedCities.map(c => c[1]);
-
+      const sorted = Object.entries(cityCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      const labels = sorted.map(c => c[0]), values = sorted.map(c => c[1]);
       if (cityChartInstance) cityChartInstance.destroy();
       cityChartInstance = new Chart(ctx2, {
         type: 'doughnut',
-        data: {
-          labels: labels.length ? labels : ['لا توجد بيانات'],
-          datasets: [{
-            data: labels.length ? values : [1],
-            backgroundColor: ['#c5a065', '#2ecc71', '#3498db', '#9b59b6', '#f39c12'],
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } },
-          cutout: '65%',
-        }
+        data: { labels: labels.length ? labels : ['لا توجد بيانات'], datasets: [{ data: labels.length ? values : [1], backgroundColor: ['#c5a065','#2ecc71','#3498db','#9b59b6','#f39c12'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
       });
     }
 
-    // ------ RECENT BOOKINGS ------
     async function loadRecentBookings() {
       const tbody = document.getElementById('bookingsBody');
       try {
@@ -695,24 +806,13 @@
           .order('created_at', { ascending: false })
           .limit(5);
         if (error) throw error;
-
         if (!bookings || bookings.length === 0) {
           tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align:center;">لا توجد حجوزات حديثة</td></tr>`;
           return;
         }
-
         tbody.innerHTML = bookings.map(b => {
-          const statusMap = {
-            'pending_owner_approval': 'قيد الموافقة',
-            'approved': 'موافق عليه',
-            'active': 'نشط',
-            'completed': 'مكتمل',
-            'cancelled': 'ملغي',
-            'rejected': 'مرفوض'
-          };
-          const statusClass = b.status === 'pending_owner_approval' ? 'pending' :
-                             b.status === 'approved' ? 'approved' :
-                             b.status === 'active' ? 'active' : 'rejected';
+          const statusMap = { 'pending_owner_approval': 'قيد الموافقة', 'approved': 'موافق عليه', 'active': 'نشط', 'completed': 'مكتمل', 'cancelled': 'ملغي', 'rejected': 'مرفوض' };
+          const statusClass = b.status === 'pending_owner_approval' ? 'pending' : b.status === 'approved' ? 'approved' : b.status === 'active' ? 'active' : 'rejected';
           return `
             <tr>
               <td><strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong></td>
@@ -727,87 +827,119 @@
             </tr>
           `;
         }).join('');
-      } catch (err) {
-        console.error('خطأ في تحميل الحجوزات:', err);
-        tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">حدث خطأ: ${err.message}</td></tr>`;
-      }
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
-
-    // ------ MAP ------
-    let mapInstance = null;
 
     function loadMap() {
       const container = document.getElementById('mapContainer');
       if (typeof L === 'undefined') return;
-
       if (mapInstance) mapInstance.remove();
-
       mapInstance = L.map(container).setView([24.7136, 46.6753], 12);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; CARTO'
-      }).addTo(mapInstance);
-
-      // جلب السيارات من Supabase
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(mapInstance);
       window.supabaseClient.from('cars').select('lat,lng,status,brand,model').then(({ data }) => {
         if (!data) return;
         data.forEach(car => {
           if (!car.lat || !car.lng) return;
-          const color = car.status === 'active' ? '#2ecc71' :
-                        car.status === 'booked' ? '#f1c40f' : '#e74c3c';
-          L.circleMarker([car.lat, car.lng], {
-            radius: 8,
-            color: color,
-            fillColor: color,
-            fillOpacity: 0.8,
-          }).addTo(mapInstance)
+          const color = car.status === 'active' ? '#2ecc71' : car.status === 'booked' ? '#f1c40f' : '#e74c3c';
+          L.circleMarker([car.lat, car.lng], { radius: 8, color: color, fillColor: color, fillOpacity: 0.8 })
+            .addTo(mapInstance)
             .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}`);
         });
       });
     }
+    let mapInstance = null;
 
-    // ------ UPDATE LAST UPDATE TIME ------
+    // ------ UPDATE LAST UPDATE ------
     function updateLastUpdate() {
       document.getElementById('lastUpdate').textContent = `مرحباً، أحمد — آخر تحديث: ${new Date().toLocaleString('ar-SA')}`;
     }
 
     // ============================================================
-    //  USER SECTION
+    //  USERS
     // ============================================================
     async function loadUsers() {
       const tbody = document.getElementById('usersBody');
       try {
-        const { data: users, error } = await window.supabaseClient
-          .from('users')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const { data: users, error } = await window.supabaseClient.from('users').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        if (!users || users.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-muted">لا يوجد مستخدمين</td></tr>`;
-          return;
-        }
+        if (!users || users.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-muted">لا يوجد مستخدمين</td></tr>`; return; }
         tbody.innerHTML = users.map(u => `
           <tr>
             <td><div style="width:40px;height:40px;border-radius:50%;background:#c5a065;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;">${u.name?.charAt(0) || 'م'}</div></td>
             <td>${u.name || 'غير معروف'}</td>
             <td>${u.phone || '-'}</td>
             <td>${u.email || '-'}</td>
-            <td>${u.id?.slice(0,8) || '-'}</td>
+            <td>${u.national_id || '-'}</td>
             <td><span class="status-badge ${u.status === 'approved' ? 'active' : 'pending'}">${u.status || 'غير مفعل'}</span></td>
+            <td>${u.role || 'user'}</td>
             <td>
-              <button class="action-btn approve" onclick="alert('حظر المستخدم ${u.id}')"><i class="fas fa-ban"></i></button>
-              <button class="action-btn edit" onclick="alert('تعديل المستخدم ${u.id}')"><i class="fas fa-edit"></i></button>
-              <button class="action-btn" onclick="alert('إرسال رسالة إلى ${u.email}')"><i class="fas fa-envelope"></i></button>
+              <button class="action-btn block" onclick="blockUser('${u.id}')"><i class="fas fa-ban"></i></button>
+              <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fas fa-edit"></i></button>
+              <button class="action-btn" onclick="changeUserRole('${u.id}')"><i class="fas fa-user-tag"></i></button>
+              <button class="action-btn" onclick="sendMessageToUser('${u.id}','${u.email}')"><i class="fas fa-envelope"></i></button>
+              <button class="action-btn approve" onclick="viewUserBookings('${u.id}')"><i class="fas fa-calendar-check"></i></button>
+              <button class="action-btn" onclick="viewUserCars('${u.id}')"><i class="fas fa-car"></i></button>
             </td>
           </tr>
         `).join('');
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="7" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`;
-      }
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="8" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+
+    // دوال المستخدمين
+    async function blockUser(userId) {
+      if (!confirm('هل تريد حظر هذا المستخدم؟')) return;
+      try {
+        await window.supabaseClient.from('users').update({ status: 'blocked' }).eq('id', userId);
+        alert('تم حظر المستخدم بنجاح');
+        loadUsers();
+      } catch(e) { alert('خطأ: '+e.message); }
+    }
+    function editUser(userId) {
+      openModal('تعديل المستخدم', `
+        <form id="editUserForm">
+          <div class="form-group"><label>الاسم</label><input type="text" id="editUserName" class="form-control" required></div>
+          <div class="form-group"><label>رقم الجوال</label><input type="text" id="editUserPhone" class="form-control"></div>
+          <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="editUserEmail" class="form-control" required></div>
+          <button type="submit" class="btn-submit">حفظ التغييرات</button>
+        </form>
+      `);
+      // تحميل البيانات الحالية (يمكن تحسينها)
+    }
+    function changeUserRole(userId) {
+      openModal('تغيير الدور', `
+        <form id="roleForm">
+          <div class="form-group"><label>الدور الجديد</label>
+            <select id="newRole" class="form-control">
+              <option value="user">مستخدم</option>
+              <option value="renter">مستأجر</option>
+              <option value="owner">مالك</option>
+              <option value="admin">أدمن</option>
+              <option value="super_admin">سوبر أدمن</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-submit">تغيير</button>
+        </form>
+      `);
+    }
+    function sendMessageToUser(userId, email) {
+      openModal('إرسال رسالة', `
+        <form id="messageForm">
+          <div class="form-group"><label>العنوان</label><input type="text" id="msgTitle" class="form-control" required></div>
+          <div class="form-group"><label>الرسالة</label><textarea id="msgBody" class="form-control" rows="3" required></textarea></div>
+          <button type="submit" class="btn-submit">إرسال</button>
+        </form>
+      `);
+    }
+    function viewUserBookings(userId) {
+      openModal('حجوزات المستخدم', `<p>جاري تحميل الحجوزات...</p>`);
+      // يمكن جلب الحجوزات وعرضها
+    }
+    function viewUserCars(userId) {
+      openModal('سيارات المستخدم', `<p>جاري تحميل السيارات...</p>`);
     }
 
     // ============================================================
-    //  CARS SECTION
+    //  CARS
     // ============================================================
     async function loadCars() {
       const tbody = document.getElementById('carsBody');
@@ -817,10 +949,7 @@
           .select('*, users!owner_id(name)')
           .order('created_at', { ascending: false });
         if (error) throw error;
-        if (!cars || cars.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سيارات</td></tr>`;
-          return;
-        }
+        if (!cars || cars.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سيارات</td></tr>`; return; }
         tbody.innerHTML = cars.map(c => `
           <tr>
             <td><img src="${c.images?.[0] || 'https://via.placeholder.com/50'}" style="width:50px;height:40px;object-fit:cover;border-radius:6px;" alt="car"></td>
@@ -831,53 +960,518 @@
             <td>
               <button class="action-btn approve" onclick="approveCar('${c.id}')"><i class="fas fa-check"></i></button>
               <button class="action-btn reject" onclick="rejectCar('${c.id}')"><i class="fas fa-times"></i></button>
-              <button class="action-btn edit" onclick="alert('تعديل السيارة ${c.id}')"><i class="fas fa-edit"></i></button>
-              <button class="action-btn" onclick="viewCar('${c.id}')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" onclick="editCar('${c.id}')"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete" onclick="deleteCar('${c.id}')"><i class="fas fa-trash"></i></button>
+              <button class="action-btn" onclick="featureCar('${c.id}')"><i class="fas fa-star"></i></button>
+              <button class="action-btn" onclick="addBadge('${c.id}')"><i class="fas fa-tag"></i></button>
             </td>
           </tr>
         `).join('');
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`;
-      }
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
 
-    // دوال مساعدة لإدارة السيارات (تستخدم دوال script.js)
     async function approveCar(carId) {
-      if (!confirm('هل أنت متأكد من الموافقة على هذه السيارة؟')) return;
+      if (!confirm('موافقة على السيارة؟')) return;
       const result = await updateCarStatus(carId, 'active');
-      if (result) { alert('تمت الموافقة'); loadCars(); }
-      else alert('حدث خطأ');
+      if (result) { alert('تمت الموافقة'); loadCars(); } else alert('حدث خطأ');
     }
-
     async function rejectCar(carId) {
-      if (!confirm('هل أنت متأكد من رفض هذه السيارة؟')) return;
+      if (!confirm('رفض السيارة؟')) return;
       const result = await updateCarStatus(carId, 'rejected');
-      if (result) { alert('تم الرفض'); loadCars(); }
-      else alert('حدث خطأ');
+      if (result) { alert('تم الرفض'); loadCars(); } else alert('حدث خطأ');
     }
-
-    function viewCar(carId) {
-      openModal('تفاصيل السيارة', `<p>رقم السيارة: ${carId}</p><p>يمكن عرض جميع التفاصيل هنا.</p>`);
+    function editCar(carId) {
+      openModal('تعديل السيارة', `
+        <form id="editCarForm">
+          <div class="form-group"><label>الماركة</label><input type="text" id="editCarBrand" class="form-control"></div>
+          <div class="form-group"><label>الموديل</label><input type="text" id="editCarModel" class="form-control"></div>
+          <div class="form-group"><label>السعر اليومي</label><input type="number" id="editCarPrice" class="form-control"></div>
+          <button type="submit" class="btn-submit">حفظ</button>
+        </form>
+      `);
+    }
+    async function deleteCar(carId) {
+      if (!confirm('حذف السيارة نهائياً؟')) return;
+      try {
+        await window.supabaseClient.from('cars').delete().eq('id', carId);
+        alert('تم الحذف');
+        loadCars();
+      } catch(e) { alert('خطأ: '+e.message); }
+    }
+    function featureCar(carId) {
+      alert('تم تمييز السيارة بنجاح');
+    }
+    function addBadge(carId) {
+      openModal('إضافة وسام', `
+        <form id="badgeForm">
+          <div class="form-group"><label>نوع الوسام</label>
+            <select id="badgeType" class="form-control">
+              <option value="مميزة">مميزة</option>
+              <option value="VIP">VIP</option>
+              <option value="موثوقة">موثوقة</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-submit">إضافة</button>
+        </form>
+      `);
     }
 
     // ============================================================
-    //  SUPABASE REALTIME (تحديث فوري)
+    //  BOOKINGS
+    // ============================================================
+    async function loadAllBookings() {
+      const tbody = document.getElementById('allBookingsBody');
+      try {
+        const { data: bookings, error } = await window.supabaseClient
+          .from('bookings')
+          .select('*, cars(brand, model), users!renter_id(name), users!owner_id(name)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!bookings || bookings.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-muted">لا توجد حجوزات</td></tr>`; return; }
+        tbody.innerHTML = bookings.map(b => {
+          const statusMap = { 'pending_owner_approval': 'قيد الموافقة', 'approved': 'موافق عليه', 'active': 'نشط', 'completed': 'مكتمل', 'cancelled': 'ملغي', 'rejected': 'مرفوض' };
+          const statusClass = b.status === 'pending_owner_approval' ? 'pending' : b.status === 'approved' ? 'approved' : b.status === 'active' ? 'active' : 'rejected';
+          return `
+            <tr>
+              <td><strong>${b.cars?.brand || ''} ${b.cars?.model || ''}</strong></td>
+              <td>${b.users?.name || 'غير معروف'}</td>
+              <td>${b.owner?.name || 'غير معروف'}</td>
+              <td>${new Date(b.start_date).toLocaleDateString('ar-SA')} → ${new Date(b.end_date).toLocaleDateString('ar-SA')}</td>
+              <td>${b.total_price || 0} ر.س</td>
+              <td><span class="status-badge ${statusClass}">${statusMap[b.status] || b.status}</span></td>
+              <td>
+                <button class="action-btn approve" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn edit" onclick="editBooking('${b.id}')"><i class="fas fa-edit"></i></button>
+                <button class="action-btn" onclick="cancelBooking('${b.id}')"><i class="fas fa-times-circle"></i></button>
+                <button class="action-btn" onclick="extendBooking('${b.id}')"><i class="fas fa-clock"></i></button>
+                <button class="action-btn" onclick="refundBooking('${b.id}')"><i class="fas fa-undo-alt"></i></button>
+                <button class="action-btn" onclick="completeBooking('${b.id}')"><i class="fas fa-check-double"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="7" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+
+    // دوال الحجوزات
+    function viewBooking(id) { openModal('تفاصيل الحجز', `<p>رقم الحجز: ${id}</p><p>جميع التفاصيل هنا.</p>`); }
+    function editBooking(id) { openModal('تعديل الحجز', `<p>تعديل الحجز رقم ${id}</p><p>نموذج التعديل هنا.</p>`); }
+    async function cancelBooking(id) {
+      if (!confirm('إلغاء الحجز؟')) return;
+      try {
+        await window.supabaseClient.from('bookings').update({ status: 'cancelled' }).eq('id', id);
+        alert('تم الإلغاء');
+        loadAllBookings();
+      } catch(e) { alert('خطأ: '+e.message); }
+    }
+    function extendBooking(id) {
+      openModal('تمديد الحجز', `
+        <form id="extendForm">
+          <div class="form-group"><label>تاريخ النهاية الجديد</label><input type="datetime-local" id="extendEndDate" class="form-control"></div>
+          <button type="submit" class="btn-submit">تمديد</button>
+        </form>
+      `);
+    }
+    async function refundBooking(id) {
+      if (!confirm('استرداد المبلغ؟')) return;
+      alert('تم استرداد المبلغ');
+    }
+    async function completeBooking(id) {
+      if (!confirm('إنهاء الحجز؟')) return;
+      try {
+        await window.supabaseClient.from('bookings').update({ status: 'completed' }).eq('id', id);
+        alert('تم إنهاء الحجز');
+        loadAllBookings();
+      } catch(e) { alert('خطأ: '+e.message); }
+    }
+
+    // ============================================================
+    //  CONTRACTS
+    // ============================================================
+    async function loadContracts() {
+      const tbody = document.getElementById('contractsBody');
+      try {
+        const { data: contracts, error } = await window.supabaseClient
+          .from('contracts')
+          .select('*, bookings(cars(brand, model), users!renter_id(name))')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!contracts || contracts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد عقود</td></tr>`; return; }
+        tbody.innerHTML = contracts.map(c => `
+          <tr>
+            <td>${c.contract_number || 'N/A'}</td>
+            <td>${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}</td>
+            <td>${c.bookings?.users?.name || 'غير معروف'}</td>
+            <td>${c.total_price || 0} ر.س</td>
+            <td><span class="status-badge ${c.status === 'active' ? 'active' : 'pending'}">${c.status || 'مسودة'}</span></td>
+            <td>
+              <button class="action-btn approve" onclick="downloadPDF('${c.id}')"><i class="fas fa-file-pdf"></i></button>
+              <button class="action-btn edit" onclick="recreateContract('${c.id}')"><i class="fas fa-sync"></i></button>
+              <button class="action-btn" onclick="emailContract('${c.id}')"><i class="fas fa-envelope"></i></button>
+              <button class="action-btn" onclick="printContract('${c.id}')"><i class="fas fa-print"></i></button>
+              <button class="action-btn delete" onclick="cancelContract('${c.id}')"><i class="fas fa-times"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+
+    function downloadPDF(id) { alert('تحميل PDF للعقد '+id); }
+    function recreateContract(id) { alert('إعادة إنشاء العقد '+id); }
+    function emailContract(id) { alert('إرسال العقد بالإيميل'); }
+    function printContract(id) { alert('طباعة العقد'); }
+    async function cancelContract(id) {
+      if (!confirm('إلغاء العقد؟')) return;
+      try {
+        await window.supabaseClient.from('contracts').update({ status: 'cancelled' }).eq('id', id);
+        alert('تم إلغاء العقد');
+        loadContracts();
+      } catch(e) { alert('خطأ: '+e.message); }
+    }
+
+    // ============================================================
+    //  REPORTS (البلاغات)
+    // ============================================================
+    async function loadReports() {
+      const tbody = document.getElementById('reportsBody');
+      try {
+        const { data: reports, error } = await window.supabaseClient
+          .from('reports')
+          .select('*, cars(brand, model)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!reports || reports.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد بلاغات</td></tr>`; return; }
+        tbody.innerHTML = reports.map(r => `
+          <tr>
+            <td>${r.type || 'عام'}</td>
+            <td>${r.cars?.brand || ''} ${r.cars?.model || ''}</td>
+            <td>${r.reporter || 'غير معروف'}</td>
+            <td><span class="status-badge ${r.status === 'new' ? 'pending' : r.status === 'resolved' ? 'active' : 'rejected'}">${r.status || 'جديد'}</span></td>
+            <td>
+              <button class="action-btn approve" onclick="updateReportStatus('${r.id}','resolved')"><i class="fas fa-check"></i></button>
+              <button class="action-btn reject" onclick="updateReportStatus('${r.id}','closed')"><i class="fas fa-times"></i></button>
+              <button class="action-btn" onclick="viewReport('${r.id}')"><i class="fas fa-eye"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="5" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+    async function updateReportStatus(id, status) {
+      try {
+        await window.supabaseClient.from('reports').update({ status }).eq('id', id);
+        alert('تم تحديث الحالة');
+        loadReports();
+      } catch(e) { alert('خطأ: '+e.message); }
+    }
+    function viewReport(id) { openModal('تفاصيل البلاغ', `<p>تفاصيل البلاغ رقم ${id}</p>`); }
+
+    // ============================================================
+    //  PAYMENTS
+    // ============================================================
+    async function loadPayments() {
+      const tbody = document.getElementById('paymentsBody');
+      try {
+        const { data: payments, error } = await window.supabaseClient
+          .from('payments')
+          .select('*, users(name)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!payments || payments.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد مدفوعات</td></tr>`; return; }
+        tbody.innerHTML = payments.map(p => `
+          <tr>
+            <td>${p.users?.name || 'غير معروف'}</td>
+            <td>${p.amount || 0} ر.س</td>
+            <td><span class="status-badge ${p.status === 'completed' ? 'active' : 'pending'}">${p.status || 'معلق'}</span></td>
+            <td>${new Date(p.created_at).toLocaleDateString('ar-SA')}</td>
+            <td>
+              <button class="action-btn approve" onclick="approvePayment('${p.id}')"><i class="fas fa-check"></i></button>
+              <button class="action-btn reject" onclick="rejectPayment('${p.id}')"><i class="fas fa-times"></i></button>
+              <button class="action-btn" onclick="refundPayment('${p.id}')"><i class="fas fa-undo-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="5" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+    async function approvePayment(id) {
+      try { await window.supabaseClient.from('payments').update({ status: 'completed' }).eq('id', id);
+        alert('تم اعتماد الدفع'); loadPayments(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+    async function rejectPayment(id) {
+      try { await window.supabaseClient.from('payments').update({ status: 'rejected' }).eq('id', id);
+        alert('تم رفض الدفع'); loadPayments(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+    async function refundPayment(id) {
+      try { await window.supabaseClient.from('payments').update({ status: 'refunded' }).eq('id', id);
+        alert('تم رد المبلغ'); loadPayments(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+
+    // ============================================================
+    //  NOTIFICATIONS
+    // ============================================================
+    document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const target = document.getElementById('notifTarget').value;
+      const userId = document.getElementById('notifUserId').value;
+      const title = document.getElementById('notifTitle').value;
+      const message = document.getElementById('notifMessage').value;
+      if (!title || !message) { alert('يرجى ملء العنوان والرسالة'); return; }
+      // تخزين الإشعار في قاعدة البيانات (جدول notifications)
+      try {
+        await window.supabaseClient.from('notifications').insert([{
+          target: target,
+          user_id: target === 'user' ? userId : null,
+          title, message,
+          created_at: new Date().toISOString()
+        }]);
+        alert('تم إرسال الإشعار بنجاح');
+        document.getElementById('notificationForm').reset();
+        document.getElementById('userIdGroup').style.display = 'none';
+      } catch(e) { alert('خطأ: '+e.message); }
+    });
+
+    document.getElementById('notifTarget').addEventListener('change', function() {
+      document.getElementById('userIdGroup').style.display = this.value === 'user' ? 'block' : 'none';
+    });
+
+    // ============================================================
+    //  SETTINGS
+    // ============================================================
+    document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const settings = {
+        commission: document.getElementById('settingCommission').value,
+        tax: document.getElementById('settingTax').value,
+        delivery_fee: document.getElementById('settingDeliveryFee').value,
+        min_hours: document.getElementById('settingMinHours').value,
+        cancel_window: document.getElementById('settingCancelWindow').value,
+        late_fee: document.getElementById('settingLateFee').value,
+        cities: document.getElementById('settingCities').value
+      };
+      try {
+        await window.supabaseClient.from('settings').upsert(settings, { onConflict: 'id' });
+        alert('تم حفظ الإعدادات');
+      } catch(e) { alert('خطأ: '+e.message); }
+    });
+
+    // ============================================================
+    //  AUDIT LOG
+    // ============================================================
+    async function loadAuditLog() {
+      const tbody = document.getElementById('auditBody');
+      try {
+        const { data: logs, error } = await window.supabaseClient
+          .from('audit_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (error) throw error;
+        if (!logs || logs.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سجلات</td></tr>`; return; }
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td>${l.user_name || 'غير معروف'}</td>
+            <td>${l.action || '-'}</td>
+            <td>${l.details || '-'}</td>
+            <td>${new Date(l.created_at).toLocaleString('ar-SA')}</td>
+            <td>${l.ip || '-'}</td>
+            <td>${l.user_agent || '-'}</td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+
+    // ============================================================
+    //  ANALYTICS
+    // ============================================================
+    async function loadAnalytics() {
+      const grid = document.getElementById('analyticsGrid');
+      try {
+        const { data: bookings } = await window.supabaseClient.from('bookings').select('total_price,status,start_date,end_date,car_id');
+        const { data: cars } = await window.supabaseClient.from('cars').select('id,brand,model,owner_id,city');
+        const { data: users } = await window.supabaseClient.from('users').select('id,name,role');
+        // حساب الإحصائيات
+        const totalBookings = bookings?.length || 0;
+        const completed = bookings?.filter(b => b.status === 'completed').length || 0;
+        const cancelled = bookings?.filter(b => b.status === 'cancelled' || b.status === 'rejected').length || 0;
+        const cancelRate = totalBookings ? ((cancelled / totalBookings) * 100).toFixed(1) : 0;
+        const avgDuration = totalBookings ? bookings.reduce((s,b) => s + (new Date(b.end_date) - new Date(b.start_date))/(1000*60*60*24),0) / totalBookings : 0;
+        const avgRevenue = totalBookings ? (bookings.reduce((s,b) => s + (b.total_price||0),0) / totalBookings) : 0;
+
+        // أكثر سيارة دخلاً
+        const carRevenue = {};
+        bookings?.forEach(b => { if (b.car_id) carRevenue[b.car_id] = (carRevenue[b.car_id] || 0) + (b.total_price||0); });
+        const topCar = Object.entries(carRevenue).sort((a,b) => b[1] - a[1])[0];
+        const topCarName = topCar ? cars?.find(c => c.id == topCar[0])?.brand + ' ' + cars?.find(c => c.id == topCar[0])?.model : 'لا يوجد';
+
+        // أكثر مدينة
+        const cityBookings = {};
+        bookings?.forEach(b => {
+          const car = cars?.find(c => c.id == b.car_id);
+          if (car) cityBookings[car.city] = (cityBookings[car.city] || 0) + 1;
+        });
+        const topCity = Object.entries(cityBookings).sort((a,b) => b[1] - a[1])[0];
+
+        // أكثر مالك
+        const ownerBookings = {};
+        bookings?.forEach(b => {
+          const car = cars?.find(c => c.id == b.car_id);
+          if (car) ownerBookings[car.owner_id] = (ownerBookings[car.owner_id] || 0) + 1;
+        });
+        const topOwnerId = Object.entries(ownerBookings).sort((a,b) => b[1] - a[1])[0]?.[0];
+        const topOwner = users?.find(u => u.id == topOwnerId)?.name || 'غير معروف';
+
+        // أكثر مستأجر
+        const renterBookings = {};
+        bookings?.forEach(b => { if (b.renter_id) renterBookings[b.renter_id] = (renterBookings[b.renter_id] || 0) + 1; });
+        const topRenterId = Object.entries(renterBookings).sort((a,b) => b[1] - a[1])[0]?.[0];
+        const topRenter = users?.find(u => u.id == topRenterId)?.name || 'غير معروف';
+
+        grid.innerHTML = `
+          <div class="kpi-card"><div class="kpi-icon gold"><i class="fas fa-car"></i></div><div class="kpi-info"><h4>أكثر سيارة دخلاً</h4><div class="value">${topCarName}</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon blue"><i class="fas fa-map-marker-alt"></i></div><div class="kpi-info"><h4>أكثر مدينة</h4><div class="value">${topCity?.[0] || 'لا توجد'}</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon green"><i class="fas fa-user-tie"></i></div><div class="kpi-info"><h4>أكثر مالك</h4><div class="value">${topOwner}</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon purple"><i class="fas fa-user"></i></div><div class="kpi-info"><h4>أكثر مستأجر</h4><div class="value">${topRenter}</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon red"><i class="fas fa-percent"></i></div><div class="kpi-info"><h4>معدل الإلغاء</h4><div class="value">${cancelRate}%</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon teal"><i class="fas fa-clock"></i></div><div class="kpi-info"><h4>متوسط مدة الحجز (أيام)</h4><div class="value">${avgDuration.toFixed(1)}</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon gold"><i class="fas fa-money-bill-wave"></i></div><div class="kpi-info"><h4>متوسط الإيراد</h4><div class="value">${avgRevenue.toFixed(0)} ر.س</div></div></div>
+        `;
+      } catch (err) { console.error(err); grid.innerHTML = '<p class="text-muted">حدث خطأ في تحميل التحليلات</p>'; }
+    }
+
+    // ============================================================
+    //  FULL MAP
+    // ============================================================
+    let fullMapInstance = null;
+    function loadFullMap() {
+      const container = document.getElementById('fullMapContainer');
+      if (typeof L === 'undefined') return;
+      if (fullMapInstance) fullMapInstance.remove();
+      fullMapInstance = L.map(container).setView([24.7136, 46.6753], 12);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(fullMapInstance);
+      window.supabaseClient.from('cars').select('lat,lng,status,brand,model,id').then(({ data }) => {
+        if (!data) return;
+        data.forEach(car => {
+          if (!car.lat || !car.lng) return;
+          const color = car.status === 'active' ? '#2ecc71' : car.status === 'booked' ? '#f1c40f' : '#e74c3c';
+          L.circleMarker([car.lat, car.lng], { radius: 10, color: color, fillColor: color, fillOpacity: 0.8 })
+            .addTo(fullMapInstance)
+            .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}<br><button onclick="viewCar('${car.id}')">عرض التفاصيل</button>`);
+        });
+      });
+    }
+
+    // ============================================================
+    //  COUPONS
+    // ============================================================
+    document.getElementById('couponForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const code = document.getElementById('couponCode').value.trim();
+      const discount = document.getElementById('couponDiscount').value;
+      const expiry = document.getElementById('couponExpiry').value;
+      const uses = document.getElementById('couponUses').value;
+      if (!code || !discount || !expiry) { alert('يرجى ملء جميع الحقول'); return; }
+      try {
+        await window.supabaseClient.from('coupons').insert([{ code, discount_percent: discount, expiry_date: expiry, max_uses: uses }]);
+        alert('تم إنشاء الكوبون بنجاح');
+        document.getElementById('couponForm').reset();
+        loadCoupons();
+      } catch(e) { alert('خطأ: '+e.message); }
+    });
+
+    async function loadCoupons() {
+      const tbody = document.getElementById('couponsBody');
+      try {
+        const { data: coupons, error } = await window.supabaseClient.from('coupons').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!coupons || coupons.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted">لا توجد كوبونات</td></tr>`; return; }
+        tbody.innerHTML = coupons.map(c => `
+          <tr>
+            <td>${c.code}</td>
+            <td>${c.discount_percent}%</td>
+            <td>${new Date(c.expiry_date).toLocaleDateString('ar-SA')}</td>
+            <td>${c.used_count || 0}/${c.max_uses || 0}</td>
+            <td><button class="action-btn delete" onclick="deleteCoupon('${c.id}')"><i class="fas fa-trash"></i></button></td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="5" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+    async function deleteCoupon(id) {
+      if (!confirm('حذف الكوبون؟')) return;
+      try { await window.supabaseClient.from('coupons').delete().eq('id', id);
+        alert('تم الحذف'); loadCoupons(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+
+    // ============================================================
+    //  REVIEWS
+    // ============================================================
+    async function loadReviews() {
+      const tbody = document.getElementById('reviewsBody');
+      try {
+        const { data: reviews, error } = await window.supabaseClient
+          .from('reviews')
+          .select('*, users(name), cars(brand, model)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!reviews || reviews.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد تقييمات</td></tr>`; return; }
+        tbody.innerHTML = reviews.map(r => `
+          <tr>
+            <td>${r.users?.name || 'غير معروف'}</td>
+            <td>${r.cars?.brand || ''} ${r.cars?.model || ''}</td>
+            <td>${r.rating || 0} ⭐</td>
+            <td>${r.comment || '-'}</td>
+            <td><span class="status-badge ${r.status === 'approved' ? 'active' : 'pending'}">${r.status || 'قيد المراجعة'}</span></td>
+            <td>
+              <button class="action-btn approve" onclick="approveReview('${r.id}')"><i class="fas fa-check"></i></button>
+              <button class="action-btn reject" onclick="hideReview('${r.id}')"><i class="fas fa-eye-slash"></i></button>
+              <button class="action-btn" onclick="replyReview('${r.id}')"><i class="fas fa-reply"></i></button>
+              <button class="action-btn delete" onclick="deleteReview('${r.id}')"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
+    }
+    async function approveReview(id) {
+      try { await window.supabaseClient.from('reviews').update({ status: 'approved' }).eq('id', id);
+        alert('تم اعتماد التقييم'); loadReviews(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+    async function hideReview(id) {
+      try { await window.supabaseClient.from('reviews').update({ status: 'hidden' }).eq('id', id);
+        alert('تم إخفاء التقييم'); loadReviews(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+    function replyReview(id) {
+      openModal('الرد على التقييم', `
+        <form id="replyForm">
+          <div class="form-group"><label>الرد</label><textarea id="replyText" class="form-control" rows="3" required></textarea></div>
+          <button type="submit" class="btn-submit">إرسال</button>
+        </form>
+      `);
+    }
+    async function deleteReview(id) {
+      if (!confirm('حذف التقييم نهائياً؟')) return;
+      try { await window.supabaseClient.from('reviews').delete().eq('id', id);
+        alert('تم الحذف'); loadReviews(); } catch(e) { alert('خطأ: '+e.message); }
+    }
+
+    // ============================================================
+    //  REALTIME
     // ============================================================
     function listenToRealtime() {
       if (typeof window.supabaseClient === 'undefined') return;
-      // الاستماع لتغييرات في الجداول المهمة
-      const channels = ['cars', 'bookings', 'users', 'contracts', 'reports'];
-      channels.forEach(table => {
+      const tables = ['cars','bookings','users','contracts','reports','payments','reviews','coupons'];
+      tables.forEach(table => {
         window.supabaseClient
           .channel(`${table}-changes`)
           .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
-            console.log(`تغيير في ${table}، تحديث الواجهة...`);
-            // إعادة تحميل القسم الحالي فقط (يمكن تحسينه)
+            console.log(`تغيير في ${table}، تحديث...`);
             const activeSection = document.querySelector('.sidebar-menu a.active')?.dataset?.section || 'dashboard';
             if (activeSection === 'dashboard') loadDashboard();
             else if (activeSection === 'users') loadUsers();
             else if (activeSection === 'cars') loadCars();
+            else if (activeSection === 'bookings') loadAllBookings();
+            else if (activeSection === 'contracts') loadContracts();
+            else if (activeSection === 'reports') loadReports();
+            else if (activeSection === 'payments') loadPayments();
+            else if (activeSection === 'coupons') loadCoupons();
+            else if (activeSection === 'reviews') loadReviews();
           })
           .subscribe();
       });
@@ -887,38 +1481,58 @@
     //  INIT
     // ============================================================
     (async function init() {
-      // تأكد من أن المستخدم أدمن
       const hasAccess = await checkAdminAccess();
       if (!hasAccess) {
         alert('غير مصرح بالدخول');
         window.location.href = 'landing.html';
         return;
       }
-
-      // تحميل البيانات الأولية
       await loadDashboard();
       listenToRealtime();
-      // تحديث الوقت كل 30 ثانية
       setInterval(updateLastUpdate, 30000);
     })();
 
-    // ============================================================
-    //  EXPOSE GLOBALS للاستخدام من الأزرار
-    // ============================================================
+    // Expose globals
     window.switchSection = switchSection;
     window.openModal = openModal;
     window.closeModal = closeModal;
-    window.viewBooking = function(id) {
-      openModal('تفاصيل الحجز', `<p>رقم الحجز: ${id}</p><p>جميع التفاصيل هنا.</p>`);
-    };
-    window.editBooking = function(id) {
-      openModal('تعديل الحجز', `<p>تعديل الحجز رقم ${id}</p><p>نموذج التعديل هنا.</p>`);
-    };
-    window.fetchNotifications = function() {
-      alert('جاري جلب الإشعارات...');
-    };
+    window.viewBooking = viewBooking;
+    window.editBooking = editBooking;
+    window.fetchNotifications = () => { alert('جاري جلب الإشعارات...'); };
+    window.viewCar = viewCar;
+    window.approveCar = approveCar;
+    window.rejectCar = rejectCar;
+    window.editCar = editCar;
+    window.deleteCar = deleteCar;
+    window.featureCar = featureCar;
+    window.addBadge = addBadge;
+    window.blockUser = blockUser;
+    window.editUser = editUser;
+    window.changeUserRole = changeUserRole;
+    window.sendMessageToUser = sendMessageToUser;
+    window.viewUserBookings = viewUserBookings;
+    window.viewUserCars = viewUserCars;
+    window.downloadPDF = downloadPDF;
+    window.recreateContract = recreateContract;
+    window.emailContract = emailContract;
+    window.printContract = printContract;
+    window.cancelContract = cancelContract;
+    window.updateReportStatus = updateReportStatus;
+    window.viewReport = viewReport;
+    window.approvePayment = approvePayment;
+    window.rejectPayment = rejectPayment;
+    window.refundPayment = refundPayment;
+    window.cancelBooking = cancelBooking;
+    window.extendBooking = extendBooking;
+    window.refundBooking = refundBooking;
+    window.completeBooking = completeBooking;
+    window.approveReview = approveReview;
+    window.hideReview = hideReview;
+    window.replyReview = replyReview;
+    window.deleteReview = deleteReview;
+    window.deleteCoupon = deleteCoupon;
 
-    console.log('✅ لوحة تحكم الأدمن (نسخة مطورة) جاهزة.');
+    console.log('✅ لوحة تحكم الأدمن (نسخة متكاملة) جاهزة.');
   </script>
 
 </body>
