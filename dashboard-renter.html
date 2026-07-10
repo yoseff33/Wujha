@@ -43,7 +43,7 @@
             text-decoration: none;
         }
 
-        /* ---------- Header (reuse from style.css) ---------- */
+        /* ---------- Header ---------- */
         header {
             background: rgba(255, 255, 255, 0.98);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -251,7 +251,7 @@
             gap: 25px;
         }
 
-        /* ---------- Stats Cards ---------- */
+        /* ---------- Stats ---------- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -288,7 +288,7 @@
             color: #aaa;
         }
 
-        /* ---------- Smart Widget ---------- */
+        /* ---------- Widgets ---------- */
         .smart-widget {
             background: #fff;
             border-radius: 16px;
@@ -316,7 +316,7 @@
             color: #c5a065;
         }
 
-        /* ---------- Booking Item ---------- */
+        /* ---------- Booking Items ---------- */
         .booking-item {
             background: #fafafa;
             border: 1px solid #eee;
@@ -490,7 +490,7 @@
             background: #e8f5e9;
         }
 
-        /* ---------- Loyalty & Wallet (Styling) ---------- */
+        /* ---------- Loyalty & Wallet ---------- */
         .wallet-card {
             background: linear-gradient(135deg, #6c5ce7, #a29bfe);
             color: #fff;
@@ -830,15 +830,12 @@
     <script>
         AOS.init({ once: true });
 
-        // ----- Helper: scroll to section -----
         function scrollToSection(id) {
             const el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // ----- DOM Ready -----
         document.addEventListener('DOMContentLoaded', function() {
-            // Check role
             const role = getUserRole();
             if (role !== 'renter' && role !== 'admin') {
                 alert('هذه الصفحة مخصصة للمستأجرين فقط.');
@@ -846,7 +843,6 @@
                 return;
             }
 
-            // Load user info
             const user = getCurrentUser();
             if (user) {
                 const name = user.user_metadata?.name || user.email || 'مستخدم';
@@ -854,17 +850,14 @@
                 document.getElementById('renter-avatar').textContent = name.charAt(0);
             }
 
-            // Update navbar
             if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                 updateNavbarBasedOnLoginStatus();
             }
 
-            // Load data
             loadBookings();
             loadContracts();
         });
 
-        // ----- Load Bookings -----
         async function loadBookings() {
             const container = document.getElementById('bookings-container');
             const user = getCurrentUser();
@@ -882,7 +875,6 @@
 
                 if (error) throw error;
 
-                // Update stats
                 document.getElementById('stat-total').textContent = bookings?.length || 0;
                 const pending = bookings?.filter(b => b.status === 'pending_owner_approval').length || 0;
                 document.getElementById('stat-pending').textContent = pending;
@@ -890,9 +882,7 @@
                 document.getElementById('stat-active').textContent = active;
 
                 if (!bookings || bookings.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state"><i class="fas fa-calendar-times"></i><p>لا توجد حجوزات حالياً.</p></div>
-                    `;
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-times"></i><p>لا توجد حجوزات حالياً.</p></div>`;
                     return;
                 }
 
@@ -921,6 +911,9 @@
                             ${isPending ? `<div style="color:#856404; font-size:0.85rem;"><i class="fas fa-clock"></i> في انتظار موافقة المالك</div>` : ''}
                             ${isApproved ? `
                                 <div class="booking-actions">
+                                    <button class="btn btn-primary btn-sm" onclick="window.open('car-location-view.html?carId=${b.car_id}&bookingId=${b.id}', '_blank')">
+                                        <i class="fas fa-map-marked-alt"></i> عرض موقع السيارة
+                                    </button>
                                     <button class="btn btn-primary btn-sm" onclick="openContractForBooking('${b.id}')">
                                         <i class="fas fa-file-contract"></i> عرض العقد
                                     </button>
@@ -936,13 +929,11 @@
             }
         }
 
-        // ----- Open Contract -----
         async function openContractForBooking(bookingId) {
             localStorage.setItem('current_booking_id', bookingId);
             window.location.href = 'contract_final.html';
         }
 
-        // ----- Load Contracts -----
         async function loadContracts() {
             const container = document.getElementById('contracts-container');
             const user = getCurrentUser();
@@ -963,9 +954,7 @@
                 document.getElementById('stat-contracts').textContent = contracts?.length || 0;
 
                 if (!contracts || contracts.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state"><i class="fas fa-file-signature"></i><p>لا توجد عقود مسجلة.</p></div>
-                    `;
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-file-signature"></i><p>لا توجد عقود مسجلة.</p></div>`;
                     return;
                 }
 
@@ -992,7 +981,7 @@
             }
         }
 
-        // ----- AI Scan (保持不变) -----
+        // AI Scan functions (unchanged)
         function handleImageUpload(input, type) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -1022,8 +1011,6 @@
                         finishScan('pre');
                     }
                 }, 50);
-            } else {
-                // post scan not used in this simplified version
             }
 
             function finishScan(mode) {
@@ -1039,7 +1026,6 @@
             }
         }
 
-        // ----- Pledge -----
         document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = this.querySelector('button');
@@ -1055,7 +1041,7 @@
             }, 1500);
         });
 
-        // ----- Theme -----
+        // Theme
         (function setupTheme() {
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (!themeToggle) return;
