@@ -696,11 +696,11 @@
         })();
 
         // =====================================================================
-        //  الخريطة — استخدام أسماء فريدة لتجنب التضارب مع script.js
+        //  الخريطة — حل مشكلة التهيئة المزدوجة
         // =====================================================================
         (function() {
 
-            // ---- متغيرات خاصة بالخريطة ----
+            // ---- متغيرات عامة (ضمن النطاق) ----
             let mapInstance = null;
             let carLayerInstance = null;
             let routeLineInstance = null;
@@ -892,10 +892,18 @@
                 });
             }
 
-            // ---- تهيئة الخريطة ----
+            // ---- تهيئة الخريطة (مرة واحدة فقط) ----
             async function initMap() {
                 const mapContainer = document.getElementById('mapid');
                 if (!mapContainer) return;
+
+                // ==== منع التهيئة المزدوجة ====
+                if (mapInstance) {
+                    console.warn('الخريطة موجودة بالفعل، لن يتم إنشاؤها مجدداً.');
+                    // تحديث الحجم فقط
+                    mapInstance.invalidateSize();
+                    return;
+                }
 
                 if (overlay) overlay.style.display = 'flex';
 
@@ -927,9 +935,15 @@
                 });
             }
 
-            // ---- بدء التشغيل ----
+            // ---- بدء التشغيل (مرة واحدة فقط) ----
             if (typeof L !== 'undefined') {
-                initMap();
+                // نستخدم علامة لمنع الاستدعاء المتكرر
+                if (!window._mapInitialized) {
+                    window._mapInitialized = true;
+                    initMap();
+                } else {
+                    console.log('الخريطة تم تهيئتها سابقاً، تخطي.');
+                }
             } else {
                 console.error('Leaflet لم يتم تحميلها');
             }
