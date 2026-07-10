@@ -696,11 +696,11 @@
         })();
 
         // =====================================================================
-        //  الخريطة — حل مشكلة التهيئة المزدوجة
+        //  الخريطة — استخدام أسماء فريدة وتجنب إعادة التهيئة
         // =====================================================================
         (function() {
 
-            // ---- متغيرات عامة (ضمن النطاق) ----
+            // ---- متغيرات خاصة بالخريطة ----
             let mapInstance = null;
             let carLayerInstance = null;
             let routeLineInstance = null;
@@ -718,6 +718,7 @@
             const typePills = document.querySelectorAll('#type-pills .tf-pill');
             const locateBtn = document.getElementById('smart-locate-btn');
             const overlay = document.getElementById('loading-map-overlay');
+            const mapContainer = document.getElementById('mapid');
 
             // ---- جلب السيارات من Supabase ----
             async function fetchCarsForMap() {
@@ -892,16 +893,23 @@
                 });
             }
 
-            // ---- تهيئة الخريطة (مرة واحدة فقط) ----
+            // ---- تهيئة الخريطة مع التحقق من عدم وجود خريطة مسبقة ----
             async function initMap() {
-                const mapContainer = document.getElementById('mapid');
-                if (!mapContainer) return;
+                // التحقق من وجود العنصر
+                if (!mapContainer) {
+                    console.warn('عنصر الخريطة غير موجود');
+                    return;
+                }
 
-                // ==== منع التهيئة المزدوجة ====
+                // منع إعادة التهيئة إذا كانت الخريطة موجودة بالفعل
                 if (mapInstance) {
-                    console.warn('الخريطة موجودة بالفعل، لن يتم إنشاؤها مجدداً.');
-                    // تحديث الحجم فقط
-                    mapInstance.invalidateSize();
+                    console.log('الخريطة موجودة بالفعل، لن يتم إعادة تهيئتها.');
+                    return;
+                }
+
+                // التحقق من أن العنصر ليس به خريطة سابقة (Leaflet ID)
+                if (mapContainer._leaflet_id) {
+                    console.log('العنصر يحتوي بالفعل على خريطة Leaflet، لن تتم إعادة التهيئة.');
                     return;
                 }
 
@@ -913,7 +921,14 @@
                 if (overlay) overlay.style.display = 'none';
 
                 // إنشاء الخريطة
-                mapInstance = L.map('mapid').setView(centerPoint, 14);
+                mapInstance = L.map('mapid', {
+                    center: centerPoint,
+                    zoom: 14,
+                    zoomControl: true,
+                    fadeAnimation: true,
+                    attributionControl: true
+                });
+
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                     attribution: '&copy; CARTO',
                     maxZoom: 20
@@ -935,17 +950,11 @@
                 });
             }
 
-            // ---- بدء التشغيل (مرة واحدة فقط) ----
-            if (typeof L !== 'undefined') {
-                // نستخدم علامة لمنع الاستدعاء المتكرر
-                if (!window._mapInitialized) {
-                    window._mapInitialized = true;
-                    initMap();
-                } else {
-                    console.log('الخريطة تم تهيئتها سابقاً، تخطي.');
-                }
+            // ---- بدء التشغيل بعد تحميل الصفحة ----
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                initMap();
             } else {
-                console.error('Leaflet لم يتم تحميلها');
+                document.addEventListener('DOMContentLoaded', initMap);
             }
 
         })(); // نهاية IIFE
