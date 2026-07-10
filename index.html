@@ -3,38 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وُجْهَة | تنقل بثقة واستثمر بأمان</title>
+    <meta name="description" content="وُجْهَة | أول منصة سعودية تربط ملاك السيارات بالمستأجرين عبر توثيق حكومي فوري (نفاذ وأبشر). استأجر سيارة من جارك أو استثمر أصولك الراكدة وحولها إلى دخل شهري موثوق.">
+    <meta name="keywords" content="تأجير سيارات بين الناس, تأجير سيارات باليوم في الرياض, استثمار السيارات في السعودية, تطبيق تأجير سيارات موثوق, منصة نقل آمنة, توثيق نفاذ لتأجير السيارات, سيارات للايجار من المالك مباشرة">
+    <title>وُجْهَة | تنقل بثقة واستثمر بأمان - منصة التأجير التشاركي الموثقة بنفاذ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <!-- ===== ربط مكتبة Supabase وملفات المشروع ===== -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        /* === تعريف الألوان الموحدة === */
         :root {
             --brand-dark-teal: #0f2925;
             --brand-gold: #c5a065;
             --brand-dark-bg: #1a1a1a;
             --light-bg: #f8f9fa;
+            --accent-red: #e74c3c;
         }
-
-        /* === إصلاح الهيدر === */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background-color: var(--light-bg); color: #1a1a1a; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--light-bg); color: #1a1a1a; transition: background 0.3s, color 0.3s; overflow-x: hidden; }
         body.dark-mode { background-color: var(--brand-dark-bg); color: #e0e0e0; }
         .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
 
-        /* Header */
         header {
             background: rgba(255,255,255,0.98);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             padding: 15px 0;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 1000;
             backdrop-filter: blur(10px);
             transition: all 0.4s ease;
@@ -42,100 +38,45 @@
         body.dark-mode header { background: rgba(20,20,20,0.98); border-bottom: 1px solid #333; }
         header.scrolled { padding: 10px 0 !important; box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important; }
         body.dark-mode header.scrolled { box-shadow: 0 5px 20px rgba(0,0,0,0.5) !important; }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
+        .navbar { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             background: linear-gradient(135deg, var(--brand-dark-teal), var(--brand-gold));
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.4rem;
-            font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.4rem; font-weight: 800;
         }
-        .logo-text {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--brand-dark-teal);
-        }
+        .logo-text { font-size: 1.6rem; font-weight: 800; color: var(--brand-dark-teal); }
         body.dark-mode .logo-text { color: #f0f0f0; }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 25px;
-        }
-        .nav-links li a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: 0.3s;
-        }
+        .nav-links { display: flex; list-style: none; gap: 25px; }
+        .nav-links li a { text-decoration: none; color: #333; font-weight: 500; transition: 0.3s; }
         body.dark-mode .nav-links li a { color: #ddd; }
         .nav-links li a:hover, .nav-links li a.active { color: var(--brand-gold); }
-
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        .theme-toggle {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .nav-buttons { display: flex; gap: 15px; align-items: center; }
+        .theme-toggle { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #333; display: flex; align-items: center; gap: 8px; }
         body.dark-mode .theme-toggle { color: #ddd; }
-
         .btn {
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            border: none;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 8px 20px; border-radius: 30px; font-weight: 700; cursor: pointer;
+            transition: 0.3s; text-decoration: none; border: none; font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-primary {
-            background: var(--brand-dark-teal);
-            color: white;
-        }
-        .btn-primary:hover { background: #1a4d45; transform: translateY(-2px); }
-        .btn-secondary {
-            background: var(--brand-gold);
-            color: white;
-        }
-        .btn-secondary:hover { background: #b08a4e; transform: translateY(-2px); }
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--brand-dark-teal);
-            color: var(--brand-dark-teal);
-        }
+        .btn-primary { background: var(--brand-dark-teal); color: white; }
+        .btn-primary:hover { background: #1a4d45; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(15,41,37,0.3); }
+        .btn-secondary { background: var(--brand-gold); color: white; }
+        .btn-secondary:hover { background: #b08a4e; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(197,160,101,0.3); }
+        .btn-outline { background: transparent; border: 2px solid var(--brand-dark-teal); color: var(--brand-dark-teal); }
         body.dark-mode .btn-outline { border-color: #ddd; color: #ddd; }
         .btn-outline:hover { background: var(--brand-dark-teal); color: white; }
         body.dark-mode .btn-outline:hover { background: #ddd; color: var(--brand-dark-teal); }
-
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(197,160,101,0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(197,160,101,0); }
+            100% { box-shadow: 0 0 0 0 rgba(197,160,101,0); }
+        }
         .guest-only { display: flex; }
         .auth-link { display: none; }
         #nav-user-profile-placeholder { display: none; align-items: center; gap: 10px; }
@@ -144,197 +85,221 @@
         .hero {
             position: relative;
             min-height: 90vh;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             background: linear-gradient(135deg, var(--brand-dark-teal) 0%, #0a1a17 100%);
-            color: white;
-            overflow: hidden;
-            padding-top: 80px;
+            color: white; overflow: hidden; padding-top: 80px;
         }
-        #particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+        #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; padding: 40px 0; }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(197,160,101,0.2);
+            border: 1px solid var(--brand-gold);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--brand-gold);
+            animation: fadeInDown 0.8s ease;
         }
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 700px;
-            padding: 40px 0;
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .hero-content h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.3;
+            font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; line-height: 1.3;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        .hero-content h1 .gold-highlight { color: var(--brand-gold); }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .hero-content p {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 30px;
-            line-height: 1.8;
+            font-size: 1.3rem; color: rgba(255,255,255,0.85); margin-bottom: 30px;
+            line-height: 1.8; animation: fadeInUp 0.8s ease 0.4s both;
         }
-        .hero-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+        .hero-buttons { display: flex; gap: 15px; flex-wrap: wrap; animation: fadeInUp 0.8s ease 0.6s both; }
+        .hero-stats-mini {
+            display: flex; gap: 30px; margin-top: 40px;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+        .hero-stats-mini .mini-stat {
+            text-align: center;
+        }
+        .hero-stats-mini .mini-stat .number {
+            font-size: 2rem; font-weight: 900; color: var(--brand-gold);
+        }
+        .hero-stats-mini .mini-stat .label {
+            font-size: 0.9rem; color: rgba(255,255,255,0.7);
+        }
 
         /* Live stats */
         .live-stats-bar {
-            background: var(--brand-dark-bg);
-            color: white;
-            padding: 15px 0;
-            overflow: hidden;
-            white-space: nowrap;
-            border-bottom: 3px solid var(--brand-gold);
+            background: var(--brand-dark-bg); color: white; padding: 15px 0;
+            overflow: hidden; white-space: nowrap; border-bottom: 3px solid var(--brand-gold);
         }
-        .stats-ticker {
-            display: inline-block;
-            animation: ticker 30s linear infinite;
-        }
+        .stats-ticker { display: inline-block; animation: ticker 25s linear infinite; }
         @keyframes ticker {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
         }
-        .stat-item { display: inline-block; margin: 0 30px; font-size: 1.1rem; }
+        .stat-item { display: inline-block; margin: 0 30px; font-size: 1.1rem; font-weight: 500; }
         .stat-item i { color: var(--brand-gold); margin-left: 8px; }
 
         /* Vision section */
         .vision-section {
             background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%);
-            color: white;
-            padding: 80px 0;
+            color: white; padding: 80px 0;
         }
         .vision-card-new {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 16px;
-            transition: 0.3s;
-            height: 100%;
+            padding: 35px 30px; border-radius: 16px; transition: 0.3s; height: 100%;
+            position: relative; overflow: hidden;
         }
+        .vision-card-new::before {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: rgba(197,160,101,0.05);
+            border-radius: 0 0 0 100px;
+            transition: 0.3s;
+        }
+        .vision-card-new:hover::before { width: 150px; height: 150px; }
         .vision-card-new i { color: var(--brand-gold) !important; font-size: 2.5rem; margin-bottom: 20px; display: block; }
         .vision-card-new:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
             background: rgba(255,255,255,0.08);
             border-color: var(--brand-gold);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
         }
-        .vision-card-new h3 { color: white; margin-bottom: 15px; }
-        .vision-card-new p { color: #ccc; font-size: 1.1rem; }
+        .vision-card-new h3 { color: white; margin-bottom: 15px; font-size: 1.5rem; font-weight: 800; }
+        .vision-card-new p { color: #ccc; font-size: 1.1rem; line-height: 1.8; }
+        .vision-card-new .highlight-number {
+            display: block; font-size: 3rem; font-weight: 900; color: var(--brand-gold);
+            margin-bottom: 10px;
+        }
 
         /* Features */
-        .features {
-            padding: 80px 0;
-            background: var(--light-bg);
-            transition: background 0.3s;
-        }
+        .features { padding: 80px 0; background: var(--light-bg); transition: background 0.3s; }
         body.dark-mode .features { background: var(--brand-dark-bg); }
         .section-title { text-align: center; margin-bottom: 50px; }
-        .section-title h2 { font-size: 2.2rem; color: var(--brand-dark-teal); }
+        .section-title h2 { font-size: 2.5rem; color: var(--brand-dark-teal); font-weight: 900; }
         body.dark-mode .section-title h2 { color: #f0f0f0; }
-        .section-title p { color: #666; font-size: 1.1rem; }
+        .section-title p { color: #666; font-size: 1.2rem; }
         body.dark-mode .section-title p { color: #aaa; }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
+        .section-title .subtitle-badge {
+            display: inline-block;
+            background: rgba(197,160,101,0.2);
+            color: var(--brand-gold);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 10px;
         }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
         .feature-card {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: 0.3s;
-            border: 1px solid #eee;
-            text-align: center;
+            background: white; padding: 35px 30px; border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: 0.3s;
+            border: 1px solid #eee; text-align: center; position: relative;
         }
         body.dark-mode .feature-card { background: #2a2a2a; border-color: #444; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
-        .feature-card:hover { transform: translateY(-8px); border-color: var(--brand-gold); }
+        .feature-card:hover { transform: translateY(-10px); border-color: var(--brand-gold); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: rgba(15,41,37,0.1);
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, rgba(15,41,37,0.1), rgba(197,160,101,0.2));
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2rem;
-            color: var(--brand-dark-teal);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 2.2rem; color: var(--brand-dark-teal);
         }
         body.dark-mode .feature-icon { background: rgba(197,160,101,0.2); color: var(--brand-gold); }
-        .feature-card h3 { margin-bottom: 15px; color: var(--brand-dark-teal); }
+        .feature-card h3 { margin-bottom: 15px; color: var(--brand-dark-teal); font-weight: 800; }
         body.dark-mode .feature-card h3 { color: #f0f0f0; }
-        .feature-card p { color: #666; line-height: 1.8; }
+        .feature-card p { color: #666; line-height: 1.8; font-size: 1.05rem; }
         body.dark-mode .feature-card p { color: #aaa; }
+        .feature-card .emoji-flag { font-size: 3rem; display: block; margin-bottom: 10px; }
 
         /* Security quote */
         .security-quote-section {
-            background: var(--light-bg);
-            padding: 60px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
+            background: var(--light-bg); padding: 80px 0;
+            border-top: 1px solid #eee; border-bottom: 1px solid #eee;
             transition: background 0.3s, border-color 0.3s;
         }
         body.dark-mode .security-quote-section { background: var(--brand-dark-bg); border-color: #333; }
         .security-quote-box {
-            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, var(--brand-dark-bg) 100%);
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 50px;
+            background: linear-gradient(135deg, var(--brand-dark-teal) 0%, #0a1a17 100%);
+            max-width: 900px; margin: 0 auto; padding: 50px 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(15,41,37,0.25);
+            box-shadow: 0 20px 50px rgba(15,41,37,0.35);
             border-right: 6px solid var(--brand-gold);
-            color: white;
-            position: relative;
+            color: white; position: relative;
         }
         .quote-icon {
-            font-size: 4rem;
-            color: rgba(255,255,255,0.05);
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            font-size: 5rem; color: rgba(255,255,255,0.03);
+            position: absolute; top: 20px; right: 20px;
         }
         .security-title {
-            color: var(--brand-gold);
-            margin-bottom: 25px;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: var(--brand-gold); margin-bottom: 25px; font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 1.8rem;
         }
         .security-quote-box p {
-            font-size: 1.4rem;
-            line-height: 1.8;
-            font-weight: 500;
+            font-size: 1.4rem; line-height: 1.9; font-weight: 500;
         }
+        .security-quote-box strong { color: var(--brand-gold); }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--brand-gold) 0%, #a8823e 100%);
+            text-align: center;
+            color: white;
+        }
+        .cta-section h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: 20px; }
+        .cta-section p { font-size: 1.3rem; margin-bottom: 30px; opacity: 0.9; }
+        .cta-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+        /* Testimonial snippet */
+        .testimonial-snippet {
+            background: white;
+            max-width: 700px;
+            margin: 40px auto 0;
+            padding: 25px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            color: #333;
+            text-align: right;
+            position: relative;
+        }
+        .testimonial-snippet::before {
+            content: '\201c';
+            font-size: 5rem;
+            color: var(--brand-gold);
+            position: absolute;
+            top: -30px;
+            right: 20px;
+            font-family: serif;
+        }
+        .testimonial-snippet p { font-style: italic; font-size: 1.1rem; margin-bottom: 10px; }
+        .testimonial-snippet .author { font-weight: 700; color: var(--brand-dark-teal); }
 
         /* Partners */
         .partners-section {
-            padding: 40px 0;
-            background: var(--light-bg);
-            text-align: center;
-            overflow: hidden;
+            padding: 40px 0; background: var(--light-bg); text-align: center; overflow: hidden;
             transition: background 0.3s;
         }
         body.dark-mode .partners-section { background: var(--brand-dark-bg); }
-        .partners-heading {
-            color: var(--brand-dark-teal);
-            margin-bottom: 30px;
-            font-weight: 700;
-        }
+        .partners-heading { color: var(--brand-dark-teal); margin-bottom: 30px; font-weight: 700; }
         body.dark-mode .partners-heading { color: white; }
         .partners-scroller {
-            width: 100%;
-            overflow: hidden;
+            width: 100%; overflow: hidden;
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
             -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
         .partners-track {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-            width: max-content;
-            animation: scroll-ticker 35s linear infinite;
+            display: flex; align-items: center; gap: 50px;
+            width: max-content; animation: scroll-ticker 35s linear infinite;
         }
         @keyframes scroll-ticker {
             0% { transform: translateX(0); }
@@ -342,186 +307,94 @@
         }
         .partners-track:hover { animation-play-state: paused; }
         .partner-img {
-            height: 60px;
-            width: auto;
+            height: 60px; width: auto;
             filter: grayscale(100%) opacity(0.6);
-            transition: 0.3s;
-            object-fit: contain;
+            transition: 0.3s; object-fit: contain;
         }
         body.dark-mode .partner-img { filter: grayscale(100%) brightness(150%) opacity(0.7); }
-        .partner-img:hover {
-            filter: grayscale(0%) opacity(1) brightness(100%);
-            transform: scale(1.1);
-        }
+        .partner-img:hover { filter: grayscale(0%) opacity(1) brightness(100%); transform: scale(1.1); }
 
         /* Footer */
-        footer {
-            background: var(--brand-dark-teal);
-            color: white;
-            padding: 40px 0 20px;
-        }
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        .footer-col h3 { margin-bottom: 15px; font-size: 1.2rem; }
+        footer { background: var(--brand-dark-teal); color: white; padding: 40px 0 20px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin-bottom: 30px; }
+        .footer-col h3 { margin-bottom: 15px; font-size: 1.2rem; font-weight: 800; }
         .footer-col ul { list-style: none; }
         .footer-col ul li { margin-bottom: 8px; }
-        .footer-col ul li a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: 0.3s;
-        }
+        .footer-col ul li a { color: rgba(255,255,255,0.7); text-decoration: none; transition: 0.3s; }
         .footer-col ul li a:hover { color: white; }
-        .footer-contact li {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            color: rgba(255,255,255,0.7);
-        }
-        .copyright {
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 20px;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-        }
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
+        .footer-contact li { display: flex; gap: 10px; margin-bottom: 10px; color: rgba(255,255,255,0.7); }
+        .copyright { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+        .social-links { display: flex; gap: 15px; margin-top: 15px; }
         .social-links a {
-            color: white;
-            background: rgba(255,255,255,0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
+            color: white; background: rgba(255,255,255,0.1);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; transition: 0.3s;
         }
-        .social-links a:hover { background: var(--brand-gold); }
+        .social-links a:hover { background: var(--brand-gold); transform: translateY(-3px); }
 
         /* Bottom Navbar */
         .bottom-navbar {
             display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            justify-content: space-around;
-            padding: 10px 0;
-            z-index: 999;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            justify-content: space-around; padding: 10px 0; z-index: 999;
         }
         body.dark-mode .bottom-navbar { background: #1a1a1a; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .bottom-navbar .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #888;
-            font-size: 0.8rem;
-            transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: #888; font-size: 0.8rem; transition: 0.3s;
         }
         body.dark-mode .bottom-navbar .nav-item { color: #aaa; }
         .bottom-navbar .nav-item i { font-size: 1.3rem; margin-bottom: 3px; }
         .bottom-navbar .nav-item.active { color: var(--brand-dark-teal); }
         body.dark-mode .bottom-navbar .nav-item.active { color: var(--brand-gold); }
 
-        @media (max-width: 992px) {
-            .nav-links { display: none; }
-            .bottom-navbar { display: flex; }
-            body { padding-bottom: 70px; }
-            .hero-content h1 { font-size: 2.2rem; }
-        }
-        @media (max-width: 480px) {
-            .hero-content h1 { font-size: 1.8rem; }
-            .security-quote-box { padding: 30px 20px; }
-            .security-quote-box p { font-size: 1.1rem; }
-        }
-
-        /* Chatbot (مدمج مع script.js لكن نضيف ستايلات) */
+        /* Chatbot */
         .chatbot-popup {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 320px;
-            max-height: 400px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 2000;
+            position: fixed; bottom: 80px; right: 20px; width: 320px; max-height: 400px;
+            background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none; flex-direction: column; overflow: hidden; z-index: 2000;
         }
         body.dark-mode .chatbot-popup { background: #2a2a2a; border: 1px solid #444; }
         .chatbot-popup.open { display: flex; }
         .chatbot-header {
-            background: var(--brand-dark-teal);
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: var(--brand-dark-teal); color: white;
+            padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
         }
         .chatbot-header h3 { font-size: 1rem; margin: 0; }
-        .chatbot-header .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .chatbot-body {
-            padding: 15px;
-            overflow-y: auto;
-            max-height: 250px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .bot-message, .user-message {
-            padding: 10px 14px;
-            border-radius: 16px;
-            max-width: 85%;
-            font-size: 0.9rem;
-        }
+        .chatbot-header .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .chatbot-body { padding: 15px; overflow-y: auto; max-height: 250px; display: flex; flex-direction: column; gap: 10px; }
+        .bot-message, .user-message { padding: 10px 14px; border-radius: 16px; max-width: 85%; font-size: 0.9rem; }
         .bot-message { background: #f1f1f1; align-self: flex-start; }
         body.dark-mode .bot-message { background: #3a3a3a; color: #eee; }
         .user-message { background: var(--brand-gold); color: white; align-self: flex-end; }
-        .chatbot-footer {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #eee;
-            gap: 8px;
-        }
+        .chatbot-footer { display: flex; padding: 10px; border-top: 1px solid #eee; gap: 8px; }
         body.dark-mode .chatbot-footer { border-top-color: #444; }
         .chatbot-footer input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            background: #fafafa;
+            flex: 1; padding: 8px 12px; border: 1px solid #ddd;
+            border-radius: 20px; font-size: 0.9rem; background: #fafafa;
         }
         body.dark-mode .chatbot-footer input { background: #333; color: white; border-color: #555; }
         .chatbot-footer button {
-            background: var(--brand-gold);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
+            background: var(--brand-gold); color: white; border: none;
+            border-radius: 50%; width: 40px; height: 40px; cursor: pointer;
         }
         .chatbot-footer button:hover { background: #b08a4e; }
+
+        @media (max-width: 992px) {
+            .nav-links { display: none; }
+            .bottom-navbar { display: flex; }
+            body { padding-bottom: 70px; }
+            .hero-content h1 { font-size: 2.5rem; }
+            .hero-stats-mini { flex-wrap: wrap; gap: 20px; }
+        }
+        @media (max-width: 480px) {
+            .hero-content h1 { font-size: 2rem; }
+            .hero-content p { font-size: 1rem; }
+            .security-quote-box { padding: 30px 20px; }
+            .security-quote-box p { font-size: 1.1rem; }
+            .section-title h2 { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
@@ -532,7 +405,6 @@
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
-
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html" class="active">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
@@ -543,130 +415,200 @@
                     <li><a href="quiz.html">اختبار السيارة</a></li>
                     <li><a href="qassim-map.html">خرائط السيارات</a></li>
                 </ul>
-                
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
                         <i class="fas fa-moon"></i>
                         <span>الوضع</span>
                     </button>
-                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول آمن (نفاذ)</a>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">
+                        <i class="fas fa-shield-alt"></i> دخول آمن (نفاذ)
+                    </a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
     
+    <!-- ========== HERO SECTION ========== -->
     <section class="hero">
         <div id="particles-js"></div>
         <div class="container">
-            <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
-                <h1>وُجْهَة | تنقل بثقة واستثمر بأمان</h1>
-                <p>أول منصة تدمج مرونة التنقل مع صرامة التوثيق الحكومي. نستخدم الذكاء الاصطناعي لسد العجز في وسائل النقل، ونمكن المجتمع من مشاركة الموارد في بيئة خالية من المخاطر</p>
+            <div class="hero-content">
+                <div class="hero-badge">🚀 المنصة الوطنية للتأجير التشاركي الموثوق</div>
+                <h1>
+                    سيارة جارك <span class="gold-highlight">في حيّك</span>…<br>
+                    <span class="gold-highlight">موثقة</span>، مؤمنة، وجاهزة تنطلق
+                </h1>
+                <p>
+                    <strong>وُجْهَة</strong> تربطك بآلاف السيارات القريبة من موقعك. سواء كنت تبغى تستأجر سيارة <strong>من جارك الموثوق</strong> بنفاذ، أو تبغى <strong>تحول سيارتك الواقفة إلى دخل شهري</strong> يتجاوز 3500 ريال — هنا مكانك.
+                    <br>لا وسطاء، لا خوف، لا مجهولين. تعامل مباشر، أمان حكومي، وأسعار تبدأ من 99 ريال لليوم.
+                </p>
                 <div class="hero-buttons">
+                    <a href="cars.html" class="btn btn-secondary btn-pulse">
+                        <i class="fas fa-search"></i> ابحث عن سيارة قريبة الآن
+                    </a>
                     <a href="add-car.html" class="btn btn-primary">
-                        <i class="fas fa-key"></i> تمكين الأصول (شارك سيارتك)
+                        <i class="fas fa-coins"></i> حول سيارتك إلى دخل شهري
                     </a>
-                    <a href="cars.html" class="btn btn-secondary">
-                        <i class="fas fa-search"></i> تنقل بلا حدود (احجز رحلتك)
-                    </a>
+                </div>
+                <div class="hero-stats-mini">
+                    <div class="mini-stat">
+                        <div class="number">+3500</div>
+                        <div class="label">ريال متوسط الدخل الشهري للمؤجر</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="number">99</div>
+                        <div class="label">ريال يبدأ منه الإيجار اليومي</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="number">100%</div>
+                        <div class="label">عمليات موثقة عبر نفاذ</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ========== LIVE STATS BAR ========== -->
     <div class="live-stats-bar">
         <div class="container">
             <div class="stats-ticker">
                 <span class="stat-item"><i class="fas fa-check-circle"></i> عمليات موثقة عبر نفاذ 100%</span>
                 <span class="stat-item"><i class="fas fa-car"></i> تغطية شاملة لجميع مدن المملكة</span>
-                <span class="stat-item"><i class="fas fa-link"></i> تكامل رقمي شامل مع الأنظمة الحكومية</span> 
+                <span class="stat-item"><i class="fas fa-shield-alt"></i> تأمين شامل على كل رحلة</span>
+                <span class="stat-item"><i class="fas fa-link"></i> تكامل رقمي مع أبشر وتم</span>
                 <span class="stat-item"><i class="fas fa-users"></i> مجتمع موثوق للمواطن والمقيم والزائر</span>
+                <span class="stat-item"><i class="fas fa-wallet"></i> دخل سلبي حقيقي لملاك السيارات</span>
+                <span class="stat-item"><i class="fas fa-map-marker-alt"></i> سيارات موزعة في الأحياء السكنية</span>
             </div>
         </div>
     </div>
 
+    <!-- ========== VISION SECTION ========== -->
     <section class="vision-section">
         <div class="container">
             <div class="section-title" data-aos="fade-up">
-                <h2 style="color: white;">بنية رقمية تخدم الوطن</h2>
-                <p style="color: rgba(255,255,255,0.8);">وُجْهَة ليست مجرد تطبيق، بل هي حل مستدام لرفع جودة الحياة</p>
+                <span class="subtitle-badge">بنية رقمية تخدم الوطن</span>
+                <h2 style="color: white;">وُجْهَة ليست مجرد تطبيق…</h2>
+                <p style="color: rgba(255,255,255,0.8);">بل حل وطني لرفع جودة الحياة وتحقيق رؤية 2030 في الاقتصاد التشاركي</p>
             </div>
             
             <div class="features-grid"> 
                 <div class="vision-card-new" data-aos="fade-up" data-aos-delay="100">
                     <i class="fas fa-coins"></i>
-                    <h3>للمواطن</h3>
-                    <p>مصدر دخل إضافي محمي وموثق. حول أصولك المتوقفة إلى استثمار ناجح بكل أمان.</p>
+                    <span class="highlight-number">3,500+</span>
+                    <h3>للمواطن (المؤجر)</h3>
+                    <p>
+                        <strong>سيارتك الواقفة فلوس ضايعة.</strong> حول أصولك المتوقفة إلى استثمار ناجح بكل أمان. نوثق المستأجرين عبر <strong>نفاذ</strong>، نؤمن كل رحلة، ونحول الإيجار لحسابك مباشرة. أنت فقط سجل السيارة واحنا نتولى الباقي.
+                    </p>
                 </div>
                 
                 <div class="vision-card-new" data-aos="fade-up" data-aos-delay="200">
                     <i class="fas fa-user-check"></i>
-                    <h3>للمستخدم</h3>
-                    <p>خيارات تنقل متنوعة وآمنة في كل مدينة وحي. سهولة في الوصول وموثوقية في التعامل.</p>
+                    <span class="highlight-number">99 ﷼</span>
+                    <h3>للمستخدم (المستأجر)</h3>
+                    <p>
+                        <strong>ليش تدفع 300 ريال عند مكاتب التأجير التقليدية؟</strong> مع وُجْهَة، تلقى سيارة نظيفة، موديل السنة، من جارك في الحي، موثقة بالكامل. احجز في 3 دقائق واستلم من أقرب باب لك. أسعار معقولة، أمان تام، ولا وسطاء.
+                    </p>
                 </div>
                 
                 <div class="vision-card-new" data-aos="fade-up" data-aos-delay="300">
                     <i class="fas fa-globe-asia"></i>
+                    <span class="highlight-number">2030</span>
                     <h3>للوطن</h3>
-                    <p>جاهزية تامة لاستيعاب النمو السكاني والزوار في الأحداث العالمية الكبرى بكفاءة عالية.</p>
+                    <p>
+                        <strong>بنية تحتية رقمية للنقل التشاركي.</strong> جاهزية تامة لاستيعاب النمو السكاني والزوار في الأحداث العالمية الكبرى. نقل ذكي، اقتصاد تشاركي، وفرص عمل غير مباشرة — كلها تحت مظلة التشريعات المحلية.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="features">
+    <!-- ========== FEATURES SECTION ========== -->
+    <section class="features" id="how-it-works">
         <div class="container">
             <div class="section-title" data-aos="fade-up">
-                <h2>حلولنا الشاملة</h2>
-                <p>صممت لخدمة الجميع بمعايير وطنية</p>
+                <span class="subtitle-badge">حلول شاملة بمعايير وطنية</span>
+                <h2>وش يخلي وُجْهَة مختلفة؟</h2>
+                <p>صممنا التجربة كاملة عشان تضمن حقك وراحتك</p>
             </div>
             
             <div class="features-grid">
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="feature-icon"><i class="fas fa-fingerprint"></i></div>
-                    <h3>تجربة مستخدم عالمية</h3>
-                    <p>واجهة سهلة وتوثيق فوري يخدم الجميع، سواء كنت مواطناً، مقيماً، أو زائراً، بهوية وطنية أو رقم حدود.</p>
+                    <span class="emoji-flag">🔐</span>
+                    <h3>توثيق فوري عبر نفاذ وأبشر</h3>
+                    <p>
+                        <strong>لا نتعامل مع المجهولين.</strong> كل مستخدم في منصتنا موثق هويته عبر <strong>نفاذ</strong> وأبشر. تعرف مين اللي أخذ سيارتك بالضبط قبل ما يخطي من عتبة بابك. تجربة آمنة تخدم المواطن والمقيم والزائر.
+                    </p>
                 </div>
                 
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <span class="emoji-flag">📍</span>
                     <h3>أسطول من الناس وللناس</h3>
-                    <p>نحن لا نملك السيارات، بل نمكّن المجتمع من مشاركتها. لهذا السبب، ستجد خيارات لا حصر لها موزعة بذكاء داخل الأحياء السكنية وليست محصورة في فروع تجارية</p>
+                    <p>
+                        <strong>نحن لا نملك السيارات، بل نمكّن المجتمع من مشاركتها.</strong> لهذا السبب، ستجد خيارات لا حصر لها موزعة بذكاء داخل الأحياء السكنية — موب محصورة في فروع تجارية بعيدة. سيارات متنوعة، أسعار منافسة، وقريبة من بيتك.
+                    </p>
                 </div>
                 
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>تمكين الأصول</h3>
-                    <p>لا توقف سيارتك وتخسر قيمتها. شاركها مع مجتمع موثوق وحولها إلى أصل رابح تحت مظلة أمنية.</p>
+                    <span class="emoji-flag">💰</span>
+                    <h3>تمكين الأصول… سيارة واقفة = فلوس ضايعة</h3>
+                    <p>
+                        <strong>لا تخلط ورقك وخلك ذكي.</strong> بدل ما سيارتك تاكلها الشمس والغبار وتخسر من قيمتها، شاركها مع مجتمع موثوق وحولها إلى أصل رابح. نوفر لك تأمين شامل، فحص دوري، وتقييم شفاف للسيارة — كل هذا تحت مظلة أمنية كاملة.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ========== SECURITY QUOTE ========== -->
     <section class="security-quote-section">
         <div class="container">
             <div class="security-quote-box" data-aos="zoom-in">
                 <i class="fas fa-quote-right quote-icon"></i>
-                <h3 class="security-title">ميثاق وُجْهَة الأمني</h3>
+                <h3 class="security-title">🛡️ ميثاق وُجْهَة الأمني</h3>
                 <p>
-                    "سواء كنت صاحب السيارة أو قائدها، <strong>نفاذ</strong> هو الحكم، و <strong>أبشر</strong> هو الضامن.<br>
-                    في وُجْهَة، لا نتعامل مع المجهولين. كل عملية موثقة، كل طرف معروف، وكل حق محفوظ."
+                    "سواء كنت صاحب السيارة أو قائدها، <strong>نفاذ</strong> هو الحكم، و <strong>أبشر</strong> هو الضامن.<br><br>
+                    في وُجْهَة، لا نتعامل مع المجهولين. <strong>كل عملية موثقة، كل طرف معروف، وكل حق محفوظ.</strong><br><br>
+                    أختك، أمك، أو زوجتك محتاجة سيارة؟ مع وُجْهَة، أنت متطمن — لأن اللي يأجرها شخص معروف هويته. موب مجرد رقم جوال وهمي."
                 </p>
             </div>
         </div>
     </section>
 
+    <!-- ========== CTA SECTION ========== -->
+    <section class="cta-section">
+        <div class="container" data-aos="fade-up">
+            <h2>جاهز تبدأ؟ 🚀</h2>
+            <p>سواء كنت تبغى تستأجر سيارة من جارك أو تحول سيارتك لدخل شهري — وُجْهَة جاهزة لك.</p>
+            <div class="cta-buttons">
+                <a href="add-car.html" class="btn btn-primary" style="background: white; color: var(--brand-dark-teal); font-size: 1.1rem; padding: 12px 30px;">
+                    <i class="fas fa-key"></i> سجل سيارتك وابدأ الربح
+                </a>
+                <a href="cars.html" class="btn btn-outline" style="border-color: white; color: white; font-size: 1.1rem; padding: 12px 30px;">
+                    <i class="fas fa-search"></i> تصفح السيارات القريبة
+                </a>
+            </div>
+            <div class="testimonial-snippet" data-aos="fade-up" data-aos-delay="100">
+                <p>"كنت أخاف أأجر سيارتي لأي أحد… الحين أأجرها وأنا في بيتي نايم ومرتاح! وُجْهَة ما يجيبون إلا ناس موثقة بنفاذ. سيارتي كانت عبء، الحين صارت دخل شهري محترم."</p>
+                <p class="author">— أبو محمد، مؤجر في الرياض</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PARTNERS ========== -->
     <section class="partners-section">
         <div class="container">
             <h3 class="partners-heading" data-aos="fade-up">منظومة تكاملية مع</h3>
-            
             <div class="partners-scroller" data-aos="fade-up" data-aos-delay="100">
                 <div class="partners-track">
                     <img src="https://www.zarkachat.com/wp-content/uploads/2020/04/absherr.jpg" alt="أبشر" class="partner-img">
                     <img src="https://kss.sa/wp-content/uploads/2022/05/kss-sa-241-450x176.png?v=1652731492" alt="نفاذ" class="partner-img">
                     <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/bb/4a/93/bb4a9376-f7fc-8a7a-73f6-8835ee3d8668/AppIcon-0-0-1x_U007emarketing-0-7-0-0-sRGB-0-85-220.png/1200x630wa.png" alt="نجم" class="partner-img" style="border-radius: 10px;">
                     <img src="https://khdmatsaudi.com/wp-content/uploads/2021/03/%D8%A8%D9%88%D8%A7%D8%A8%D8%A9-%D8%AA%D9%85-%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%AF%D8%A7%D8%AE%D9%84%D9%8A%D8%A9-1442-%D8%AA%D8%B3%D8%AC%D9%8A%D9%84-%D8%A7%D9%84%D8%AF%D8%AE%D9%88%D9%84-Tamm-login.jpg" alt="بوابة تم" class="partner-img">
-
                     <img src="https://www.zarkachat.com/wp-content/uploads/2020/04/absherr.jpg" alt="أبشر" class="partner-img">
                     <img src="https://kss.sa/wp-content/uploads/2022/05/kss-sa-241-450x176.png?v=1652731492" alt="نفاذ" class="partner-img">
                     <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/bb/4a/93/bb4a9376-f7fc-8a7a-73f6-8835ee3d8668/AppIcon-0-0-1x_U007emarketing-0-7-0-0-sRGB-0-85-220.png/1200x630wa.png" alt="نجم" class="partner-img" style="border-radius: 10px;">
@@ -676,29 +618,32 @@
         </div>
     </section>
 
+    <!-- ========== FOOTER ========== -->
     <footer>
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
                     <h3>عن وُجْهَة</h3>
                     <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; line-height: 1.8;">
-                        منصة وطنية للابتكار في التنقل الآمن. نعمل تحت مظلة التشريعات المحلية لتحقيق رؤية 2030 في الاقتصاد التشاركي.
+                        منصة وطنية للابتكار في التنقل الآمن. نعمل تحت مظلة التشريعات المحلية لتحقيق رؤية 2030 في الاقتصاد التشاركي. تأجير مباشر بين الناس، موثّق بنفاذ وأبشر.
                     </p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-twitter"></i></a>
                         <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
-                
                 <div class="footer-col">
                     <h3>روابط هامة</h3>
                     <ul>
                         <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="add-car.html">أضف سيارتك</a></li>
                         <li><a href="rental-terms.html">اتفاقية مستوى الخدمة</a></li>
                         <li><a href="https://wa.me/966565464718">بلاغات الطوارئ</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-col">
                     <h3>تواصل معنا</h3>
                     <ul class="footer-contact">
@@ -717,13 +662,13 @@
                     </ul>
                 </div>
             </div>
-            
             <div class="copyright">
-                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦</p>
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦 | تنقل بثقة واستثمر بأمان</p>
             </div>
         </div>
     </footer>
 
+    <!-- ========== BOTTOM NAV ========== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item active">
             <i class="fas fa-home"></i>
@@ -751,18 +696,19 @@
         </a>
     </nav>
 
+    <!-- ========== CHATBOT ========== -->
     <div id="chatbot-popup" class="chatbot-popup">
         <div class="chatbot-header">
-            <h3>المساعد الأمني</h3>
+            <h3>🤖 المساعد الأمني</h3>
             <button id="chatbot-close-btn" class="close-btn">&times;</button>
         </div>
         <div class="chatbot-body" id="chatbot-body">
             <div class="bot-message">
-                حياك الله! أنا مساعد وُجْهَة الذكي. كيف أقدر أساعدك في إجراءات الأمان أو التوثيق؟
+                حياك الله! أنا مساعد وُجْهَة الذكي. تقدر تسألني عن أي شيء يخص التأجير، التوثيق، أو الأمان. كيف أقدر أخدمك؟
             </div>
         </div>
         <div class="chatbot-footer">
-            <input type="text" id="chatbot-input" placeholder="اكتب سؤالك...">
+            <input type="text" id="chatbot-input" placeholder="اكتب سؤالك هنا...">
             <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
@@ -774,18 +720,18 @@
     <!-- ===== كود تشغيل الصفحة ===== -->
     <script>
         // تفعيل AOS
-        AOS.init({ once: true });
+        AOS.init({ once: true, duration: 800 });
 
         // تشغيل البارتكلز
         particlesJS("particles-js", {
             "particles": {
                 "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#ffffff" },
+                "color": { "value": "#c5a065" },
                 "shape": { "type": "circle" },
-                "opacity": { "value": 0.5 },
+                "opacity": { "value": 0.3 },
                 "size": { "value": 3 },
-                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 6 }
+                "line_linked": { "enable": true, "distance": 150, "color": "#c5a065", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 4 }
             },
             "interactivity": {
                 "detect_on": "canvas",
@@ -794,15 +740,13 @@
             "retina_detect": true
         });
 
-        // ===== تحديث شريط التنقل بناءً على حالة تسجيل الدخول =====
-        // نستدعي الدالة من script.js (إذا كانت موجودة)
         document.addEventListener('DOMContentLoaded', function() {
-            // تحديث واجهة المستخدم (إظهار/إخفاء أزرار الدخول والملف الشخصي)
+            // تحديث واجهة المستخدم
             if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                 updateNavbarBasedOnLoginStatus();
             }
 
-            // تفعيل تأثير الهيدر عند التمرير
+            // تأثير الهيدر عند التمرير
             window.addEventListener('scroll', function() {
                 const header = document.querySelector('header');
                 if (header) {
@@ -810,7 +754,7 @@
                 }
             });
 
-            // ===== تشغيل الدردشة (مدمجة هنا) =====
+            // ===== تشغيل الدردشة =====
             const chatbotPopup = document.getElementById('chatbot-popup');
             const mobileToggle = document.getElementById('mobile-chatbot-toggle');
             const closeBtn = document.getElementById('chatbot-close-btn');
@@ -843,10 +787,10 @@
                 setTimeout(() => {
                     const botDiv = document.createElement('div');
                     botDiv.className = 'bot-message';
-                    botDiv.textContent = 'شكراً لسؤالك. سيتم الرد عليك قريباً.';
+                    botDiv.textContent = 'شكراً لسؤالك. فريق وُجْهَة جاهز للرد عليك بأسرع وقت.';
                     body.appendChild(botDiv);
                     body.scrollTop = body.scrollHeight;
-                }, 500);
+                }, 600);
                 body.scrollTop = body.scrollHeight;
             }
 
