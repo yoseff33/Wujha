@@ -431,42 +431,104 @@ async function createBooking(bookingData) {
 
 /**
  * عرض السيارات في عنصر محدد
+/**
+ * عرض السيارات في عنصر محدد مع تنقية البيانات لمنع XSS
  * @param {Array} cars - قائمة السيارات
  * @param {string} containerId - id العنصر الحاوي
  */
 function renderCars(cars, containerId = 'cars-grid') {
     const container = document.getElementById(containerId);
-    if (!container) return;
-
-    if (!cars || cars.length === 0) {
-        container.innerHTML = '<p>لا توجد سيارات متاحة حالياً</p>';
+    if (!container) {
+        console.warn(`العنصر بالمعرف "${containerId}" غير موجود`);
         return;
     }
 
-    container.innerHTML = cars.map(car => `
-        <div class="car-card" data-car-id="${car.id}">
-            <div class="car-img-box">
-                <img src="${car.images?.[0] || 'https://via.placeholder.com/300x200?text=سيارة'}" alt="${car.brand} ${car.model}">
-                <span class="badge ${car.status === 'active' ? 'badge-success' : 'badge-warning'}">${car.status === 'active' ? 'متاحة' : 'قيد المراجعة'}</span>
-            </div>
-            <div class="car-info">
-                <h3 class="car-title">${car.brand} ${car.model}</h3>
-                <div class="car-year">${car.year} | ${car.city}</div>
-                <div class="price-box">
-                    <div class="price">${car.daily_price} <small>ر.س/يوم</small></div>
-                    <button class="btn-book" onclick="bookCar('${car.id}')">حجز الآن</button>
+    if (!cars || cars.length === 0) {
+        container.innerHTML = '<p>🚗 لا توجد سيارات متاحة حالياً</p>';
+        return;
+    }
+
+    // دالة مساعدة لتنقية النصوص (منع XSS)
+    function sanitize(text) {
+        if (text === null || text === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+    }
+
+    // دالة مساعدة للحصول على أول صورة أو صورة افتراضية
+    function getCarImage(images) {
+        if (images && Array.isArray(images) && images.length > 0 && images[0]) {
+            return sanitize(images[0]);
+        }
+        return 'https://via.placeholder.com/300x200?text=سيارة';
+    }
+
+    // دالة مساعدة للحصول على حالة السيارة بالعربية
+    function getStatusText(status) {
+        const statusMap = {
+            'active': 'متاحة',
+            'pending': 'قيد المراجعة',
+            'rejected': 'مرفوضة',
+            'inactive': 'غير متاحة'
+        };
+        return statusMap[status] || status || 'غير معروف';
+    }
+
+    // بناء HTML بأمان
+    const html = cars.map(car => {
+        // التحقق من وجود معرف السيارة
+        const carId = car.id || '';
+        if (!carId) {
+            console.warn('تم تخطي سيارة بدون معرف:', car);
+            return '';
+        }
+
+        const brand = sanitize(car.brand || 'غير معروف');
+        const model = sanitize(car.model || 'غير معروف');
+        const year = sanitize(car.year || '');
+        const city = sanitize(car.city || '');
+        const dailyPrice = sanitize(car.daily_price || 0);
+        const image = getCarImage(car.images);
+        const status = car.status || 'pending';
+        const statusText = getStatusText(status);
+        const isActive = status === 'active';
+        const badgeClass = isActive ? 'badge-success' : 'badge-warning';
+
+        return `
+            <div class="car-card" data-car-id="${sanitize(carId)}">
+                <div class="car-img-box">
+                    <img src="${image}" alt="${brand} ${model}" loading="lazy">
+                    <span class="badge ${badgeClass}">${statusText}</span>
+                </div>
+                <div class="car-info">
+                    <h3 class="car-title">${brand} ${model}</h3>
+                    <div class="car-year">${year} | ${city}</div>
+                    <div class="price-box">
+                        <div class="price">${dailyPrice} <small>ر.س/يوم</small></div>
+                        ${isActive ? `<button class="btn-book" onclick="bookCar('${sanitize(carId)}')">حجز الآن</button>` : `<button class="btn-book" style="background:#95a5a6;cursor:not-allowed;" disabled>غير متاحة</button>`}
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).filter(html => html).join('');
+
+    container.innerHTML = html || '<p>⚠️ لا توجد سيارات لعرضها</p>';
 }
 
+
 /**
- * دالة حجز سيارة (تستدعي createBooking وتطلب التواريخ)
+ * دالة حجز سيارة (محسنة مع واجهة اختيار تاريخ وتأكيد)
  * @param {string|number} carId
  */
-// ===== دالة حجز سيارة (محسنة مع واجهة اختيار تاريخ) =====
 async function bookCar(carId) {
+    // التحقق من صحة carId
+    if (!carId) {
+        alert('معرف السيارة غير صحيح');
+        return;
+    }
+
+    // التحقق من تسجيل الدخول
     const user = getCurrentUser();
     if (!user) {
         alert('الرجاء تسجيل الدخول أولاً');
@@ -474,26 +536,51 @@ async function bookCar(carId) {
         return;
     }
 
+    // التحقق من وجود السيارة وحالتها (اختياري)
+    try {
+        const { data: car, error } = await window.supabaseClient
+            .from('cars')
+            .select('status')
+            .eq('id', carId)
+            .single();
+
+        if (error || !car) {
+            alert('السيارة غير موجودة');
+            return;
+        }
+        if (car.status !== 'active') {
+            alert('هذه السيارة غير متاحة للحجز حالياً');
+            return;
+        }
+    } catch (error) {
+        console.warn('فشل التحقق من السيارة:', error);
+        // نكمل على أي حال
+    }
+
     // إنشاء نافذة منبثقة لاختيار التواريخ
     const modalHtml = `
-        <div id="booking-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;">
-            <div style="background:white;padding:30px;border-radius:16px;max-width:400px;width:90%;text-align:center;direction:rtl;">
-                <h3 style="margin-bottom:20px;">📅 اختر تواريخ الحجز</h3>
+        <div id="booking-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+            <div style="background:white;padding:30px;border-radius:16px;max-width:450px;width:90%;text-align:center;direction:rtl;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                <h3 style="margin-bottom:20px;color:#0f2925;">📅 اختر تواريخ الحجز</h3>
                 <div style="margin-bottom:15px;text-align:right;">
-                    <label style="display:block;font-weight:bold;margin-bottom:5px;">تاريخ البداية:</label>
-                    <input type="datetime-local" id="booking-start" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:1rem;">
+                    <label style="display:block;font-weight:bold;margin-bottom:5px;color:#333;">تاريخ البداية:</label>
+                    <input type="datetime-local" id="booking-start" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;font-family:'Tajawal',sans-serif;">
                 </div>
                 <div style="margin-bottom:20px;text-align:right;">
-                    <label style="display:block;font-weight:bold;margin-bottom:5px;">تاريخ النهاية:</label>
-                    <input type="datetime-local" id="booking-end" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:1rem;">
+                    <label style="display:block;font-weight:bold;margin-bottom:5px;color:#333;">تاريخ النهاية:</label>
+                    <input type="datetime-local" id="booking-end" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;font-family:'Tajawal',sans-serif;">
                 </div>
-                <div style="display:flex;gap:10px;">
-                    <button onclick="confirmBooking('${carId}')" style="flex:1;padding:12px;background:#0f2925;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">تأكيد الحجز</button>
-                    <button onclick="closeBookingModal()" style="flex:1;padding:12px;background:#eee;color:#333;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">إلغاء</button>
+                <div style="display:flex;gap:10px;margin-top:10px;">
+                    <button onclick="confirmBooking('${carId}')" style="flex:1;padding:14px;background:#0f2925;color:white;border:none;border-radius:8px;font-weight:bold;font-size:1rem;cursor:pointer;transition:0.3s;">تأكيد الحجز</button>
+                    <button onclick="closeBookingModal()" style="flex:1;padding:14px;background:#f1f2f6;color:#333;border:none;border-radius:8px;font-weight:bold;font-size:1rem;cursor:pointer;transition:0.3s;">إلغاء</button>
                 </div>
             </div>
         </div>
     `;
+
+    // إزالة أي مودال مفتوح سابقاً
+    const existingModal = document.getElementById('booking-modal');
+    if (existingModal) existingModal.remove();
 
     const modalContainer = document.createElement('div');
     modalContainer.innerHTML = modalHtml;
@@ -504,6 +591,93 @@ async function bookCar(carId) {
     const localDateTime = now.toISOString().slice(0, 16);
     document.getElementById('booking-start').min = localDateTime;
     document.getElementById('booking-end').min = localDateTime;
+
+    // إضافة مستمع للضغط على Enter في الحقول
+    document.getElementById('booking-start').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('booking-end').focus();
+    });
+    document.getElementById('booking-end').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmBooking(carId);
+    });
+}
+
+/**
+ * تأكيد الحجز (يتم استدعاؤها من زر تأكيد الحجز)
+ * @param {string|number} carId
+ */
+async function confirmBooking(carId) {
+    const startInput = document.getElementById('booking-start');
+    const endInput = document.getElementById('booking-end');
+
+    if (!startInput || !endInput) {
+        alert('حدث خطأ في النافذة المنبثقة. يرجى المحاولة مرة أخرى.');
+        return;
+    }
+
+    const startValue = startInput.value;
+    const endValue = endInput.value;
+
+    if (!startValue || !endValue) {
+        alert('يرجى اختيار تاريخ البداية والنهاية.');
+        return;
+    }
+
+    // التحقق من أن تاريخ النهاية بعد تاريخ البداية
+    const startDate = new Date(startValue);
+    const endDate = new Date(endValue);
+    if (startDate >= endDate) {
+        alert('تاريخ النهاية يجب أن يكون بعد تاريخ البداية.');
+        return;
+    }
+
+    // تحويل التنسيق إلى YYYY-MM-DD HH:MM:SS
+    const startFormatted = startValue.replace('T', ' ') + ':00';
+    const endFormatted = endValue.replace('T', ' ') + ':00';
+
+    // إغلاق النافذة المنبثقة
+    closeBookingModal();
+
+    // جلب سعر السيارة اليومي
+    try {
+        const { data: car, error: carError } = await window.supabaseClient
+            .from('cars')
+            .select('daily_price')
+            .eq('id', carId)
+            .single();
+
+        if (carError || !car) {
+            alert('حدث خطأ في جلب بيانات السيارة. يرجى المحاولة مرة أخرى.');
+            return;
+        }
+
+        const days = Math.max(1, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)));
+        const total = days * car.daily_price;
+
+        // إنشاء الحجز
+        const booking = await createBooking({
+            car_id: carId,
+            start_date: startFormatted,
+            end_date: endFormatted,
+            total_price: total
+        });
+
+        if (booking) {
+            alert('✅ تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
+            localStorage.setItem('current_booking_id', booking.id);
+            window.location.href = '/dashboard-renter.html';
+        }
+    } catch (error) {
+        console.error('خطأ في confirmBooking:', error);
+        alert('حدث خطأ غير متوقع أثناء تأكيد الحجز. يرجى المحاولة مرة أخرى.');
+    }
+}
+
+/**
+ * إغلاق نافذة الحجز المنبثقة
+ */
+function closeBookingModal() {
+    const modal = document.getElementById('booking-modal');
+    if (modal) modal.remove();
 }
 
 // ===== تأكيد الحجز =====
