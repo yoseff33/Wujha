@@ -304,66 +304,125 @@ async function updateCarStatus(carId, newStatus) {
 // ============================================================
 
 /**
+ * إنشاء حجز /**
  * إنشاء حجز جديد
  * @param {object} bookingData - { car_id, start_date, end_date, total_price, delivery_method?, delivery_location? }
  * @returns {Promise<object|null>}
  */
 async function createBooking(bookingData) {
+    // 1. التحقق من وجود توكن المصادقة
     const token = localStorage.getItem('supabase_token');
     if (!token) {
-        alert('الرجاء تسجيل الدخول');
+        alert('الرجاء تسجيل الدخول أولاً');
         return null;
     }
+
+    // 2. الحصول على المستخدم الحالي
     const user = getCurrentUser();
-    if (!user) return null;
-
-    // التأكد من أن التواريخ بالتنسيق الصحيح
-    const startDate = new Date(bookingData.start_date).toISOString();
-    const endDate = new Date(bookingData.end_date).toISOString();
-
-    const { data, error } = await window.supabaseClient
-        .from('bookings')
-        .insert([{
-            car_id: bookingData.car_id,
-            renter_id: user.id,
-            start_date: startDate,
-            end_date: endDate,
-            total_price: bookingData.total_price,
-            status: 'pending_owner_approval',
-            delivery_method: bookingData.delivery_method || null,
-            delivery_location: bookingData.delivery_location || null
-        }])
-        .select()
-        .single();
-
-    if (error) {
-        console.error('فشل إنشاء الحجز:', error);
-        alert('حدث خطأ أثناء الحجز: ' + error.message);
+    if (!user) {
+        alert('تعذر العثور على بيانات المستخدم. يرجى تسجيل الدخول مرة أخرى.');
         return null;
     }
-    return data;
-}
 
-/**
- * إنشاء عقد بعد الموافقة على الحجز
- * @param {object} contractData - { booking_id, contract_number, pdf_link?, qr_code?, start_date, end_date }
- * @returns {Promise<object|null>}
- */
-async function createContract(contractData) {
-    const token = localStorage.getItem('supabase_token');
-    if (!token) return null;
-
-    const { data, error } = await window.supabaseClient
-        .from('contracts')
-        .insert([contractData])
-        .select()
-        .single();
-
-    if (error) {
-        console.error('فشل إنشاء العقد:', error);
+    // 3. التحقق من صحة البيانات الأساسية
+    if (!bookingData.car_id) {
+        alert('معرف السيارة مطلوب');
         return null;
     }
-    return data;
+    if (!bookingData.start_date || !bookingData.end_date) {
+        alert('تاريخ البداية والنهاية مطلوبان');
+        return null;
+    }
+    if (!bookingData.total_price || bookingData.total_price <= 0) {
+        alert('السعر الإجمالي غير صحيح');
+        return null;
+    }
+
+    // 4. التأكد من أن التواريخ بالتنسيق الصحيح (ISO 8601)
+    let startDate, endDate;
+    try {
+        startDate = new Date(bookingData.start_date);
+        endDate = new Date(bookingData.end_date);
+        
+        // التحقق من صحة التواريخ
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            throw new Error('التواريخ غير صالحة');
+        }
+        if (startDate >= endDate) {
+            throw new Error('تاريخ البداية يجب أن يكون قبل تاريخ النهاية');
+        }
+        if (startDate < new Date()) {
+            throw new Error('لا يمكن الحجز في تاريخ ماضٍ');
+        }
+        
+        // تحويل إلى تنسيق ISO
+        startDate = startDate.toISOString();
+        endDate = endDate.toISOString();
+    } catch (error) {
+        alert('خطأ في التواريخ: ' + error.message);
+        console.error('خطأ في تحويل التواريخ:', error);
+        return null;
+    }
+
+    // 5. التحقق من وجود السيارة (اختياري لكن مفيد)
+    try {
+        const { data: car, error: carError } = await window.supabaseClient
+            .from('cars')
+            .select('id, status, owner_id')
+            .eq('id', bookingData.car_id)
+            .single();
+
+        if (carError || !car) {
+            alert('السيارة غير موجودة');
+            return null;
+        }
+        if (car.status !== 'active') {
+            alert('السيارة غير متاحة للحجز حالياً');
+            return null;
+        }
+        // يمكن إضافة التحقق من أن السيارة لا تتعارض مع حجوزات أخرى (اختياري)
+    } catch (error) {
+        console.warn('فشل التحقق من السيارة:', error);
+        // نكمل على أي حال
+    }
+
+    // 6. إنشاء الحجز في قاعدة البيانات
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('bookings')
+            .insert([{
+                car_id: bookingData.car_id,
+                renter_id: user.id,
+                start_date: startDate,
+                end_date: endDate,
+                total_price: bookingData.total_price,
+                status: 'pending_owner_approval',
+                delivery_method: bookingData.delivery_method || null,
+                delivery_location: bookingData.delivery_location || null
+            }])
+            .select()
+            .single();
+
+        if (error) {
+            // معالجة أخطاء محددة
+            if (error.code === '23503') { // foreign key violation
+                console.error('خطأ في المفتاح الخارجي:', error);
+                alert('حدث خطأ في ربط المستخدم أو السيارة. يرجى المحاولة مرة أخرى.');
+            } else if (error.code === '23505') { // unique violation
+                alert('يوجد حجز مكرر لهذه السيارة في نفس الفترة.');
+            } else {
+                alert('حدث خطأ أثناء إنشاء الحجز: ' + error.message);
+            }
+            console.error('فشل إنشاء الحجز:', error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('خطأ غير متوقع في createBooking:', error);
+        alert('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+        return null;
+    }
 }
 
 // ============================================================
@@ -415,7 +474,7 @@ async function bookCar(carId) {
         return;
     }
 
-    // إنشاء نافذة منبثقة مخصصة لاختيار التواريخ
+    // إنشاء نافذة منبثقة لاختيار التواريخ
     const modalHtml = `
         <div id="booking-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;">
             <div style="background:white;padding:30px;border-radius:16px;max-width:400px;width:90%;text-align:center;direction:rtl;">
@@ -436,7 +495,6 @@ async function bookCar(carId) {
         </div>
     `;
 
-    // إضافة النافذة إلى الصفحة
     const modalContainer = document.createElement('div');
     modalContainer.innerHTML = modalHtml;
     document.body.appendChild(modalContainer.firstElementChild);
@@ -462,7 +520,6 @@ async function confirmBooking(carId) {
     const startDate = startInput.value.replace('T', ' ') + ':00';
     const endDate = endInput.value.replace('T', ' ') + ':00';
 
-    // إغلاق النافذة
     closeBookingModal();
 
     // جلب سعر السيارة اليومي
@@ -496,11 +553,9 @@ async function confirmBooking(carId) {
     }
 }
 
-// ===== إغلاق نافذة الحجز =====
 function closeBookingModal() {
     const modal = document.getElementById('booking-modal');
     if (modal) modal.remove();
-
 }
 
 // ============================================================
