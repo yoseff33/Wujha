@@ -171,6 +171,7 @@
         .status-badge.active { background: #2ecc71; color: white; }
         .status-badge.rejected { background: #e74c3c; color: white; }
         .status-badge.inactive { background: #95a5a6; color: white; }
+        .car-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 
         /* ===== عناصر الحجوزات ===== */
         .booking-item {
@@ -252,6 +253,7 @@
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .car-item { flex-direction: column; align-items: stretch; }
+            .car-actions { justify-content: center; }
         }
 
         .chatbot-popup { display: none; }
@@ -368,7 +370,7 @@
         AOS.init({ once: true });
 
         // ============================================================
-        //  دوال لوحة المالك
+        //  دوال لوحة المالك (معدلة)
         // ============================================================
 
         let currentUserId = null;
@@ -394,23 +396,14 @@
                 updateNavbarBasedOnLoginStatus();
             }
 
-            // تحميل البيانات
             loadDashboard();
         });
 
-        // ===== 2. تحديث شريط التنقل =====
-        function updateNavbar() {
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
-        }
-
-        // ===== 3. تحميل لوحة التحكم (الإحصائيات) =====
+        // ===== 2. تحميل لوحة التحكم (الإحصائيات) =====
         async function loadDashboard() {
             if (!currentUserId) return;
 
             try {
-                // جلب سيارات المالك
                 const { data: cars, error: carsError } = await window.supabaseClient
                     .from('cars')
                     .select('*')
@@ -418,7 +411,6 @@
 
                 if (carsError) throw carsError;
 
-                // جلب الحجوزات على سيارات المالك
                 const carIds = cars.map(c => c.id);
                 let bookings = [];
                 let totalEarnings = 0;
@@ -438,17 +430,14 @@
                     }
                 }
 
-                // تحديث الإحصائيات
                 document.getElementById('stat-cars').textContent = cars?.length || 0;
                 document.getElementById('stat-bookings').textContent = bookings.length;
                 document.getElementById('stat-pending').textContent = pendingCount;
                 document.getElementById('stat-earnings').textContent = totalEarnings.toFixed(0);
 
-                // تحديث الباجات في القائمة الجانبية
                 document.getElementById('car-count-badge').textContent = cars?.length || 0;
                 document.getElementById('booking-count-badge').textContent = bookings.length;
 
-                // تحميل السيارات والحجوزات والعقود
                 renderOwnerCars(cars);
                 renderOwnerBookings(bookings, cars);
                 await loadContracts();
@@ -458,7 +447,7 @@
             }
         }
 
-        // ===== 4. عرض سيارات المالك =====
+        // ===== 3. عرض سيارات المالك (مع زر تحديد الموقع) =====
         function renderOwnerCars(cars) {
             const container = document.getElementById('cars-container');
 
@@ -484,6 +473,11 @@
                             <i class="fas fa-map-marker-alt"></i> ${car.city || ''} |
                             <i class="fas fa-money-bill"></i> ${car.daily_price || 0} ر.س/يوم
                         </div>
+                        <div class="car-actions">
+                            <button class="btn btn-sm btn-primary" onclick="window.location.href='car-location.html?carId=${car.id}'">
+                                <i class="fas fa-map-pin"></i> تحديد الموقع
+                            </button>
+                        </div>
                     </div>
                     <div class="car-status">
                         <span class="status-badge ${car.status || 'pending'}">
@@ -496,7 +490,7 @@
             `).join('');
         }
 
-        // ===== 5. عرض طلبات الحجز =====
+        // ===== 4. عرض طلبات الحجز =====
         function renderOwnerBookings(bookings, cars) {
             const container = document.getElementById('bookings-container');
 
@@ -510,7 +504,6 @@
                 return;
             }
 
-            // إنشاء خريطة للسيارات للوصول السريع
             const carsMap = {};
             if (cars) {
                 cars.forEach(c => { carsMap[c.id] = c; });
@@ -558,7 +551,7 @@
             }).join('');
         }
 
-        // ===== 6. الموافقة على حجز =====
+        // ===== 5. الموافقة على حجز =====
         async function approveBooking(bookingId) {
             if (!confirm('هل أنت متأكد من الموافقة على هذا الحجز؟')) return;
 
@@ -579,7 +572,7 @@
             }
         }
 
-        // ===== 7. رفض حجز =====
+        // ===== 6. رفض حجز =====
         async function rejectBooking(bookingId) {
             if (!confirm('هل أنت متأكد من رفض هذا الحجز؟')) return;
 
@@ -600,7 +593,7 @@
             }
         }
 
-        // ===== 8. تحميل العقود =====
+        // ===== 7. تحميل العقود =====
         async function loadContracts() {
             const container = document.getElementById('contracts-container');
 
@@ -610,14 +603,12 @@
             }
 
             try {
-                // جلب العقود المرتبطة بسيارات المالك
                 const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
                     .select('*, bookings(*, cars(*))');
 
                 if (error) throw error;
 
-                // تصفية العقود التي تخص سيارات هذا المالك
                 const ownerContracts = contracts.filter(c => 
                     c.bookings?.cars?.owner_id === currentUserId
                 );
@@ -661,7 +652,7 @@
             }
         }
 
-        // ===== 9. دوال التنقل في القائمة الجانبية =====
+        // ===== 8. دوال التنقل =====
         function loadOwnerCars() {
             document.getElementById('cars-widget').scrollIntoView({ behavior: 'smooth' });
         }
@@ -674,7 +665,7 @@
             document.getElementById('contracts-widget').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ===== 10. الوضع الليلي =====
+        // ===== 9. الوضع الليلي =====
         (function setupTheme() {
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (!themeToggle) return;
@@ -697,7 +688,7 @@
             });
         })();
 
-        // ===== 11. دالة الخروج =====
+        // ===== 10. دالة الخروج =====
         if (typeof logoutUser === 'undefined') {
             window.logoutUser = function() {
                 localStorage.clear();
@@ -705,7 +696,7 @@
             };
         }
 
-        console.log('✅ لوحة المالك جاهزة للعمل!');
+        console.log('✅ لوحة المالك (مع موقع السيارة) جاهزة للعمل!');
     </script>
 
 </body>
