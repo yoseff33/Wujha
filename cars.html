@@ -8,14 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <!-- ===== ربط مكتبة Supabase وملفات المشروع ===== -->
-   <!-- 1. مكتبة Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- 2. ملف التهيئة -->
-<script src="supabase-config.js"></script>
-
-<!-- 3. ملفك الأساسي -->
-<script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
     
     <style>
         /* Reset and base (مأخوذ من style.css مع تعديلات بسيطة) */
@@ -458,13 +453,11 @@
         </a>
     </nav>
 
-    <!-- ===== ربط script.js (يحتوي على دوال fetchCars, renderCars, createBooking, إلخ) ===== -->
+    <!-- ===== ربط script.js ===== -->
     <script src="script.js"></script>
     
-    <!-- ===== كود تشغيل الصفحة ===== -->
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            // جلب السيارات النشطة فقط
             const cars = await fetchCars({ status: 'active' });
             const container = document.getElementById('cars-grid');
             
@@ -473,65 +466,12 @@
                 return;
             }
             
-            // استخدام دالة renderCars من script.js
             renderCars(cars, 'cars-grid');
             
-            // تحديث شريط التنقل (في script.js)
             if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                 updateNavbarBasedOnLoginStatus();
             }
         });
-        
-        // ===== دالة الحجز الجديدة (تستخدم createBooking من script.js) =====
-        // تم تعديلها لتظهر نافذة اختيار التواريخ وحساب السعر
-        // لكننا نستدعي bookCar الموجودة في script.js، لكننا نعيد تعريفها هنا لتكون متوافقة مع الأزرار الموجودة.
-        // الأزرار في البطاقات تستدعي bookCar(carId) ولكن يجب تعديلها في renderCars.
-        // بما أن renderCars في script.js تقوم بإنشاء الأزرار باستخدام onclick="bookCar('${car.id}')"،
-        // فهي تستخدم الدالة bookCar الموجودة في script.js والتي تعمل مع Supabase.
-        // لذلك لا نحتاج إلى إعادة تعريفها هنا، فقط نتأكد من أن script.js تحتوي على bookCar الصحيحة.
-        // لكننا سنضيف دالة احتياطية في حال عدم وجودها.
-        if (typeof bookCar === 'undefined') {
-            // تعريف دالة bookCar محلياً إذا لم تكن موجودة في script.js
-            window.bookCar = async function(carId) {
-                const user = getCurrentUser();
-                if (!user) {
-                    alert('الرجاء تسجيل الدخول أولاً');
-                    window.location.href = 'landing.html';
-                    return;
-                }
-                
-                const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
-                const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
-                if (!startDate || !endDate) return;
-                
-                // جلب سعر السيارة اليومي
-                const { data: car, error } = await supabase
-                    .from('cars')
-                    .select('daily_price')
-                    .eq('id', carId)
-                    .single();
-                    
-                if (error || !car) {
-                    alert('حدث خطأ في جلب بيانات السيارة');
-                    return;
-                }
-                
-                const days = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000*60*60*24)));
-                const total = days * car.daily_price;
-                
-                const booking = await createBooking({
-                    car_id: carId,
-                    start_date: startDate,
-                    end_date: endDate,
-                    total_price: total
-                });
-                
-                if (booking) {
-                    alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
-                    window.location.href = 'dashboard-renter.html';
-                }
-            };
-        }
         
         // ===== تبديل الوضع (داكن/فاتح) =====
         (function setupTheme() {
