@@ -1,98 +1,592 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>وُجْهَة | الخريطة التفاعلية</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    <link rel="stylesheet" href="style.css">
 
-    <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
+    <!-- ===== Fonts & Icons ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <!-- ===== Leaflet CSS ===== -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+    <!-- ===== Supabase + Project Files ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+    <script src="supabase-config.js">
+    </script>
+    <script src="script.js">
+    </script>
 
     <style>
-        .centered-map-layout { max-width: 900px; margin: 0 auto; position: relative; }
+        /* ===== reset / base ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        a {
+            text-decoration: none;
+        }
 
+        /* ===== header / navbar ===== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            transition: background 0.3s;
+        }
+        body.dark-mode header {
+            background: rgba(30, 30, 40, 0.92);
+            border-bottom-color: #333;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1abc9c;
+            font-weight: 800;
+            font-size: 1.4rem;
+        }
+        .logo-icon {
+            background: #1abc9c;
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.3rem;
+        }
+        .logo-text {
+            letter-spacing: -0.5px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        .nav-links li a {
+            color: #334155;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 6px 4px;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .nav-links li a:hover,
+        .nav-links li a.active {
+            color: #1abc9c;
+            border-bottom-color: #1abc9c;
+        }
+        body.dark-mode .nav-links li a {
+            color: #cbd5e1;
+        }
+        body.dark-mode .nav-links li a:hover,
+        body.dark-mode .nav-links li a.active {
+            color: #f1c40f;
+            border-bottom-color: #f1c40f;
+        }
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #334155;
+            transition: 0.3s;
+        }
+        .theme-toggle:hover {
+            background: #f1f5f9;
+        }
+        body.dark-mode .theme-toggle {
+            color: #f1c40f;
+            border-color: #555;
+        }
+        body.dark-mode .theme-toggle:hover {
+            background: #2d2d3d;
+        }
+        .btn {
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-primary {
+            background: #1abc9c;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #16a085;
+            transform: translateY(-1px);
+        }
+        body.dark-mode .btn-primary {
+            background: #f1c40f;
+            color: #1e293b;
+        }
+        body.dark-mode .btn-primary:hover {
+            background: #f39c12;
+        }
+        .guest-only {
+            display: inline-block;
+        }
+        .auth-link {
+            display: inline-block;
+        }
+
+        /* ===== bottom mobile nav ===== */
+        .bottom-navbar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding: 6px 0;
+            justify-content: space-around;
+            z-index: 999;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+        body.dark-mode .bottom-navbar {
+            background: #1e1e2e;
+            border-top-color: #333;
+        }
+        .bottom-navbar .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            transition: 0.2s;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        .bottom-navbar .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+        .bottom-navbar .nav-item.active {
+            color: #1abc9c;
+        }
+        body.dark-mode .bottom-navbar .nav-item.active {
+            color: #f1c40f;
+        }
+        @media (max-width: 768px) {
+            .bottom-navbar {
+                display: flex;
+            }
+            .desktop-nav-links {
+                display: none !important;
+            }
+            .nav-buttons-desktop-only {
+                display: none !important;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-bottom-navbar {
+                display: none !important;
+            }
+        }
+
+        /* ===== section ===== */
+        section {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section-title h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .section-title p {
+            color: #64748b;
+            font-size: 1.05rem;
+        }
+        body.dark-mode .section-title h2 {
+            color: #f1f5f9;
+        }
+        body.dark-mode .section-title p {
+            color: #94a3b8;
+        }
+
+        /* ===== map layout ===== */
+        .centered-map-layout {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ===== top filter bar ===== */
         .top-filter-bar {
-            background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px;
-            padding: 12px 15px; margin-bottom: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex;
-            align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        body.dark-mode .top-filter-bar {
+            background: #2d3436;
+            border-color: #444;
         }
 
-        .tf-item { display: flex; flex-direction: column; gap: 4px; min-width: 130px; flex: 1; }
-        .tf-label { font-size: 0.8rem; font-weight: bold; color: #666; display: flex; align-items: center; gap: 5px; }
-        .tf-pills { display: flex; gap: 4px; background: #f5f5f5; padding: 3px; border-radius: 50px; width: fit-content; }
-        .tf-pill { padding: 5px 10px; border-radius: 50px; font-size: 0.75rem; cursor: pointer; transition: 0.3s; color: #555; white-space: nowrap; }
-        .tf-pill.active { background: var(--primary, #1abc9c); color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .tf-select { padding: 6px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-family: 'Tajawal'; cursor: pointer; width: 100%; font-size: 0.9rem; }
-        .tf-btn { background: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-weight: bold; height: 38px; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: auto; font-size: 0.9rem; white-space: nowrap; }
-
-        .new-map-container {
-            position: relative; height: 500px; width: 100%;
-            border-radius: 20px; overflow: hidden; border: 4px solid #fff;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1); z-index: 1;
+        .tf-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 130px;
+            flex: 1;
         }
-        #mapid { height: 100%; width: 100%; }
+        .tf-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        body.dark-mode .tf-label {
+            color: #ccc;
+        }
+        .tf-pills {
+            display: flex;
+            gap: 4px;
+            background: #f5f5f5;
+            padding: 3px;
+            border-radius: 50px;
+            width: fit-content;
+        }
+        body.dark-mode .tf-pills {
+            background: #333;
+        }
+        .tf-pill {
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #555;
+            white-space: nowrap;
+        }
+        .tf-pill.active {
+            background: #1abc9c;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        body.dark-mode .tf-pill {
+            color: #aaa;
+        }
+        body.dark-mode .tf-pill.active {
+            background: #f1c40f;
+            color: #000;
+        }
+        .tf-select {
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            font-family: 'Tajawal';
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        body.dark-mode .tf-select {
+            background: #444;
+            color: #fff;
+            border-color: #555;
+        }
+        .tf-btn {
+            background: #2c3e50;
+            color: #fff;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: auto;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+        .tf-btn:hover {
+            background: #1e2b38;
+            transform: scale(1.02);
+        }
+        body.dark-mode .tf-btn {
+            background: #f1c40f;
+            color: #1e293b;
+        }
+        body.dark-mode .tf-btn:hover {
+            background: #f39c12;
+        }
 
         @media (max-width: 768px) {
-            .centered-map-layout { max-width: 100%; padding: 0 10px; }
-            .top-filter-bar { flex-direction: column; align-items: stretch; gap: 12px; }
-            .tf-item { width: 100%; }
-            .tf-pills { width: 100%; overflow-x: auto; justify-content: space-between; }
-            .new-map-container { height: 480px; }
+            .centered-map-layout {
+                max-width: 100%;
+                padding: 0 10px;
+            }
+            .top-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .tf-item {
+                width: 100%;
+            }
+            .tf-pills {
+                width: 100%;
+                overflow-x: auto;
+                justify-content: space-between;
+            }
+            .new-map-container {
+                height: 480px;
+            }
         }
 
-        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
-        .leaflet-popup-content { margin: 0 !important; width: 220px !important; } 
-        .popup-car-card { padding: 10px; max-height: 260px; overflow-y: auto; }
-        .popup-img { width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 5px; }
-        .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .popup-header h4 { margin: 0; font-size: 0.9rem; color: #1abc9c; }
-        .popup-rating { background: #fff9db; padding: 1px 6px; border-radius: 4px; font-weight: bold; color: #f39c12; font-size: 0.75rem; }
-        .rating-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin: 3px 0; color: #666; align-items: center; }
-        .progress-bar { width: 60px; height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #2ecc71; }
-        .popup-btn { display: block; padding: 6px; font-size: 0.85rem; text-align: center; background: var(--primary, #1abc9c); color: white; border-radius: 6px; margin-top: 8px; text-decoration: none; }
-        .leaflet-popup-close-button { font-size: 18px !important; color: #333 !important; top: 5px !important; right: 5px !important; width: 24px !important; height: 24px !important; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* ===== map container ===== */
+        .new-map-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 4px solid #fff;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        body.dark-mode .new-map-container {
+            border-color: #444;
+        }
+        #mapid {
+            height: 100%;
+            width: 100%;
+        }
 
-        body.dark-mode .top-filter-bar { background: #2d3436; border-color: #444; }
-        body.dark-mode .tf-label { color: #ccc; }
-        body.dark-mode .tf-select { background: #444; color: white; border-color: #555; }
-        body.dark-mode .tf-pills { background: #333; }
-        body.dark-mode .tf-pill { color: #aaa; }
-        body.dark-mode .tf-pill.active { background: #f1c40f; color: #000; }
-        body.dark-mode .new-map-container { border-color: #444; }
-        body.dark-mode #mapid .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        /* ===== leaflet popup ===== */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+        }
+        .leaflet-popup-content {
+            margin: 0 !important;
+            width: 220px !important;
+        }
+        .popup-car-card {
+            padding: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .popup-img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .popup-header h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #1abc9c;
+        }
+        .popup-rating {
+            background: #fff9db;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #f39c12;
+            font-size: 0.75rem;
+        }
+        .rating-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            margin: 3px 0;
+            color: #666;
+            align-items: center;
+        }
+        .progress-bar {
+            width: 60px;
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #2ecc71;
+        }
+        .popup-btn {
+            display: block;
+            padding: 6px;
+            font-size: 0.85rem;
+            text-align: center;
+            background: #1abc9c;
+            color: #fff;
+            border-radius: 6px;
+            margin-top: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .popup-btn:hover {
+            background: #16a085;
+        }
+        .leaflet-popup-close-button {
+            font-size: 18px !important;
+            color: #333 !important;
+            top: 5px !important;
+            right: 5px !important;
+            width: 24px !important;
+            height: 24px !important;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
+        /* ===== dark mode map tiles ===== */
+        body.dark-mode #mapid .leaflet-tile-pane {
+            filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+
+        /* ===== custom marker ===== */
         .price-marker-box {
-            background: white; border-radius: 30px; padding: 4px 10px;
-            font-weight: bold; font-family: 'Tajawal'; font-size: 0.8rem;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2); border: 2px solid white;
-            display: flex; align-items: center; gap: 4px; color: #333; transition: transform 0.2s;
+            background: #fff;
+            border-radius: 30px;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-family: 'Tajawal';
+            font-size: 0.8rem;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #333;
+            transition: transform 0.2s;
+            cursor: pointer;
         }
-        .price-marker-box:hover { transform: scale(1.1); z-index: 1000; }
-        .price-marker-box.premium { background: #2c3e50; color: #f1c40f; border-color: #f1c40f; }
+        .price-marker-box:hover {
+            transform: scale(1.1);
+            z-index: 1000;
+        }
+        .price-marker-box.premium {
+            background: #2c3e50;
+            color: #f1c40f;
+            border-color: #f1c40f;
+        }
+        .custom-none {
+            background: transparent !important;
+            border: none !important;
+        }
 
+        /* ===== loading overlay ===== */
         .loading-map {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(255,255,255,0.8); padding: 20px 30px; border-radius: 12px;
-            z-index: 1000; font-weight: bold; color: #555;
-            display: flex; align-items: center; gap: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 20px 30px;
+            border-radius: 12px;
+            z-index: 1000;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
         }
-        body.dark-mode .loading-map { background: rgba(30,30,30,0.9); color: #ccc; }
+        body.dark-mode .loading-map {
+            background: rgba(30, 30, 30, 0.9);
+            color: #ccc;
+        }
+
+        /* ===== responsive ===== */
+        @media (max-width: 768px) {
+            .new-map-container {
+                height: 480px;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">الأسطول</a></li>
@@ -110,18 +604,20 @@
         </div>
     </header>
 
-    <section style="padding-top: 120px; padding-bottom: 50px;">
+    <!-- ===== MAIN SECTION ===== -->
+    <section>
         <div class="container">
             <div class="section-title" data-aos="fade-up">
                 <h2>استكشف السيارات حولك</h2>
                 <p>اختر السيارة، شيك على تقييمها، وانطلق!</p>
             </div>
-            
+
             <div class="centered-map-layout">
+                <!-- filter bar -->
                 <div class="top-filter-bar" data-aos="fade-up">
                     <div class="tf-item">
                         <span class="tf-label"><i class="fas fa-map-marker-alt"></i> المدينة</span>
-                        <select id="city-selector" class="tf-select" onchange="changeCity()">
+                        <select id="city-selector" class="tf-select">
                             <option value="all">جميع المدن</option>
                             <option value="الرياض">الرياض</option>
                             <option value="جدة">جدة</option>
@@ -132,20 +628,21 @@
                     </div>
                     <div class="tf-item">
                         <span class="tf-label"><i class="fas fa-car"></i> الفئة</span>
-                        <div class="tf-pills">
-                            <div class="tf-pill active" onclick="filterMap('الكل', this)">الكل</div>
-                            <div class="tf-pill" onclick="filterMap('sedan', this)">سيدان</div>
-                            <div class="tf-pill" onclick="filterMap('suv', this)">عائلي</div>
-                            <div class="tf-pill" onclick="filterMap('luxury', this)">فاخرة</div>
+                        <div class="tf-pills" id="type-pills">
+                            <div class="tf-pill active" data-type="الكل">الكل</div>
+                            <div class="tf-pill" data-type="sedan">سيدان</div>
+                            <div class="tf-pill" data-type="suv">عائلي</div>
+                            <div class="tf-pill" data-type="luxury">فاخرة</div>
                         </div>
                     </div>
                     <div class="tf-item">
-                        <span class="tf-label"><i class="fas fa-tag"></i> الحد الأقصى: <span id="priceValue" style="color:var(--primary, green);">1000</span> ريال</span>
-                        <input type="range" min="50" max="1000" value="1000" style="width:100%; accent-color:var(--primary, green);" oninput="updatePriceLabel(this.value); renderCars()">
+                        <span class="tf-label"><i class="fas fa-tag"></i> الحد الأقصى: <span id="priceValue" style="color:#1abc9c;font-weight:700;">1000</span> ريال</span>
+                        <input type="range" min="50" max="1000" value="1000" style="width:100%; accent-color:#1abc9c;" id="priceSlider" />
                     </div>
-                    <button class="tf-btn" onclick="simulateSmartLocate()" id="smart-locate-btn"><i class="fas fa-crosshairs"></i> الأقرب</button>
+                    <button class="tf-btn" id="smart-locate-btn"><i class="fas fa-crosshairs"></i> الأقرب</button>
                 </div>
 
+                <!-- map -->
                 <div class="new-map-container" data-aos="zoom-in">
                     <div id="mapid"></div>
                     <div id="loading-map-overlay" class="loading-map">
@@ -156,6 +653,7 @@
         </div>
     </section>
 
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -164,18 +662,15 @@
         <a href="qassim-map.html" class="nav-item active"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({ once: true });
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous">
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js">
+    </script>
 
-        // ===== متغيرات الخريطة =====
-        let map, carLayer, routeLine;
-        let currentCars = [];
-        const centerPoint = [24.8375090, 46.7297325];
-        let currType = 'الكل';
-        let maxPrice = 1000;
-        let currCity = 'all';
+    <script>
+        // ===== AOS =====
+        AOS.init({ once: true });
 
         // ===== تحديث شريط التنقل =====
         function updateNavbarLocal() {
@@ -183,178 +678,263 @@
                 updateNavbarBasedOnLoginStatus();
             }
         }
+        updateNavbarLocal();
 
-        // ===== جلب السيارات من Supabase =====
-        async function fetchCarsForMap() {
-            try {
-                // استخدام window.supabaseClient بدلاً من supabase
-                const { data, error } = await window.supabaseClient
-                    .from('cars')
-                    .select('*')
-                    .eq('status', 'active');
-
-                if (error) throw error;
-                return data || [];
-            } catch (err) {
-                console.error('خطأ في جلب السيارات:', err);
-                return [];
+        // ===== الثيم =====
+        (function initTheme() {
+            const btn = document.getElementById('theme-toggle-desktop');
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
             }
-        }
-
-        // ===== إنشاء أيقونة السعر (معرف قبل الاستخدام) =====
-        function createPriceIcon(price, type, isPremium) {
-            let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
-            if (type === 'luxury') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
-            else if (type === 'suv') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
-            return L.divIcon({
-                className: 'custom-none',
-                html: `<div class="price-marker-box ${isPremium ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
-                iconSize: [80, 30],
-                iconAnchor: [40, 35],
-                popupAnchor: [0, -35]
-            });
-        }
-
-        // ===== عرض السيارات على الخريطة =====
-        function renderCars() {
-            if (!map || !carLayer) return;
-            carLayer.clearLayers();
-            if (routeLine) map.removeLayer(routeLine);
-
-            let filtered = currentCars.filter(car => {
-                const typeMatch = currType === 'الكل' ? true : car.type === currType;
-                const priceMatch = (car.daily_price || 0) <= maxPrice;
-                const cityMatch = currCity === 'all' ? true : car.city === currCity;
-                return typeMatch && priceMatch && cityMatch;
-            });
-
-            if (filtered.length === 0) {
-                // عرض رسالة على الخريطة
-                L.popup()
-                    .setLatLng(centerPoint)
-                    .setContent('لا توجد سيارات تطابق الفلتر الحالي.')
-                    .openOn(map);
-                return;
-            }
-
-            filtered.forEach(car => {
-                const lat = parseFloat(car.lat) || 24.8;
-                const lng = parseFloat(car.lng) || 46.7;
-                const price = car.daily_price || 0;
-                const isPremium = car.rating && car.rating >= 4.8;
-
-                const marker = L.marker([lat, lng], {
-                    icon: createPriceIcon(price, car.type, isPremium)
-                }).addTo(carLayer);
-
-                marker.on('click', function() {
-                    const offsetLat = lat + 0.0025;
-                    map.flyTo([offsetLat, lng], 16, { duration: 1 });
-                    if (routeLine) map.removeLayer(routeLine);
-                    routeLine = L.polyline([centerPoint, [lat, lng]], {
-                        color: '#34495e',
-                        dashArray: '10, 10'
-                    }).addTo(map);
-                });
-
-                const imgUrl = car.images && car.images.length > 0 ? car.images[0] : 'https://via.placeholder.com/300x200?text=سيارة';
-                const content = `
-                    <div class="popup-car-card">
-                        <img src="${imgUrl}" class="popup-img" alt="${car.brand || ''} ${car.model || ''}">
-                        <div class="popup-header">
-                            <h4>${car.brand || ''} ${car.model || ''}</h4>
-                            <span class="popup-rating">⭐ ${car.rating || 4.5}</span>
-                        </div>
-                        <div style="margin:5px 0;">
-                            <div class="rating-row"><span>الميكانيكا</span><div class="progress-bar"><div class="progress-fill" style="width:${(car.rating || 4.5)*10}%"></div></div></div>
-                            <div class="rating-row"><span>النظافة</span><div class="progress-bar"><div class="progress-fill" style="width:${(car.rating || 4.5)*10}%"></div></div></div>
-                        </div>
-                        <a href="cars.html" class="popup-btn">حجز بـ ${price} ريال</a>
-                    </div>
-                `;
-                marker.bindPopup(content, {
-                    autoPan: true,
-                    autoPanPadding: [20, 20],
-                    closeButton: true
-                });
-            });
-        }
-
-        // ===== دوال الفلاتر =====
-        window.updatePriceLabel = function(val) {
-            maxPrice = parseInt(val);
-            document.getElementById('priceValue').innerText = maxPrice;
-            renderCars();
-        };
-
-        window.filterMap = function(type, el) {
-            currType = type;
-            document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
-            if (el) el.classList.add('active');
-            renderCars();
-        };
-
-        window.changeCity = function() {
-            const select = document.getElementById('city-selector');
-            currCity = select.value;
-            renderCars();
-        };
-
-        window.simulateSmartLocate = function() {
-            if (map) map.flyTo(centerPoint, 16);
-        };
-
-        // ===== تهيئة الخريطة =====
-        async function initMap() {
-            const mapContainer = document.getElementById('mapid');
-            if (!mapContainer) return;
-
-            const overlay = document.getElementById('loading-map-overlay');
-            overlay.style.display = 'flex';
-
-            // جلب السيارات من Supabase
-            currentCars = await fetchCarsForMap();
-
-            overlay.style.display = 'none';
-
-            // إنشاء الخريطة
-            map = L.map('mapid').setView(centerPoint, 14);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; CARTO',
-                maxZoom: 20
-            }).addTo(map);
-
-            carLayer = L.layerGroup().addTo(map);
-            renderCars();
-
-            setTimeout(() => map.invalidateSize(), 500);
-
-            map.on('popupclose', function() {
-                map.flyTo(centerPoint, 14, { duration: 1 });
-                if (routeLine) map.removeLayer(routeLine);
-            });
-        }
-
-        // ===== تهيئة الصفحة =====
-        document.addEventListener('DOMContentLoaded', function() {
-            updateNavbarLocal();
-
-            const themeBtn = document.getElementById('theme-toggle-desktop');
-            if (themeBtn) {
-                if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-                themeBtn.addEventListener('click', () => {
+            if (btn) {
+                btn.addEventListener('click', function() {
                     document.body.classList.toggle('dark-mode');
-                    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+                    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' :
+                        'light');
+                });
+            }
+        })();
+
+        // =====================================================================
+        //  الخريطة — استخدام أسماء فريدة لتجنب التضارب مع script.js
+        // =====================================================================
+        (function() {
+
+            // ---- متغيرات خاصة بالخريطة ----
+            let mapInstance = null;
+            let carLayerInstance = null;
+            let routeLineInstance = null;
+
+            let currentCars = [];
+            const centerPoint = [24.8375090, 46.7297325];
+            let currType = 'الكل';
+            let maxPrice = 1000;
+            let currCity = 'all';
+
+            // ---- عناصر DOM ----
+            const citySelect = document.getElementById('city-selector');
+            const priceSlider = document.getElementById('priceSlider');
+            const priceValueSpan = document.getElementById('priceValue');
+            const typePills = document.querySelectorAll('#type-pills .tf-pill');
+            const locateBtn = document.getElementById('smart-locate-btn');
+            const overlay = document.getElementById('loading-map-overlay');
+
+            // ---- جلب السيارات من Supabase ----
+            async function fetchCarsForMap() {
+                try {
+                    const { data, error } = await window.supabaseClient
+                        .from('cars')
+                        .select('*')
+                        .eq('status', 'active');
+                    if (error) throw error;
+                    return data || [];
+                } catch (err) {
+                    console.error('خطأ في جلب السيارات:', err);
+                    return [];
+                }
+            }
+
+            // ---- إنشاء أيقونة السعر ----
+            function createPriceIcon(price, type, isPremium) {
+                let iconHtml = '<i class="fas fa-car" style="color:#1abc9c"></i>';
+                if (type === 'luxury') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
+                else if (type === 'suv') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
+                return L.divIcon({
+                    className: 'custom-none',
+                    html: `<div class="price-marker-box ${isPremium ? 'premium' : ''}">${iconHtml} ${price} ﷼</div>`,
+                    iconSize: [80, 30],
+                    iconAnchor: [40, 35],
+                    popupAnchor: [0, -35]
                 });
             }
 
-            // انتظر تحميل leaflet وبدء الخريطة
+            // ---- عرض السيارات على الخريطة ----
+            function renderCars() {
+                if (!mapInstance || !carLayerInstance) return;
+                carLayerInstance.clearLayers();
+                if (routeLineInstance) {
+                    mapInstance.removeLayer(routeLineInstance);
+                    routeLineInstance = null;
+                }
+
+                const filtered = currentCars.filter(car => {
+                    const typeMatch = currType === 'الكل' ? true : car.type === currType;
+                    const priceMatch = (car.daily_price || 0) <= maxPrice;
+                    const cityMatch = currCity === 'all' ? true : car.city === currCity;
+                    return typeMatch && priceMatch && cityMatch;
+                });
+
+                if (filtered.length === 0) {
+                    L.popup()
+                        .setLatLng(centerPoint)
+                        .setContent('لا توجد سيارات تطابق الفلتر الحالي.')
+                        .openOn(mapInstance);
+                    return;
+                }
+
+                filtered.forEach(car => {
+                    const lat = parseFloat(car.lat) || 24.8;
+                    const lng = parseFloat(car.lng) || 46.7;
+                    const price = car.daily_price || 0;
+                    const isPremium = car.rating && car.rating >= 4.8;
+
+                    const marker = L.marker([lat, lng], {
+                        icon: createPriceIcon(price, car.type, isPremium)
+                    }).addTo(carLayerInstance);
+
+                    marker.on('click', function() {
+                        const offsetLat = lat + 0.0025;
+                        mapInstance.flyTo([offsetLat, lng], 16, { duration: 1 });
+                        if (routeLineInstance) {
+                            mapInstance.removeLayer(routeLineInstance);
+                            routeLineInstance = null;
+                        }
+                        routeLineInstance = L.polyline([centerPoint, [lat, lng]], {
+                            color: '#34495e',
+                            dashArray: '10, 10'
+                        }).addTo(mapInstance);
+                    });
+
+                    const imgUrl = car.images && car.images.length > 0 ?
+                        car.images[0] :
+                        'https://via.placeholder.com/300x200?text=سيارة';
+
+                    const content = `
+                            <div class="popup-car-card">
+                                <img src="${imgUrl}" class="popup-img" alt="${car.brand || ''} ${car.model || ''}" />
+                                <div class="popup-header">
+                                    <h4>${car.brand || ''} ${car.model || ''}</h4>
+                                    <span class="popup-rating">⭐ ${car.rating || 4.5}</span>
+                                </div>
+                                <div style="margin:5px 0;">
+                                    <div class="rating-row">
+                                        <span>الميكانيكا</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width:${(car.rating || 4.5) * 10}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="rating-row">
+                                        <span>النظافة</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width:${(car.rating || 4.5) * 10}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="cars.html" class="popup-btn">حجز بـ ${price} ريال</a>
+                            </div>
+                        `;
+                    marker.bindPopup(content, {
+                        autoPan: true,
+                        autoPanPadding: [20, 20],
+                        closeButton: true
+                    });
+                });
+            }
+
+            // ---- دوال الفلاتر (معروضة للاستخدام من HTML) ----
+            window.updatePriceLabel = function(val) {
+                maxPrice = parseInt(val, 10);
+                if (priceValueSpan) priceValueSpan.innerText = maxPrice;
+                renderCars();
+            };
+
+            window.filterMap = function(type, el) {
+                currType = type;
+                typePills.forEach(p => p.classList.remove('active'));
+                if (el) el.classList.add('active');
+                renderCars();
+            };
+
+            window.changeCity = function() {
+                currCity = citySelect ? citySelect.value : 'all';
+                renderCars();
+            };
+
+            window.simulateSmartLocate = function() {
+                if (mapInstance) {
+                    mapInstance.flyTo(centerPoint, 16, { duration: 1.2 });
+                }
+            };
+
+            // ---- ربط الأحداث ----
+            if (priceSlider) {
+                priceSlider.addEventListener('input', function() {
+                    const val = parseInt(this.value, 10);
+                    maxPrice = val;
+                    if (priceValueSpan) priceValueSpan.innerText = val;
+                    renderCars();
+                });
+                // مزامنة القيمة الابتدائية
+                maxPrice = parseInt(priceSlider.value, 10);
+                if (priceValueSpan) priceValueSpan.innerText = maxPrice;
+            }
+
+            if (citySelect) {
+                citySelect.addEventListener('change', function() {
+                    currCity = this.value;
+                    renderCars();
+                });
+            }
+
+            typePills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    const type = this.dataset.type || 'الكل';
+                    typePills.forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    currType = type;
+                    renderCars();
+                });
+            });
+
+            if (locateBtn) {
+                locateBtn.addEventListener('click', function() {
+                    window.simulateSmartLocate();
+                });
+            }
+
+            // ---- تهيئة الخريطة ----
+            async function initMap() {
+                const mapContainer = document.getElementById('mapid');
+                if (!mapContainer) return;
+
+                if (overlay) overlay.style.display = 'flex';
+
+                // جلب السيارات
+                currentCars = await fetchCarsForMap();
+
+                if (overlay) overlay.style.display = 'none';
+
+                // إنشاء الخريطة
+                mapInstance = L.map('mapid').setView(centerPoint, 14);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; CARTO',
+                    maxZoom: 20
+                }).addTo(mapInstance);
+
+                carLayerInstance = L.layerGroup().addTo(mapInstance);
+                renderCars();
+
+                setTimeout(() => {
+                    if (mapInstance) mapInstance.invalidateSize();
+                }, 500);
+
+                mapInstance.on('popupclose', function() {
+                    mapInstance.flyTo(centerPoint, 14, { duration: 1 });
+                    if (routeLineInstance) {
+                        mapInstance.removeLayer(routeLineInstance);
+                        routeLineInstance = null;
+                    }
+                });
+            }
+
+            // ---- بدء التشغيل ----
             if (typeof L !== 'undefined') {
                 initMap();
             } else {
-                console.error('Leaflet library not loaded');
+                console.error('Leaflet لم يتم تحميلها');
             }
-        });
+
+        })(); // نهاية IIFE
     </script>
 </body>
 </html>
