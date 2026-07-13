@@ -26,7 +26,7 @@
                     <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة تحكم المستأجر</a></li>
                     <li><a href="add-car.html" class="auth-link active" id="nav-add-car">أضف سيارتك</a></li>
                     <li><a href="quiz.html">اختبار السيارة المناسبة</a></li>
-                    <li><a href="qassim-map.html">خريطة </a></li>
+                    <li><a href="qassim-map.html">خريطة</a></li>
                 </ul>
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
@@ -56,6 +56,19 @@
                         <div class="form-group"><label>نوع ناقل الحركة</label><select class="form-control" id="car-transmission"><option value="automatic">أوتوماتيك</option><option value="manual">يدوي</option></select></div>
                         <div class="form-group"><label>نوع الوقود</label><select class="form-control" id="car-fuel"><option value="gasoline">بنزين</option><option value="hybrid">هايبرد</option><option value="electric">كهرباء</option></select></div>
                     </div>
+
+                    <!-- ===== إضافة موقع السيارة ===== -->
+                    <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin:15px 0; border:1px solid #e9ecef;">
+                        <h4 style="margin-bottom:10px;"><i class="fas fa-map-pin" style="color:#c5a065;"></i> موقع السيارة (اختياري)</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label>خط العرض (Latitude)</label><input type="text" class="form-control" id="car-latitude" placeholder="مثال: 24.8375"></div>
+                            <div class="form-group"><label>خط الطول (Longitude)</label><input type="text" class="form-control" id="car-longitude" placeholder="مثال: 46.7297"></div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="getCurrentLocation()" style="margin-top:5px;">
+                            <i class="fas fa-location-dot"></i> استخدم موقعي الحالي
+                        </button>
+                    </div>
+
                     <div class="form-group"><label>وصف السيارة</label><textarea class="form-control" id="car-description" rows="4" placeholder="أضف وصفاً دقيقاً لسيارتك..."></textarea></div>
                     <div class="form-group">
                         <label>صور السيارة (يمكن رفع حتى 5 صور)</label>
@@ -96,22 +109,47 @@
     <script>
         AOS.init({ once: true });
 
-        // ===== التحقق من صلاحية المستخدم (مالك أو أدمن) =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const role = getUserRole();
-            if (role !== 'owner' && role !== 'admin') {
-                alert('❌ عذراً، هذه الصفحة مخصصة للمالكين فقط. الرجاء تسجيل الدخول كمالك.');
-                window.location.href = 'index.html';
-                return;
-            }
-            // تحديث شريط التنقل
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
-        });
-
+        // ===== المتغيرات العامة =====
         let uploadedImages = [];
+        let currentUserId = null;
+        let currentUserRole = null;
 
+        // ===== 1. جلب المستخدم الحقيقي من Supabase =====
+        async function loadUserData() {
+            try {
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+                if (error || !user) {
+                    console.warn('لا توجد جلسة نشطة');
+                    return false;
+                }
+                const role = user.user_metadata?.role || 'user';
+                if (role !== 'owner' && role !== 'admin') {
+                    alert('❌ عذراً، هذه الصفحة مخصصة للمالكين فقط.');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                currentUserId = user.id; // UUID حقيقي
+                currentUserRole = role;
+
+                // تحديث الاسم في localStorage للدوال الأخرى
+                const name = user.user_metadata?.name || user.email || 'مالك';
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userType', role);
+                localStorage.setItem('userName', name);
+
+                if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                    updateNavbarBasedOnLoginStatus();
+                }
+                return true;
+            } catch (err) {
+                console.error('فشل تحميل بيانات المستخدم:', err);
+                alert('حدث خطأ في التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.');
+                window.location.href = 'landing.html';
+                return false;
+            }
+        }
+
+        // ===== 2. معالجة الصور =====
         function handleCarImages(input) {
             const previews = document.getElementById('image-previews');
             const files = input.files;
@@ -134,21 +172,98 @@
             input.value = '';
         }
 
+        // ===== 3. الحصول على الموقع الحالي =====
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                alert('المتصفح لا يدعم تحديد الموقع.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    document.getElementById('car-latitude').value = pos.coords.latitude.toFixed(6);
+                    document.getElementById('car-longitude').value = pos.coords.longitude.toFixed(6);
+                    showMessage('✅ تم تحديد موقعك بنجاح!', 'success');
+                },
+                (err) => {
+                    alert('❌ لم نتمكن من تحديد موقعك: ' + err.message);
+                }
+            );
+        }
+
+        // ===== 4. دالة عرض الرسائل =====
+        function showMessage(text, type = 'info') {
+            const msg = document.getElementById('form-message');
+            msg.style.display = 'block';
+            msg.textContent = text;
+            if (type === 'success') {
+                msg.style.background = '#e8f5e9';
+                msg.style.color = '#27ae60';
+            } else if (type === 'error') {
+                msg.style.background = '#fde8e8';
+                msg.style.color = '#e74c3c';
+            } else {
+                msg.style.background = '#e3f2fd';
+                msg.style.color = '#0d47a1';
+            }
+        }
+
+        // ===== 5. إضافة سيارة (دالة createCar المحسنة) =====
+        window.createCar = async function(carData) {
+            try {
+                // التأكد من وجود owner_id
+                if (!currentUserId) {
+                    throw new Error('المستخدم غير مسجل الدخول');
+                }
+
+                const payload = {
+                    owner_id: currentUserId,
+                    brand: carData.brand,
+                    model: carData.model,
+                    year: carData.year,
+                    color: carData.color || '',
+                    plate_number: carData.plate_number || '',
+                    daily_price: carData.daily_price,
+                    city: carData.city,
+                    location: carData.location || '',
+                    description: carData.description || '',
+                    type: carData.type,
+                    passengers: carData.passengers || 5,
+                    transmission: carData.transmission || 'automatic',
+                    fuel: carData.fuel || 'gasoline',
+                    images: carData.images || [],
+                    status: 'pending', // ينتظر موافقة الأدمن
+                    latitude: parseFloat(carData.latitude) || null,
+                    longitude: parseFloat(carData.longitude) || null,
+                    created_at: new Date().toISOString()
+                };
+
+                const { data, error } = await window.supabaseClient
+                    .from('cars')
+                    .insert([payload])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                return data;
+            } catch (err) {
+                console.error('خطأ في createCar:', err);
+                throw err;
+            }
+        };
+
+        // ===== 6. معالج إرسال النموذج =====
         async function handleAddCar(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
-            const message = document.getElementById('form-message');
-            message.style.display = 'none';
+            const msg = document.getElementById('form-message');
+            msg.style.display = 'none';
 
-            const user = getCurrentUser();
-            if (!user) {
-                message.style.display = 'block';
-                message.style.background = '#fde8e8';
-                message.style.color = '#e74c3c';
-                message.textContent = 'الرجاء تسجيل الدخول أولاً';
+            if (!currentUserId) {
+                showMessage('الرجاء تسجيل الدخول أولاً', 'error');
                 return;
             }
 
+            // جمع البيانات
             const carData = {
                 brand: document.getElementById('car-brand').value.trim(),
                 model: document.getElementById('car-model').value.trim(),
@@ -163,58 +278,108 @@
                 passengers: parseInt(document.getElementById('car-passengers').value),
                 transmission: document.getElementById('car-transmission').value,
                 fuel: document.getElementById('car-fuel').value,
+                latitude: document.getElementById('car-latitude').value.trim(),
+                longitude: document.getElementById('car-longitude').value.trim(),
                 images: uploadedImages.slice(0, 5)
             };
 
+            // التحقق من الحقول المطلوبة
             if (!carData.brand || !carData.model || !carData.year || !carData.daily_price || !carData.city) {
-                message.style.display = 'block';
-                message.style.background = '#fde8e8';
-                message.style.color = '#e74c3c';
-                message.textContent = 'يرجى ملء جميع الحقول المطلوبة (*)';
+                showMessage('يرجى ملء جميع الحقول المطلوبة (*)', 'error');
                 return;
+            }
+
+            // تحويل الموقع إلى أرقام إذا كانت موجودة
+            if (carData.latitude) {
+                const lat = parseFloat(carData.latitude);
+                if (!isNaN(lat)) carData.latitude = lat;
+                else carData.latitude = null;
+            }
+            if (carData.longitude) {
+                const lng = parseFloat(carData.longitude);
+                if (!isNaN(lng)) carData.longitude = lng;
+                else carData.longitude = null;
             }
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
             btn.disabled = true;
 
             try {
-                const result = await createCar(carData);
+                const result = await window.createCar(carData);
                 if (result) {
-                    message.style.display = 'block';
-                    message.style.background = '#e8f5e9';
-                    message.style.color = '#27ae60';
-                    message.textContent = '✅ تم إضافة السيارة بنجاح، في انتظار موافقة الأدمن.';
+                    showMessage('✅ تم إضافة السيارة بنجاح، في انتظار موافقة الأدمن.', 'success');
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> تم الإضافة';
                     btn.style.background = '#2ecc71';
                     btn.style.borderColor = '#2ecc71';
+
+                    // إعادة تعيين النموذج بعد 3 ثواني
                     setTimeout(() => {
                         document.getElementById('car-form').reset();
                         document.getElementById('image-previews').innerHTML = '';
                         uploadedImages = [];
+                        document.getElementById('car-latitude').value = '';
+                        document.getElementById('car-longitude').value = '';
                         btn.innerHTML = '<i class="fas fa-check-circle"></i> إضافة السيارة';
                         btn.style.background = '';
                         btn.style.borderColor = '';
                         btn.disabled = false;
-                        message.textContent = '🔄 تم إعادة تعيين النموذج، يمكنك إضافة سيارة أخرى.';
+                        showMessage('🔄 تم إعادة تعيين النموذج، يمكنك إضافة سيارة أخرى.', 'info');
                     }, 3000);
                 } else {
-                    message.style.display = 'block';
-                    message.style.background = '#fde8e8';
-                    message.style.color = '#e74c3c';
-                    message.textContent = 'حدث خطأ أثناء إضافة السيارة، حاول مرة أخرى.';
+                    showMessage('حدث خطأ أثناء إضافة السيارة، حاول مرة أخرى.', 'error');
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> إضافة السيارة';
                     btn.disabled = false;
                 }
             } catch (err) {
-                console.error(err);
-                message.style.display = 'block';
-                message.style.background = '#fde8e8';
-                message.style.color = '#e74c3c';
-                message.textContent = 'حدث خطأ غير متوقع: ' + err.message;
+                console.error('خطأ في handleAddCar:', err);
+                showMessage('حدث خطأ غير متوقع: ' + err.message, 'error');
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> إضافة السيارة';
                 btn.disabled = false;
             }
         }
+
+        // ===== 7. الوضع الليلي =====
+        (function setupTheme() {
+            const themeToggle = document.getElementById('theme-toggle-desktop');
+            if (!themeToggle) return;
+            const applyTheme = (theme) => {
+                document.body.classList.toggle('dark-mode', theme === 'dark');
+                localStorage.setItem('theme', theme);
+                const icon = themeToggle.querySelector('i');
+                const span = themeToggle.querySelector('span');
+                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
+            };
+            const current = localStorage.getItem('theme') || 'light';
+            applyTheme(current);
+            themeToggle.addEventListener('click', () => {
+                const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                applyTheme(next);
+            });
+        })();
+
+        // ===== 8. تهيئة الصفحة =====
+        (async function init() {
+            const loaded = await loadUserData();
+            if (!loaded) {
+                // loadUserData ستقوم بالتوجيه إذا فشلت
+                return;
+            }
+            // التأكد من أن الدالة createCar متاحة عالمياً
+            if (typeof window.createCar !== 'function') {
+                console.warn('⚠️ createCar غير معرّفة، سيتم تعريفها محلياً');
+                // تم تعريفها أعلاه
+            }
+            console.log('✅ صفحة إضافة السيارة جاهزة (مع UUID حقيقي وموقع)');
+        })();
+
+        // ===== 9. تعريض الدوال للنافذة العامة =====
+        window.handleAddCar = handleAddCar;
+        window.handleCarImages = handleCarImages;
+        window.getCurrentLocation = getCurrentLocation;
+        window.showMessage = showMessage;
+
+        console.log('✅ add-car.html جاهز للعمل مع Supabase!');
     </script>
 </body>
 </html>
