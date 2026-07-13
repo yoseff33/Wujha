@@ -817,6 +817,135 @@ function renderImpactDashboard() {
 }
 
 // -------------------------------------
+// دوال المصادقة الحقيقية (تستخدم Supabase)
+// -------------------------------------
+
+/**
+ * تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
+ * @param {string} email - البريد الإلكتروني
+ * @param {string} password - كلمة المرور
+ * @returns {Promise<{success: boolean, user?: object, role?: string, error?: string}>}
+ */
+window.signInUser = async function(email, password) {
+    try {
+        // التأكد من وجود عميل Supabase
+        if (typeof window.supabaseClient === 'undefined') {
+            throw new Error('لم يتم تهيئة Supabase بعد');
+        }
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        if (error) {
+            console.error('خطأ في تسجيل الدخول:', error);
+            return { success: false, error: error.message };
+        }
+        // تخزين التوكن في localStorage (اختياري)
+        if (data.session) {
+            localStorage.setItem('supabase_token', data.session.access_token);
+            // استخراج الدور من user_metadata
+            const role = data.user?.user_metadata?.role || 'user';
+            // تحديث حالة الدخول في localStorage (للتوافق مع الدوال الأخرى)
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userType', role);
+            localStorage.setItem('userName', data.user?.user_metadata?.name || 'مستخدم');
+            // تحديث شريط التنقل
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
+            }
+            return { success: true, user: data.user, role: role };
+        } else {
+            return { success: false, error: 'لم يتم استلام جلسة' };
+        }
+    } catch (err) {
+        console.error('استثناء في تسجيل الدخول:', err);
+        return { success: false, error: err.message };
+    }
+};
+
+/**
+ * إنشاء حساب جديد مع بيانات إضافية
+ * @param {string} email - البريد الإلكتروني
+ * @param {string} password - كلمة المرور
+ * @param {string} role - نوع الحساب (user, renter, owner, admin)
+ * @param {string} name - الاسم الكامل
+ * @param {string} phone - رقم الجوال
+ * @param {Object} extraData - بيانات إضافية (national_id, birth_date, driver_license, gender)
+ * @returns {Promise<{success: boolean, user?: object, error?: string}>}
+ */
+window.signUpUser = async function(email, password, role, name, phone, extraData = {}) {
+    try {
+        if (typeof window.supabaseClient === 'undefined') {
+            throw new Error('لم يتم تهيئة Supabase بعد');
+        }
+
+        // تحضير البيانات الوصفية للمستخدم
+        const metadata = {
+            name: name,
+            phone: phone,
+            role: role || 'user',
+            status: (role === 'owner') ? 'pending' : 'approved',
+            ...extraData  // national_id, birth_date, driver_license, gender
+        };
+
+        // إنشاء الحساب في Auth
+        const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: metadata
+            }
+        });
+
+        if (authError) {
+            console.error('خطأ في إنشاء الحساب:', authError);
+            return { success: false, error: authError.message };
+        }
+
+        if (!authData.user) {
+            return { success: false, error: 'لم يتم إنشاء المستخدم' };
+        }
+
+        // إدراج بيانات المستخدم الإضافية في جدول users (إذا كان موجوداً)
+        // يمكننا محاولة الإدراج، ولكن لا نعتمد عليه إذا لم يكن الجدول موجوداً
+        try {
+            await window.supabaseClient.from('users').insert([{
+                id: authData.user.id,
+                email: email,
+                name: name,
+                phone: phone,
+                role: role || 'user',
+                status: (role === 'owner') ? 'pending' : 'approved',
+                national_id: extraData.national_id || null,
+                birth_date: extraData.birth_date || null,
+                driver_license: extraData.driver_license || null,
+                gender: extraData.gender || null,
+                created_at: new Date().toISOString()
+            }]);
+        } catch (insertErr) {
+            console.warn('فشل إدراج بيانات المستخدم في جدول users (قد يكون الجدول غير موجود):', insertErr);
+            // لا نعتبر هذا خطأ فادحاً، المهم هو إنشاء الحساب
+        }
+
+        // تخزين التوكن في localStorage (إذا تم إرجاع جلسة)
+        if (authData.session) {
+            localStorage.setItem('supabase_token', authData.session.access_token);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userType', role || 'user');
+            localStorage.setItem('userName', name);
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
+            }
+        }
+
+        return { success: true, user: authData.user };
+    } catch (err) {
+        console.error('استثناء في إنشاء الحساب:', err);
+        return { success: false, error: err.message };
+    }
+};
+
+// -------------------------------------
 // تهيئة الصفحة عند التحميل
 // -------------------------------------
 
@@ -996,5 +1125,8 @@ window.showApproximateLocation = showApproximateLocation;
 window.getCarLocation = getCarLocation;
 window.updateCarLocation = updateCarLocation;
 window.fetchCars = fetchCars;
+window.getCurrentUser = getCurrentUser;
+window.logoutUser = logoutUser;
+window.updateNavbarBasedOnLoginStatus = updateNavbarBasedOnLoginStatus;
 
-console.log('✅ script.js تم تحديثه بنجاح مع نظام مواقع السيارات.');
+console.log('✅ script.js تم تحديثه بنجاح مع نظام مواقع السيارات ودوال المصادقة.');
