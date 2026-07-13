@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | النطاق التقريبي للسيارة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        body {
+            background: #f4f6f9;
+            color: #1e293b;
+            transition: background 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .map-container {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        .info-overlay {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 16px 28px;
+            border-radius: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            font-weight: 700;
+            color: #0f2925;
+            text-align: center;
+            max-width: 90%;
+            border: 1px solid rgba(197, 160, 101, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+            direction: rtl;
+        }
+        body.dark-mode .info-overlay {
+            background: rgba(30, 41, 59, 0.95);
+            color: #e2e8f0;
+            border-color: rgba(197, 160, 101, 0.3);
+        }
+        .info-overlay i {
+            color: #c5a065;
+            font-size: 1.4rem;
+        }
+        .info-overlay .highlight {
+            color: #c5a065;
+            font-weight: 800;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            color: #1e293b;
+            transition: 0.2s;
+        }
+        .back-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
+        }
+        body.dark-mode .back-btn {
+            background: rgba(30, 41, 59, 0.9);
+            color: #e2e8f0;
+        }
+        body.dark-mode .back-btn:hover {
+            background: #2d3a4f;
+        }
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .loading-spinner i {
+            font-size: 2.5rem;
+            color: #c5a065;
+        }
+        .car-name-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(197, 160, 101, 0.15);
+            color: #0f2925;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.dark-mode .car-name-badge {
+            background: rgba(30, 41, 59, 0.9);
+            color: #e2e8f0;
+            border-color: rgba(197, 160, 101, 0.2);
+        }
+        .car-name-badge i {
+            color: #c5a065;
+        }
+        @media (max-width: 480px) {
+            .info-overlay {
+                font-size: 0.85rem;
+                padding: 12px 18px;
+                bottom: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+                border-radius: 20px;
+            }
+            .back-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+                top: 12px;
+                right: 12px;
+            }
+            .car-name-badge {
+                font-size: 0.8rem;
+                padding: 6px 14px;
+                top: 12px;
+                left: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="map-container" id="mapContainer">
+        <!-- Loading -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>جاري تحميل موقع السيارة...</span>
+        </div>
+
+        <!-- Back Button -->
+        <button class="back-btn" onclick="window.close()" title="إغلاق">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Car Name Badge -->
+        <div class="car-name-badge" id="carNameBadge">
+            <i class="fas fa-car"></i>
+            <span id="carNameText">السيارة</span>
+        </div>
+
+        <!-- Map -->
+        <div id="map"></div>
+
+        <!-- Info Overlay -->
+        <div class="info-overlay" id="infoOverlay">
+            <i class="fas fa-map-pin"></i>
+            <span>
+                السيارة موجودة ضمن <span class="highlight">النطاق التقريبي</span> الموضح بالدائرة،
+                وسيظهر الموقع الدقيق بعد <span class="highlight">تأكيد الحجز</span>.
+            </span>
+        </div>
+    </div>
+
+    <script>
+        (async function initPreview() {
+            const overlay = document.getElementById('loadingSpinner');
+            const mapContainer = document.getElementById('map');
+            const carNameSpan = document.getElementById('carNameText');
+
+            try {
+                // قراءة carId من الرابط
+                const params = new URLSearchParams(window.location.search);
+                const carId = params.get('carId');
+
+                if (!carId) {
+                    alert('❌ لم يتم تحديد السيارة');
+                    window.close();
+                    return;
+                }
+
+                // جلب بيانات السيارة من Supabase
+                const { data: car, error } = await window.supabaseClient
+                    .from('cars')
+                    .select('latitude, longitude, geofence_radius, brand, model, city, status')
+                    .eq('id', carId)
+                    .single();
+
+                if (error || !car) {
+                    alert('❌ حدث خطأ في جلب بيانات السيارة');
+                    window.close();
+                    return;
+                }
+
+                if (!car.latitude || !car.longitude) {
+                    alert('❌ لم يقم المالك بتحديد موقع السيارة بعد');
+                    window.close();
+                    return;
+                }
+
+                // عرض اسم السيارة في الشارة
+                const fullName = `${car.brand || ''} ${car.model || ''}`.trim() || 'سيارة غير مسماة';
+                carNameSpan.textContent = fullName;
+
+                const center = [car.latitude, car.longitude];
+                const radius = car.geofence_radius || 500;
+
+                // تهيئة الخريطة
+                const map = L.map('map').setView(center, 13);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; CARTO',
+                    maxZoom: 20
+                }).addTo(map);
+
+                // رسم دائرة النطاق (Geofence) - شفافة مع حدود متقطعة
+                const circle = L.circle(center, {
+                    color: '#c5a065',
+                    fillColor: '#c5a065',
+                    fillOpacity: 0.08,
+                    radius: radius,
+                    dashArray: '8, 6',
+                    weight: 2.5,
+                    opacity: 0.7,
+                    className: 'geofence-circle'
+                }).addTo(map);
+
+                // إضافة علامة تقريبية (بدون إحداثيات دقيقة) - رمز سيارة مبسط
+                const markerIcon = L.divIcon({
+                    className: 'custom-car-marker',
+                    html: `<div style="background:white;border-radius:50%;padding:8px;box-shadow:0 4px 16px rgba(0,0,0,0.2);border:2px solid #c5a065;">
+                            <i class="fas fa-car" style="color:#c5a065;font-size:28px;"></i>
+                          </div>`,
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 48],
+                    popupAnchor: [0, -48]
+                });
+
+                const marker = L.marker(center, { icon: markerIcon, interactive: false })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align:center;direction:rtl;padding:4px;">
+                            <strong>${fullName}</strong><br>
+                            <span style="color:#94a3b8;font-size:0.8rem;">النطاق التقريبي</span>
+                        </div>
+                    `, { autoPan: false });
+
+                // فتح البوب أب تلقائياً بعد ثانية
+                setTimeout(() => {
+                    marker.openPopup();
+                }, 800);
+
+                // إخفاء الـ loading
+                overlay.style.display = 'none';
+
+                // ضبط حجم الخريطة بعد التحميل
+                setTimeout(() => map.invalidateSize(), 300);
+
+                // إضافة zoom control إلى الزاوية السفلية اليمنى (تجنب التداخل مع النصوص)
+                map.zoomControl.setPosition('bottomright');
+
+                // حركة سلسة للكاميرا إلى الموقع
+                map.flyTo(center, 13, { duration: 1.2 });
+
+            } catch (err) {
+                console.error('خطأ في تحميل الخريطة:', err);
+                alert('❌ حدث خطأ غير متوقع');
+                window.close();
+            }
+        })();
+    </script>
+
+</body>
+</html>
