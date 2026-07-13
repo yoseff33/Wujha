@@ -830,38 +830,72 @@
     <script>
         AOS.init({ once: true });
 
+        // ============================================================
+        //  متغيرات عامة
+        // ============================================================
+        let currentUserId = null;
+        let currentUserName = 'مستخدم';
+
+        // ============================================================
+        //  1. جلب المستخدم الحقيقي من Supabase
+        // ============================================================
+        async function loadUserData() {
+            try {
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+                if (error || !user) {
+                    console.warn('لا توجد جلسة نشطة، توجيه إلى صفحة الدخول');
+                    window.location.href = 'landing.html';
+                    return false;
+                }
+
+                // التأكد من أن المستخدم له دور "renter" أو "admin"
+                const role = user.user_metadata?.role || 'user';
+                if (role !== 'renter' && role !== 'admin') {
+                    alert('❌ هذه الصفحة مخصصة للمستأجرين فقط.');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+
+                currentUserId = user.id; // UUID حقيقي
+                currentUserName = user.user_metadata?.name || user.email || 'مستخدم';
+
+                // تحديث الواجهة
+                document.getElementById('renter-name-display').textContent = currentUserName;
+                document.getElementById('renter-avatar').textContent = currentUserName.charAt(0);
+
+                // تحديث حالة الدخول في localStorage (للدوال الأخرى)
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userType', role);
+                localStorage.setItem('userName', currentUserName);
+
+                // تحديث شريط التنقل
+                if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                    updateNavbarBasedOnLoginStatus();
+                }
+
+                return true;
+            } catch (err) {
+                console.error('فشل تحميل بيانات المستخدم:', err);
+                alert('حدث خطأ في التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.');
+                window.location.href = 'landing.html';
+                return false;
+            }
+        }
+
+        // ============================================================
+        //  2. التمرير إلى قسم معين
+        // ============================================================
         function scrollToSection(id) {
             const el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const role = getUserRole();
-            if (role !== 'renter' && role !== 'admin') {
-                alert('هذه الصفحة مخصصة للمستأجرين فقط.');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const user = getCurrentUser();
-            if (user) {
-                const name = user.user_metadata?.name || user.email || 'مستخدم';
-                document.getElementById('renter-name-display').textContent = name;
-                document.getElementById('renter-avatar').textContent = name.charAt(0);
-            }
-
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
-
-            loadBookings();
-            loadContracts();
-        });
-
+        // ============================================================
+        //  3. تحميل الحجوزات
+        // ============================================================
         async function loadBookings() {
             const container = document.getElementById('bookings-container');
-            const user = getCurrentUser();
-            if (!user) {
+            if (!currentUserId) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>الرجاء تسجيل الدخول.</p></div>';
                 return;
             }
@@ -870,11 +904,12 @@
                 const { data: bookings, error } = await window.supabaseClient
                     .from('bookings')
                     .select('*, cars(*)')
-                    .eq('renter_id', user.id)
+                    .eq('renter_id', currentUserId)
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
 
+                // تحديث الإحصائيات
                 document.getElementById('stat-total').textContent = bookings?.length || 0;
                 const pending = bookings?.filter(b => b.status === 'pending_owner_approval').length || 0;
                 document.getElementById('stat-pending').textContent = pending;
@@ -894,7 +929,8 @@
                                        b.status === 'cancelled' ? 'ملغي' :
                                        b.status === 'rejected' ? 'مرفوض' : b.status;
                     const isPending = b.status === 'pending_owner_approval';
-                    const isApproved = b.status === 'approved';
+                    const isApproved = b.status === 'approved' || b.status === 'active';
+
                     return `
                         <div class="booking-item">
                             <div class="booking-row">
@@ -929,24 +965,36 @@
             }
         }
 
-        async function openContractForBooking(bookingId) {
+        // ============================================================
+        //  4. فتح العقد
+        // ============================================================
+        function openContractForBooking(bookingId) {
             localStorage.setItem('current_booking_id', bookingId);
             window.location.href = 'contract_final.html';
         }
 
+        // ============================================================
+        //  5. تحميل العقود
+        // ============================================================
         async function loadContracts() {
             const container = document.getElementById('contracts-container');
-            const user = getCurrentUser();
-            if (!user) {
+            if (!currentUserId) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>الرجاء تسجيل الدخول.</p></div>';
                 return;
             }
 
             try {
+                // جلب العقود الخاصة بالمستأجر عبر renter_id في bookings
                 const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
-                    .select('*, bookings(*, cars(*))')
-                    .eq('bookings.renter_id', user.id)
+                    .select(`
+                        *,
+                        bookings!inner (
+                            *,
+                            cars!inner (*)
+                        )
+                    `)
+                    .eq('bookings.renter_id', currentUserId)
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
@@ -958,22 +1006,26 @@
                     return;
                 }
 
-                container.innerHTML = contracts.map(c => `
-                    <div class="booking-item" style="border-right: 3px solid #c5a065;">
-                        <div class="booking-row">
-                            <div>
-                                <span style="font-weight:700;">عقد رقم: ${c.contract_number || 'N/A'}</span>
-                                <span class="booking-status ${c.status}" style="margin-right:10px;">
-                                    ${c.status === 'active' ? 'ساري' : c.status === 'draft' ? 'مسودة' : c.status}
-                                </span>
+                container.innerHTML = contracts.map(c => {
+                    const booking = c.bookings;
+                    const car = booking?.cars;
+                    return `
+                        <div class="booking-item" style="border-right: 3px solid #c5a065;">
+                            <div class="booking-row">
+                                <div>
+                                    <span style="font-weight:700;">عقد رقم: ${c.contract_number || 'N/A'}</span>
+                                    <span class="booking-status ${c.status}" style="margin-right:10px;">
+                                        ${c.status === 'active' ? 'ساري' : c.status === 'draft' ? 'مسودة' : c.status}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="booking-meta">
+                                <span><i class="fas fa-car"></i> ${car?.brand || ''} ${car?.model || ''}</span>
+                                <span><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span>
                             </div>
                         </div>
-                        <div class="booking-meta">
-                            <span><i class="fas fa-car"></i> ${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}</span>
-                            <span><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
             } catch (err) {
                 console.error('خطأ في تحميل العقود:', err);
@@ -981,14 +1033,18 @@
             }
         }
 
-        // AI Scan functions (unchanged)
+        // ============================================================
+        //  6. فحص الذكاء الاصطناعي (دوال موجودة)
+        // ============================================================
         function handleImageUpload(input, type) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const containerId = (type === 'pre') ? 'pre-scan-visual' : 'post-scan-visual';
                     const placeholder = document.querySelector('#' + containerId + ' .scan-image-placeholder');
-                    placeholder.style.backgroundImage = 'url(' + e.target.result + ')';
+                    if (placeholder) {
+                        placeholder.style.backgroundImage = 'url(' + e.target.result + ')';
+                    }
                     runAIScan(type);
                 };
                 reader.readAsDataURL(input.files[0]);
@@ -996,16 +1052,17 @@
         }
 
         function runAIScan(type) {
-            let scanVisual, resultArea, startBtn, timer = 0;
+            let scanVisual, resultArea, timer = 0;
             if (type === 'pre') {
                 scanVisual = document.getElementById('pre-scan-visual');
                 resultArea = document.getElementById('pre-scan-result');
-                startBtn = document.getElementById('start-pre-scan-btn');
+                const startBtn = document.querySelector('#scan .btn-primary');
                 if (startBtn) startBtn.style.display = 'none';
                 scanVisual.style.display = 'block';
                 const interval = setInterval(() => {
                     timer += 2;
-                    document.getElementById('scan-progress').innerText = timer + '%';
+                    const progressEl = document.getElementById('scan-progress');
+                    if (progressEl) progressEl.innerText = Math.min(timer, 100) + '%';
                     if (timer >= 100) {
                         clearInterval(interval);
                         finishScan('pre');
@@ -1019,13 +1076,20 @@
                     resultArea.style.display = 'block';
                     const widget = document.getElementById('scan');
                     widget.classList.add('completed');
-                    widget.querySelector('.status-badge').style.background = '#2ecc71';
-                    widget.querySelector('.status-badge').innerText = 'تم التوثيق';
-                    document.getElementById('pre-desc').innerText = '✅ تم حفظ صورك في السجل الآمن. رحلة سعيدة!';
+                    const badge = widget.querySelector('.status-badge');
+                    if (badge) {
+                        badge.style.background = '#2ecc71';
+                        badge.innerText = 'تم التوثيق';
+                    }
+                    const desc = document.getElementById('pre-desc');
+                    if (desc) desc.innerText = '✅ تم حفظ صورك في السجل الآمن. رحلة سعيدة!';
                 }
             }
         }
 
+        // ============================================================
+        //  7. نموذج التعهد
+        // ============================================================
         document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = this.querySelector('button');
@@ -1041,7 +1105,9 @@
             }, 1500);
         });
 
-        // Theme
+        // ============================================================
+        //  8. الوضع الليلي
+        // ============================================================
         (function setupTheme() {
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (!themeToggle) return;
@@ -1061,7 +1127,43 @@
             });
         })();
 
-        console.log('✅ لوحة المستأجر جاهزة!');
+        // ============================================================
+        //  9. تهيئة الصفحة
+        // ============================================================
+        (async function init() {
+            const loaded = await loadUserData();
+            if (loaded) {
+                await loadBookings();
+                await loadContracts();
+            }
+        })();
+
+        // ============================================================
+        //  10. دالة الخروج
+        // ============================================================
+        window.logoutUser = function() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                window.supabaseClient.auth.signOut().then(() => {
+                    localStorage.clear();
+                    window.location.href = 'landing.html';
+                }).catch(err => {
+                    console.error(err);
+                    localStorage.clear();
+                    window.location.href = 'landing.html';
+                });
+            }
+        };
+
+        // ============================================================
+        //  11. تعريض الدوال للنافذة العامة
+        // ============================================================
+        window.loadBookings = loadBookings;
+        window.loadContracts = loadContracts;
+        window.scrollToSection = scrollToSection;
+        window.openContractForBooking = openContractForBooking;
+        window.handleImageUpload = handleImageUpload;
+
+        console.log('✅ لوحة المستأجر جاهزة (بمعرف UUID حقيقي)!');
     </script>
 </body>
 </html>
