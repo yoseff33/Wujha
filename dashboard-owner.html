@@ -197,6 +197,8 @@
         .status-badge.pending_owner_approval { background: #f39c12; color: white; }
         .status-badge.approved { background: #2ecc71; color: white; }
         .status-badge.rejected { background: #e74c3c; color: white; }
+        .status-badge.completed { background: #3498db; color: white; }
+        .status-badge.cancelled { background: #95a5a6; color: white; }
 
         /* ===== حالة عدم وجود بيانات ===== */
         .empty-state {
@@ -374,36 +376,64 @@
         // ============================================================
 
         let currentUserId = null;
+        let currentUserEmail = '';
 
-        // ===== 1. التحقق من الصلاحية وعرض اسم المستخدم =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const role = getUserRole();
-            if (role !== 'owner' && role !== 'admin') {
-                alert('❌ هذه الصفحة مخصصة للمالكين فقط.');
-                window.location.href = 'index.html';
-                return;
-            }
+        // ===== 1. جلب المستخدم الحقيقي من Supabase =====
+        async function loadUserData() {
+            try {
+                // جلب جلسة المستخدم الحالية من Supabase
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+                if (error || !user) {
+                    console.warn('لا توجد جلسة نشطة، توجيه إلى صفحة الدخول');
+                    window.location.href = 'landing.html';
+                    return false;
+                }
 
-            const user = getCurrentUser();
-            if (user) {
+                // التأكد من أن المستخدم لديه دور "owner" أو "admin"
+                const role = user.user_metadata?.role || 'user';
+                if (role !== 'owner' && role !== 'admin') {
+                    alert('❌ هذه الصفحة مخصصة للمالكين فقط.');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+
+                // تخزين معلومات المستخدم
+                currentUserId = user.id; // UUID حقيقي
+                currentUserEmail = user.email || '';
+
+                // تحديث واجهة المستخدم
                 const name = user.user_metadata?.name || user.email || 'مالك';
                 document.getElementById('owner-name-display').textContent = name;
                 document.getElementById('owner-avatar').textContent = name.charAt(0);
-                currentUserId = user.id;
-            }
 
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
+                // تحديث حالة الدخول في localStorage (للدوال الأخرى)
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userType', role);
+                localStorage.setItem('userName', name);
 
-            loadDashboard();
-        });
+                // تحديث شريط التنقل
+                if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                    updateNavbarBasedOnLoginStatus();
+                }
+
+                return true;
+            } catch (err) {
+                console.error('فشل تحميل بيانات المستخدم:', err);
+                alert('حدث خطأ في التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.');
+                window.location.href = 'landing.html';
+                return false;
+            }
+        }
 
         // ===== 2. تحميل لوحة التحكم (الإحصائيات) =====
         async function loadDashboard() {
-            if (!currentUserId) return;
+            if (!currentUserId) {
+                console.error('لا يوجد مستخدم مسجل');
+                return;
+            }
 
             try {
+                // جلب سيارات المالك
                 const { data: cars, error: carsError } = await window.supabaseClient
                     .from('cars')
                     .select('*')
@@ -430,6 +460,7 @@
                     }
                 }
 
+                // تحديث الإحصائيات
                 document.getElementById('stat-cars').textContent = cars?.length || 0;
                 document.getElementById('stat-bookings').textContent = bookings.length;
                 document.getElementById('stat-pending').textContent = pendingCount;
@@ -438,16 +469,23 @@
                 document.getElementById('car-count-badge').textContent = cars?.length || 0;
                 document.getElementById('booking-count-badge').textContent = bookings.length;
 
+                // عرض السيارات والحجوزات والعقود
                 renderOwnerCars(cars);
                 renderOwnerBookings(bookings, cars);
                 await loadContracts();
 
             } catch (err) {
                 console.error('خطأ في تحميل لوحة التحكم:', err);
+                // عرض رسالة خطأ في الواجهة
+                document.querySelector('.stats-grid').innerHTML = `
+                    <div class="stat-card" style="grid-column:1/-1;color:#e74c3c;">
+                        <i class="fas fa-exclamation-triangle"></i> حدث خطأ في تحميل البيانات: ${err.message}
+                    </div>
+                `;
             }
         }
 
-        // ===== 3. عرض سيارات المالك (مع زر تحديد الموقع) =====
+        // ===== 3. عرض سيارات المالك =====
         function renderOwnerCars(cars) {
             const container = document.getElementById('cars-container');
 
@@ -603,12 +641,20 @@
             }
 
             try {
+                // جلب جميع العقود مع تفاصيل الحجز والسيارة
                 const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
-                    .select('*, bookings(*, cars(*))');
+                    .select(`
+                        *,
+                        bookings!inner (
+                            *,
+                            cars!inner (*)
+                        )
+                    `);
 
                 if (error) throw error;
 
+                // تصفية العقود التي تخص سيارات هذا المالك
                 const ownerContracts = contracts.filter(c => 
                     c.bookings?.cars?.owner_id === currentUserId
                 );
@@ -688,13 +734,35 @@
             });
         })();
 
-        // ===== 10. دالة الخروج =====
-        if (typeof logoutUser === 'undefined') {
-            window.logoutUser = function() {
-                localStorage.clear();
-                window.location.href = 'landing.html';
-            };
-        }
+        // ===== 10. تهيئة الصفحة =====
+        (async function init() {
+            const loaded = await loadUserData();
+            if (loaded) {
+                await loadDashboard();
+            }
+        })();
+
+        // ===== 11. دالة الخروج (تحتاج إلى تنفيذها في script.js أو هنا) =====
+        window.logoutUser = function() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                window.supabaseClient.auth.signOut().then(() => {
+                    localStorage.clear();
+                    window.location.href = 'landing.html';
+                }).catch(err => {
+                    console.error(err);
+                    localStorage.clear();
+                    window.location.href = 'landing.html';
+                });
+            }
+        };
+
+        // تعريض الدوال للنافذة العامة للاستخدام في onclick
+        window.loadDashboard = loadDashboard;
+        window.loadOwnerCars = loadOwnerCars;
+        window.loadOwnerBookings = loadOwnerBookings;
+        window.loadContracts = loadContracts;
+        window.approveBooking = approveBooking;
+        window.rejectBooking = rejectBooking;
 
         console.log('✅ لوحة المالك (مع موقع السيارة) جاهزة للعمل!');
     </script>
