@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | موقع السيارة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+    <style>
+        .view-page { padding-top: 120px; padding-bottom: 50px; }
+        .map-container { height: 500px; border-radius: 20px; overflow: hidden; border: 2px solid #e9edf2; margin-bottom: 20px; }
+        .info-panel {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e9edf2;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        body.dark-mode .info-panel { background: #1e293b; border-color: #2d3a4f; }
+        .info-panel .location-detail { flex: 1; min-width: 200px; }
+        .info-panel .location-detail h4 { font-size: 0.9rem; color: #94a3b8; margin-bottom: 4px; }
+        .info-panel .location-detail .value { font-size: 1.1rem; font-weight: 700; }
+        .btn-group-view { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-view { padding: 10px 20px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-view.google { background: #4285F4; color: #fff; }
+        .btn-view.google:hover { background: #3367D6; }
+        .btn-view.navigate { background: #0f2925; color: #fff; }
+        .btn-view.navigate:hover { background: #1a4d45; }
+        .btn-view.back { background: #e9edf2; color: #1e293b; }
+        body.dark-mode .btn-view.back { background: #2d3a4f; color: #e2e8f0; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="dashboard-renter.html" class="active">لوحة المستأجر</a></li>
+                </ul>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container view-page">
+        <div class="section-title" data-aos="fade-up">
+            <h2>📍 موقع السيارة الحقيقي</h2>
+            <p>يمكنك الآن رؤية الموقع الدقيق للسيارة بعد تأكيد الحجز</p>
+        </div>
+
+        <div class="map-container" id="viewMap"></div>
+
+        <div class="info-panel">
+            <div class="location-detail">
+                <h4>العنوان</h4>
+                <div class="value" id="viewAddress">جاري التحميل...</div>
+            </div>
+            <div class="location-detail">
+                <h4>المسافة التقريبية</h4>
+                <div class="value" id="viewDistance">-- كم</div>
+            </div>
+            <div class="location-detail">
+                <h4>وقت الوصول المتوقع</h4>
+                <div class="value" id="viewDuration">--</div>
+            </div>
+            <div class="btn-group-view">
+                <button class="btn-view google" onclick="openGoogleMaps()"><i class="fas fa-map"></i> فتح في خرائط Google</button>
+                <button class="btn-view navigate" onclick="startNavigation()"><i class="fas fa-directions"></i> بدء التنقل</button>
+                <button class="btn-view back" onclick="window.close()"><i class="fas fa-times"></i> إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carLat, carLng, carAddress, map, marker, userLat, userLng;
+
+        async function initView() {
+            const params = new URLSearchParams(window.location.search);
+            const carId = params.get('carId');
+            const bookingId = params.get('bookingId');
+            if (!carId) {
+                alert('لم يتم تحديد السيارة');
+                window.close();
+                return;
+            }
+
+            // جلب موقع السيارة
+            const { data: car, error } = await window.supabaseClient
+                .from('cars')
+                .select('latitude, longitude, location_address, brand, model')
+                .eq('id', carId)
+                .single();
+
+            if (error || !car || !car.latitude || !car.longitude) {
+                alert('لم يتم تحديد موقع السيارة من قبل المالك');
+                window.close();
+                return;
+            }
+
+            carLat = car.latitude;
+            carLng = car.longitude;
+            carAddress = car.location_address || 'عنوان غير معروف';
+
+            document.getElementById('viewAddress').textContent = carAddress;
+
+            // تحديد موقع المستخدم (إذا سمح)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        userLat = pos.coords.latitude;
+                        userLng = pos.coords.longitude;
+                        calculateDistance(userLat, userLng, carLat, carLng);
+                    },
+                    () => {
+                        document.getElementById('viewDistance').textContent = 'غير متاح';
+                        document.getElementById('viewDuration').textContent = 'غير متاح';
+                    }
+                );
+            }
+
+            // تهيئة الخريطة
+            map = L.map('viewMap').setView([carLat, carLng], 15);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 20
+            }).addTo(map);
+
+            const icon = L.divIcon({
+                className: 'custom-car-icon',
+                html: '<i class="fas fa-car" style="font-size:28px;color:#c5a065;background:white;padding:8px;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);"></i>',
+                iconSize: [44, 44],
+                iconAnchor: [22, 44]
+            });
+
+            marker = L.marker([carLat, carLng], { icon }).addTo(map)
+                .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>${carAddress}`)
+                .openPopup();
+
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const dist = R * c;
+            document.getElementById('viewDistance').textContent = dist.toFixed(1) + ' كم';
+            // وقت تقديري (افترض سرعة 50 كم/س)
+            const duration = (dist / 50) * 60; // دقائق
+            if (duration < 60) {
+                document.getElementById('viewDuration').textContent = Math.round(duration) + ' دقيقة';
+            } else {
+                document.getElementById('viewDuration').textContent = Math.floor(duration/60) + ' ساعة ' + Math.round(duration%60) + ' دقيقة';
+            }
+        }
+
+        function openGoogleMaps() {
+            if (!carLat || !carLng) return;
+            const url = `https://www.google.com/maps?q=${carLat},${carLng}`;
+            window.open(url, '_blank');
+        }
+
+        function startNavigation() {
+            if (!carLat || !carLng) return;
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${carLat},${carLng}`;
+            window.open(url, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', initView);
+    </script>
+</body>
+</html>
