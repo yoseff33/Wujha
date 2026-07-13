@@ -37,20 +37,20 @@
         </div>
     </header>
 
-    <section id="add-car" class="add-car-section" style="padding-top:150px;">
+    <section id="add-car" class="add-car-section">
         <div class="container">
             <div class="section-title" data-aos="fade-up"><h2>أضف سيارتك وابدأ الربح</h2><p>املأ النموذج التالي لإضافة سيارتك إلى منصتنا والبدء في تحقيق أرباح</p></div>
             <div class="add-car-form" data-aos="zoom-in" id="add-car-form">
                 <form id="car-form" onsubmit="handleAddCar(event)">
                     <div class="form-grid">
-                        <div class="form-group"><label>نوع السيارة <span style="color:red;">*</span></label><select class="form-control" id="car-type" required><option value="">اختر نوع السيارة</option><option value="sedan">سيدان</option><option value="suv">دفع رباعي</option><option value="luxury">فاخرة</option><option value="economic">اقتصادية</option></select></div>
-                        <div class="form-group"><label>الماركة <span style="color:red;">*</span></label><input type="text" class="form-control" id="car-brand" placeholder="مثال: تويوتا" required></div>
-                        <div class="form-group"><label>الموديل <span style="color:red;">*</span></label><input type="text" class="form-control" id="car-model" placeholder="مثال: كامري" required></div>
-                        <div class="form-group"><label>سنة الصنع <span style="color:red;">*</span></label><input type="number" class="form-control" id="car-year" placeholder="مثال: 2022" min="2000" max="2025" required></div>
+                        <div class="form-group"><label>نوع السيارة <span>*</span></label><select class="form-control" id="car-type" required><option value="">اختر نوع السيارة</option><option value="sedan">سيدان</option><option value="suv">دفع رباعي</option><option value="luxury">فاخرة</option><option value="economic">اقتصادية</option></select></div>
+                        <div class="form-group"><label>الماركة <span>*</span></label><input type="text" class="form-control" id="car-brand" placeholder="مثال: تويوتا" required></div>
+                        <div class="form-group"><label>الموديل <span>*</span></label><input type="text" class="form-control" id="car-model" placeholder="مثال: كامري" required></div>
+                        <div class="form-group"><label>سنة الصنع <span>*</span></label><input type="number" class="form-control" id="car-year" placeholder="مثال: 2022" min="2000" max="2025" required></div>
                         <div class="form-group"><label>اللون</label><input type="text" class="form-control" id="car-color" placeholder="مثال: أبيض"></div>
                         <div class="form-group"><label>رقم اللوحة</label><input type="text" class="form-control" id="car-plate" placeholder="مثال: ح ب ر 2030"></div>
-                        <div class="form-group"><label>سعر التأجير اليومي (ريال) <span style="color:red;">*</span></label><input type="number" class="form-control" id="car-daily-price" placeholder="مثال: 100" required></div>
-                        <div class="form-group"><label>المدينة <span style="color:red;">*</span></label><select class="form-control" id="car-city" required><option value="">اختر المدينة</option><option value="الرياض">الرياض</option><option value="جدة">جدة</option><option value="الدمام">الدمام</option><option value="الخبر">الخبر</option><option value="بريدة">بريدة</option></select></div>
+                        <div class="form-group"><label>سعر التأجير اليومي (ريال) <span>*</span></label><input type="number" class="form-control" id="car-daily-price" placeholder="مثال: 100" required></div>
+                        <div class="form-group"><label>المدينة <span>*</span></label><select class="form-control" id="car-city" required><option value="">اختر المدينة</option><option value="الرياض">الرياض</option><option value="جدة">جدة</option><option value="الدمام">الدمام</option><option value="الخبر">الخبر</option><option value="بريدة">بريدة</option></select></div>
                         <div class="form-group"><label>الحي</label><input type="text" class="form-control" id="car-location" placeholder="اسم الحي"></div>
                         <div class="form-group"><label>عدد الركاب</label><select class="form-control" id="car-passengers"><option value="2">2</option><option value="4">4</option><option value="5" selected>5</option><option value="7">7</option></select></div>
                         <div class="form-group"><label>نوع ناقل الحركة</label><select class="form-control" id="car-transmission"><option value="automatic">أوتوماتيك</option><option value="manual">يدوي</option></select></div>
@@ -58,13 +58,13 @@
                     </div>
 
                     <!-- ===== إضافة موقع السيارة ===== -->
-                    <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin:15px 0; border:1px solid #e9ecef;">
-                        <h4 style="margin-bottom:10px;"><i class="fas fa-map-pin" style="color:#c5a065;"></i> موقع السيارة (اختياري)</h4>
+                    <div>
+                        <h4><i class="fas fa-map-pin"></i> موقع السيارة (اختياري)</h4>
                         <div class="form-grid">
                             <div class="form-group"><label>خط العرض (Latitude)</label><input type="text" class="form-control" id="car-latitude" placeholder="مثال: 24.8375"></div>
                             <div class="form-group"><label>خط الطول (Longitude)</label><input type="text" class="form-control" id="car-longitude" placeholder="مثال: 46.7297"></div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline" onclick="getCurrentLocation()" style="margin-top:5px;">
+                        <button type="button" class="btn btn-sm btn-outline" onclick="getCurrentLocation()">
                             <i class="fas fa-location-dot"></i> استخدم موقعي الحالي
                         </button>
                     </div>
@@ -72,14 +72,14 @@
                     <div class="form-group"><label>وصف السيارة</label><textarea class="form-control" id="car-description" rows="4" placeholder="أضف وصفاً دقيقاً لسيارتك..."></textarea></div>
                     <div class="form-group">
                         <label>صور السيارة (يمكن رفع حتى 5 صور)</label>
-                        <div style="display:flex; gap:15px; flex-wrap:wrap; margin-top:15px;">
-                            <div style="width:120px; height:90px; background:#f5f5f5; border:2px dashed #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#777; cursor:pointer;" onclick="document.getElementById('car-images-input').click()"><i class="fas fa-plus" style="font-size:1.5rem;"></i></div>
+                        <div>
+                            <div onclick="document.getElementById('car-images-input').click()"><i class="fas fa-plus"></i></div>
                             <input type="file" id="car-images-input" accept="image/*" multiple style="display:none;" onchange="handleCarImages(this)">
-                            <div id="image-previews" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+                            <div id="image-previews"></div>
                         </div>
                     </div>
-                    <div id="form-message" style="margin-top:15px; padding:10px; border-radius:8px; display:none;"></div>
-                    <div class="form-actions"><button type="submit" class="btn btn-primary" style="padding:16px 50px;" id="submit-btn"><i class="fas fa-check-circle"></i> إضافة السيارة</button></div>
+                    <div id="form-message" style="display:none;"></div>
+                    <div class="form-actions"><button type="submit" class="btn btn-primary" id="submit-btn"><i class="fas fa-check-circle"></i> إضافة السيارة</button></div>
                 </form>
             </div>
         </div>
