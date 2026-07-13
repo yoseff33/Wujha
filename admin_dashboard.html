@@ -123,6 +123,19 @@
       padding: 2px 6px;
       font-weight: 700;
     }
+    .logout-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #1e293b;
+      transition: 0.2s;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .logout-btn:hover { color: #e74c3c; background: rgba(231,76,60,0.1); }
+    body.dark-mode .logout-btn { color: #e2e8f0; }
+    body.dark-mode .logout-btn:hover { color: #fca5a5; background: rgba(231,76,60,0.2); }
 
     /* ===== KPI GRID ===== */
     .kpi-grid {
@@ -450,6 +463,10 @@
         <div style="display:flex;align-items:center;gap:8px;background:#c5a065;padding:4px 14px 4px 10px;border-radius:40px;color:#fff;font-weight:600;">
           <i class="fas fa-user-shield"></i> Super Admin
         </div>
+        <!-- ===== زر تسجيل الخروج ===== -->
+        <button onclick="logoutAdmin()" class="logout-btn" title="تسجيل الخروج">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
       </div>
     </div>
 
@@ -673,6 +690,90 @@
     }
 
     // ============================================================
+    //  CHECK ADMIN ACCESS
+    // ============================================================
+    async function checkAdminAccess() {
+      try {
+        const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+        if (error || !user) {
+          console.warn('لا يوجد مستخدم مسجل');
+          return false;
+        }
+        const role = user.user_metadata?.role || 'user';
+        if (role !== 'admin' && role !== 'super_admin') {
+          console.warn('دور المستخدم ليس أدمن:', role);
+          return false;
+        }
+        return true;
+      } catch (err) {
+        console.error('خطأ في التحقق من الصلاحية:', err);
+        return false;
+      }
+    }
+
+    // ============================================================
+    //  LOGOUT
+    // ============================================================
+    async function logoutAdmin() {
+      if (!confirm('هل تريد تسجيل الخروج؟')) return;
+      try {
+        await window.supabaseClient.auth.signOut();
+        localStorage.removeItem('supabase_token');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userType');
+        localStorage.removeItem('userName');
+        window.location.href = 'landing.html';
+      } catch (err) {
+        console.error('خطأ في تسجيل الخروج:', err);
+        showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
+      }
+    }
+
+    // ============================================================
+    //  VIEW CAR (عرض تفاصيل السيارة)
+    // ============================================================
+    function viewCar(carId) {
+      openModal('تفاصيل السيارة', `
+        <p>جاري تحميل بيانات السيارة...</p>
+        <div id="carDetailContent"></div>
+      `);
+      window.supabaseClient
+        .from('cars')
+        .select('*, users!cars_owner_id_fkey(name, phone, email)')
+        .eq('id', carId)
+        .single()
+        .then(({ data, error }) => {
+          if (error) {
+            document.getElementById('carDetailContent').innerHTML = `<p style="color:red;">خطأ: ${error.message}</p>`;
+            return;
+          }
+          if (!data) {
+            document.getElementById('carDetailContent').innerHTML = `<p>السيارة غير موجودة</p>`;
+            return;
+          }
+          const owner = data.users || { name: 'غير معروف', phone: '-', email: '-' };
+          document.getElementById('carDetailContent').innerHTML = `
+            <div style="display:grid;gap:10px;">
+              <p><strong>الماركة:</strong> ${data.brand || ''}</p>
+              <p><strong>الموديل:</strong> ${data.model || ''}</p>
+              <p><strong>السنة:</strong> ${data.year || ''}</p>
+              <p><strong>المدينة:</strong> ${data.city || ''}</p>
+              <p><strong>السعر اليومي:</strong> ${data.daily_price || 0} ر.س</p>
+              <p><strong>الحالة:</strong> ${data.status || 'غير معروف'}</p>
+              <p><strong>المالك:</strong> ${owner.name}</p>
+              <p><strong>جوال المالك:</strong> ${owner.phone}</p>
+              <p><strong>بريد المالك:</strong> ${owner.email}</p>
+              ${data.latitude && data.longitude ? `<p><strong>الموقع:</strong> (${data.latitude}, ${data.longitude})</p>` : ''}
+              ${data.images && data.images.length ? `<img src="${data.images[0]}" style="max-width:100%;border-radius:8px;" alt="car">` : ''}
+            </div>
+          `;
+        })
+        .catch(err => {
+          document.getElementById('carDetailContent').innerHTML = `<p style="color:red;">خطأ: ${err.message}</p>`;
+        });
+    }
+
+    // ============================================================
     //  THEME & SIDEBAR
     // ============================================================
     const themeToggle = document.getElementById('themeToggle');
@@ -726,7 +827,6 @@
         reviews: 'التقييمات'
       };
       document.getElementById('pageTitle').textContent = titles[section] || section;
-      // Load data
       if (section === 'dashboard') loadDashboard();
       else if (section === 'users') loadUsers();
       else if (section === 'cars') loadCars();
@@ -885,12 +985,12 @@
       if (mapInstance) mapInstance.remove();
       mapInstance = L.map(container).setView([24.7136, 46.6753], 12);
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(mapInstance);
-      window.supabaseClient.from('cars').select('lat,lng,status,brand,model').then(({ data }) => {
+      window.supabaseClient.from('cars').select('latitude,longitude,status,brand,model,id').then(({ data }) => {
         if (!data) return;
         data.forEach(car => {
-          if (!car.lat || !car.lng) return;
+          if (!car.latitude || !car.longitude) return;
           const color = car.status === 'active' ? '#2ecc71' : car.status === 'booked' ? '#f1c40f' : '#e74c3c';
-          L.circleMarker([car.lat, car.lng], { radius: 8, color, fillColor: color, fillOpacity: 0.8 })
+          L.circleMarker([car.latitude, car.longitude], { radius: 8, color, fillColor: color, fillOpacity: 0.8 })
             .addTo(mapInstance)
             .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}`);
         });
@@ -1013,7 +1113,6 @@
 
     function viewUserBookings(userId) {
       openModal('حجوزات المستخدم', `<p>جاري تحميل الحجوزات...</p>`);
-      // يمكن إضافة استعلام جلب الحجوزات الخاصة بالمستخدم
     }
 
     function viewUserCars(userId) {
@@ -1032,23 +1131,27 @@
           .order('created_at', { ascending: false });
         if (error) throw error;
         if (!cars || cars.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-muted">لا توجد سيارات</td></tr>`; return; }
-        tbody.innerHTML = cars.map(c => `
-          <tr>
-            <td><img src="${c.images?.[0] || 'https://via.placeholder.com/50'}" style="width:50px;height:40px;object-fit:cover;border-radius:6px;" alt="car"></td>
-            <td><strong>${c.brand || ''} ${c.model || ''}</strong><br><small>${c.year || ''}</small></td>
-            <td>${c.users?.name || 'غير معروف'}</td>
-            <td><span class="status-badge ${c.status === 'active' ? 'active' : c.status === 'pending' ? 'pending' : 'rejected'}">${c.status || 'معلق'}</span></td>
-            <td>${c.rating || '4.5'}</td>
-            <td>
-              <button class="action-btn approve" onclick="approveCar('${c.id}')"><i class="fas fa-check"></i></button>
-              <button class="action-btn reject" onclick="rejectCar('${c.id}')"><i class="fas fa-times"></i></button>
-              <button class="action-btn edit" onclick="editCar('${c.id}')"><i class="fas fa-edit"></i></button>
-              <button class="action-btn delete" onclick="deleteCar('${c.id}')"><i class="fas fa-trash"></i></button>
-              <button class="action-btn" onclick="featureCar('${c.id}')"><i class="fas fa-star"></i></button>
-              <button class="action-btn" onclick="addBadge('${c.id}')"><i class="fas fa-tag"></i></button>
-            </td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = cars.map(c => {
+          const img = c.images && c.images.length ? c.images[0] : 'https://via.placeholder.com/50';
+          return `
+            <tr>
+              <td><img src="${img}" style="width:50px;height:40px;object-fit:cover;border-radius:6px;" alt="car"></td>
+              <td><strong>${c.brand || ''} ${c.model || ''}</strong><br><small>${c.year || ''}</small></td>
+              <td>${c.users?.name || 'غير معروف'}</td>
+              <td><span class="status-badge ${c.status === 'active' ? 'active' : c.status === 'pending' ? 'pending' : 'rejected'}">${c.status || 'معلق'}</span></td>
+              <td>${c.rating || '4.5'}</td>
+              <td>
+                <button class="action-btn approve" onclick="approveCar('${c.id}')"><i class="fas fa-check"></i></button>
+                <button class="action-btn reject" onclick="rejectCar('${c.id}')"><i class="fas fa-times"></i></button>
+                <button class="action-btn edit" onclick="editCar('${c.id}')"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete" onclick="deleteCar('${c.id}')"><i class="fas fa-trash"></i></button>
+                <button class="action-btn" onclick="featureCar('${c.id}')"><i class="fas fa-star"></i></button>
+                <button class="action-btn" onclick="addBadge('${c.id}')"><i class="fas fa-tag"></i></button>
+                <button class="action-btn view" onclick="viewCar('${c.id}')"><i class="fas fa-eye"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) { console.error(err); tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;">خطأ: ${err.message}</td></tr>`; }
     }
 
@@ -1287,7 +1390,7 @@
       try {
         const { data: reports, error } = await window.supabaseClient
           .from('reports')
-          .select('*, cars!bookings_car_id_fkey(brand, model)')
+          .select('*, cars!car_id(brand, model)')
           .order('created_at', { ascending: false });
         if (error) throw error;
         if (!reports || reports.length === 0) {
@@ -1512,12 +1615,12 @@
       if (fullMapInstance) fullMapInstance.remove();
       fullMapInstance = L.map(container).setView([24.7136, 46.6753], 12);
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(fullMapInstance);
-      window.supabaseClient.from('cars').select('lat,lng,status,brand,model,id').then(({ data }) => {
+      window.supabaseClient.from('cars').select('latitude,longitude,status,brand,model,id').then(({ data }) => {
         if (!data) return;
         data.forEach(car => {
-          if (!car.lat || !car.lng) return;
+          if (!car.latitude || !car.longitude) return;
           const color = car.status === 'active' ? '#2ecc71' : car.status === 'booked' ? '#f1c40f' : '#e74c3c';
-          L.circleMarker([car.lat, car.lng], { radius: 10, color, fillColor: color, fillOpacity: 0.8 })
+          L.circleMarker([car.latitude, car.longitude], { radius: 10, color, fillColor: color, fillOpacity: 0.8 })
             .addTo(fullMapInstance)
             .bindPopup(`<b>${car.brand || ''} ${car.model || ''}</b><br>الحالة: ${car.status}<br><button onclick="viewCar('${car.id}')">عرض التفاصيل</button>`);
         });
@@ -1579,7 +1682,7 @@
       try {
         const { data: reviews, error } = await window.supabaseClient
           .from('reviews')
-          .select('*, users!reviews_user_id_fkey(name), cars!bookings_car_id_fkey(brand, model)')
+          .select('*, users!user_id(name), cars!car_id(brand, model)')
           .order('created_at', { ascending: false });
         if (error) throw error;
         if (!reviews || reviews.length === 0) {
@@ -1693,7 +1796,9 @@
       setInterval(updateLastUpdate, 30000);
     })();
 
-    // Expose globals for inline onclick handlers
+    // ============================================================
+    //  EXPOSE GLOBALS
+    // ============================================================
     window.switchSection = switchSection;
     window.openModal = openModal;
     window.closeModal = closeModal;
@@ -1732,8 +1837,9 @@
     window.replyReview = replyReview;
     window.deleteReview = deleteReview;
     window.deleteCoupon = deleteCoupon;
+    window.logoutAdmin = logoutAdmin;
 
-    console.log('✅ لوحة تحكم الأدمن (نسخة متكاملة) جاهزة.');
+    console.log('✅ لوحة تحكم الأدمن (نسخة متكاملة مع زر خروج) جاهزة.');
   </script>
 </body>
 </html>
