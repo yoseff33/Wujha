@@ -1,21 +1,20 @@
 // ============================================================
-//  script.js - الملف الأساسي لمنصة وُجْهَة (معدل)
-//  يحتوي على جميع الدوال الأساسية، بما فيها نظام مواقع السيارات
+//  script.js - الملف الأساسي لمنصة وُجْهَة (نسخة حقيقية)
+//  يعتمد على Supabase الحقيقي بدون أي محاكاة
 // ============================================================
 
 // -------------------------------------
 // دوال مساعدة عامة
 // -------------------------------------
 
-// الحصول على المستخدم الحالي من localStorage (محاكاة)
 function getCurrentUser() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (!isLoggedIn) return null;
     const userType = localStorage.getItem('userType');
     const userName = localStorage.getItem('userName') || 'مستخدم';
     return {
-        id: 'user-' + Date.now(), // محاكاة معرف فريد
-        email: 'user@example.com',
+        id: localStorage.getItem('userId') || 'user-' + Date.now(),
+        email: localStorage.getItem('userEmail') || 'user@example.com',
         user_metadata: { name: userName },
         userType: userType
     };
@@ -26,67 +25,16 @@ function getUserRole() {
 }
 
 // -------------------------------------
-// دوال Supabase (افتراضية - قد تستبدل بالاتصال الحقيقي)
+// دوال Supabase (الاتصال الحقيقي عبر supabase-config.js)
 // -------------------------------------
-// نستخدم window.supabaseClient الذي تم تعريفه في supabase-config.js
-// إذا لم يكن موجوداً، نستخدم نسخة وهمية للاختبار
-if (typeof window.supabaseClient === 'undefined') {
-    console.warn('supabaseClient غير معرف، سيتم استخدام بيانات وهمية');
-    window.supabaseClient = {
-        from: (table) => ({
-            select: (cols) => ({
-                eq: (field, value) => ({
-                    single: async () => {
-                        // بيانات وهمية للاختبار
-                        if (table === 'cars') {
-                            const mockCar = {
-                                id: value,
-                                brand: 'تويوتا',
-                                model: 'كامري',
-                                year: 2024,
-                                city: 'الرياض',
-                                daily_price: 120,
-                                status: 'active',
-                                images: ['https://via.placeholder.com/300x200'],
-                                latitude: 24.8375,
-                                longitude: 46.7297,
-                                location_address: 'واجهة روشن، الرياض',
-                                geofence_radius: 500,
-                                location_updated_at: new Date().toISOString()
-                            };
-                            return { data: mockCar, error: null };
-                        }
-                        if (table === 'bookings') {
-                            return { data: [], error: null };
-                        }
-                        return { data: null, error: null };
-                    },
-                    in: (field, values) => ({
-                        order: (col, opts) => ({
-                            then: (cb) => cb({ data: [], error: null })
-                        })
-                    }),
-                    order: (col, opts) => ({
-                        then: (cb) => cb({ data: [], error: null })
-                    })
-                }),
-                insert: (data) => ({
-                    then: (cb) => cb({ data: data, error: null })
-                }),
-                update: (data) => ({
-                    eq: (field, value) => ({
-                        select: (cols) => ({
-                            single: async () => ({ data: { ...data, id: value }, error: null })
-                        }),
-                        then: (cb) => cb({ data: { ...data, id: value }, error: null })
-                    })
-                })
-            }),
-            insert: (data) => ({
-                then: (cb) => cb({ data: data, error: null })
-            })
-        })
-    };
+// نفترض أن window.supabaseClient مُهيأ من supabase-config.js
+// إذا لم يكن موجودًا، نُظهر خطأ ولن نستخدم محاكاة
+function getSupabaseClient() {
+    if (typeof window.supabaseClient === 'undefined' || !window.supabaseClient) {
+        console.error('❌ Supabase client غير مُهيأ. تأكد من تحميل supabase-config.js بشكل صحيح.');
+        return null;
+    }
+    return window.supabaseClient;
 }
 
 // -------------------------------------
@@ -183,15 +131,11 @@ function logoutUser() {
 // دوال الموقع (جلب وتحديث)
 // -------------------------------------
 
-/**
- * جلب موقع السيارة من قاعدة البيانات
- * @param {string} carId - معرف السيارة
- * @returns {Promise<Object|null>} - كائن يحتوي على latitude, longitude, location_address, geofence_radius, location_updated_at
- */
 async function getCarLocation(carId) {
-    if (!carId) return null;
+    const client = getSupabaseClient();
+    if (!client || !carId) return null;
     try {
-        const { data, error } = await window.supabaseClient
+        const { data, error } = await client
             .from('cars')
             .select('latitude, longitude, location_address, geofence_radius, location_updated_at')
             .eq('id', carId)
@@ -207,23 +151,16 @@ async function getCarLocation(carId) {
     }
 }
 
-/**
- * تحديث موقع السيارة في قاعدة البيانات (للمالك)
- * @param {string} carId - معرف السيارة
- * @param {number} lat - خط العرض
- * @param {number} lng - خط الطول
- * @param {string} address - عنوان الموقع
- * @param {number} radius - نصف قطر النطاق بالمتر
- * @returns {Promise<Object|null>} - بيانات السيارة المحدثة
- */
 async function updateCarLocation(carId, lat, lng, address, radius = 500) {
     const user = getCurrentUser();
     if (!user) {
         alert('الرجاء تسجيل الدخول');
         return null;
     }
+    const client = getSupabaseClient();
+    if (!client) return null;
     try {
-        const { data, error } = await window.supabaseClient
+        const { data, error } = await client
             .from('cars')
             .update({
                 latitude: lat,
@@ -239,8 +176,7 @@ async function updateCarLocation(carId, lat, lng, address, radius = 500) {
             console.error('فشل تحديث موقع السيارة:', error);
             return null;
         }
-        // تسجيل السجل في history
-        await window.supabaseClient
+        await client
             .from('car_location_history')
             .insert([{
                 car_id: carId,
@@ -260,11 +196,6 @@ async function updateCarLocation(carId, lat, lng, address, radius = 500) {
 // دوال عرض السيارات (شبكة البطاقات)
 // -------------------------------------
 
-/**
- * عرض السيارات في شبكة (مع معلومات الموقع)
- * @param {Array} cars - قائمة السيارات
- * @param {string} containerId - معرف العنصر الذي سيتم العرض فيه (افتراضي 'cars-grid')
- */
 function renderCarsGrid(cars, containerId = 'cars-grid') {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -302,37 +233,42 @@ function renderCarsGrid(cars, containerId = 'cars-grid') {
                 </div>
                 <div class="price-box">
                     <div class="price">${sanitize(car.daily_price)} <small>ر.س/يوم</small></div>
-                    ${car.status === 'active' ? `<button class="btn-book" onclick="bookCar('${sanitize(car.id)}')">حجز الآن</button>` : `<button class="btn-book" style="background:#95a5a6;cursor:not-allowed;" disabled>غير متاحة</button>`}
+                    ${car.status === 'active' ? 
+                        `<button class="btn-book" onclick="openBookingModalFromCarId('${sanitize(car.id)}')">حجز الآن</button>` : 
+                        `<button class="btn-book" style="background:#95a5a6;cursor:not-allowed;" disabled>غير متاحة</button>`}
                 </div>
                 ${hasLocation ? `<div style="margin-top:10px;"><button class="btn btn-sm btn-outline" onclick="showApproximateLocation('${sanitize(car.id)}')"><i class="fas fa-eye"></i> عرض النطاق التقريبي</button></div>` : ''}
             </div>
         </div>
         `;
     }).join('');
+
+    attachBookingButtonsToCards();
 }
 
-/**
- * عرض النطاق التقريبي للسيارة في نافذة جديدة
- * @param {string} carId - معرف السيارة
- */
-function showApproximateLocation(carId) {
-    window.open(`car-location-preview.html?carId=${carId}`, '_blank', 'width=900,height=650');
+function attachBookingButtonsToCards() {
+    document.querySelectorAll('.car-card .btn-book').forEach(btn => {
+        if (!btn.hasAttribute('data-modal-listener')) {
+            btn.setAttribute('data-modal-listener', 'true');
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const card = this.closest('.car-card');
+                if (card) {
+                    const carId = card.dataset.carId;
+                    if (carId) {
+                        openBookingModalFromCarId(carId);
+                    }
+                }
+            });
+        }
+    });
 }
 
 // -------------------------------------
-// دوال الحجز (استدعاء createBooking من script.js الأساسي إن وجد)
+// دوال النافذة المنبثقة للحجز (Modal)
 // -------------------------------------
 
-// إذا كانت createBooking غير معرفة، نضيف دالة احتياطية
-if (typeof createBooking === 'undefined') {
-    window.createBooking = async function(bookingData) {
-        console.log('محاكاة إنشاء حجز:', bookingData);
-        // محاكاة نجاح
-        return { id: 'mock-booking-id', ...bookingData };
-    };
-}
-
-window.bookCar = async function(carId) {
+async function openBookingModalFromCarId(carId) {
     const user = getCurrentUser();
     if (!user) {
         alert('الرجاء تسجيل الدخول أولاً');
@@ -340,52 +276,70 @@ window.bookCar = async function(carId) {
         return;
     }
 
-    const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
-    const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
-    if (!startDate || !endDate) return;
-
-    // جلب سعر السيارة اليومي (محاكاة)
-    const car = await getCarInfo(carId);
-    if (!car) {
-        alert('حدث خطأ في جلب بيانات السيارة');
+    const client = getSupabaseClient();
+    if (!client) {
+        alert('خطأ في الاتصال بقاعدة البيانات');
         return;
     }
 
-    const days = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000*60*60*24)));
-    const total = days * car.daily_price;
-
-    const booking = await createBooking({
-        car_id: carId,
-        start_date: startDate,
-        end_date: endDate,
-        total_price: total
-    });
-
-    if (booking) {
-        alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
-        window.location.href = 'dashboard-renter.html';
-    }
-};
-
-// دالة مساعدة لجلب معلومات السيارة (محاكاة)
-async function getCarInfo(carId) {
     try {
-        const { data, error } = await window.supabaseClient
+        const { data: car, error } = await client
             .from('cars')
-            .select('daily_price')
+            .select('*')
             .eq('id', carId)
             .single();
-        if (error || !data) {
-            return { daily_price: 100 }; // قيمة افتراضية
+
+        if (error || !car) {
+            alert('تعذر العثور على بيانات السيارة');
+            return;
         }
-        return data;
-    } catch (e) {
-        return { daily_price: 100 };
+
+        const carData = {
+            id: car.id,
+            name: `${car.brand} ${car.model}`,
+            image: car.images && car.images.length > 0 ? car.images[0] : 'https://via.placeholder.com/300x200?text=سيارة',
+            dailyPrice: car.daily_price || 0
+        };
+
+        if (typeof window.openBookingModal === 'function') {
+            window.openBookingModal(carData);
+        } else {
+            alert('نظام الحجز غير جاهز، يرجى تحديث الصفحة.');
+        }
+    } catch (err) {
+        console.error('خطأ في فتح نافذة الحجز:', err);
+        alert('حدث خطأ، الرجاء المحاولة مرة أخرى');
     }
 }
 
+// دالة bookCar تحوّل إلى النافذة الجديدة
+window.bookCar = async function(carId) {
+    openBookingModalFromCarId(carId);
+};
+
+// دالة إنشاء الحجز (حقيقية)
+if (typeof createBooking === 'undefined') {
+    window.createBooking = async function(bookingData) {
+        const client = getSupabaseClient();
+        if (!client) return null;
+        try {
+            const { data, error } = await client
+                .from('bookings')
+                .insert([bookingData])
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        } catch (err) {
+            console.error('فشل إنشاء الحجز:', err);
+            alert('حدث خطأ أثناء الحجز');
+            return null;
+        }
+    };
+}
+
 // -------------------------------------
-// دوال الخريطة (واجهة روشن) - موجودة سابقاً مع تعديلات طفيفة
+// دوال الخريطة (واجهة روشن) - بيانات حقيقية من قاعدة البيانات
 // -------------------------------------
 
 let map;
@@ -393,59 +347,47 @@ let carMarkersLayer;
 let currentRouteLine = null;
 const targetLocation = [24.8375090, 46.7297325];
 
-// بيانات السيارات المحدثة (واجهة روشن)
-const allCars = [
-    { 
-        id: 'r1', type: 'سيدان', model: 'تويوتا كامري 2024', price: '120', 
-        rating: 4.9, reviews: 52, lat: 24.8375090, lng: 46.7297325, 
-        scores: { mech: 10, acc: 10, clean: 9 },
-        img: 'https://tse2.mm.bing.net/th/id/OIP.F3b-M0eckL0XjmywTpu8EgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3' 
-    },
-    { 
-        id: 'r2', type: 'دفع رباعي', model: 'تويوتا لاندكروزر', price: '450', 
-        rating: 5.0, reviews: 18, lat: 24.8381000, lng: 46.7292000, 
-        scores: { mech: 10, acc: 10, clean: 10 },
-        img: 'https://www.autopediame.com/userfiles/images/%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1/%D8%AA%D9%88%D9%8A%D9%88%D8%AA%D8%A7%20%D9%84%D8%A7%D9%86%D8%AF%D9%83%D8%B1%D9%88%D8%B2%D8%B1%201.jpg' 
-    },
-    { 
-        id: 'r3', type: 'فاخرة', model: 'مرسيدس S500', price: '900', 
-        rating: 4.8, reviews: 12, lat: 24.8369000, lng: 46.7301000, 
-        scores: { mech: 10, acc: 9, clean: 10 }, 
-        img: 'https://media.elbalad.news/2024/10/large/995/9/554.jpg' 
-    },
-    { 
-        id: 'r4', type: 'سيدان', model: 'هونداي النترا', price: '85', 
-        rating: 4.2, reviews: 89, lat: 24.8378000, lng: 46.7305000, 
-        scores: { mech: 8, acc: 7, clean: 8 },
-        img: 'https://static.sayidaty.net/styles/900_scale/public/2022-03/80578.jpeg.webp' 
-    },
-    { id: 'r5', type: 'سيدان', model: 'تويوتا كامري 2023', price: '115', rating: 4.7, reviews: 40, lat: 24.8372000, lng: 46.7289000, scores: { mech: 9, acc: 10, clean: 8 }, img: 'https://tse2.mm.bing.net/th/id/OIP.F3b-M0eckL0XjmywTpu8EgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3' },
-    { id: 'r6', type: 'دفع رباعي', model: 'شيفروليه تاهو', price: '380', rating: 4.9, reviews: 22, lat: 24.8365000, lng: 46.7295000, scores: { mech: 10, acc: 10, clean: 9 }, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_xL-R8y8f_Q_g_h_j_k_l_m_n_o_p' },
-    { id: 'r7', type: 'فاخرة', model: 'لوسيد آير', price: '700', rating: 5.0, reviews: 4, lat: 24.8385000, lng: 46.7298000, scores: { mech: 10, acc: 10, clean: 10 }, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_xL-R8y8f_Q_g_h_j_k_l_m_n_o_p' }
-];
+// سنقوم بجلب السيارات الحقيقية في initMap
+async function initMap() {
+    const mapElement = document.getElementById('mapid');
+    if (!mapElement || typeof L === 'undefined') return;
 
-function initMap() {
-    if (document.getElementById('mapid') && typeof L !== 'undefined') {
-        if(map) { map.remove(); }
-        
-        map = L.map('mapid').setView(targetLocation, 17);
+    if (map) { map.remove(); }
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap &copy; CARTO',
-            maxZoom: 20
-        }).addTo(map);
+    map = L.map('mapid').setView(targetLocation, 17);
 
-        carMarkersLayer = L.layerGroup().addTo(map);
-        renderCarsOnMap(); 
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 20
+    }).addTo(map);
 
-        setTimeout(() => { map.invalidateSize(); }, 500);
+    carMarkersLayer = L.layerGroup().addTo(map);
+
+    // جلب السيارات الحقيقية من Supabase
+    const client = getSupabaseClient();
+    if (client) {
+        try {
+            const { data: cars, error } = await client
+                .from('cars')
+                .select('*')
+                .eq('status', 'active');
+            if (!error && cars) {
+                renderCarsOnMap(cars);
+            } else {
+                console.warn('لم يتم جلب سيارات للخريطة:', error);
+            }
+        } catch (err) {
+            console.error('خطأ في جلب سيارات الخريطة:', err);
+        }
     }
+
+    setTimeout(() => { map.invalidateSize(); }, 500);
 }
 
 function createPriceIcon(price, type, extraClass = '') {
     let iconHtml = '';
-    if(type === 'فاخرة') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
-    else if(type === 'دفع رباعي') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
+    if (type === 'فاخرة') iconHtml = '<i class="fas fa-gem" style="color:#f1c40f"></i>';
+    else if (type === 'دفع رباعي') iconHtml = '<i class="fas fa-truck-pickup" style="color:#e67e22"></i>';
     else iconHtml = '<i class="fas fa-car" style="color:var(--primary)"></i>';
 
     return L.divIcon({
@@ -471,78 +413,81 @@ function getProgressBar(score) {
 }
 
 function drawRouteToCar(destLat, destLng) {
-    if(currentRouteLine) map.removeLayer(currentRouteLine);
-    
-    const startPoint = targetLocation;
-    const endPoint = [destLat, destLng];
-
-    currentRouteLine = L.polyline([startPoint, endPoint], {
+    if (currentRouteLine) map.removeLayer(currentRouteLine);
+    currentRouteLine = L.polyline([targetLocation, [destLat, destLng]], {
         color: 'var(--secondary)',
         weight: 4,
         opacity: 0.7,
         dashArray: '10, 10',
         lineCap: 'round'
     }).addTo(map);
-
     map.fitBounds(currentRouteLine.getBounds(), { padding: [50, 50] });
 }
 
-// متغيرات الفلترة
 let currentType = 'الكل';
 let maxPrice = 1000;
 
 window.updatePriceLabel = function(val) {
     maxPrice = parseInt(val);
     const label = document.getElementById('priceValue');
-    if(label) label.innerText = val + ' ريال';
+    if (label) label.innerText = val + ' ريال';
 }
 
 window.filterMap = function(type, element) {
     currentType = type;
     document.querySelectorAll('.filter-tag').forEach(btn => btn.classList.remove('active'));
-    if(element) element.classList.add('active');
-    renderCarsOnMap();
+    if (element) element.classList.add('active');
+    // إعادة عرض السيارات المفلترة من البيانات الأصلية
+    if (window.currentMapCars) {
+        renderCarsOnMap(window.currentMapCars);
+    }
 }
 
-// دالة عرض السيارات على الخريطة (تستخدم allCars)
-function renderCarsOnMap() {
-    if(!map || !carMarkersLayer) return;
-    
-    carMarkersLayer.clearLayers();
-    if(currentRouteLine) map.removeLayer(currentRouteLine);
+// تخزين السيارات المحملة للخريطة
+window.currentMapCars = [];
 
-    const filtered = allCars.filter(car => {
+function renderCarsOnMap(cars) {
+    if (!map || !carMarkersLayer) return;
+    carMarkersLayer.clearLayers();
+    if (currentRouteLine) map.removeLayer(currentRouteLine);
+
+    window.currentMapCars = cars || [];
+
+    const filtered = cars.filter(car => {
         const typeMatch = currentType === 'الكل' ? true : car.type === currentType;
-        const priceMatch = parseInt(car.price) <= maxPrice;
+        const priceMatch = parseInt(car.daily_price) <= maxPrice;
         return typeMatch && priceMatch;
     });
 
     filtered.forEach(car => {
+        if (!car.latitude || !car.longitude) return;
+
         const isPremium = car.rating >= 5.0;
         const extraClass = isPremium ? 'premium-marker' : '';
-        const marker = L.marker([car.lat, car.lng], { icon: createPriceIcon(car.price, car.type, extraClass) }).addTo(carMarkersLayer);
-        
+        const marker = L.marker([car.latitude, car.longitude], {
+            icon: createPriceIcon(car.daily_price, car.type || 'سيدان', extraClass)
+        }).addTo(carMarkersLayer);
+
         marker.on('click', function() {
-            drawRouteToCar(car.lat, car.lng);
+            drawRouteToCar(car.latitude, car.longitude);
         });
 
+        const scores = car.scores || { mech: 8, acc: 8, clean: 8 };
         const popupContent = `
             <div class="popup-car-card">
-                <img src="${car.img}" class="popup-img">
+                <img src="${car.images?.[0] || 'https://via.placeholder.com/150'}" class="popup-img">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <h4 style="margin:0; color:var(--primary);">${car.model}</h4>
-                    <span class="rating-badge"><i class="fas fa-star"></i> ${car.rating}</span>
+                    <h4 style="margin:0; color:var(--primary);">${car.brand} ${car.model}</h4>
+                    <span class="rating-badge"><i class="fas fa-star"></i> ${car.rating || 4.5}</span>
                 </div>
-                
                 <div class="rating-bars-container">
-                    <div class="rating-row"><span class="rating-label"><i class="fas fa-wrench"></i> الميكانيكا</span>${getProgressBar(car.scores.mech)}</div>
-                    <div class="rating-row"><span class="rating-label"><i class="fas fa-shield-alt"></i> الحوادث</span>${getProgressBar(car.scores.acc)}</div>
-                    <div class="rating-row"><span class="rating-label"><i class="fas fa-sparkles"></i> النظافة</span>${getProgressBar(car.scores.clean)}</div>
+                    <div class="rating-row"><span class="rating-label"><i class="fas fa-wrench"></i> الميكانيكا</span>${getProgressBar(scores.mech)}</div>
+                    <div class="rating-row"><span class="rating-label"><i class="fas fa-shield-alt"></i> الحوادث</span>${getProgressBar(scores.acc)}</div>
+                    <div class="rating-row"><span class="rating-label"><i class="fas fa-sparkles"></i> النظافة</span>${getProgressBar(scores.clean)}</div>
                 </div>
-
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                    <div style="font-weight:bold; font-size:1.1rem;">${car.price} <span style="font-size:0.8rem; font-weight:normal;">ريال/يوم</span></div>
-                    <a href="cars.html?carId=${car.id}" class="btn btn-primary" style="padding:6px 15px; font-size:0.9rem;">حجز</a>
+                    <div style="font-weight:bold; font-size:1.1rem;">${car.daily_price} <span style="font-size:0.8rem; font-weight:normal;">ريال/يوم</span></div>
+                    <button class="btn btn-primary btn-sm" onclick="window.openBookingModalFromCarId('${car.id}')">حجز</button>
                 </div>
             </div>
         `;
@@ -552,11 +497,9 @@ function renderCarsOnMap() {
 
 window.simulateSmartLocate = function() {
     const btn = document.getElementById('smart-locate-btn');
-    if(!btn) return;
-    
+    if (!btn) return;
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
-    
     setTimeout(() => {
         map.flyTo(targetLocation, 17);
         btn.innerHTML = '<i class="fas fa-check"></i> أنت هنا';
@@ -569,7 +512,7 @@ window.simulateSmartLocate = function() {
 }
 
 // -------------------------------------
-// دوال الولاء، الشهادات، الاختبار، إلخ.
+// دوال أخرى (ولاء، شهادات، اختبار...)
 // -------------------------------------
 
 function updateLoyaltyCard(completedRentals) {
@@ -581,16 +524,11 @@ function updateLoyaltyCard(completedRentals) {
     const currentRentalsText = document.getElementById('current-rentals-count');
     const remainingRentalsText = document.getElementById('remaining-rentals-count');
 
-    if (progressBarFill) {
-        progressBarFill.style.width = `${progressPercentage}%`;
-    }
+    if (progressBarFill) progressBarFill.style.width = `${progressPercentage}%`;
 
     loyaltyDots.forEach((dot, index) => {
-        if (index < completedRentals) {
-            dot.classList.add('completed');
-        } else {
-            dot.classList.remove('completed');
-        }
+        if (index < completedRentals) dot.classList.add('completed');
+        else dot.classList.remove('completed');
         dot.textContent = index + 1;
     });
 
@@ -640,9 +578,7 @@ function addCarToRecentlyViewed(carId, carImg, carTitle) {
     let recentlyViewed = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY)) || [];
     recentlyViewed = recentlyViewed.filter(car => car.id !== carId);
     recentlyViewed.unshift({ id: carId, img: carImg, title: carTitle });
-    if (recentlyViewed.length > MAX_RECENTLY_VIEWED) {
-        recentlyViewed = recentlyViewed.slice(0, MAX_RECENTLY_VIEWED);
-    }
+    if (recentlyViewed.length > MAX_RECENTLY_VIEWED) recentlyViewed = recentlyViewed.slice(0, MAX_RECENTLY_VIEWED);
     localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(recentlyViewed));
     renderRecentlyViewedCars();
 }
@@ -650,7 +586,6 @@ function addCarToRecentlyViewed(carId, carImg, carTitle) {
 function renderRecentlyViewedCars() {
     const recentlyViewed = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY)) || [];
     const container = document.getElementById('recently-viewed-cars-container');
-
     if (container) {
         if (recentlyViewed.length === 0) {
             container.innerHTML = '<p style="color:var(--gray);">لا توجد سيارات تم عرضها مؤخرًا.</p>';
@@ -674,13 +609,10 @@ function showSlides() {
     const slides = document.querySelectorAll('.testimonial-slide');
     const dots = document.querySelectorAll('.dot');
     if (slides.length === 0) return;
-
     slides.forEach(slide => slide.style.display = 'none');
     dots.forEach(dot => dot.classList.remove('active'));
-
     slideIndex++;
     if (slideIndex > slides.length) slideIndex = 1;
-
     slides[slideIndex - 1].style.display = 'block';
     dots[slideIndex - 1].classList.add('active');
 }
@@ -691,14 +623,11 @@ function currentSlide(n) {
     const slides = document.querySelectorAll('.testimonial-slide');
     const dots = document.querySelectorAll('.dot');
     if (slides.length === 0) return;
-
     slides.forEach(slide => slide.style.display = 'none');
     dots.forEach(dot => dot.classList.remove('active'));
-
     slides[slideIndex - 1].style.display = 'block';
     dots[slideIndex - 1].classList.add('active');
-    
-    slideInterval = setInterval(showSlides, 5000); 
+    slideInterval = setInterval(showSlides, 5000);
 }
 
 function setupQuiz() {
@@ -710,9 +639,7 @@ function setupQuiz() {
         e.preventDefault();
         const formData = new FormData(quizForm);
         const answers = {};
-        for (let [key, value] of formData.entries()) {
-            answers[key] = value;
-        }
+        for (let [key, value] of formData.entries()) answers[key] = value;
 
         let recommendation = "لا يمكننا تحديد سيارة مناسبة بناءً على اختياراتك.";
         let carType = "";
@@ -750,170 +677,63 @@ function setupQuiz() {
     });
 }
 
-// دوال المسؤولية الاجتماعية (إن وجدت)
-function displayRandomCsrFact() {
-    const csrFactElement = document.getElementById('csr-fact-display');
-    if (csrFactElement && typeof csrFacts !== 'undefined' && csrFacts.length > 0) {
-        const randomIndex = Math.floor(Math.random() * csrFacts.length);
-        csrFactElement.textContent = csrFacts[randomIndex].text;
-    }
-}
-
-function setupPledgeGenerator() {
-    const pledgeForm = document.getElementById('pledge-form');
-    const pledgeResultDiv = document.getElementById('pledge-result'); 
-    const userName = localStorage.getItem('userName') || 'صديقنا';
-
-    if (pledgeForm && pledgeResultDiv && typeof pledgeOptions !== 'undefined') {
-        const pledgeOptionsContainer = pledgeForm.querySelector('.quiz-options'); 
-        if (pledgeOptionsContainer) {
-            pledgeOptionsContainer.innerHTML = ''; 
-            pledgeOptions.forEach(option => {
-                const label = document.createElement('label');
-                label.innerHTML = `<input type="radio" name="pledge-type" value="${option.id}"> ${option.text}`;
-                pledgeOptionsContainer.appendChild(label);
-            });
-        }
-
-        pledgeForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const selectedPledgeId = pledgeForm.querySelector('input[name="pledge-type"]:checked')?.value;
-
-            if (selectedPledgeId) {
-                const selectedPledge = pledgeOptions.find(p => p.id === selectedPledgeId);
-                if (selectedPledge) {
-                    const thankYouMessage = selectedPledge.thankYou.replace('[اسم_المستخدم]', userName);
-                    pledgeResultDiv.innerHTML = `
-                        <h3>شكرًا لالتزامك!</h3>
-                        <p>${thankYouMessage}</p>
-                        <button class="btn btn-secondary" onclick="window.location.reload()">تعهد آخر</button>
-                    `;
-                    pledgeResultDiv.style.display = 'block';
-                    pledgeForm.style.display = 'none'; 
-                }
-            } else {
-                pledgeResultDiv.innerHTML = `<p style="color:var(--text-color-light);">الرجاء اختيار تعهد أولاً للمتابعة.</p>`;
-                pledgeResultDiv.style.display = 'block';
-            }
-        });
-    }
-}
-
-function renderImpactDashboard() {
-    const impactContainer = document.getElementById('impact-stats-container');
-    if (impactContainer && typeof impactStats !== 'undefined' && impactStats.length > 0) {
-        impactContainer.innerHTML = ''; 
-        impactStats.forEach(stat => {
-            const statCard = document.createElement('div');
-            statCard.classList.add('stat-card'); 
-            statCard.innerHTML = `
-                <h3>${stat.label}</h3>
-                <div class="value">${stat.value}${stat.unit}</div>
-                <p class="story" style="font-size:0.95rem; color: var(--gray); margin-top:10px;">${stat.story}</p>
-            `;
-            impactContainer.appendChild(statCard);
-        });
-    }
-}
-
 // -------------------------------------
-// دوال المصادقة الحقيقية (تستخدم Supabase)
+// دوال المصادقة الحقيقية مع Supabase
 // -------------------------------------
 
-/**
- * تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
- * @param {string} email - البريد الإلكتروني
- * @param {string} password - كلمة المرور
- * @returns {Promise<{success: boolean, user?: object, role?: string, error?: string}>}
- */
 window.signInUser = async function(email, password) {
+    const client = getSupabaseClient();
+    if (!client) return { success: false, error: 'Supabase غير مهيأ' };
     try {
-        // التأكد من وجود عميل Supabase
-        if (typeof window.supabaseClient === 'undefined') {
-            throw new Error('لم يتم تهيئة Supabase بعد');
-        }
-        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
         if (error) {
             console.error('خطأ في تسجيل الدخول:', error);
             return { success: false, error: error.message };
         }
-        // تخزين التوكن في localStorage (اختياري)
         if (data.session) {
             localStorage.setItem('supabase_token', data.session.access_token);
-            // استخراج الدور من user_metadata
             const role = data.user?.user_metadata?.role || 'user';
-            // تحديث حالة الدخول في localStorage (للتوافق مع الدوال الأخرى)
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userType', role);
             localStorage.setItem('userName', data.user?.user_metadata?.name || 'مستخدم');
-            // تحديث شريط التنقل
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
+            localStorage.setItem('userId', data.user.id);
+            localStorage.setItem('userEmail', data.user.email);
+            updateNavbarBasedOnLoginStatus();
             return { success: true, user: data.user, role: role };
-        } else {
-            return { success: false, error: 'لم يتم استلام جلسة' };
         }
+        return { success: false, error: 'لم يتم استلام جلسة' };
     } catch (err) {
         console.error('استثناء في تسجيل الدخول:', err);
         return { success: false, error: err.message };
     }
 };
 
-/**
- * إنشاء حساب جديد مع بيانات إضافية
- * @param {string} email - البريد الإلكتروني
- * @param {string} password - كلمة المرور
- * @param {string} role - نوع الحساب (user, renter, owner, admin)
- * @param {string} name - الاسم الكامل
- * @param {string} phone - رقم الجوال
- * @param {Object} extraData - بيانات إضافية (national_id, birth_date, driver_license, gender)
- * @returns {Promise<{success: boolean, user?: object, error?: string}>}
- */
 window.signUpUser = async function(email, password, role, name, phone, extraData = {}) {
-    try {
-        if (typeof window.supabaseClient === 'undefined') {
-            throw new Error('لم يتم تهيئة Supabase بعد');
-        }
+    const client = getSupabaseClient();
+    if (!client) return { success: false, error: 'Supabase غير مهيأ' };
 
-        // تحضير البيانات الوصفية للمستخدم
+    try {
         const metadata = {
-            name: name,
-            phone: phone,
-            role: role || 'user',
+            name, phone, role: role || 'user',
             status: (role === 'owner') ? 'pending' : 'approved',
-            ...extraData  // national_id, birth_date, driver_license, gender
+            ...extraData
         };
 
-        // إنشاء الحساب في Auth
-        const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: metadata
-            }
+        const { data: authData, error: authError } = await client.auth.signUp({
+            email, password,
+            options: { data: metadata }
         });
 
         if (authError) {
             console.error('خطأ في إنشاء الحساب:', authError);
             return { success: false, error: authError.message };
         }
+        if (!authData.user) return { success: false, error: 'لم يتم إنشاء المستخدم' };
 
-        if (!authData.user) {
-            return { success: false, error: 'لم يتم إنشاء المستخدم' };
-        }
-
-        // إدراج بيانات المستخدم الإضافية في جدول users (إذا كان موجوداً)
-        // يمكننا محاولة الإدراج، ولكن لا نعتمد عليه إذا لم يكن الجدول موجوداً
         try {
-            await window.supabaseClient.from('users').insert([{
+            await client.from('users').insert([{
                 id: authData.user.id,
-                email: email,
-                name: name,
-                phone: phone,
+                email, name, phone,
                 role: role || 'user',
                 status: (role === 'owner') ? 'pending' : 'approved',
                 national_id: extraData.national_id || null,
@@ -923,21 +743,18 @@ window.signUpUser = async function(email, password, role, name, phone, extraData
                 created_at: new Date().toISOString()
             }]);
         } catch (insertErr) {
-            console.warn('فشل إدراج بيانات المستخدم في جدول users (قد يكون الجدول غير موجود):', insertErr);
-            // لا نعتبر هذا خطأ فادحاً، المهم هو إنشاء الحساب
+            console.warn('فشل إدراج بيانات المستخدم في جدول users:', insertErr);
         }
 
-        // تخزين التوكن في localStorage (إذا تم إرجاع جلسة)
         if (authData.session) {
             localStorage.setItem('supabase_token', authData.session.access_token);
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userType', role || 'user');
             localStorage.setItem('userName', name);
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
+            localStorage.setItem('userId', authData.user.id);
+            localStorage.setItem('userEmail', email);
+            updateNavbarBasedOnLoginStatus();
         }
-
         return { success: true, user: authData.user };
     } catch (err) {
         console.error('استثناء في إنشاء الحساب:', err);
@@ -953,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupThemeToggle();
     updateNavbarBasedOnLoginStatus();
 
-    // Bottom Navbar Active State
+    // Bottom Navbar active state
     const bottomNavItems = document.querySelectorAll('.mobile-bottom-navbar .nav-item');
     bottomNavItems.forEach(item => {
         item.classList.remove('active');
@@ -963,7 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (itemHref === 'index.html' && (currentPath === '' || currentPath === 'index.html')) item.classList.add('active');
     });
 
-    // Body padding for mobile nav
     function adjustBodyPadding() {
         const mobileBottomNavbar = document.querySelector('.mobile-bottom-navbar');
         if (mobileBottomNavbar && window.innerWidth <= 992) {
@@ -975,8 +791,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adjustBodyPadding();
     window.addEventListener('resize', adjustBodyPadding);
 
-    const userCompletedRentals = 3;
-    updateLoyaltyCard(userCompletedRentals);
+    updateLoyaltyCard(3);
     renderRecentlyViewedCars();
     if (document.querySelector('.testimonial-slider')) {
         showSlides();
@@ -984,30 +799,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setupQuiz();
 
-    // CSR Features
-    if (document.getElementById('csr-fact-display')) displayRandomCsrFact(); 
-    if (document.getElementById('pledge-form')) setupPledgeGenerator(); 
-    if (document.getElementById('impact-stats-container')) renderImpactDashboard(); 
-
-    // Map Initialization (إذا كانت الصفحة تحتوي على خريطة)
     if (document.getElementById('mapid')) {
         setTimeout(() => {
-            if (typeof L !== 'undefined') {
-                initMap();
-            } else {
-                console.error("Leaflet library not loaded");
-            }
+            if (typeof L !== 'undefined') initMap();
+            else console.error("Leaflet library not loaded");
         }, 100);
     }
 
-    // إذا كانت الصفحة هي cars.html، نقوم بجلب السيارات وعرضها باستخدام renderCarsGrid
-    // (يتم استدعاؤها من كود خاص في cars.html، لكننا نضع هنا منطقاً تلقائياً)
+    // تحميل السيارات لصفحة cars.html
     const carsGrid = document.getElementById('cars-grid');
     if (carsGrid) {
-        // جلب السيارات من قاعدة البيانات (محاكاة أو حقيقية)
         (async () => {
+            const client = getSupabaseClient();
+            if (!client) {
+                carsGrid.innerHTML = '<p style="color:red; text-align:center;">خطأ في الاتصال بقاعدة البيانات</p>';
+                return;
+            }
             try {
-                const { data: cars, error } = await window.supabaseClient
+                const { data: cars, error } = await client
                     .from('cars')
                     .select('*')
                     .eq('status', 'active');
@@ -1015,13 +824,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderCarsGrid(cars || [], 'cars-grid');
             } catch (err) {
                 console.error('فشل تحميل السيارات:', err);
-                renderCarsGrid([], 'cars-grid');
+                carsGrid.innerHTML = '<p style="color:red; text-align:center;">فشل تحميل السيارات</p>';
             }
         })();
     }
 });
 
-// Sidebar Active State
+// Sidebar active state
 document.querySelectorAll('.sidebar-menu a').forEach(link => {
     link.addEventListener('click', function(e) {
         const currentActive = document.querySelector('.sidebar-menu a.active');
@@ -1030,27 +839,27 @@ document.querySelectorAll('.sidebar-menu a').forEach(link => {
     });
 });
 
+// تتبع السيارات المعروضة مؤخراً
 document.addEventListener('click', (e) => {
     if (e.target.closest('.car-card')) {
-        const carCard = e.target.closest('.car-card');
-        const carImg = carCard.querySelector('.car-img img').src;
-        const carTitle = carCard.querySelector('.car-title').textContent;
-        const carId = carTitle.replace(/\s/g, '-');
-        addCarToRecentlyViewed(carId, carImg, carTitle);
+        const card = e.target.closest('.car-card');
+        const img = card.querySelector('.car-img img')?.src;
+        const title = card.querySelector('.car-title')?.textContent;
+        const carId = title ? title.replace(/\s/g, '-') : 'unknown';
+        if (img) addCarToRecentlyViewed(carId, img, title);
     }
 });
 
-// ============================================================
-//  دوال إضافية للتوافق مع الملفات الجديدة (car-location, إلخ)
-// ============================================================
+// -------------------------------------
+// دوال إضافية للتصدير
+// -------------------------------------
 
-// دالة لجلب السيارات حسب الفلتر (تستخدم في cars.html)
 async function fetchCars(filter = {}) {
+    const client = getSupabaseClient();
+    if (!client) return [];
     try {
-        let query = window.supabaseClient.from('cars').select('*');
-        if (filter.status) {
-            query = query.eq('status', filter.status);
-        }
+        let query = client.from('cars').select('*');
+        if (filter.status) query = query.eq('status', filter.status);
         const { data, error } = await query;
         if (error) throw error;
         return data || [];
@@ -1060,67 +869,13 @@ async function fetchCars(filter = {}) {
     }
 }
 
-// دالة للحجز (تستخدم في cars.html)
-window.bookCar = async function(carId) {
-    const user = getCurrentUser();
-    if (!user) {
-        alert('الرجاء تسجيل الدخول أولاً');
-        window.location.href = 'landing.html';
-        return;
-    }
-
-    const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD HH:MM:SS)');
-    const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD HH:MM:SS)');
-    if (!startDate || !endDate) return;
-
-    // جلب سعر السيارة اليومي
-    const { data: car, error } = await window.supabaseClient
-        .from('cars')
-        .select('daily_price')
-        .eq('id', carId)
-        .single();
-    if (error || !car) {
-        alert('حدث خطأ في جلب بيانات السيارة');
-        return;
-    }
-
-    const days = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000*60*60*24)));
-    const total = days * car.daily_price;
-
-    const booking = await createBooking({
-        car_id: carId,
-        start_date: startDate,
-        end_date: endDate,
-        total_price: total
-    });
-
-    if (booking) {
-        alert('تم إنشاء الحجز بنجاح، في انتظار موافقة المالك');
-        window.location.href = 'dashboard-renter.html';
-    }
-};
-
-// دالة createBooking (إذا لم تكن معرفة)
-if (typeof createBooking === 'undefined') {
-    window.createBooking = async function(bookingData) {
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('bookings')
-                .insert([bookingData])
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
-        } catch (err) {
-            console.error('فشل إنشاء الحجز:', err);
-            alert('حدث خطأ أثناء الحجز');
-            return null;
-        }
-    };
+function showApproximateLocation(carId) {
+    window.open(`car-location-preview.html?carId=${carId}`, '_blank', 'width=900,height=650');
 }
 
-// تصدير الدوال إلى النافذة العامة للاستخدام في الصفحات الأخرى
+// تصدير الدوال إلى النطاق العام
 window.renderCarsGrid = renderCarsGrid;
+window.openBookingModalFromCarId = openBookingModalFromCarId;
 window.showApproximateLocation = showApproximateLocation;
 window.getCarLocation = getCarLocation;
 window.updateCarLocation = updateCarLocation;
@@ -1128,5 +883,8 @@ window.fetchCars = fetchCars;
 window.getCurrentUser = getCurrentUser;
 window.logoutUser = logoutUser;
 window.updateNavbarBasedOnLoginStatus = updateNavbarBasedOnLoginStatus;
+window.attachBookingButtonsToCards = attachBookingButtonsToCards;
+window.createBooking = createBooking;
+window.bookCar = bookCar;
 
-console.log('✅ script.js تم تحديثه بنجاح مع نظام مواقع السيارات ودوال المصادقة.');
+console.log('✅ script.js حقيقي ومُحدث مع Supabase');
