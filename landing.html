@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <!-- ===== إضافة مكتبة Supabase وملفات المشروع ===== -->
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="supabase-config.js" defer></script>
-<script src="script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
     <style>
         /* Reset and base */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
@@ -655,26 +655,6 @@
     <!-- ===== الأكواد الخاصة بـ landing.html (محلية) ===== -->
     <!-- ===================================================== -->
     <script>
-        // ===== انتظر تحميل script.js قبل استخدام دوال signInUser و signUpUser =====
-        function waitForScriptFunctions() {
-            return new Promise((resolve) => {
-                let attempts = 0;
-                const maxAttempts = 50; // انتظر حتى 5 ثوان (50 × 100ms)
-                
-                const checkInterval = setInterval(() => {
-                    attempts++;
-                    if (typeof signInUser === 'function' && typeof signUpUser === 'function') {
-                        clearInterval(checkInterval);
-                        resolve();
-                    } else if (attempts >= maxAttempts) {
-                        clearInterval(checkInterval);
-                        console.error('❌ تحذير: دوال المصادقة لم تحمّل في الوقت المحدد');
-                        resolve(); // تابع على أي حال
-                    }
-                }, 100);
-            });
-        }
-
         // ===== دوال مساعدة محلية =====
         function switchTab(tab) {
             const tabButtons = document.querySelectorAll('.tab-switch button');
@@ -712,14 +692,14 @@
             el.className = isSuccess ? 'auth-success' : 'auth-error';
         }
 
-        // ===== معالج تسجيل الدخول (يستخدم signInUser من script.js) =====
+        // ===== معالج تسجيل الدخول (يستخدم window.signInUser) =====
         async function handleLogin(e) {
             e.preventDefault();
             
-            // تأكد من وجود signInUser قبل الاستدعاء
-            if (typeof signInUser !== 'function') {
-                showMessage('login-error', 'خطأ: دوال المصادقة لم تحمّل بعد. يرجى تحديث الصفحة.');
-                console.error('❌ signInUser غير معرّف');
+            // التحقق المباشر من وجود الدالة
+            if (typeof window.signInUser !== 'function') {
+                showMessage('login-error', '⚠️ النظام غير جاهز، يرجى تحديث الصفحة.');
+                console.error('❌ window.signInUser غير معرّف');
                 return;
             }
             
@@ -735,9 +715,9 @@
             }
 
             try {
-                const result = await signInUser(email, password);
+                const result = await window.signInUser(email, password);
                 if (result.success) {
-                    showMessage('login-success', 'تم تسجيل الدخول بنجاح، جاري التحويل...', true);
+                    showMessage('login-success', '✅ تم تسجيل الدخول بنجاح، جاري التحويل...', true);
                     // تحديث شريط التنقل (في script.js)
                     if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                         updateNavbarBasedOnLoginStatus();
@@ -757,14 +737,13 @@
             }
         }
 
-        // ===== معالج التسجيل المطور (يستخدم signUpUser مع بيانات إضافية) =====
+        // ===== معالج التسجيل المطور (يستخدم window.signUpUser) =====
         async function handleRegister(e) {
             e.preventDefault();
             
-            // تأكد من وجود signUpUser قبل الاستدعاء
-            if (typeof signUpUser !== 'function') {
-                showMessage('register-error', 'خطأ: دوال المصادقة لم تحمّل بعد. يرجى تحديث الصفحة.');
-                console.error('❌ signUpUser غير معرّف');
+            if (typeof window.signUpUser !== 'function') {
+                showMessage('register-error', '⚠️ النظام غير جاهز، يرجى تحديث الصفحة.');
+                console.error('❌ window.signUpUser غير معرّف');
                 return;
             }
             
@@ -807,7 +786,7 @@
                 return;
             }
 
-            // تجهيز البيانات الإضافية لإرسالها إلى Supabase
+            // تجهيز البيانات الإضافية
             const extraData = {
                 national_id: nationalId,
                 birth_date: birthDate,
@@ -816,19 +795,13 @@
             };
 
             try {
-                // استدعاء signUpUser مع البيانات الإضافية
-                // ملاحظة: يجب تعديل دالة signUpUser في script.js لتقبل معامل `extraUserData`
-                // وتضمين هذه البيانات في user_metadata وفي جدول users.
-                const result = await signUpUser(email, password, role, name, phone, extraData);
+                const result = await window.signUpUser(email, password, role, name, phone, extraData);
                 
                 if (result.success) {
                     showMessage('register-success', '✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.', true);
-                    // تحديث شريط التنقل
                     if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                         updateNavbarBasedOnLoginStatus();
                     }
-                    // توجيه المستخدم إلى صفحة تسجيل الدخول بدلاً من لوحة التحكم
-                    // حتى يتمكن من تسجيل الدخول ببياناته الجديدة
                     setTimeout(() => {
                         window.location.href = 'landing.html';
                     }, 2000);
@@ -845,7 +818,6 @@
         (function checkExistingSession() {
             const token = localStorage.getItem('supabase_token');
             if (token && typeof window.supabaseClient !== 'undefined') {
-                // إذا كان هناك توكن، نتحقق من صلاحيته ونوجه تلقائياً
                 (async () => {
                     const { data: { user }, error } = await window.supabaseClient.auth.getUser(token);
                     if (user && !error) {
@@ -860,9 +832,6 @@
 
         // ===== أحداث المستمعين الإضافية =====
         document.addEventListener('DOMContentLoaded', function() {
-            // انتظر تحميل دوال المصادقة
-            waitForScriptFunctions();
-            
             // تبديل التبويبات
             document.querySelectorAll('.tab-switch button').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -871,7 +840,7 @@
                 });
             });
 
-            // تبديل الوضع (داكن / فاتح) - مأخوذ من script.js لكن نضيف نسخة محلية للتوافق
+            // تبديل الوضع (داكن / فاتح)
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
@@ -883,7 +852,6 @@
                     if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
                     if (span) span.textContent = isDark ? 'الوضع النهاري' : 'الوضع الليلي';
                 });
-                // تطبيق الوضع المخزن
                 if (localStorage.getItem('theme') === 'dark') {
                     document.body.classList.add('dark-mode');
                     const icon = themeToggle.querySelector('i');
@@ -937,34 +905,5 @@
             });
         });
     </script>
-
-    <!-- ===== ملاحظة هامة للمطور ===== -->
-    <!-- تم إضافة حقول جديدة في نموذج التسجيل: 
-         - رقم الهوية (national_id)
-         - تاريخ الميلاد (birth_date)
-         - رقم رخصة القيادة (driver_license)
-         - الجنس (gender)
-         
-         يجب تعديل دالة signUpUser في ملف script.js لتقبل معامل إضافي (extraData)
-         وتضمين هذه البيانات في user_metadata وفي جدول users.
-         
-         مثال لتعديل signUpUser:
-         async function signUpUser(email, password, role, name, phone, extraData = {}) {
-             const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
-                 email: email,
-                 password: password,
-                 options: {
-                     data: {
-                         name: name,
-                         phone: phone,
-                         role: role || 'user',
-                         status: role === 'owner' ? 'pending' : 'approved',
-                         ...extraData  // إضافة البيانات الإضافية
-                     }
-                 }
-             });
-             // ... باقي الكود مع إدراج extraData في جدول users أيضاً
-         }
-    -->
 </body>
 </html>
