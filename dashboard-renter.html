@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | لوحة المستأجر</title>
 
     <!-- Fonts & Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <!-- Supabase & Project Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
-
-    <!-- ===== تم حذف وسم <style> بالكامل ===== -->
 </head>
 <body>
 
@@ -24,17 +22,23 @@
     <header>
         <div class="container">
             <nav class="navbar">
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+
                 <a href="index.html" class="logo">
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
+
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
                     <li><a href="dashboard-renter.html" class="active">لوحة المستأجر</a></li>
-                    <li><a href="dashboard-owner.html" class="auth-link">لوحة المؤجر</a></li>
-                    <li><a href="add-car.html" class="auth-link">أضف سيارتك</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
                 </ul>
+
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
                     <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
@@ -44,16 +48,38 @@
         </div>
     </header>
 
-    <!-- ===== DASHBOARD ===== -->
-    <div class="container dashboard-wrapper">
-        <div class="dashboard">
+    <!-- ===== القائمة الجانبية ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">و</div>
+                <span class="logo-text">وُجْهَة</span>
+            </a>
+            <button class="close-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+            <li><a href="cars.html"><i class="fas fa-car"></i> استكشف السيارات</a></li>
+            <li><a href="dashboard-renter.html" class="active"><i class="fas fa-user"></i> لوحة المستأجر</a></li>
+            <li><a href="dashboard-owner.html" class="auth-link" data-role="owner"><i class="fas fa-user-tie"></i> لوحة المؤجر</a></li>
+            <li><a href="add-car.html" class="auth-link" data-role="owner"><i class="fas fa-plus-circle"></i> أضف سيارتك</a></li>
+        </ul>
+        <div class="mobile-sidebar-footer">
+            <a href="landing.html" class="btn btn-primary guest-only" id="mobile-guest-btn">تسجيل دخول / جديد</a>
+            <button id="mobile-theme-toggle" class="btn btn-outline"><i class="fas fa-moon"></i> الوضع الليلي</button>
+        </div>
+    </aside>
 
-            <!-- ===== SIDEBAR ===== -->
-            <aside class="dashboard-sidebar">
+    <!-- ===== المحتوى ===== -->
+    <div class="container dashboard-wrapper">
+        <div class="dashboard" data-aos="fade-up">
+            <!-- ===== القائمة الجانبية ===== -->
+            <div class="dashboard-sidebar">
                 <div class="user-profile">
                     <div class="user-avatar" id="renter-avatar">م</div>
                     <h3 id="renter-name-display">مستخدم</h3>
-                    <p><i class="fas fa-check-circle"></i> موثق (نفاذ)</p>
+                    <p><i class="fas fa-check-circle" style="color:var(--color-success);"></i> موثق (نفاذ)</p>
                 </div>
                 <ul class="sidebar-menu">
                     <li><a href="#" class="active" onclick="scrollToSection('bookings')"><i class="fas fa-calendar-check"></i> حجوزاتي</a></li>
@@ -61,77 +87,67 @@
                     <li><a href="#" onclick="scrollToSection('scan')"><i class="fas fa-camera"></i> فحص السيارة</a></li>
                     <li><a href="#" onclick="scrollToSection('pledge')"><i class="fas fa-hand-paper"></i> التعهد</a></li>
                 </ul>
-            </aside>
+            </div>
 
-            <!-- ===== CONTENT ===== -->
-            <main class="dashboard-content">
+            <!-- ===== المحتوى ===== -->
+            <div class="dashboard-content">
 
-                <!-- ===== STATS ===== -->
-                <section class="stats-grid" id="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-total">0</div>
-                        <div class="stat-label">إجمالي الحجوزات</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-pending">0</div>
-                        <div class="stat-label">قيد الموافقة</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-active">0</div>
-                        <div class="stat-label">نشطة</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-contracts">0</div>
-                        <div class="stat-label">العقود</div>
-                    </div>
-                </section>
+                <!-- Stats -->
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card"><div class="value" id="stat-total">0</div><div class="stat-label">إجمالي الحجوزات</div></div>
+                    <div class="stat-card"><div class="value" id="stat-pending">0</div><div class="stat-label">قيد الموافقة</div></div>
+                    <div class="stat-card"><div class="value" id="stat-active">0</div><div class="stat-label">نشطة</div></div>
+                    <div class="stat-card"><div class="value" id="stat-contracts">0</div><div class="stat-label">العقود</div></div>
+                </div>
 
-                <!-- ===== BOOKINGS ===== -->
-                <section class="smart-widget" id="bookings">
+                <!-- حجوزاتي -->
+                <div class="smart-widget" id="bookings">
                     <h3><i class="fas fa-calendar-check"></i> حجوزاتي</h3>
                     <div id="bookings-container">
                         <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
                     </div>
-                </section>
+                </div>
 
-                <!-- ===== CONTRACTS ===== -->
-                <section class="smart-widget" id="contracts">
+                <!-- عقودي -->
+                <div class="smart-widget" id="contracts">
                     <h3><i class="fas fa-file-signature"></i> عقودي</h3>
                     <div id="contracts-container">
                         <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
                     </div>
-                </section>
+                </div>
 
-                <!-- ===== AI SCAN ===== -->
-                <section class="smart-widget" id="scan">
-                    <div>
-                        <h3><i class="fas fa-camera"></i> فحص استلام السيارة (AI)</h3>
-                        <span class="status-badge">مطلوب</span>
+                <!-- فحص السيارة (AI) -->
+                <div class="smart-widget inspection-widget" id="scan">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="margin:0;"><i class="fas fa-camera"></i> فحص استلام السيارة (AI)</h3>
+                        <span class="status-badge" style="background:var(--color-info); color:#fff; padding:4px 14px; border-radius:30px; font-size:0.8rem;">مطلوب</span>
                     </div>
-                    <p id="pre-desc">صور السيارة بجوالك الآن. سيقوم النظام بتوثيق أي خدوش قديمة وحفظها.</p>
+                    <p id="pre-desc" style="color:var(--color-text-secondary); margin-bottom:15px;">
+                        صور السيارة بجوالك الآن. سيقوم النظام بتوثيق أي خدوش قديمة وحفظها.
+                    </p>
                     <div class="scan-container" id="pre-scan-visual" style="display:none;">
                         <div class="scan-image-placeholder"></div>
                         <div class="scanner-beam"></div>
                         <div class="scan-status-text">جاري تحليل صورتك... <span id="scan-progress">0%</span></div>
                     </div>
-                    <div id="pre-scan-result" style="display:none;">
-                        <h4>📊 تقرير الحالة:</h4>
-                        <ul>
+                    <div id="pre-scan-result" style="display:none; background:var(--color-bg-secondary); padding:15px; border-radius:10px; border-right:4px solid var(--color-warning); margin-bottom:16px;">
+                        <h4 style="margin:0 0 8px; color:var(--color-warning);">📊 تقرير الحالة:</h4>
+                        <ul style="margin:0; padding-right:20px; color:var(--color-text-secondary); font-size:0.9rem;">
                             <li>✅ الهيكل سليم بنسبة 95%.</li>
                             <li>⚠️ تم رصد (2) خدش سطحي.</li>
                         </ul>
-                        <p>* تم حفظ التقرير لحمايتك عند التسليم.</p>
+                        <p style="margin:8px 0 0; font-size:0.8rem; color:var(--color-text-tertiary);">* تم حفظ التقرير لحمايتك عند التسليم.</p>
                     </div>
                     <input type="file" id="pre-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this, 'pre')" />
-                    <button class="btn btn-primary" onclick="document.getElementById('pre-file-input').click()">
+                    <button class="btn btn-primary" style="width:100%; background:var(--color-info); border-color:var(--color-info);" onclick="document.getElementById('pre-file-input').click()">
                         <i class="fas fa-camera"></i> رفع صورة وبدء الفحص
                     </button>
-                </section>
+                </div>
 
-                <!-- ===== PLEDGE ===== -->
-                <section class="pledge-section" id="pledge">
-                    <h3><i class="fas fa-hand-paper"></i> التعهد الأمني الملزم</h3>
-                    <p>
+                <!-- التعهد -->
+                <div class="pledge-section" id="pledge">
+                    <h3 style="color:var(--color-primary); margin-bottom:12px;"><i class="fas fa-hand-paper"></i> التعهد الأمني الملزم</h3>
+                    <p style="color:var(--color-warning); font-size:0.9rem; margin-bottom:18px; background:var(--color-warning-bg); padding:10px; border-radius:8px;">
                         <i class="fas fa-exclamation-triangle"></i> تنبيه: لن يعمل "المفتاح الرقمي" للسيارة إلا بعد الموافقة على جميع البنود.
                     </p>
                     <form id="mandatory-pledge-form" class="mandatory-pledge">
@@ -139,23 +155,15 @@
                         <label><input type="checkbox" required /> <span>أتعهد بربط حزام الأمان لي ولجميع الركاب طوال الرحلة.</span></label>
                         <label><input type="checkbox" required /> <span>أتعهد بالمحافظة على نظافة السيارة (سيتم فحصها بالذكاء الاصطناعي عند الإرجاع).</span></label>
                         <label><input type="checkbox" required /> <span>أقر بأن تفويض "تم" ساري طوال مدة الحجز وأتحمل كافة المسؤوليات.</span></label>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px; padding:14px; font-weight:bold; font-size:1.1rem;">
                             <i class="fas fa-fingerprint"></i> توثيق وبدء الرحلة
                         </button>
                     </form>
-                </section>
+                </div>
 
-            </main>
+            </div>
         </div>
     </div>
-
-    <!-- ===== BOTTOM NAV ===== -->
-    <nav class="bottom-navbar mobile-bottom-navbar">
-        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
-        <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
-        <a href="dashboard-renter.html" class="nav-item active"><i class="fas fa-user"></i><span>لوحتي</span></a>
-        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
-    </nav>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -163,49 +171,81 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <h3>عن وُجْهَة</h3>
-                    <p>أول منصة سعودية لتأجير السيارات بين الأفراد بثقة وأمان.</p>
-                    <div class="social-links"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a></div>
+                    <p>أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
                 </div>
                 <div class="footer-col">
                     <h3>روابط سريعة</h3>
-                    <ul><li><a href="cars.html">استكشف السيارات</a></li><li><a href="https://wa.me/966565464718">الدعم الفني</a></li></ul>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="qassim-map.html">الخريطة</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>الحساب</h3>
+                    <ul>
+                        <li><a href="landing.html" class="guest-only">تسجيل دخول</a></li>
+                        <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                        <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                        <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    </ul>
                 </div>
                 <div class="footer-col">
                     <h3>تواصل معنا</h3>
                     <ul class="footer-contact">
                         <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
                         <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
+                        <li><i class="fas fa-envelope"></i> info@wajhah.sa</li>
                     </ul>
                 </div>
             </div>
-            <div class="copyright"><p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p></div>
+            <div class="footer-bottom">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p>
+                <div class="footer-legal">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- ===== SCRIPTS ===== -->
+    <!-- ===== القائمة السفلية ===== -->
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+        <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
+        <a href="dashboard-renter.html" class="nav-item active"><i class="fas fa-user"></i><span>لوحتي</span></a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+    </nav>
+
+    <!-- ===== سكريبتات ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
     <script>
-        AOS.init({ once: true });
+        AOS.init({ once: true, duration: 600 });
 
         // ============================================================
-        //  متغيرات عامة
+        //  دوال لوحة المستأجر (كاملة)
         // ============================================================
+
         let currentUserId = null;
         let currentUserName = 'مستخدم';
 
-        // ============================================================
-        //  1. جلب المستخدم الحقيقي من Supabase
-        // ============================================================
+        // ===== 1. جلب المستخدم =====
         async function loadUserData() {
             try {
                 const { data: { user }, error } = await window.supabaseClient.auth.getUser();
                 if (error || !user) {
-                    console.warn('لا توجد جلسة نشطة، توجيه إلى صفحة الدخول');
+                    console.warn('لا توجد جلسة نشطة');
                     window.location.href = 'landing.html';
                     return false;
                 }
 
-                // التأكد من أن المستخدم له دور "renter" أو "admin"
                 const role = user.user_metadata?.role || 'user';
                 if (role !== 'renter' && role !== 'admin') {
                     alert('❌ هذه الصفحة مخصصة للمستأجرين فقط.');
@@ -213,19 +253,16 @@
                     return false;
                 }
 
-                currentUserId = user.id; // UUID حقيقي
+                currentUserId = user.id;
                 currentUserName = user.user_metadata?.name || user.email || 'مستخدم';
 
-                // تحديث الواجهة
                 document.getElementById('renter-name-display').textContent = currentUserName;
                 document.getElementById('renter-avatar').textContent = currentUserName.charAt(0);
 
-                // تحديث حالة الدخول في localStorage (للدوال الأخرى)
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userType', role);
                 localStorage.setItem('userName', currentUserName);
 
-                // تحديث شريط التنقل
                 if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                     updateNavbarBasedOnLoginStatus();
                 }
@@ -233,23 +270,19 @@
                 return true;
             } catch (err) {
                 console.error('فشل تحميل بيانات المستخدم:', err);
-                alert('حدث خطأ في التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.');
+                alert('حدث خطأ في التحقق من الجلسة.');
                 window.location.href = 'landing.html';
                 return false;
             }
         }
 
-        // ============================================================
-        //  2. التمرير إلى قسم معين
-        // ============================================================
+        // ===== 2. التمرير =====
         function scrollToSection(id) {
             const el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // ============================================================
-        //  3. تحميل الحجوزات
-        // ============================================================
+        // ===== 3. تحميل الحجوزات =====
         async function loadBookings() {
             const container = document.getElementById('bookings-container');
             if (!currentUserId) {
@@ -266,7 +299,6 @@
 
                 if (error) throw error;
 
-                // تحديث الإحصائيات
                 document.getElementById('stat-total').textContent = bookings?.length || 0;
                 const pending = bookings?.filter(b => b.status === 'pending_owner_approval').length || 0;
                 document.getElementById('stat-pending').textContent = pending;
@@ -290,18 +322,18 @@
 
                     return `
                         <div class="booking-item">
-                            <div class="booking-row">
+                            <div class="booking-header">
                                 <div>
                                     <span class="booking-car">${b.cars?.brand || ''} ${b.cars?.model || ''}</span>
-                                    <small>${b.cars?.city || ''}</small>
+                                    <small style="color:var(--color-text-secondary);">${b.cars?.city || ''}</small>
                                 </div>
-                                <span class="booking-status ${b.status}">${statusText}</span>
+                                <span class="status-badge ${b.status}">${statusText}</span>
                             </div>
-                            <div class="booking-meta">
-                                <span><i class="fas fa-calendar-alt"></i> ${new Date(b.start_date).toLocaleDateString('ar-SA')} - ${new Date(b.end_date).toLocaleDateString('ar-SA')}</span>
-                                <span><i class="fas fa-money-bill"></i> ${b.total_price || 0} ر.س</span>
+                            <div class="booking-dates">
+                                <i class="fas fa-calendar-alt"></i> ${new Date(b.start_date).toLocaleDateString('ar-SA')} - ${new Date(b.end_date).toLocaleDateString('ar-SA')}
+                                <span style="margin-right:15px;"><i class="fas fa-money-bill"></i> ${b.total_price || 0} ر.س</span>
                             </div>
-                            ${isPending ? `<div style="color:#856404; font-size:0.85rem;"><i class="fas fa-clock"></i> في انتظار موافقة المالك</div>` : ''}
+                            ${isPending ? `<div style="color:var(--color-warning); font-size:0.85rem;"><i class="fas fa-clock"></i> في انتظار موافقة المالك</div>` : ''}
                             ${isApproved ? `
                                 <div class="booking-actions">
                                     <button class="btn btn-primary btn-sm" onclick="window.open('car-location-view.html?carId=${b.car_id}&bookingId=${b.id}', '_blank')">
@@ -322,17 +354,13 @@
             }
         }
 
-        // ============================================================
-        //  4. فتح العقد
-        // ============================================================
+        // ===== 4. فتح العقد =====
         function openContractForBooking(bookingId) {
             localStorage.setItem('current_booking_id', bookingId);
             window.location.href = 'contract_final.html';
         }
 
-        // ============================================================
-        //  5. تحميل العقود
-        // ============================================================
+        // ===== 5. تحميل العقود =====
         async function loadContracts() {
             const container = document.getElementById('contracts-container');
             if (!currentUserId) {
@@ -341,7 +369,6 @@
             }
 
             try {
-                // جلب العقود الخاصة بالمستأجر عبر renter_id في bookings
                 const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
                     .select(`
@@ -367,18 +394,18 @@
                     const booking = c.bookings;
                     const car = booking?.cars;
                     return `
-                        <div class="booking-item">
-                            <div class="booking-row">
+                        <div class="booking-item" style="border-right: 3px solid var(--color-secondary);">
+                            <div class="booking-header">
                                 <div>
-                                    <span style="font-weight:700;">عقد رقم: ${c.contract_number || 'N/A'}</span>
-                                    <span class="booking-status ${c.status}">
+                                    <span style="font-weight:bold;">عقد رقم: ${c.contract_number || 'N/A'}</span>
+                                    <span class="status-badge ${c.status}" style="margin-right:10px;">
                                         ${c.status === 'active' ? 'ساري' : c.status === 'draft' ? 'مسودة' : c.status}
                                     </span>
                                 </div>
                             </div>
-                            <div class="booking-meta">
-                                <span><i class="fas fa-car"></i> ${car?.brand || ''} ${car?.model || ''}</span>
-                                <span><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span>
+                            <div class="booking-dates">
+                                <i class="fas fa-car"></i> ${car?.brand || ''} ${car?.model || ''}
+                                <span style="margin-right:15px;"><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span>
                             </div>
                         </div>
                     `;
@@ -390,15 +417,12 @@
             }
         }
 
-        // ============================================================
-        //  6. فحص الذكاء الاصطناعي (دوال موجودة)
-        // ============================================================
+        // ===== 6. فحص الذكاء الاصطناعي =====
         function handleImageUpload(input, type) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const containerId = (type === 'pre') ? 'pre-scan-visual' : 'post-scan-visual';
-                    const placeholder = document.querySelector('#' + containerId + ' .scan-image-placeholder');
+                    const placeholder = document.querySelector('#pre-scan-visual .scan-image-placeholder');
                     if (placeholder) {
                         placeholder.style.backgroundImage = 'url(' + e.target.result + ')';
                     }
@@ -409,10 +433,10 @@
         }
 
         function runAIScan(type) {
-            let scanVisual, resultArea, timer = 0;
+            let timer = 0;
             if (type === 'pre') {
-                scanVisual = document.getElementById('pre-scan-visual');
-                resultArea = document.getElementById('pre-scan-result');
+                const scanVisual = document.getElementById('pre-scan-visual');
+                const resultArea = document.getElementById('pre-scan-result');
                 const startBtn = document.querySelector('#scan .btn-primary');
                 if (startBtn) startBtn.style.display = 'none';
                 scanVisual.style.display = 'block';
@@ -422,71 +446,38 @@
                     if (progressEl) progressEl.innerText = Math.min(timer, 100) + '%';
                     if (timer >= 100) {
                         clearInterval(interval);
-                        finishScan('pre');
+                        scanVisual.style.display = 'none';
+                        resultArea.style.display = 'block';
+                        const widget = document.getElementById('scan');
+                        widget.classList.add('completed');
+                        const badge = widget.querySelector('.status-badge');
+                        if (badge) {
+                            badge.style.background = 'var(--color-success)';
+                            badge.innerText = 'تم التوثيق';
+                        }
+                        const desc = document.getElementById('pre-desc');
+                        if (desc) desc.innerText = '✅ تم حفظ صورك في السجل الآمن. رحلة سعيدة!';
                     }
                 }, 50);
             }
-
-            function finishScan(mode) {
-                scanVisual.style.display = 'none';
-                if (mode === 'pre') {
-                    resultArea.style.display = 'block';
-                    const widget = document.getElementById('scan');
-                    widget.classList.add('completed');
-                    const badge = widget.querySelector('.status-badge');
-                    if (badge) {
-                        badge.style.background = '#2ecc71';
-                        badge.innerText = 'تم التوثيق';
-                    }
-                    const desc = document.getElementById('pre-desc');
-                    if (desc) desc.innerText = '✅ تم حفظ صورك في السجل الآمن. رحلة سعيدة!';
-                }
-            }
         }
 
-        // ============================================================
-        //  7. نموذج التعهد
-        // ============================================================
+        // ===== 7. نموذج التعهد =====
         document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = this.querySelector('button');
-            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوثيق...';
             btn.disabled = true;
             setTimeout(() => {
                 alert('✅ تم التوثيق بنجاح! 🚗\n- تم إصدار تفويض القيادة.\n- تم تفعيل المفتاح الرقمي.\nنتمنى لك رحلة آمنة.');
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> تم التوثيق';
-                btn.style.background = '#2ecc71';
-                btn.style.borderColor = '#2ecc71';
+                btn.style.background = 'var(--color-success)';
+                btn.style.borderColor = 'var(--color-success)';
                 btn.disabled = false;
             }, 1500);
         });
 
-        // ============================================================
-        //  8. الوضع الليلي
-        // ============================================================
-        (function setupTheme() {
-            const themeToggle = document.getElementById('theme-toggle-desktop');
-            if (!themeToggle) return;
-            const applyTheme = (theme) => {
-                document.body.classList.toggle('dark-mode', theme === 'dark');
-                localStorage.setItem('theme', theme);
-                const icon = themeToggle.querySelector('i');
-                const span = themeToggle.querySelector('span');
-                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
-            };
-            const current = localStorage.getItem('theme') || 'light';
-            applyTheme(current);
-            themeToggle.addEventListener('click', () => {
-                const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-                applyTheme(next);
-            });
-        })();
-
-        // ============================================================
-        //  9. تهيئة الصفحة
-        // ============================================================
+        // ===== 8. تهيئة الصفحة =====
         (async function init() {
             const loaded = await loadUserData();
             if (loaded) {
@@ -495,32 +486,22 @@
             }
         })();
 
-        // ============================================================
-        //  10. دالة الخروج
-        // ============================================================
+        // ===== تعريض الدوال =====
+        window.loadBookings = loadBookings;
+        window.loadContracts = loadContracts;
+        window.scrollToSection = scrollToSection;
+        window.openContractForBooking = openContractForBooking;
+        window.handleImageUpload = handleImageUpload;
         window.logoutUser = function() {
-            if (confirm('هل تريد تسجيل الخروج؟')) {
+            if (confirm('تسجيل الخروج؟')) {
                 window.supabaseClient.auth.signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'landing.html';
-                }).catch(err => {
-                    console.error(err);
                     localStorage.clear();
                     window.location.href = 'landing.html';
                 });
             }
         };
 
-        // ============================================================
-        //  11. تعريض الدوال للنافذة العامة
-        // ============================================================
-        window.loadBookings = loadBookings;
-        window.loadContracts = loadContracts;
-        window.scrollToSection = scrollToSection;
-        window.openContractForBooking = openContractForBooking;
-        window.handleImageUpload = handleImageUpload;
-
-        console.log('✅ لوحة المستأجر جاهزة (بمعرف UUID حقيقي)!');
+        console.log('✅ لوحة المستأجر جاهزة');
     </script>
 </body>
 </html>
