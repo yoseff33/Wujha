@@ -4,20 +4,217 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | لوحة المؤجر</title>
-
-    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Supabase & Project Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+        .dashboard-wrapper { padding: var(--spacing-4) 0; }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: var(--spacing-4);
+        }
+        .dashboard-sidebar {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: calc(var(--header-height) + var(--spacing-4));
+        }
+        .user-profile {
+            text-align: center;
+            padding-bottom: var(--spacing-4);
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--spacing-4);
+        }
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: var(--color-primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto var(--spacing-2);
+        }
+        .user-profile h3 {
+            font-size: var(--font-size-md);
+            color: var(--color-heading);
+            margin: 0;
+        }
+        .user-profile p {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin: var(--spacing-1) 0 0;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar-menu li {
+            margin-bottom: var(--spacing-1);
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-3);
+            border-radius: var(--radius-md);
+            color: var(--color-text-secondary);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--transition-fast);
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--color-bg-secondary);
+            color: var(--color-primary);
+        }
+        .sidebar-menu a i {
+            width: 20px;
+            text-align: center;
+        }
+        .dashboard-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-4);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-3);
+        }
+        .stat-card {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-extrabold);
+            color: var(--color-heading);
+        }
+        .stat-card .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-1);
+        }
+        .smart-widget {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        .smart-widget h3 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-4);
+            color: var(--color-heading);
+        }
+        .smart-widget h3 i {
+            color: var(--color-secondary);
+            margin-left: var(--spacing-2);
+        }
+        .car-item {
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3) var(--spacing-4);
+            margin-bottom: var(--spacing-2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+        }
+        .car-item .car-info strong {
+            font-size: var(--font-size-md);
+        }
+        .car-item .car-info .details {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+        .car-status .status-badge {
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-bold);
+        }
+        .booking-item {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3) var(--spacing-4);
+            margin-bottom: var(--spacing-2);
+        }
+        .booking-item .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+        }
+        .booking-item .booking-car {
+            font-weight: var(--font-weight-bold);
+        }
+        .booking-item .booking-dates {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+        .booking-item .booking-price {
+            font-weight: var(--font-weight-bold);
+            color: var(--color-secondary);
+        }
+        .booking-item .booking-actions {
+            display: flex;
+            gap: var(--spacing-2);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-2);
+        }
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-6) var(--spacing-4);
+            color: var(--color-text-secondary);
+        }
+        .empty-state i {
+            font-size: var(--font-size-2xl);
+            display: block;
+            margin-bottom: var(--spacing-2);
+            opacity: 0.3;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: var(--spacing-6);
+            color: var(--color-text-secondary);
+        }
+        .loading-spinner i {
+            font-size: var(--font-size-xl);
+            display: block;
+            margin-bottom: var(--spacing-2);
+        }
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-sidebar {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-
     <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
@@ -37,95 +234,78 @@
                     <li><a href="dashboard-owner.html" class="active">لوحة المؤجر</a></li>
                     <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
                     <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                    <li><a href="quiz.html">اختبار السيارة</a></li>
+                    <li><a href="qassim-map.html">خريطة السيارات</a></li>
                 </ul>
 
                 <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
-                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
+                    <button id="theme-toggle-desktop" class="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>الوضع</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">
+                        <i class="fas fa-shield-alt"></i> دخول آمن
+                    </a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
 
-    <!-- ===== القائمة الجانبية ===== -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <aside class="mobile-sidebar" id="mobileSidebar">
-        <div class="mobile-sidebar-header">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">و</div>
-                <span class="logo-text">وُجْهَة</span>
-            </a>
-            <button class="close-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
-        </div>
-        <ul class="mobile-nav-links">
-            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
-            <li><a href="cars.html"><i class="fas fa-car"></i> استكشف السيارات</a></li>
-            <li><a href="dashboard-owner.html" class="active"><i class="fas fa-user-tie"></i> لوحة المؤجر</a></li>
-            <li><a href="add-car.html" class="auth-link" data-role="owner"><i class="fas fa-plus-circle"></i> أضف سيارتك</a></li>
-            <li><a href="dashboard-renter.html" class="auth-link" data-role="renter"><i class="fas fa-user"></i> لوحة المستأجر</a></li>
-        </ul>
-        <div class="mobile-sidebar-footer">
-            <a href="landing.html" class="btn btn-primary guest-only" id="mobile-guest-btn">تسجيل دخول / جديد</a>
-            <button id="mobile-theme-toggle" class="btn btn-outline"><i class="fas fa-moon"></i> الوضع الليلي</button>
-        </div>
-    </aside>
-
-    <!-- ===== المحتوى ===== -->
-    <div class="container dashboard-wrapper">
-        <div class="dashboard" data-aos="fade-up">
-            <!-- ===== القائمة الجانبية (ديسكتوب) ===== -->
-            <div class="dashboard-sidebar">
-                <div class="user-profile">
-                    <div class="user-avatar" id="owner-avatar">م</div>
-                    <h3 id="owner-name-display">مستخدم</h3>
-                    <p><i class="fas fa-check-circle" style="color:var(--color-success);"></i> هوية موثقة (نفاذ)</p>
-                </div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" class="active" onclick="loadDashboard()"><i class="fas fa-chart-line"></i> نظرة عامة</a></li>
-                    <li><a href="#" onclick="loadOwnerCars()"><i class="fas fa-car"></i> سياراتي <span id="car-count-badge" style="background:var(--color-secondary);color:var(--color-primary-dark);padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
-                    <li><a href="#" onclick="loadOwnerBookings()"><i class="fas fa-calendar-check"></i> طلبات الحجز <span id="booking-count-badge" style="background:var(--color-danger);color:#fff;padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
-                    <li><a href="#" onclick="loadContracts()"><i class="fas fa-file-contract"></i> العقود</a></li>
-                    <li><a href="add-car.html"><i class="fas fa-plus-circle"></i> أضف سيارة</a></li>
-                </ul>
-            </div>
-
-            <!-- ===== المحتوى ===== -->
-            <div class="dashboard-content" id="dashboard-content">
-                <!-- Stats -->
-                <div class="stats-grid" id="stats-grid">
-                    <div class="stat-card"><div class="value" id="stat-cars">0</div><div class="stat-label"><i class="fas fa-car"></i> إجمالي السيارات</div></div>
-                    <div class="stat-card"><div class="value" id="stat-bookings">0</div><div class="stat-label"><i class="fas fa-calendar-check"></i> طلبات الحجز</div></div>
-                    <div class="stat-card"><div class="value" id="stat-pending">0</div><div class="stat-label"><i class="fas fa-clock"></i> قيد المراجعة</div></div>
-                    <div class="stat-card"><div class="value" id="stat-earnings">0</div><div class="stat-label"><i class="fas fa-money-bill-wave"></i> إجمالي الأرباح (ر.س)</div></div>
-                </div>
-
-                <!-- سياراتي -->
-                <div class="smart-widget" id="cars-widget">
-                    <h3><i class="fas fa-car"></i> سياراتي</h3>
-                    <div id="cars-container">
-                        <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+        <div class="container dashboard-wrapper">
+            <div class="dashboard" data-aos="fade-up">
+                <div class="dashboard-sidebar">
+                    <div class="user-profile">
+                        <div class="user-avatar" id="owner-avatar">م</div>
+                        <h3 id="owner-name-display">مستخدم</h3>
+                        <p><i class="fas fa-check-circle" style="color:var(--color-success);"></i> هوية موثقة (نفاذ)</p>
                     </div>
+                    <ul class="sidebar-menu">
+                        <li><a href="#" class="active" onclick="loadDashboard()"><i class="fas fa-chart-line"></i> نظرة عامة</a></li>
+                        <li><a href="#" onclick="loadOwnerCars()"><i class="fas fa-car"></i> سياراتي <span id="car-count-badge" style="background:var(--color-secondary);color:var(--color-primary-dark);padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
+                        <li><a href="#" onclick="loadOwnerBookings()"><i class="fas fa-calendar-check"></i> طلبات الحجز <span id="booking-count-badge" style="background:var(--color-danger);color:#fff;padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
+                        <li><a href="#" onclick="loadContracts()"><i class="fas fa-file-contract"></i> العقود</a></li>
+                        <li><a href="add-car.html"><i class="fas fa-plus-circle"></i> أضف سيارة</a></li>
+                    </ul>
                 </div>
 
-                <!-- طلبات الحجز -->
-                <div class="smart-widget" id="bookings-widget">
-                    <h3><i class="fas fa-calendar-check"></i> طلبات الحجز على سياراتي</h3>
-                    <div id="bookings-container">
-                        <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                <div class="dashboard-content" id="dashboard-content">
+                    <!-- Stats -->
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card"><div class="value" id="stat-cars">0</div><div class="stat-label"><i class="fas fa-car"></i> إجمالي السيارات</div></div>
+                        <div class="stat-card"><div class="value" id="stat-bookings">0</div><div class="stat-label"><i class="fas fa-calendar-check"></i> طلبات الحجز</div></div>
+                        <div class="stat-card"><div class="value" id="stat-pending">0</div><div class="stat-label"><i class="fas fa-clock"></i> قيد المراجعة</div></div>
+                        <div class="stat-card"><div class="value" id="stat-earnings">0</div><div class="stat-label"><i class="fas fa-money-bill-wave"></i> إجمالي الأرباح (ر.س)</div></div>
                     </div>
-                </div>
 
-                <!-- العقود -->
-                <div class="smart-widget" id="contracts-widget">
-                    <h3><i class="fas fa-file-contract"></i> العقود</h3>
-                    <div id="contracts-container">
-                        <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                    <!-- سياراتي -->
+                    <div class="smart-widget" id="cars-widget">
+                        <h3><i class="fas fa-car"></i> سياراتي</h3>
+                        <div id="cars-container">
+                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                        </div>
+                    </div>
+
+                    <!-- طلبات الحجز -->
+                    <div class="smart-widget" id="bookings-widget">
+                        <h3><i class="fas fa-calendar-check"></i> طلبات الحجز على سياراتي</h3>
+                        <div id="bookings-container">
+                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                        </div>
+                    </div>
+
+                    <!-- العقود -->
+                    <div class="smart-widget" id="contracts-widget">
+                        <h3><i class="fas fa-file-contract"></i> العقود</h3>
+                        <div id="contracts-container">
+                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -177,83 +357,62 @@
         </div>
     </footer>
 
-    <!-- ===== القائمة السفلية ===== -->
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
-        <a href="dashboard-owner.html" class="nav-item active"><i class="fas fa-user-tie"></i><span>لوحتي</span></a>
-        <a href="add-car.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>أضف سيارة</span></a>
         <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
+        <a href="dashboard-owner.html" class="nav-item active"><i class="fas fa-user-tie"></i><span>لوحتي</span></a>
+        <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
-    <!-- ===== سكريبتات ===== -->
+    <!-- ===== SCRIPTS ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
     <script>
         AOS.init({ once: true, duration: 600 });
 
-        // ============================================================
-        //  دوال لوحة المالك (كاملة)
-        // ============================================================
-
         let currentUserId = null;
-        let currentUserEmail = '';
 
-        // ===== 1. جلب المستخدم الحقيقي من Supabase =====
         async function loadUserData() {
             try {
                 const { data: { user }, error } = await window.supabaseClient.auth.getUser();
                 if (error || !user) {
-                    console.warn('لا توجد جلسة نشطة، توجيه إلى صفحة الدخول');
                     window.location.href = 'landing.html';
                     return false;
                 }
-
                 const role = user.user_metadata?.role || 'user';
                 if (role !== 'owner' && role !== 'admin') {
                     alert('❌ هذه الصفحة مخصصة للمالكين فقط.');
                     window.location.href = 'index.html';
                     return false;
                 }
-
                 currentUserId = user.id;
-                currentUserEmail = user.email || '';
-
                 const name = user.user_metadata?.name || user.email || 'مالك';
                 document.getElementById('owner-name-display').textContent = name;
                 document.getElementById('owner-avatar').textContent = name.charAt(0);
-
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userType', role);
                 localStorage.setItem('userName', name);
-
                 if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                     updateNavbarBasedOnLoginStatus();
                 }
-
                 return true;
             } catch (err) {
                 console.error('فشل تحميل بيانات المستخدم:', err);
-                alert('حدث خطأ في التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.');
                 window.location.href = 'landing.html';
                 return false;
             }
         }
 
-        // ===== 2. تحميل لوحة التحكم =====
         async function loadDashboard() {
-            if (!currentUserId) {
-                console.error('لا يوجد مستخدم مسجل');
-                return;
-            }
-
+            if (!currentUserId) return;
             try {
-                const { data: cars, error: carsError } = await window.supabaseClient
+                const { data: cars, error } = await window.supabaseClient
                     .from('cars')
                     .select('*')
                     .eq('owner_id', currentUserId);
-
-                if (carsError) throw carsError;
+                if (error) throw error;
 
                 const carIds = cars.map(c => c.id);
                 let bookings = [];
@@ -265,7 +424,6 @@
                         .from('bookings')
                         .select('*')
                         .in('car_id', carIds);
-
                     if (!bError && b) {
                         bookings = b;
                         pendingCount = b.filter(bk => bk.status === 'pending_owner_approval').length;
@@ -278,86 +436,44 @@
                 document.getElementById('stat-bookings').textContent = bookings.length;
                 document.getElementById('stat-pending').textContent = pendingCount;
                 document.getElementById('stat-earnings').textContent = totalEarnings.toFixed(0);
-
                 document.getElementById('car-count-badge').textContent = cars?.length || 0;
                 document.getElementById('booking-count-badge').textContent = bookings.length;
 
                 renderOwnerCars(cars);
                 renderOwnerBookings(bookings, cars);
                 await loadContracts();
-
             } catch (err) {
                 console.error('خطأ في تحميل لوحة التحكم:', err);
-                document.querySelector('.stats-grid').innerHTML = `
-                    <div class="stat-card" style="grid-column:1/-1;color:var(--color-danger);">
-                        <i class="fas fa-exclamation-triangle"></i> حدث خطأ في تحميل البيانات: ${err.message}
-                    </div>
-                `;
             }
         }
 
-        // ===== 3. عرض سيارات المالك =====
         function renderOwnerCars(cars) {
             const container = document.getElementById('cars-container');
-
             if (!cars || cars.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-car"></i>
-                        <p>لم تقم بإضافة أي سيارة بعد.</p>
-                        <a href="add-car.html" class="btn btn-primary" style="margin-top:10px;">
-                            <i class="fas fa-plus-circle"></i> أضف سيارتك الآن
-                        </a>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-car"></i><p>لم تقم بإضافة أي سيارة بعد.</p><a href="add-car.html" class="btn btn-primary" style="margin-top:10px;"><i class="fas fa-plus-circle"></i> أضف سيارتك الآن</a></div>`;
                 return;
             }
-
             container.innerHTML = cars.map(car => `
                 <div class="car-item">
                     <div class="car-info">
                         <strong>${car.brand || ''} ${car.model || ''}</strong>
-                        <div class="details">
-                            <i class="fas fa-calendar-alt"></i> ${car.year || ''} |
-                            <i class="fas fa-map-marker-alt"></i> ${car.city || ''} |
-                            <i class="fas fa-money-bill"></i> ${car.daily_price || 0} ر.س/يوم
-                        </div>
-                        <div class="car-actions">
-                            <button class="btn btn-sm btn-primary" onclick="window.location.href='car-location.html?carId=${car.id}'">
-                                <i class="fas fa-map-pin"></i> تحديد الموقع
-                            </button>
-                        </div>
+                        <div class="details">${car.year || ''} | ${car.city || ''} | ${car.daily_price || 0} ر.س/يوم</div>
                     </div>
                     <div class="car-status">
-                        <span class="status-badge ${car.status || 'pending'}">
-                            ${car.status === 'active' ? '✅ نشطة' : 
-                              car.status === 'pending' ? '⏳ قيد المراجعة' :
-                              car.status === 'rejected' ? '❌ مرفوضة' : 'غير معروف'}
-                        </span>
+                        <span class="status-badge ${car.status || 'pending'}">${car.status === 'active' ? '✅ نشطة' : car.status === 'pending' ? '⏳ قيد المراجعة' : '❌ مرفوضة'}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // ===== 4. عرض طلبات الحجز =====
         function renderOwnerBookings(bookings, cars) {
             const container = document.getElementById('bookings-container');
-
             if (!bookings || bookings.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-check"></i>
-                        <p>لا توجد طلبات حجز على سياراتك حالياً.</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-check"></i><p>لا توجد طلبات حجز على سياراتك حالياً.</p></div>`;
                 return;
             }
-
             const carsMap = {};
-            if (cars) {
-                cars.forEach(c => { carsMap[c.id] = c; });
-            }
-
+            if (cars) cars.forEach(c => { carsMap[c.id] = c; });
             container.innerHTML = bookings.map(booking => {
                 const car = carsMap[booking.car_id] || {};
                 const statusMap = {
@@ -367,32 +483,20 @@
                     'completed': '✔️ مكتمل',
                     'cancelled': '🚫 ملغي'
                 };
-
                 return `
                     <div class="booking-item">
                         <div class="booking-header">
                             <div>
                                 <span class="booking-car">${car.brand || ''} ${car.model || ''}</span>
-                                <span class="status-badge ${booking.status}" style="margin-right:10px;">
-                                    ${statusMap[booking.status] || booking.status}
-                                </span>
+                                <span class="status-badge ${booking.status}" style="margin-right:10px;">${statusMap[booking.status] || booking.status}</span>
                             </div>
                             <div class="booking-price">${booking.total_price || 0} ر.س</div>
                         </div>
-                        <div class="booking-dates">
-                            <i class="fas fa-calendar-alt"></i> 
-                            ${new Date(booking.start_date).toLocaleDateString('ar-SA')} 
-                            <i class="fas fa-arrow-left" style="margin:0 5px;"></i> 
-                            ${new Date(booking.end_date).toLocaleDateString('ar-SA')}
-                        </div>
+                        <div class="booking-dates"><i class="fas fa-calendar-alt"></i> ${new Date(booking.start_date).toLocaleDateString('ar-SA')} <i class="fas fa-arrow-left" style="margin:0 5px;"></i> ${new Date(booking.end_date).toLocaleDateString('ar-SA')}</div>
                         ${booking.status === 'pending_owner_approval' ? `
                             <div class="booking-actions">
-                                <button class="btn btn-success btn-sm" onclick="approveBooking('${booking.id}')">
-                                    <i class="fas fa-check"></i> موافقة
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="rejectBooking('${booking.id}')">
-                                    <i class="fas fa-times"></i> رفض
-                                </button>
+                                <button class="btn btn-success btn-sm" onclick="approveBooking('${booking.id}')"><i class="fas fa-check"></i> موافقة</button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectBooking('${booking.id}')"><i class="fas fa-times"></i> رفض</button>
                             </div>
                         ` : ''}
                     </div>
@@ -400,151 +504,75 @@
             }).join('');
         }
 
-        // ===== 5. الموافقة على حجز =====
         async function approveBooking(bookingId) {
             if (!confirm('هل أنت متأكد من الموافقة على هذا الحجز؟')) return;
-
             try {
-                const { error } = await window.supabaseClient
-                    .from('bookings')
-                    .update({ status: 'approved' })
-                    .eq('id', bookingId);
-
-                if (error) throw error;
-
+                await window.supabaseClient.from('bookings').update({ status: 'approved' }).eq('id', bookingId);
                 alert('✅ تمت الموافقة على الحجز بنجاح!');
                 loadDashboard();
-
             } catch (err) {
-                console.error('خطأ في الموافقة:', err);
-                alert('❌ حدث خطأ أثناء الموافقة: ' + err.message);
+                alert('❌ حدث خطأ: ' + err.message);
             }
         }
 
-        // ===== 6. رفض حجز =====
         async function rejectBooking(bookingId) {
             if (!confirm('هل أنت متأكد من رفض هذا الحجز؟')) return;
-
             try {
-                const { error } = await window.supabaseClient
-                    .from('bookings')
-                    .update({ status: 'rejected' })
-                    .eq('id', bookingId);
-
-                if (error) throw error;
-
+                await window.supabaseClient.from('bookings').update({ status: 'rejected' }).eq('id', bookingId);
                 alert('✅ تم رفض الحجز.');
                 loadDashboard();
-
             } catch (err) {
-                console.error('خطأ في الرفض:', err);
-                alert('❌ حدث خطأ أثناء الرفض: ' + err.message);
+                alert('❌ حدث خطأ: ' + err.message);
             }
         }
 
-        // ===== 7. تحميل العقود =====
         async function loadContracts() {
             const container = document.getElementById('contracts-container');
-
             if (!currentUserId) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>الرجاء تسجيل الدخول.</p></div>';
                 return;
             }
-
             try {
                 const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
-                    .select(`
-                        *,
-                        bookings!inner (
-                            *,
-                            cars!inner (*)
-                        )
-                    `);
-
+                    .select('*, bookings!inner (*, cars!inner (*))');
                 if (error) throw error;
-
-                const ownerContracts = contracts.filter(c => 
-                    c.bookings?.cars?.owner_id === currentUserId
-                );
-
+                const ownerContracts = contracts.filter(c => c.bookings?.cars?.owner_id === currentUserId);
                 if (!ownerContracts || ownerContracts.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-file-contract"></i>
-                            <p>لا توجد عقود مسجلة حالياً.</p>
-                        </div>
-                    `;
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-file-contract"></i><p>لا توجد عقود مسجلة حالياً.</p></div>`;
                     return;
                 }
-
                 container.innerHTML = ownerContracts.map(c => `
                     <div class="booking-item" style="border-right: 3px solid var(--color-secondary);">
                         <div class="booking-header">
                             <div>
                                 <span style="font-weight:bold;">عقد رقم: ${c.contract_number || 'N/A'}</span>
-                                <span class="status-badge ${c.status || 'draft'}" style="margin-right:10px;">
-                                    ${c.status === 'active' ? '✅ ساري' : 
-                                      c.status === 'draft' ? '📝 مسودة' :
-                                      c.status === 'completed' ? '✔️ مكتمل' : c.status}
-                                </span>
+                                <span class="status-badge ${c.status || 'draft'}" style="margin-right:10px;">${c.status === 'active' ? '✅ ساري' : c.status === 'draft' ? '📝 مسودة' : c.status}</span>
                             </div>
                         </div>
-                        <div style="font-size:0.85rem; color:var(--color-text-secondary); margin-top:5px;">
-                            <i class="fas fa-car"></i> ${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}
-                            <span style="margin-right:15px;">
-                                <i class="fas fa-calendar-alt"></i> 
-                                ${new Date(c.start_date).toLocaleDateString('ar-SA')} - 
-                                ${new Date(c.end_date).toLocaleDateString('ar-SA')}
-                            </span>
-                        </div>
+                        <div class="booking-dates"><i class="fas fa-car"></i> ${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''} <span style="margin-right:15px;"><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span></div>
                     </div>
                 `).join('');
-
             } catch (err) {
-                console.error('خطأ في تحميل العقود:', err);
                 container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>حدث خطأ: ${err.message}</p></div>`;
             }
         }
 
-        // ===== 8. دوال التنقل =====
-        function loadOwnerCars() {
-            document.getElementById('cars-widget').scrollIntoView({ behavior: 'smooth' });
-        }
+        function loadOwnerCars() { document.getElementById('cars-widget').scrollIntoView({ behavior: 'smooth' }); }
+        function loadOwnerBookings() { document.getElementById('bookings-widget').scrollIntoView({ behavior: 'smooth' }); }
+        function loadContracts() { document.getElementById('contracts-widget').scrollIntoView({ behavior: 'smooth' }); }
 
-        function loadOwnerBookings() {
-            document.getElementById('bookings-widget').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function loadContracts() {
-            document.getElementById('contracts-widget').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // ===== 9. تهيئة الصفحة =====
         (async function init() {
             const loaded = await loadUserData();
-            if (loaded) {
-                await loadDashboard();
-            }
+            if (loaded) await loadDashboard();
         })();
 
-        // ===== تعريض الدوال للنافذة العامة =====
         window.loadDashboard = loadDashboard;
         window.loadOwnerCars = loadOwnerCars;
         window.loadOwnerBookings = loadOwnerBookings;
         window.loadContracts = loadContracts;
         window.approveBooking = approveBooking;
         window.rejectBooking = rejectBooking;
-        window.logoutUser = function() {
-            if (confirm('تسجيل الخروج؟')) {
-                window.supabaseClient.auth.signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'landing.html';
-                });
-            }
-        };
-
-        console.log('✅ لوحة المالك جاهزة');
     </script>
 </body>
 </html>
