@@ -70,6 +70,42 @@
         }
         .loading-spinner i { font-size: 2.5rem; color: var(--color-secondary); animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        /* زر تبديل الطبقات */
+        .layer-switch {
+            position: absolute;
+            bottom: 100px;
+            left: 10px;
+            z-index: 1000;
+            background: var(--color-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-2);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+            border: 1px solid var(--color-border);
+        }
+        .layer-switch button {
+            padding: var(--spacing-1) var(--spacing-3);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-bold);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+        .layer-switch button.active {
+            background: var(--color-secondary);
+            color: var(--color-primary-dark);
+        }
+        .layer-switch button:hover { transform: scale(1.05); }
+        @media (max-width: 480px) {
+            .layer-switch { flex-direction: row; bottom: 80px; left: 50%; transform: translateX(-50%); }
+        }
     </style>
 </head>
 <body>
@@ -83,8 +119,30 @@
         <i class="fas fa-spinner"></i>
         <span>جاري تحميل موقع السيارة...</span>
     </div>
+    <!-- زر تبديل الطبقات -->
+    <div class="layer-switch" id="layerSwitch">
+        <button class="active" data-layer="carto">شارع</button>
+        <button data-layer="satellite">قمر صناعي</button>
+        <button data-layer="topo">تضاريس</button>
+    </div>
 
     <script>
+        const LAYERS = {
+            carto: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© CartoDB',
+                maxZoom: 20
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri',
+                maxZoom: 19
+            }),
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenTopoMap',
+                maxZoom: 17
+            })
+        };
+        let map, currentLayer = 'carto';
+
         (async function initPreview() {
             const params = new URLSearchParams(window.location.search);
             const carId = params.get('carId');
@@ -106,12 +164,10 @@
                 const center = [car.latitude, car.longitude];
                 const radius = car.geofence_radius || 500;
 
-                const map = L.map('map').setView(center, 13);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; CARTO',
-                    maxZoom: 20
-                }).addTo(map);
+                map = L.map('map').setView(center, 13);
+                LAYERS.carto.addTo(map);
 
+                // دائرة النطاق
                 L.circle(center, {
                     color: '#c5a065',
                     fillColor: '#c5a065',
@@ -122,19 +178,33 @@
                     opacity: 0.7
                 }).addTo(map);
 
+                // أيقونة سيارة محسنة
                 const markerIcon = L.divIcon({
                     className: 'custom-car-marker',
-                    html: `<div style="background:white;border-radius:50%;padding:8px;box-shadow:0 4px 16px rgba(0,0,0,0.2);border:2px solid #c5a065;">
+                    html: `<div style="background:white;border-radius:50%;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.2);border:2px solid #c5a065;">
                             <i class="fas fa-car" style="color:#c5a065;font-size:28px;"></i>
                           </div>`,
-                    iconSize: [48, 48],
-                    iconAnchor: [24, 48],
-                    popupAnchor: [0, -48]
+                    iconSize: [52, 52],
+                    iconAnchor: [26, 52],
+                    popupAnchor: [0, -52]
                 });
                 L.marker(center, { icon: markerIcon, interactive: false })
                     .addTo(map)
                     .bindPopup(`<div style="text-align:center;"><strong>${car.brand || ''} ${car.model || ''}</strong><br><span style="color:#94a3b8;font-size:0.8rem;">النطاق التقريبي</span></div>`)
                     .openPopup();
+
+                // زر تبديل الطبقات
+                document.querySelectorAll('#layerSwitch button').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const layer = this.dataset.layer;
+                        if (layer === currentLayer) return;
+                        map.removeLayer(LAYERS[currentLayer]);
+                        LAYERS[layer].addTo(map);
+                        currentLayer = layer;
+                        document.querySelectorAll('#layerSwitch button').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
 
                 setTimeout(() => map.invalidateSize(), 300);
             } catch (err) {
