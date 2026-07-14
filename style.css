@@ -1,10 +1,10 @@
 /* ============================================================
-   style.css - النسخة الكاملة مع توحيد الهيدر والفوتر فقط
-   جميع التنسيقات الأصلية محفوظة، تم إضافة تنسيقات الهيدر والفوتر الموحدة
+   style.css - الإصدار النهائي المُكَمَّل (نسخة كاملة)
+   يحتوي على جميع التنسيقات الأصلية + تعديلات توحيد الهيدر والفوتر فقط
    ============================================================ */
 
 /* ============================================================
-   1. SYSTEM VARIABLES - نظام متغيرات CSS (محسّن)
+   1. SYSTEM VARIABLES - نظام متغيرات CSS احترافي
    ============================================================ */
 
 :root {
@@ -235,9 +235,19 @@ h4 { font-size: var(--font-size-lg); }
 h5 { font-size: var(--font-size-md); }
 h6 { font-size: var(--font-size-base); }
 
-p { margin-bottom: 1em; color: var(--color-text); }
-a { color: inherit; text-decoration: none; transition: color var(--transition-fast); }
-a:hover { color: var(--color-primary); }
+p {
+    margin-bottom: 1em;
+    color: var(--color-text);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+a:hover {
+    color: var(--color-primary);
+}
 
 .text-muted { color: var(--color-text-secondary) !important; }
 .text-center { text-align: center !important; }
@@ -304,7 +314,7 @@ section {
 }
 
 /* ============================================================
-   8. HEADER & NAVBAR - الهيدر الموحد (تم إضافة التنسيقات فقط)
+   8. HEADER & NAVBAR - الهيدر وشريط التنقل العلوي
    ============================================================ */
 
 header {
@@ -335,10 +345,6 @@ header.scrolled {
     padding: 10px 0 !important;
     box-shadow: 0 5px 20px var(--color-shadow-heavy) !important;
 }
-body.dark-mode header {
-    background: var(--color-surface-dark);
-    border-bottom: 1px solid var(--color-border-dark);
-}
 
 .logo {
     display: flex;
@@ -365,9 +371,6 @@ body.dark-mode header {
     color: var(--color-primary);
     transition: color var(--transition-base);
     white-space: nowrap;
-}
-body.dark-mode .logo-text {
-    color: var(--color-text-dark);
 }
 
 .hamburger {
@@ -421,12 +424,14 @@ body.dark-mode .logo-text {
 .nav-links li a.active {
     color: var(--color-primary);
 }
-body.dark-mode .nav-links li a:hover,
-body.dark-mode .nav-links li a.active {
-    color: var(--color-secondary);
-}
-
 .nav-links .auth-link { display: none; }
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+}
 .nav-buttons .guest-only { display: flex; }
 #nav-user-profile-placeholder {
     display: none;
@@ -458,12 +463,6 @@ body.dark-mode .nav-links li a.active {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     display: none;
-}
-@media (min-width: 768px) {
-    .theme-toggle span { display: none; }
-}
-@media (max-width: 767px) {
-    .theme-toggle span { display: inline; }
 }
 
 /* ============================================================
@@ -692,6 +691,15 @@ body.dark-mode .nav-links li a.active {
     color: var(--color-text-inverse);
     transform: translateY(-2px);
 }
+.btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-text-secondary);
+}
+.btn-ghost:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+}
 .btn-success {
     background: var(--color-success);
     color: var(--color-text-inverse);
@@ -722,6 +730,23 @@ body.dark-mode .nav-links li a.active {
     font-size: var(--font-size-md);
     min-height: 56px;
 }
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+.btn-loading::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: var(--spacing-2);
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
 /* ============================================================
    12. CARDS - نظام البطاقات الموحد
@@ -747,11 +772,188 @@ body.dark-mode .nav-links li a.active {
 .card-body { padding: var(--spacing-5); flex: 1; }
 .card-footer { padding: var(--spacing-4) var(--spacing-5); border-top: 1px solid var(--color-border); background: var(--color-surface); }
 
+/* ===== بطاقة السيارة (مخصصة) ===== */
+.car-card {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    border: 1px solid var(--color-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.car-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--color-border-dark);
+}
+.car-img-box {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: var(--color-bg-secondary);
+    flex-shrink: 0;
+}
+.car-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+    display: block;
+}
+.car-card:hover .car-img-box img {
+    transform: scale(1.04);
+}
+.car-badge {
+    position: absolute;
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    background: var(--color-secondary);
+    color: var(--color-primary-dark);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-xs);
+    z-index: 1;
+}
+.car-badge.available { background: var(--color-success); color: #fff; }
+.car-badge.pending { background: var(--color-warning); color: #fff; }
+.car-badge.rejected { background: var(--color-danger); color: #fff; }
+.car-info {
+    padding: var(--spacing-4);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+.car-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-heading);
+}
+.car-price {
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-extrabold);
+    font-size: var(--font-size-lg);
+    white-space: nowrap;
+}
+.car-price small {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+}
+.car-specs {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+}
+.spec {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    background: var(--color-bg-secondary);
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+}
+.spec i { color: var(--color-secondary); }
+.car-price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+}
+.car-price-box .car-price {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-secondary);
+}
+.car-price-box .car-price small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: normal;
+}
+.btn-book {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    padding: 0.6rem 1.8rem;
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-family);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.btn-book:hover {
+    background: var(--color-secondary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.btn-book:disabled {
+    background: var(--color-text-tertiary);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ===== بطاقات المميزات ===== */
+.feature-card {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6) var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    text-align: center;
+    border-bottom: 4px solid transparent;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    border-bottom-color: var(--color-secondary);
+}
+.feature-icon {
+    width: clamp(60px, 10vw, 80px);
+    height: clamp(60px, 10vw, 80px);
+    background: var(--color-success-bg);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-4);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--color-accent);
+    flex-shrink: 0;
+}
+.feature-card h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-2);
+}
+.feature-card p {
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    font-size: var(--font-size-sm);
+}
+
 /* ============================================================
    13. FORMS - نظام النماذج الموحد
    ============================================================ */
 
-.form-group { margin-bottom: var(--spacing-4); }
+.form-group {
+    margin-bottom: var(--spacing-4);
+}
 .form-group label {
     display: block;
     font-weight: var(--font-weight-semibold);
@@ -771,21 +973,64 @@ body.dark-mode .nav-links li a.active {
     transition: all var(--transition-fast);
     min-height: 48px;
     appearance: none;
+    -webkit-appearance: none;
 }
 .form-control:focus {
     outline: none;
     border-color: var(--color-accent);
     box-shadow: var(--shadow-focus);
 }
-.form-control:disabled { opacity: 0.6; cursor: not-allowed; }
-.form-control::placeholder { color: var(--color-text-tertiary); opacity: 0.8; }
-textarea.form-control { min-height: 100px; resize: vertical; }
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.form-control::placeholder {
+    color: var(--color-text-tertiary);
+    opacity: 0.8;
+}
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
 select.form-control {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: left var(--spacing-3) center;
     padding-left: var(--spacing-8);
     cursor: pointer;
+}
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) 0;
+    cursor: pointer;
+}
+.form-check input[type="radio"],
+.form-check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.form-check-label {
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    cursor: pointer;
+}
+.search-input {
+    position: relative;
+}
+.search-input .form-control {
+    padding-right: var(--spacing-8);
+}
+.search-input .search-icon {
+    position: absolute;
+    right: var(--spacing-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-tertiary);
 }
 .form-grid {
     display: grid;
@@ -794,7 +1039,37 @@ select.form-control {
 }
 
 /* ============================================================
-   14. STATUS BADGES - شارات الحالة
+   14. TABLES - الجداول
+   ============================================================ */
+
+.table-wrap {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    overflow-x: auto;
+    padding: 0 0 var(--spacing-2);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+th {
+    text-align: right;
+    padding: var(--spacing-3) var(--spacing-4);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+td {
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--color-border-light);
+}
+tr:last-child td { border-bottom: none; }
+
+/* ============================================================
+   15. STATUS BADGES - شارات الحالة
    ============================================================ */
 
 .status-badge {
@@ -830,41 +1105,151 @@ select.form-control {
 }
 
 /* ============================================================
-   15. RESPONSIVE - التجاوب الكامل (Mobile First)
+   16. STATS GRID - شبكة الإحصائيات
    ============================================================ */
 
-.hamburger { display: flex !important; }
-.nav-links { display: none !important; }
-.bottom-navbar { display: flex !important; }
-.theme-toggle span { display: inline !important; }
-header { height: var(--header-height-mobile); }
-body {
-    padding-top: calc(var(--header-height-mobile) + var(--safe-area-top));
-    padding-bottom: calc(75px + var(--safe-area-bottom));
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-5);
 }
-
-@media (min-width: 768px) {
-    .bottom-navbar { display: none !important; }
-    .nav-links { display: flex !important; }
-    .theme-toggle span { display: none !important; }
-    .hamburger { display: none !important; }
-    header { height: var(--header-height); }
-    body { padding-bottom: var(--safe-area-bottom); }
+.stat-card {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-4);
+    text-align: center;
+    border-right: 3px solid var(--color-secondary);
 }
-
-@media (max-width: 480px) {
-    .bottom-navbar .nav-item { font-size: var(--font-size-xs); padding: var(--spacing-1); min-width: 48px; min-height: 48px; }
-    .bottom-navbar .nav-item i { font-size: var(--font-size-md); }
-    .mobile-sidebar { width: 85vw; }
+.stat-card .value {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-heading);
 }
-
-@supports (padding: max(0px)) {
-    header { padding-top: var(--safe-area-top); }
-    .bottom-navbar { padding-bottom: calc(var(--spacing-1) + var(--safe-area-bottom)); }
+.stat-card .stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--spacing-1);
 }
 
 /* ============================================================
-   16. FOOTER - التذييل الموحد (تم إضافة التنسيقات فقط)
+   17. MODALS - النوافذ المنبثقة
+   ============================================================ */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-overlay);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-4);
+}
+.modal-overlay.open {
+    display: flex;
+}
+.modal-box {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6);
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--color-border);
+    position: relative;
+}
+.modal-box .close-modal {
+    position: absolute;
+    top: var(--spacing-3);
+    left: var(--spacing-3);
+    background: none;
+    border: none;
+    font-size: var(--font-size-xl);
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-box .close-modal:hover {
+    color: var(--color-danger);
+}
+.modal-box h2 {
+    margin-bottom: var(--spacing-4);
+    font-size: var(--font-size-xl);
+    padding-left: var(--spacing-6);
+}
+.modal-box .car-summary {
+    display: flex;
+    gap: var(--spacing-3);
+    background: var(--color-bg-secondary);
+    padding: var(--spacing-3);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-4);
+    align-items: center;
+    border: 1px solid var(--color-border);
+}
+.modal-box .car-summary img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+.modal-box .car-summary-info h4 {
+    margin-bottom: var(--spacing-1);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-heading);
+}
+.modal-box .car-summary-info p {
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-bold);
+}
+.modal-box .form-group {
+    margin-bottom: var(--spacing-3);
+}
+.modal-box .form-group label {
+    font-size: var(--font-size-sm);
+}
+.modal-box .btn-submit {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    padding: var(--spacing-3) var(--spacing-6);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-base);
+    min-height: 48px;
+}
+.modal-box .btn-submit:hover {
+    background: var(--color-accent);
+    transform: translateY(-2px);
+}
+.bg-secondary {
+    background: var(--color-bg-secondary);
+}
+.p-4 { padding: var(--spacing-4); }
+.border-bottom { border-bottom: 1px solid var(--color-border); }
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.w-100 { width: 100%; }
+.mt-2 { margin-top: var(--spacing-2); }
+
+/* ============================================================
+   18. FOOTER - التذييل
    ============================================================ */
 
 footer {
@@ -874,14 +1259,12 @@ footer {
     margin-top: auto;
     transition: background var(--transition-base);
 }
-
 .footer-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
     gap: var(--spacing-6);
     margin-bottom: var(--spacing-6);
 }
-
 .footer-col h3 {
     color: var(--color-text-inverse);
     font-size: var(--font-size-md);
@@ -899,7 +1282,6 @@ footer {
     background: var(--color-secondary);
     border-radius: var(--radius-full);
 }
-
 .footer-col p {
     color: rgba(255, 255, 255, 0.7);
     font-size: var(--font-size-sm);
@@ -921,7 +1303,6 @@ footer {
     color: var(--color-text-inverse);
     transform: translateX(var(--spacing-1));
 }
-
 .footer-contact li {
     display: flex;
     gap: var(--spacing-2);
@@ -930,7 +1311,6 @@ footer {
     font-size: var(--font-size-sm);
     align-items: center;
 }
-
 .social-links {
     display: flex;
     gap: var(--spacing-2);
@@ -956,7 +1336,6 @@ footer {
     color: var(--color-primary-dark);
     transform: translateY(-4px);
 }
-
 .footer-bottom {
     display: flex;
     justify-content: space-between;
@@ -981,7 +1360,7 @@ footer {
 }
 
 /* ============================================================
-   17. TOAST - الرسائل المنبثقة
+   19. TOAST - الرسائل المنبثقة
    ============================================================ */
 
 .toast {
@@ -1002,17 +1381,23 @@ footer {
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.toast.success { background: var(--color-success); }
-.toast.error { background: var(--color-danger); }
-.toast.warning { background: var(--color-warning); color: var(--color-primary-dark); }
-
+.toast.success {
+    background: var(--color-success);
+}
+.toast.error {
+    background: var(--color-danger);
+}
+.toast.warning {
+    background: var(--color-warning);
+    color: var(--color-primary-dark);
+}
 @keyframes slideDown {
     from { opacity: 0; transform: translate(-50%, -20px); }
     to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 /* ============================================================
-   18. DASHBOARD ITEMS - عناصر لوحات التحكم
+   20. DASHBOARD ITEMS - عناصر لوحات التحكم
    ============================================================ */
 
 .car-item {
@@ -1027,10 +1412,20 @@ footer {
     gap: var(--spacing-2);
     transition: background var(--transition-fast);
 }
-.car-item:hover { background: var(--color-surface-hover); }
-.car-item .car-info { flex: 1; min-width: 150px; }
-.car-item .car-info strong { font-size: var(--font-size-md); }
-.car-item .car-info .details { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.car-item:hover {
+    background: var(--color-surface-hover);
+}
+.car-item .car-info {
+    flex: 1;
+    min-width: 150px;
+}
+.car-item .car-info strong {
+    font-size: var(--font-size-md);
+}
+.car-item .car-info .details {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
 .car-item .car-status .status-badge {
     padding: var(--spacing-1) var(--spacing-3);
     border-radius: var(--radius-full);
@@ -1043,7 +1438,6 @@ footer {
     flex-wrap: wrap;
     margin-top: var(--spacing-1);
 }
-
 .booking-item {
     background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
@@ -1052,7 +1446,9 @@ footer {
     margin-bottom: var(--spacing-2);
     transition: all var(--transition-fast);
 }
-.booking-item:hover { border-color: var(--color-secondary); }
+.booking-item:hover {
+    border-color: var(--color-secondary);
+}
 .booking-item .booking-header {
     display: flex;
     justify-content: space-between;
@@ -1060,16 +1456,23 @@ footer {
     flex-wrap: wrap;
     gap: var(--spacing-2);
 }
-.booking-item .booking-car { font-weight: var(--font-weight-bold); }
-.booking-item .booking-dates { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
-.booking-item .booking-price { font-weight: var(--font-weight-bold); color: var(--color-secondary); }
+.booking-item .booking-car {
+    font-weight: var(--font-weight-bold);
+}
+.booking-item .booking-dates {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+.booking-item .booking-price {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-secondary);
+}
 .booking-item .booking-actions {
     display: flex;
     gap: var(--spacing-2);
     flex-wrap: wrap;
     margin-top: var(--spacing-2);
 }
-
 .empty-state {
     text-align: center;
     padding: var(--spacing-6) var(--spacing-4);
@@ -1081,6 +1484,9 @@ footer {
     margin-bottom: var(--spacing-2);
     opacity: 0.3;
 }
+.empty-state p {
+    font-size: var(--font-size-base);
+}
 .loading-spinner {
     text-align: center;
     padding: var(--spacing-6);
@@ -1091,7 +1497,6 @@ footer {
     display: block;
     margin-bottom: var(--spacing-2);
 }
-
 .smart-widget {
     background: var(--color-card);
     border-radius: var(--radius-lg);
@@ -1101,7 +1506,9 @@ footer {
     margin-bottom: var(--spacing-4);
     transition: all var(--transition-base);
 }
-.smart-widget:hover { box-shadow: var(--shadow-hover); }
+.smart-widget:hover {
+    box-shadow: var(--shadow-hover);
+}
 .smart-widget h3 {
     font-size: var(--font-size-lg);
     margin-bottom: var(--spacing-4);
@@ -1113,7 +1520,7 @@ footer {
 }
 
 /* ============================================================
-   19. ADMIN DASHBOARD - عناصر لوحة الأدمن
+   21. ADMIN DASHBOARD - عناصر لوحة الأدمن
    ============================================================ */
 
 .sidebar {
@@ -1136,13 +1543,21 @@ footer {
     padding: 0 var(--spacing-5) var(--spacing-6);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-.sidebar-brand i { font-size: var(--font-size-xl); color: var(--color-secondary); }
-.sidebar-brand span { font-size: var(--font-size-xl); font-weight: var(--font-weight-extrabold); }
+.sidebar-brand i {
+    font-size: var(--font-size-xl);
+    color: var(--color-secondary);
+}
+.sidebar-brand span {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+}
 .sidebar-menu {
     list-style: none;
     padding: var(--spacing-4) var(--spacing-3) 0;
 }
-.sidebar-menu li { margin-bottom: var(--spacing-1); }
+.sidebar-menu li {
+    margin-bottom: var(--spacing-1);
+}
 .sidebar-menu a {
     display: flex;
     align-items: center;
@@ -1153,7 +1568,11 @@ footer {
     font-weight: var(--font-weight-medium);
     transition: all var(--transition-fast);
 }
-.sidebar-menu a i { width: 22px; font-size: var(--font-size-md); text-align: center; }
+.sidebar-menu a i {
+    width: 22px;
+    font-size: var(--font-size-md);
+    text-align: center;
+}
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
     background: rgba(197, 160, 101, 0.15);
@@ -1166,13 +1585,11 @@ footer {
     color: rgba(255, 255, 255, 0.3);
     padding: var(--spacing-4) var(--spacing-3) var(--spacing-2);
 }
-
 .main {
     flex: 1;
     padding: var(--spacing-4) var(--spacing-5) var(--spacing-6);
     overflow-x: hidden;
 }
-
 .topbar {
     display: flex;
     justify-content: space-between;
@@ -1181,8 +1598,14 @@ footer {
     flex-wrap: wrap;
     gap: var(--spacing-2);
 }
-.topbar-left h1 { font-size: var(--font-size-xl); font-weight: var(--font-weight-extrabold); }
-.topbar-left small { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.topbar-left h1 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+}
+.topbar-left small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
 .topbar-right {
     display: flex;
     align-items: center;
@@ -1201,7 +1624,9 @@ footer {
     align-items: center;
     justify-content: center;
 }
-.topbar-right .theme-toggle:hover { color: var(--color-secondary); }
+.topbar-right .theme-toggle:hover {
+    color: var(--color-secondary);
+}
 .notification-bell {
     position: relative;
     font-size: var(--font-size-lg);
@@ -1252,8 +1677,9 @@ footer {
     align-items: center;
     justify-content: center;
 }
-.logout-btn:hover { color: var(--color-danger); }
-
+.logout-btn:hover {
+    color: var(--color-danger);
+}
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -1297,7 +1723,6 @@ footer {
 [data-theme="dark"] .kpi-icon.purple { background: #312e81; color: #a78bfa; }
 [data-theme="dark"] .kpi-icon.red { background: #7f1d1d; color: #fca5a5; }
 [data-theme="dark"] .kpi-icon.teal { background: #115e59; color: #5eead4; }
-
 .kpi-info h4 {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
@@ -1308,7 +1733,6 @@ footer {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-extrabold);
 }
-
 .charts-row {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -1335,30 +1759,33 @@ footer {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
 }
-.chart-box canvas { max-height: 220px; max-width: 100%; }
-
-.action-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
-    transition: all var(--transition-fast);
-    color: var(--color-text-secondary);
-    min-width: 36px;
-    min-height: 36px;
+.chart-box canvas {
+    max-height: 220px;
+    max-width: 100%;
 }
-.action-btn:hover { background: var(--color-bg-secondary); color: var(--color-text); }
-.action-btn.approve { color: var(--color-success); }
-.action-btn.reject { color: var(--color-danger); }
-.action-btn.edit { color: var(--color-warning); }
-.action-btn.delete { color: var(--color-danger); }
-.action-btn.block { color: var(--color-danger); }
-.action-btn.view { color: var(--color-info); }
+.action-btn-sm {
+    padding: var(--spacing-1) var(--spacing-3);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.action-btn-sm.approve { background: var(--color-success); color: #fff; }
+.action-btn-sm.approve:hover { opacity: 0.8; }
+.action-btn-sm.reject { background: var(--color-danger); color: #fff; }
+.action-btn-sm.reject:hover { opacity: 0.8; }
+.action-btn-sm.delete { background: #dc3545; color: #fff; }
+.action-btn-sm.delete:hover { opacity: 0.8; }
+.action-btn-sm.block { background: #6c757d; color: #fff; }
+.action-btn-sm.block:hover { opacity: 0.8; }
 
 /* ============================================================
-   20. MAP - عناصر الخريطة
+   22. MAP - عناصر الخريطة
    ============================================================ */
 
 .centered-map-layout {
@@ -1366,7 +1793,6 @@ footer {
     margin: 0 auto;
     position: relative;
 }
-
 .top-filter-bar {
     background: var(--color-card);
     border: 1px solid var(--color-border);
@@ -1450,7 +1876,6 @@ footer {
     background: var(--color-primary-dark);
     transform: scale(1.02);
 }
-
 .new-map-container {
     position: relative;
     height: 500px;
@@ -1482,7 +1907,6 @@ footer {
     pointer-events: none;
     box-shadow: var(--shadow-md);
 }
-
 .popup-car-card {
     padding: var(--spacing-2);
     max-height: 260px;
@@ -1548,7 +1972,6 @@ footer {
 .popup-btn:hover {
     background: var(--color-accent);
 }
-
 .price-marker-box {
     background: var(--color-card);
     border-radius: var(--radius-full);
@@ -1580,7 +2003,7 @@ footer {
 }
 
 /* ============================================================
-   21. UTILITIES - كلاسات مساعدة
+   23. UTILITIES - كلاسات مساعدة
    ============================================================ */
 
 .mt-1 { margin-top: var(--spacing-1); }
@@ -1598,7 +2021,6 @@ footer {
 .p-3 { padding: var(--spacing-3); }
 .p-4 { padding: var(--spacing-4); }
 .p-5 { padding: var(--spacing-5); }
-
 .flex { display: flex; align-items: center; gap: var(--spacing-2); }
 .flex-wrap { flex-wrap: wrap; }
 .flex-center { justify-content: center; align-items: center; }
@@ -1608,26 +2030,21 @@ footer {
 .gap-2 { gap: var(--spacing-2); }
 .gap-3 { gap: var(--spacing-3); }
 .gap-4 { gap: var(--spacing-4); }
-
 .w-100 { width: 100%; }
 .h-100 { height: 100%; }
 .d-block { display: block; }
 .d-none { display: none; }
 .d-flex { display: flex; }
 .d-grid { display: grid; }
-
 .text-nowrap { white-space: nowrap; }
 .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .text-break { word-wrap: break-word; }
-
 .img-fluid { max-width: 100%; height: auto; }
 .img-cover { width: 100%; height: 100%; object-fit: cover; }
 .img-contain { width: 100%; height: 100%; object-fit: contain; }
-
 .shadow-sm { box-shadow: var(--shadow-sm); }
 .shadow-md { box-shadow: var(--shadow-md); }
 .shadow-lg { box-shadow: var(--shadow-lg); }
-
 .rounded { border-radius: var(--radius-md); }
 .rounded-lg { border-radius: var(--radius-lg); }
 .rounded-full { border-radius: var(--radius-full); }
@@ -1636,7 +2053,92 @@ footer {
 .border-bottom { border-bottom: var(--border-width) solid var(--color-border); }
 
 /* ============================================================
-   22. ACCESSIBILITY - تحسينات إمكانية الوصول
+   24. RESPONSIVE - التجاوب الكامل (Mobile First)
+   ============================================================ */
+
+.hamburger { display: flex !important; }
+.nav-links { display: none !important; }
+.bottom-navbar { display: flex !important; }
+.theme-toggle span { display: inline !important; }
+header { height: var(--header-height-mobile); }
+body {
+    padding-top: calc(var(--header-height-mobile) + var(--safe-area-top));
+    padding-bottom: calc(75px + var(--safe-area-bottom));
+}
+.stats-grid { grid-template-columns: 1fr 1fr; }
+.footer-grid { grid-template-columns: 1fr 1fr; }
+.footer-bottom { flex-direction: column; text-align: center; }
+.charts-row { grid-template-columns: 1fr; }
+.add-car-form .form-grid { grid-template-columns: 1fr; }
+.sidebar { display: none; }
+.top-filter-bar { flex-direction: column; align-items: stretch; }
+.tf-item { width: 100%; }
+.new-map-container { height: 380px; }
+
+@media (min-width: 768px) {
+    .bottom-navbar { display: none !important; }
+    .nav-links { display: flex !important; }
+    .theme-toggle span { display: none !important; }
+    .hamburger { display: none !important; }
+    header { height: var(--header-height); }
+    body { padding-bottom: var(--safe-area-bottom); }
+    .charts-row { grid-template-columns: 2fr 1fr; }
+    .sidebar { display: block; }
+}
+
+@media (min-width: 992px) {
+    .features-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1200px) {
+    .cars-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 400px) {
+    .bottom-navbar .nav-item { font-size: var(--font-size-xs); padding: var(--spacing-1); min-width: 48px; min-height: 48px; }
+    .bottom-navbar .nav-item i { font-size: var(--font-size-md); }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: var(--spacing-2); }
+    .stat-card { padding: var(--spacing-2); }
+    .stat-card .value { font-size: var(--font-size-lg); }
+    .btn { padding: var(--spacing-2) var(--spacing-4); font-size: var(--font-size-sm); min-height: 40px; }
+    .mobile-sidebar { width: 85vw; }
+    .new-map-container { height: 280px; }
+}
+
+@supports (padding: max(0px)) {
+    header { padding-top: var(--safe-area-top); }
+    .bottom-navbar { padding-bottom: calc(var(--spacing-1) + var(--safe-area-bottom)); }
+}
+
+@supports (-webkit-touch-callout: none) {
+    .hero { min-height: -webkit-fill-available; }
+}
+
+/* ============================================================
+   25. RTL - دعم الكتابة من اليمين لليسار
+   ============================================================ */
+
+[dir="rtl"] { text-align: right; }
+[dir="rtl"] .hero-buttons { flex-direction: row-reverse; }
+[dir="rtl"] .meta-item i { margin-left: var(--spacing-1); margin-right: 0; }
+[dir="rtl"] .car-location i { margin-left: var(--spacing-1); margin-right: 0; }
+[dir="rtl"] .car-badge { right: auto; left: var(--spacing-3); }
+[dir="rtl"] .car-price { text-align: left; }
+[dir="rtl"] .search-input .form-control { padding-right: var(--spacing-3); padding-left: var(--spacing-8); }
+[dir="rtl"] .search-input .search-icon { right: auto; left: var(--spacing-3); }
+[dir="rtl"] .stat-card { border-right: none; border-left: 3px solid var(--color-secondary); }
+[dir="rtl"] .footer-col h3::after { right: 0; left: auto; }
+[dir="rtl"] .footer-col ul li a:hover { transform: translateX(-5px); }
+[dir="rtl"] select.form-control { background-position: right var(--spacing-3) center; padding-right: var(--spacing-3); padding-left: var(--spacing-8); }
+[dir="rtl"] .nav-links li a::after { right: 0; left: auto; }
+[dir="rtl"] .modal-box .close-modal { right: var(--spacing-3); left: auto; }
+[dir="rtl"] .modal-box h2 { padding-left: 0; padding-right: var(--spacing-6); }
+[dir="rtl"] .tf-pills { flex-direction: row-reverse; }
+[dir="rtl"] .tf-btn i { margin-left: 4px; margin-right: 0; }
+[dir="rtl"] .sidebar { border-right: none; border-left: 1px solid var(--color-border); }
+
+/* ============================================================
+   26. ACCESSIBILITY - تحسينات إمكانية الوصول
    ============================================================ */
 
 :focus-visible {
@@ -1656,16 +2158,20 @@ button, a, input[type="button"], input[type="submit"], input[type="reset"], [rol
 }
 
 /* ============================================================
-   23. PRINT - أنماط الطباعة
+   27. PERFORMANCE - تحسينات الأداء
+   ============================================================ */
+
+.car-card, .feature-card, .btn { will-change: transform; }
+.hero { will-change: transform; }
+.hero::after { will-change: transform; }
+
+/* ============================================================
+   28. PRINT - أنماط الطباعة
    ============================================================ */
 
 @media print {
-    header, .bottom-navbar, .chatbot-popup, .modal-overlay, .toast { display: none !important; }
+    header, .bottom-navbar, .modal-overlay, .toast { display: none !important; }
     body { padding: 20px !important; background: #fff !important; color: #000 !important; }
     .card, .car-card { box-shadow: none !important; border: 1px solid #ddd !important; }
     .hero { background: #1a3c37 !important; color: #fff !important; min-height: auto !important; padding: 40px 0 !important; }
 }
-
-/* ============================================================
-   نهاية الملف
-   ============================================================ */
