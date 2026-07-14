@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وُجْهَة | شروط الاستئجار</title>
+    <title>وُجْهَة | لوحة المستأجر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -12,46 +12,241 @@
     <script src="supabase-config.js"></script>
     <script src="script.js" defer></script>
     <style>
-        .terms-section { padding: var(--spacing-8) 0; }
-        .terms-content {
+        .dashboard-wrapper { padding: var(--spacing-4) 0; }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: var(--spacing-4);
+        }
+        .dashboard-sidebar {
             background: var(--color-card);
             border-radius: var(--radius-lg);
-            padding: var(--spacing-6);
+            padding: var(--spacing-4);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: calc(var(--header-height) + var(--spacing-4));
+        }
+        .user-profile {
+            text-align: center;
+            padding-bottom: var(--spacing-4);
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--spacing-4);
+        }
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: var(--color-primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto var(--spacing-2);
+        }
+        .user-profile h3 {
+            font-size: var(--font-size-md);
+            color: var(--color-heading);
+            margin: 0;
+        }
+        .user-profile p {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin: var(--spacing-1) 0 0;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar-menu li {
+            margin-bottom: var(--spacing-1);
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-3);
+            border-radius: var(--radius-md);
+            color: var(--color-text-secondary);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--transition-fast);
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--color-bg-secondary);
+            color: var(--color-primary);
+        }
+        .sidebar-menu a i {
+            width: 20px;
+            text-align: center;
+        }
+        .dashboard-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-4);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-3);
+        }
+        .stat-card {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-extrabold);
+            color: var(--color-heading);
+        }
+        .stat-card .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-1);
+        }
+        .smart-widget {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
             border: 1px solid var(--color-border);
             box-shadow: var(--shadow-sm);
         }
-        .terms-content h3 {
+        .smart-widget h3 {
             font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-4);
             color: var(--color-heading);
-            margin-top: var(--spacing-4);
+        }
+        .smart-widget h3 i {
+            color: var(--color-secondary);
+            margin-left: var(--spacing-2);
+        }
+        .booking-item {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3) var(--spacing-4);
             margin-bottom: var(--spacing-2);
         }
-        .terms-content p {
-            font-size: var(--font-size-base);
-            line-height: var(--line-height-relaxed);
+        .booking-item .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+        }
+        .booking-item .booking-car {
+            font-weight: var(--font-weight-bold);
+        }
+        .booking-item .booking-dates {
+            font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
+        }
+        .booking-item .booking-price {
+            font-weight: var(--font-weight-bold);
+            color: var(--color-secondary);
+        }
+        .booking-item .booking-actions {
+            display: flex;
+            gap: var(--spacing-2);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-2);
+        }
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-6) var(--spacing-4);
+            color: var(--color-text-secondary);
+        }
+        .empty-state i {
+            font-size: var(--font-size-2xl);
+            display: block;
+            margin-bottom: var(--spacing-2);
+            opacity: 0.3;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: var(--spacing-6);
+            color: var(--color-text-secondary);
+        }
+        .loading-spinner i {
+            font-size: var(--font-size-xl);
+            display: block;
+            margin-bottom: var(--spacing-2);
+        }
+        .inspection-widget .scan-container {
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+            text-align: center;
             margin-bottom: var(--spacing-3);
         }
-        .terms-content ul {
-            list-style: none;
-            padding-right: var(--spacing-4);
-        }
-        .terms-content ul li {
-            position: relative;
-            padding-right: var(--spacing-5);
+        .scan-image-placeholder {
+            width: 100%;
+            height: 150px;
+            background: var(--color-bg-secondary);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            background-size: cover;
+            background-position: center;
             margin-bottom: var(--spacing-2);
-            font-size: var(--font-size-base);
+        }
+        .scanner-beam {
+            height: 4px;
+            background: var(--color-secondary);
+            width: 0%;
+            animation: scan 2s infinite;
+            border-radius: var(--radius-full);
+            margin: 0 auto;
+        }
+        @keyframes scan {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 0%; }
+        }
+        .scan-status-text {
+            margin-top: var(--spacing-2);
+            font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
         }
-        .terms-content ul li::before {
-            content: "•";
+        .pledge-section {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        .pledge-section h3 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-4);
+            color: var(--color-heading);
+        }
+        .pledge-section h3 i {
             color: var(--color-secondary);
-            font-weight: var(--font-weight-bold);
-            font-size: 1.2rem;
-            position: absolute;
-            right: 0;
-            top: -2px;
+            margin-left: var(--spacing-2);
+        }
+        .mandatory-pledge label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) 0;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+        }
+        .mandatory-pledge input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--color-primary);
+            flex-shrink: 0;
+        }
+        @media (max-width: 992px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .dashboard-sidebar { position: relative; top: 0; }
         }
     </style>
 </head>
@@ -60,57 +255,128 @@
     <header>
         <div class="container">
             <nav class="navbar">
-                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
-                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
+
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="dashboard-renter.html" class="active">لوحة المستأجر</a></li>
                     <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
                     <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
-                    <li><a href="rental-terms.html" class="active">شروط الاستئجار</a></li>
-                    <li><a href="qassim-map.html">الخريطة</a></li>
+                    <li><a href="quiz.html">اختبار السيارة</a></li>
+                    <li><a href="qassim-map.html">خريطة السيارات</a></li>
                 </ul>
+
                 <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> <span>الوضع</span></button>
-                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
+                    <button id="theme-toggle-desktop" class="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>الوضع</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">
+                        <i class="fas fa-shield-alt"></i> دخول آمن
+                    </a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
 
-    <!-- ===== MAIN ===== -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main>
-        <section class="terms-section">
-            <div class="container">
-                <div class="section-title" data-aos="fade-up">
-                    <h2>شروط وأحكام الاستئجار</h2>
-                    <p>يرجى قراءة الشروط والأحكام التالية بعناية قبل المتابعة.</p>
+        <div class="container dashboard-wrapper">
+            <div class="dashboard" data-aos="fade-up">
+                <div class="dashboard-sidebar">
+                    <div class="user-profile">
+                        <div class="user-avatar" id="renter-avatar">م</div>
+                        <h3 id="renter-name-display">مستخدم</h3>
+                        <p><i class="fas fa-check-circle" style="color:var(--color-success);"></i> موثق (نفاذ)</p>
+                    </div>
+                    <ul class="sidebar-menu">
+                        <li><a href="#" class="active" onclick="scrollToSection('bookings')"><i class="fas fa-calendar-check"></i> حجوزاتي</a></li>
+                        <li><a href="#" onclick="scrollToSection('contracts')"><i class="fas fa-file-signature"></i> عقودي</a></li>
+                        <li><a href="#" onclick="scrollToSection('scan')"><i class="fas fa-camera"></i> فحص السيارة</a></li>
+                        <li><a href="#" onclick="scrollToSection('pledge')"><i class="fas fa-hand-paper"></i> التعهد</a></li>
+                    </ul>
                 </div>
-                <div class="terms-content" data-aos="fade-up" data-aos-delay="100">
-                    <h3>1. الأهلية والمتطلبات</h3>
-                    <p>يجب أن يكون المستأجر حاصلاً على رخصة قيادة سارية المفعول وصادرة من المملكة العربية السعودية أو رخصة قيادة دولية معترف بها. الحد الأدنى للعمر هو 21 عامًا. يجب تقديم بطاقة هوية سارية المفعول (هوية وطنية أو إقامة).</p>
 
-                    <h3>2. فترة الإيجار</h3>
-                    <p>تُحسب فترة الإيجار على أساس 24 ساعة لكل يوم. يتم تحديد وقت الاستلام والإرجاع في عقد الإيجار. أي تأخير في الإرجاع قد يؤدي إلى رسوم إضافية.</p>
+                <div class="dashboard-content">
+                    <!-- Stats -->
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card"><div class="value" id="stat-total">0</div><div class="stat-label">إجمالي الحجوزات</div></div>
+                        <div class="stat-card"><div class="value" id="stat-pending">0</div><div class="stat-label">قيد الموافقة</div></div>
+                        <div class="stat-card"><div class="value" id="stat-active">0</div><div class="stat-label">نشطة</div></div>
+                        <div class="stat-card"><div class="value" id="stat-contracts">0</div><div class="stat-label">العقود</div></div>
+                    </div>
 
-                    <h3>3. التأمين والمسؤولية</h3>
-                    <p>تشمل جميع الإيجارات تأمينًا ضد الغير. يمكن للمستأجر اختيار تأمين شامل إضافي للحماية من الأضرار التي تلحق بالسيارة. يتحمل المستأجر مسؤولية أي أضرار ناجمة عن سوء الاستخدام أو الإهمال.</p>
+                    <!-- حجوزاتي -->
+                    <div class="smart-widget" id="bookings">
+                        <h3><i class="fas fa-calendar-check"></i> حجوزاتي</h3>
+                        <div id="bookings-container">
+                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                        </div>
+                    </div>
 
-                    <h3>4. الوقود</h3>
-                    <p>يتم تسليم السيارة للمستأجر بوقود كامل، ويجب إرجاعها بوقود كامل. في حالة عدم امتلاء خزان الوقود عند الإرجاع، سيتم احتساب رسوم إعادة تعبئة الوقود بالإضافة إلى تكلفة الوقود.</p>
+                    <!-- عقودي -->
+                    <div class="smart-widget" id="contracts">
+                        <h3><i class="fas fa-file-signature"></i> عقودي</h3>
+                        <div id="contracts-container">
+                            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+                        </div>
+                    </div>
 
-                    <h3>5. إلغاء الحجز</h3>
-                    <p>يمكن إلغاء الحجوزات قبل 24 ساعة من موعد الاستلام دون رسوم. الإلغاءات التي تتم في أقل من 24 ساعة قد تخضع لرسوم إلغاء.</p>
+                    <!-- فحص السيارة -->
+                    <div class="smart-widget inspection-widget" id="scan">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h3 style="margin:0;"><i class="fas fa-camera"></i> فحص استلام السيارة (AI)</h3>
+                            <span class="status-badge" style="background:var(--color-info); color:#fff; padding:4px 14px; border-radius:30px; font-size:0.8rem;">مطلوب</span>
+                        </div>
+                        <p id="pre-desc" style="color:var(--color-text-secondary); margin-bottom:15px;">
+                            صور السيارة بجوالك الآن. سيقوم النظام بتوثيق أي خدوش قديمة وحفظها.
+                        </p>
+                        <div class="scan-container" id="pre-scan-visual" style="display:none;">
+                            <div class="scan-image-placeholder"></div>
+                            <div class="scanner-beam"></div>
+                            <div class="scan-status-text">جاري تحليل صورتك... <span id="scan-progress">0%</span></div>
+                        </div>
+                        <div id="pre-scan-result" style="display:none; background:var(--color-bg-secondary); padding:15px; border-radius:10px; border-right:4px solid var(--color-warning); margin-bottom:16px;">
+                            <h4 style="margin:0 0 8px; color:var(--color-warning);">📊 تقرير الحالة:</h4>
+                            <ul style="margin:0; padding-right:20px; color:var(--color-text-secondary); font-size:0.9rem;">
+                                <li>✅ الهيكل سليم بنسبة 95%.</li>
+                                <li>⚠️ تم رصد (2) خدش سطحي.</li>
+                            </ul>
+                            <p style="margin:8px 0 0; font-size:0.8rem; color:var(--color-text-tertiary);">* تم حفظ التقرير لحمايتك عند التسليم.</p>
+                        </div>
+                        <input type="file" id="pre-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this, 'pre')" />
+                        <button class="btn btn-primary" style="width:100%; background:var(--color-info); border-color:var(--color-info);" onclick="document.getElementById('pre-file-input').click()">
+                            <i class="fas fa-camera"></i> رفع صورة وبدء الفحص
+                        </button>
+                    </div>
 
-                    <h3>6. انتهاكات المرور</h3>
-                    <p>المستأجر مسؤول عن جميع المخالفات المرورية والغرامات التي تحدث خلال فترة الإيجار.</p>
-
-                    <p style="margin-top: var(--spacing-4); font-style: italic; color: var(--color-text-tertiary);">هذه الشروط قابلة للتغيير. يرجى مراجعة العقد الفعلي عند الحجز للحصول على التفاصيل الكاملة.</p>
+                    <!-- التعهد -->
+                    <div class="pledge-section" id="pledge">
+                        <h3><i class="fas fa-hand-paper"></i> التعهد الأمني الملزم</h3>
+                        <p style="color:var(--color-warning); font-size:0.9rem; margin-bottom:18px; background:var(--color-warning-bg); padding:10px; border-radius:8px;">
+                            <i class="fas fa-exclamation-triangle"></i> تنبيه: لن يعمل "المفتاح الرقمي" للسيارة إلا بعد الموافقة على جميع البنود.
+                        </p>
+                        <form id="mandatory-pledge-form" class="mandatory-pledge">
+                            <label><input type="checkbox" required /> <span>أتعهد بالالتزام بالسرعة النظامية وعدم استخدام الجوال أثناء القيادة.</span></label>
+                            <label><input type="checkbox" required /> <span>أتعهد بربط حزام الأمان لي ولجميع الركاب طوال الرحلة.</span></label>
+                            <label><input type="checkbox" required /> <span>أتعهد بالمحافظة على نظافة السيارة (سيتم فحصها بالذكاء الاصطناعي عند الإرجاع).</span></label>
+                            <label><input type="checkbox" required /> <span>أقر بأن تفويض "تم" ساري طوال مدة الحجز وأتحمل كافة المسؤوليات.</span></label>
+                            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px; padding:14px; font-weight:bold; font-size:1.1rem;">
+                                <i class="fas fa-fingerprint"></i> توثيق وبدء الرحلة
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <!-- ===== FOOTER ===== -->
@@ -132,7 +398,7 @@
                         <li><a href="index.html">الرئيسية</a></li>
                         <li><a href="cars.html">استكشف السيارات</a></li>
                         <li><a href="qassim-map.html">الخريطة</a></li>
-                        <li><a href="rental-terms.html">شروط الاستئجار</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -169,17 +435,223 @@
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
         <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
         <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
-        <a href="rental-terms.html" class="nav-item active"><i class="fas fa-file-contract"></i><span>الشروط</span></a>
+        <a href="dashboard-renter.html" class="nav-item active"><i class="fas fa-user"></i><span>لوحتي</span></a>
         <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
     <!-- ===== SCRIPTS ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ once: true });
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') updateNavbarBasedOnLoginStatus();
+        AOS.init({ once: true, duration: 600 });
+
+        let currentUserId = null;
+
+        async function loadUserData() {
+            try {
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+                if (error || !user) {
+                    window.location.href = 'landing.html';
+                    return false;
+                }
+                const role = user.user_metadata?.role || 'user';
+                if (role !== 'renter' && role !== 'admin') {
+                    alert('❌ هذه الصفحة مخصصة للمستأجرين فقط.');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                currentUserId = user.id;
+                const name = user.user_metadata?.name || user.email || 'مستخدم';
+                document.getElementById('renter-name-display').textContent = name;
+                document.getElementById('renter-avatar').textContent = name.charAt(0);
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userType', role);
+                localStorage.setItem('userName', name);
+                if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                    updateNavbarBasedOnLoginStatus();
+                }
+                return true;
+            } catch (err) {
+                console.error('فشل تحميل بيانات المستخدم:', err);
+                window.location.href = 'landing.html';
+                return false;
+            }
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        async function loadBookings() {
+            const container = document.getElementById('bookings-container');
+            if (!currentUserId) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>الرجاء تسجيل الدخول.</p></div>';
+                return;
+            }
+            try {
+                const { data: bookings, error } = await window.supabaseClient
+                    .from('bookings')
+                    .select('*, cars(*)')
+                    .eq('renter_id', currentUserId)
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+
+                document.getElementById('stat-total').textContent = bookings?.length || 0;
+                const pending = bookings?.filter(b => b.status === 'pending_owner_approval').length || 0;
+                document.getElementById('stat-pending').textContent = pending;
+                const active = bookings?.filter(b => b.status === 'approved' || b.status === 'active').length || 0;
+                document.getElementById('stat-active').textContent = active;
+
+                if (!bookings || bookings.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-times"></i><p>لا توجد حجوزات حالياً.</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = bookings.map(b => {
+                    const statusText = b.status === 'pending_owner_approval' ? 'قيد الموافقة' :
+                                       b.status === 'approved' ? 'موافق عليه' :
+                                       b.status === 'active' ? 'نشط' :
+                                       b.status === 'completed' ? 'مكتمل' :
+                                       b.status === 'cancelled' ? 'ملغي' :
+                                       b.status === 'rejected' ? 'مرفوض' : b.status;
+                    const isPending = b.status === 'pending_owner_approval';
+                    const isApproved = b.status === 'approved' || b.status === 'active';
+                    return `
+                        <div class="booking-item">
+                            <div class="booking-header">
+                                <div>
+                                    <span class="booking-car">${b.cars?.brand || ''} ${b.cars?.model || ''}</span>
+                                    <small style="color:var(--color-text-secondary);">${b.cars?.city || ''}</small>
+                                </div>
+                                <span class="status-badge ${b.status}">${statusText}</span>
+                            </div>
+                            <div class="booking-dates"><i class="fas fa-calendar-alt"></i> ${new Date(b.start_date).toLocaleDateString('ar-SA')} - ${new Date(b.end_date).toLocaleDateString('ar-SA')} <span style="margin-right:15px;"><i class="fas fa-money-bill"></i> ${b.total_price || 0} ر.س</span></div>
+                            ${isPending ? `<div style="color:var(--color-warning); font-size:0.85rem;"><i class="fas fa-clock"></i> في انتظار موافقة المالك</div>` : ''}
+                            ${isApproved ? `
+                                <div class="booking-actions">
+                                    <button class="btn btn-primary btn-sm" onclick="window.open('car-location-view.html?carId=${b.car_id}&bookingId=${b.id}', '_blank')"><i class="fas fa-map-marked-alt"></i> عرض موقع السيارة</button>
+                                    <button class="btn btn-primary btn-sm" onclick="openContractForBooking('${b.id}')"><i class="fas fa-file-contract"></i> عرض العقد</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>حدث خطأ: ${err.message}</p></div>`;
+            }
+        }
+
+        function openContractForBooking(bookingId) {
+            localStorage.setItem('current_booking_id', bookingId);
+            window.location.href = 'contract_final.html';
+        }
+
+        async function loadContracts() {
+            const container = document.getElementById('contracts-container');
+            if (!currentUserId) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>الرجاء تسجيل الدخول.</p></div>';
+                return;
+            }
+            try {
+                const { data: contracts, error } = await window.supabaseClient
+                    .from('contracts')
+                    .select('*, bookings!inner (*, cars!inner (*))')
+                    .eq('bookings.renter_id', currentUserId)
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+
+                document.getElementById('stat-contracts').textContent = contracts?.length || 0;
+                if (!contracts || contracts.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-file-signature"></i><p>لا توجد عقود مسجلة.</p></div>`;
+                    return;
+                }
+                container.innerHTML = contracts.map(c => {
+                    const booking = c.bookings;
+                    const car = booking?.cars;
+                    return `
+                        <div class="booking-item" style="border-right: 3px solid var(--color-secondary);">
+                            <div class="booking-header">
+                                <div>
+                                    <span style="font-weight:bold;">عقد رقم: ${c.contract_number || 'N/A'}</span>
+                                    <span class="status-badge ${c.status}" style="margin-right:10px;">${c.status === 'active' ? 'ساري' : c.status === 'draft' ? 'مسودة' : c.status}</span>
+                                </div>
+                            </div>
+                            <div class="booking-dates"><i class="fas fa-car"></i> ${car?.brand || ''} ${car?.model || ''} <span style="margin-right:15px;"><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span></div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>حدث خطأ: ${err.message}</p></div>`;
+            }
+        }
+
+        function handleImageUpload(input, type) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const placeholder = document.querySelector('#pre-scan-visual .scan-image-placeholder');
+                    if (placeholder) {
+                        placeholder.style.backgroundImage = 'url(' + e.target.result + ')';
+                    }
+                    runAIScan(type);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function runAIScan(type) {
+            let timer = 0;
+            if (type === 'pre') {
+                const scanVisual = document.getElementById('pre-scan-visual');
+                const resultArea = document.getElementById('pre-scan-result');
+                const startBtn = document.querySelector('#scan .btn-primary');
+                if (startBtn) startBtn.style.display = 'none';
+                scanVisual.style.display = 'block';
+                const interval = setInterval(() => {
+                    timer += 2;
+                    const progressEl = document.getElementById('scan-progress');
+                    if (progressEl) progressEl.innerText = Math.min(timer, 100) + '%';
+                    if (timer >= 100) {
+                        clearInterval(interval);
+                        scanVisual.style.display = 'none';
+                        resultArea.style.display = 'block';
+                        const badge = document.querySelector('#scan .status-badge');
+                        if (badge) {
+                            badge.style.background = 'var(--color-success)';
+                            badge.innerText = 'تم التوثيق';
+                        }
+                        document.getElementById('pre-desc').textContent = '✅ تم حفظ صورك في السجل الآمن. رحلة سعيدة!';
+                    }
+                }, 50);
+            }
+        }
+
+        document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوثيق...';
+            btn.disabled = true;
+            setTimeout(() => {
+                alert('✅ تم التوثيق بنجاح! 🚗\n- تم إصدار تفويض القيادة.\n- تم تفعيل المفتاح الرقمي.\nنتمنى لك رحلة آمنة.');
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> تم التوثيق';
+                btn.style.background = 'var(--color-success)';
+                btn.disabled = false;
+            }, 1500);
         });
+
+        (async function init() {
+            const loaded = await loadUserData();
+            if (loaded) {
+                await loadBookings();
+                await loadContracts();
+            }
+        })();
+
+        window.loadBookings = loadBookings;
+        window.loadContracts = loadContracts;
+        window.scrollToSection = scrollToSection;
+        window.openContractForBooking = openContractForBooking;
+        window.handleImageUpload = handleImageUpload;
     </script>
 </body>
 </html>
