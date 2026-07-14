@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <!-- ===== HEADER (موحد) ===== -->
+    <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
             <nav class="navbar">
@@ -50,7 +50,7 @@
         </div>
     </header>
 
-    <!-- ===== القائمة الجانبية للجوال ===== -->
+    <!-- ===== القائمة الجانبية ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="mobile-sidebar" id="mobileSidebar">
         <div class="mobile-sidebar-header">
@@ -75,7 +75,7 @@
         </div>
     </aside>
 
-    <!-- ===== المحتوى الرئيسي ===== -->
+    <!-- ===== المحتوى ===== -->
     <main>
         <section id="add-car" class="add-car-section">
             <div class="container">
@@ -161,7 +161,7 @@
                             </div>
                         </div>
 
-                        <!-- ===== موقع السيارة ===== -->
+                        <!-- موقع السيارة -->
                         <div class="card" style="padding:var(--spacing-4); margin:var(--spacing-4) 0; border-color:var(--color-border);">
                             <h4 style="margin-bottom:var(--spacing-3);"><i class="fas fa-map-pin" style="color:var(--color-secondary);"></i> موقع السيارة (اختياري)</h4>
                             <div class="form-grid">
@@ -208,7 +208,7 @@
         </section>
     </main>
 
-    <!-- ===== FOOTER (موحد) ===== -->
+    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -258,7 +258,7 @@
         </div>
     </footer>
 
-    <!-- ===== القائمة السفلية (الجوال) ===== -->
+    <!-- ===== القائمة السفلية ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -274,7 +274,6 @@
     <script>
         AOS.init({ once: true, duration: 600 });
 
-        // ===== متغيرات عامة =====
         let uploadedImages = [];
         let currentUserId = null;
         let currentUserRole = null;
@@ -305,7 +304,7 @@
                 return true;
             } catch (err) {
                 console.error('فشل تحميل بيانات المستخدم:', err);
-                alert('حدث خطأ في التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.');
+                alert('حدث خطأ في التحقق من الجلسة.');
                 window.location.href = 'landing.html';
                 return false;
             }
@@ -334,7 +333,7 @@
             input.value = '';
         }
 
-        // ===== 3. الحصول على الموقع =====
+        // ===== 3. الموقع =====
         function getCurrentLocation() {
             if (!navigator.geolocation) {
                 alert('المتصفح لا يدعم تحديد الموقع.');
@@ -352,7 +351,7 @@
             );
         }
 
-        // ===== 4. عرض الرسائل =====
+        // ===== 4. الرسائل =====
         function showMessage(text, type = 'info') {
             const msg = document.getElementById('form-message');
             msg.style.display = 'block';
@@ -369,7 +368,7 @@
             }
         }
 
-        // ===== 5. إضافة سيارة =====
+        // ===== 5. إنشاء سيارة =====
         window.createCar = async function(carData) {
             try {
                 if (!currentUserId) {
@@ -409,7 +408,7 @@
             }
         };
 
-        // ===== 6. معالج إرسال النموذج =====
+        // ===== 6. إرسال النموذج =====
         async function handleAddCar(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
@@ -499,11 +498,18 @@
             }
         })();
 
-        // ===== تعريض الدوال =====
         window.handleAddCar = handleAddCar;
         window.handleCarImages = handleCarImages;
         window.getCurrentLocation = getCurrentLocation;
         window.showMessage = showMessage;
+        window.logoutUser = function() {
+            if (confirm('تسجيل الخروج؟')) {
+                window.supabaseClient.auth.signOut().then(() => {
+                    localStorage.clear();
+                    window.location.href = 'landing.html';
+                });
+            }
+        };
     </script>
 </body>
 </html>
