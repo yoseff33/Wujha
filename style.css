@@ -1,5 +1,5 @@
 /* ============================================================
-   style.css - الإصدار النهائي المُكَمَّل (نسخة مطولة)
+   style.css - الإصدار النهائي المُكَمَّل (مع هيدر احترافي)
    ============================================================ */
 
 /* ============================================================
@@ -7,13 +7,20 @@
    ============================================================ */
 
 :root {
-    /* --- الألوان الأساسية للعلامة التجارية --- */
-    --color-primary: #1a3c37;
-    --color-primary-dark: #0f2925;
-    --color-primary-light: #2a5a52;
-    --color-secondary: #d4af37;
-    --color-secondary-dark: #c9a22e;
-    --color-secondary-light: #e4c95e;
+    /* --- العلامة التجارية (من الهيدر الجديد) --- */
+    --brand-dark-teal: #0f2925;
+    --brand-gold: #c5a065;
+    --brand-dark-bg: #1a1a1a;
+    --light-bg: #f8f9fa;
+    --accent-red: #e74c3c;
+
+    /* --- الألوان الأساسية (متوافقة مع القديم) --- */
+    --color-primary: var(--brand-dark-teal);
+    --color-primary-dark: #0a1a17;
+    --color-primary-light: #1a4d45;
+    --color-secondary: var(--brand-gold);
+    --color-secondary-dark: #b08a4e;
+    --color-secondary-light: #d4b87a;
     --color-accent: #2e8b57;
     --color-accent-dark: #1e6b3f;
     --color-accent-light: #3ca86b;
@@ -29,7 +36,7 @@
     --color-info-bg: rgba(52, 152, 219, 0.12);
 
     /* --- نظام الألوان (Light Mode) --- */
-    --color-bg: #f8f9fa;
+    --color-bg: var(--light-bg);
     --color-bg-secondary: #f1f3f5;
     --color-surface: #ffffff;
     --color-surface-hover: #f8f9fa;
@@ -42,14 +49,14 @@
     --color-text-secondary: #6c757d;
     --color-text-tertiary: #8a929f;
     --color-text-inverse: #ffffff;
-    --color-heading: #0f2925;
+    --color-heading: var(--brand-dark-teal);
     --color-shadow: rgba(0, 0, 0, 0.08);
     --color-shadow-hover: rgba(0, 0, 0, 0.12);
     --color-shadow-heavy: rgba(0, 0, 0, 0.2);
     --color-overlay: rgba(0, 0, 0, 0.5);
 
     /* --- نظام الألوان (Dark Mode) --- */
-    --color-bg-dark: #0d0d0d;
+    --color-bg-dark: var(--brand-dark-bg);
     --color-bg-secondary-dark: #161616;
     --color-surface-dark: #1a1a1a;
     --color-surface-hover-dark: #262626;
@@ -70,7 +77,7 @@
     --shadow-lg: 0 8px 32px var(--color-shadow);
     --shadow-xl: 0 16px 48px var(--color-shadow);
     --shadow-hover: 0 12px 40px var(--color-shadow-hover);
-    --shadow-focus: 0 0 0 4px rgba(26, 60, 55, 0.15);
+    --shadow-focus: 0 0 0 4px rgba(15, 41, 37, 0.15);
 
     /* --- نظام الحدود الموحد --- */
     --radius-sm: 6px;
@@ -314,7 +321,7 @@ section {
 }
 
 /* ============================================================
-   8. HEADER & NAVBAR - الهيدر وشريط التنقل العلوي
+   8. HEADER & NAVBAR - الهيدر وشريط التنقل العلوي (نسخة احترافية)
    ============================================================ */
 
 header {
@@ -323,15 +330,32 @@ header {
     left: 0;
     right: 0;
     z-index: 1000;
-    height: calc(var(--header-height) - var(--safe-area-top));
-    background: var(--color-surface);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--color-border);
-    transition: background var(--transition-base), border-color var(--transition-base);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
+    padding: 15px 0;
+    height: auto;
+    min-height: var(--header-height);
     display: flex;
     align-items: center;
-    box-shadow: 0 1px 0 var(--color-shadow);
+}
+
+[data-theme="dark"] header {
+    background: rgba(20, 20, 20, 0.98);
+    border-bottom: 1px solid #333;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+header.scrolled {
+    padding: 10px 0 !important;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="dark"] header.scrolled {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 header .container {
@@ -347,34 +371,192 @@ header .container {
 .logo {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: 10px;
+    text-decoration: none;
     flex-shrink: 0;
 }
 
 .logo-icon {
     width: clamp(34px, 5vw, 44px);
     height: clamp(34px, 5vw, 44px);
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--brand-dark-teal), var(--brand-gold));
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-inverse);
-    font-size: clamp(1rem, 1.5vw, 1.3rem);
-    font-weight: var(--font-weight-extrabold);
+    color: white;
+    font-size: clamp(1rem, 1.5vw, 1.4rem);
+    font-weight: 800;
     flex-shrink: 0;
 }
 
 .logo-text {
     font-size: clamp(1.1rem, 2vw, 1.6rem);
-    font-weight: var(--font-weight-extrabold);
-    color: var(--color-primary);
+    font-weight: 800;
+    color: var(--brand-dark-teal);
     transition: color var(--transition-base);
     white-space: nowrap;
 }
 
+[data-theme="dark"] .logo-text {
+    color: #f0f0f0;
+}
+
 .logo-text span {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
+}
+
+/* --- روابط التنقل (ديسكتوب) --- */
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li a {
+    color: #333;
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-1) 0;
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .nav-links li a {
+    color: #ddd;
+}
+
+.nav-links li a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: 0;
+    width: 0;
+    height: 2px;
+    background: var(--brand-gold);
+    transition: width var(--transition-base);
+}
+
+.nav-links li a:hover::after,
+.nav-links li a.active::after {
+    width: 100%;
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+    color: var(--brand-gold);
+}
+
+/* --- أزرار الهيدر (الجانب الأيمن) --- */
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+/* أزرار المستخدم (ملفي، خروج) */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-height: 44px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.user-btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+}
+
+[data-theme="dark"] .user-btn:hover {
+    background: var(--color-surface-hover-dark);
+    color: var(--color-text);
+}
+
+.user-btn.profile-btn i {
+    color: var(--brand-gold);
+}
+
+.user-btn.logout-btn:hover {
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
+}
+
+/* زر تبديل الوضع */
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+    padding: var(--spacing-1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    color: var(--brand-gold);
+    background: var(--color-surface-hover);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: var(--color-surface-hover-dark);
+}
+
+.theme-toggle span {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    display: none;
+}
+
+/* زر المساعد (ديسكتوب) */
+#desktop-chatbot-toggle {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    min-height: 44px;
+}
+
+#desktop-chatbot-toggle:hover {
+    background: var(--brand-dark-teal);
+    color: white;
+    border-color: var(--brand-dark-teal);
 }
 
 /* --- زر الهامبرغر --- */
@@ -393,123 +575,34 @@ header .container {
     transition: color var(--transition-fast);
 }
 .hamburger:hover {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 .hamburger i {
     font-size: 1.6rem;
 }
 
-/* --- روابط التنقل (ديسكتوب) --- */
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: var(--spacing-3);
-    margin: 0;
-    padding: 0;
-}
-
-.nav-links li a {
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-semibold);
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-1) 0;
-    position: relative;
-    transition: color var(--transition-fast);
-    white-space: nowrap;
-}
-
-.nav-links li a::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    right: 0;
-    width: 0;
-    height: 2px;
-    background: var(--color-secondary);
-    transition: width var(--transition-base);
-}
-
-.nav-links li a:hover::after,
-.nav-links li a.active::after {
-    width: 100%;
-}
-
-.nav-links li a:hover,
-.nav-links li a.active {
-    color: var(--color-primary);
-}
-
-/* --- أزرار الهيدر --- */
-.nav-buttons {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    flex-shrink: 0;
-}
-
-/* زر تبديل الوضع */
-.theme-toggle {
-    background: none;
-    border: none;
-    font-size: clamp(1.1rem, 1.5vw, 1.3rem);
-    cursor: pointer;
-    color: var(--color-text-secondary);
-    transition: all var(--transition-fast);
-    padding: var(--spacing-1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    min-width: 44px;
-    min-height: 44px;
-    justify-content: center;
-}
-
-.theme-toggle:hover {
-    color: var(--color-secondary);
-    background: var(--color-surface-hover);
-}
-
-.theme-toggle span {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    display: none;
-}
-
-/* زر المساعد (ديسكتوب) - إن وجد */
-#desktop-chatbot-toggle {
-    background: var(--color-surface-hover);
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-    padding: var(--spacing-2) var(--spacing-3);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    font-weight: var(--font-weight-medium);
-    min-height: 44px;
-}
-
-#desktop-chatbot-toggle:hover {
-    background: var(--color-primary);
-    color: var(--color-text-inverse);
-    border-color: var(--color-primary);
-}
-
-/* --- روابط المستخدم --- */
-.nav-links .auth-link {
-    display: none;
-}
-.nav-buttons .guest-only {
-    display: flex;
-}
-#nav-user-profile-placeholder {
-    display: none;
-    align-items: center;
-    gap: var(--spacing-1);
+/* --- إخفاء أزرار المستخدم والروابط والمساعد في الجوال (ستظهر في القائمة الجانبية) --- */
+@media (max-width: 767px) {
+    .user-actions {
+        display: none !important;
+    }
+    .nav-links {
+        display: none !important;
+    }
+    #desktop-chatbot-toggle {
+        display: none !important;
+    }
+    .hamburger {
+        display: flex !important;
+    }
+    header {
+        min-height: var(--header-height-mobile);
+        padding: 10px 0;
+    }
+    body {
+        padding-top: calc(var(--header-height-mobile) + var(--safe-area-top));
+        padding-bottom: calc(75px + var(--safe-area-bottom));
+    }
 }
 
 /* ============================================================
@@ -617,10 +710,10 @@ header .container {
 .mobile-nav-links li a i {
     width: 24px;
     text-align: center;
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 
-/* --- أزرار إضافية في القائمة --- */
+/* --- تذييل القائمة: أزرار المستخدم والإضافية --- */
 .mobile-sidebar-footer {
     margin-top: var(--spacing-6);
     padding-top: var(--spacing-4);
@@ -629,13 +722,53 @@ header .container {
     flex-direction: column;
     gap: var(--spacing-2);
 }
+
 .mobile-sidebar-footer .btn {
     width: 100%;
     justify-content: center;
 }
 
+/* أزرار المستخدم في القائمة الجانبية */
+.mobile-user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+}
+
+.mobile-user-actions .user-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: var(--spacing-3);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    gap: var(--spacing-3);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-height: 48px;
+}
+
+.mobile-user-actions .user-btn i {
+    width: 24px;
+    text-align: center;
+    color: var(--brand-gold);
+}
+
+.mobile-user-actions .user-btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+}
+
+.mobile-user-actions .logout-btn:hover {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
 /* ============================================================
-   10. BOTTOM NAVBAR - شريط التنقل السفلي للجوال
+   10. BOTTOM NAVBAR - شريط التنقل السفلي للجوال (بدون أزرار مستخدم)
    ============================================================ */
 
 .bottom-navbar {
@@ -681,12 +814,12 @@ header .container {
 
 .bottom-navbar .nav-item:hover,
 .bottom-navbar .nav-item.active {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 
 .bottom-navbar .nav-item:hover i,
 .bottom-navbar .nav-item.active i {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 
 .bottom-navbar .nav-item .badge {
@@ -716,21 +849,22 @@ header .container {
     align-items: center;
     justify-content: center;
     gap: var(--spacing-2);
-    padding: var(--spacing-3) var(--spacing-6);
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-base);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.9rem;
     cursor: pointer;
-    border: var(--border-width) solid transparent;
+    border: none;
     transition: all var(--transition-fast);
     text-align: center;
     line-height: 1.2;
-    min-height: 48px;
-    min-width: 48px;
+    min-height: 44px;
+    min-width: 44px;
     white-space: nowrap;
     user-select: none;
     position: relative;
     flex-shrink: 0;
+    text-decoration: none;
 }
 
 .btn:active {
@@ -745,41 +879,44 @@ header .container {
 
 /* --- أنواع الأزرار --- */
 .btn-primary {
-    background: var(--color-primary);
-    color: var(--color-text-inverse);
-    border-color: var(--color-primary);
+    background: var(--brand-dark-teal);
+    color: white;
 }
 .btn-primary:hover:not(:disabled) {
-    background: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
+    background: #1a4d45;
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 5px 15px rgba(15, 41, 37, 0.3);
 }
 .btn-primary:focus-visible {
     box-shadow: var(--shadow-focus);
 }
 
 .btn-secondary {
-    background: var(--color-secondary);
-    color: var(--color-primary-dark);
-    border-color: var(--color-secondary);
+    background: var(--brand-gold);
+    color: white;
 }
 .btn-secondary:hover:not(:disabled) {
-    background: var(--color-secondary-dark);
-    border-color: var(--color-secondary-dark);
+    background: #b08a4e;
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 5px 15px rgba(197, 160, 101, 0.3);
 }
 
 .btn-outline {
     background: transparent;
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+    border: 2px solid var(--brand-dark-teal);
+    color: var(--brand-dark-teal);
+}
+[data-theme="dark"] .btn-outline {
+    border-color: #ddd;
+    color: #ddd;
 }
 .btn-outline:hover:not(:disabled) {
-    background: var(--color-primary);
-    color: var(--color-text-inverse);
-    transform: translateY(-2px);
+    background: var(--brand-dark-teal);
+    color: white;
+}
+[data-theme="dark"] .btn-outline:hover:not(:disabled) {
+    background: #ddd;
+    color: var(--brand-dark-teal);
 }
 
 .btn-ghost {
@@ -812,6 +949,15 @@ header .container {
     background: var(--color-danger);
     opacity: 0.85;
     transform: translateY(-2px);
+}
+
+.btn-pulse {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(197, 160, 101, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(197, 160, 101, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(197, 160, 101, 0); }
 }
 
 /* --- أحجام الأزرار --- */
@@ -948,8 +1094,8 @@ header .container {
     position: absolute;
     top: var(--spacing-3);
     right: var(--spacing-3);
-    background: var(--color-secondary);
-    color: var(--color-primary-dark);
+    background: var(--brand-gold);
+    color: var(--brand-dark-teal);
     padding: var(--spacing-1) var(--spacing-3);
     border-radius: var(--radius-full);
     font-weight: var(--font-weight-bold);
@@ -979,7 +1125,7 @@ header .container {
 }
 
 .car-price {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
     font-weight: var(--font-weight-extrabold);
     font-size: var(--font-size-lg);
     white-space: nowrap;
@@ -1046,7 +1192,7 @@ header .container {
 .feature-card:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-hover);
-    border-bottom-color: var(--color-secondary);
+    border-bottom-color: var(--brand-gold);
 }
 
 .feature-icon {
@@ -1270,7 +1416,7 @@ tr:last-child td {
     border-radius: var(--radius-md);
     padding: var(--spacing-4);
     text-align: center;
-    border-right: 3px solid var(--color-secondary);
+    border-right: 3px solid var(--brand-gold);
 }
 .stat-card .value {
     font-size: var(--font-size-xl);
@@ -1346,7 +1492,7 @@ tr:last-child td {
     font-size: var(--font-size-sm);
 }
 .modal-box .btn-submit {
-    background: var(--color-primary);
+    background: var(--brand-dark-teal);
     color: var(--color-text-inverse);
     border: none;
     padding: var(--spacing-3) var(--spacing-6);
@@ -1367,7 +1513,7 @@ tr:last-child td {
    ============================================================ */
 
 footer {
-    background: var(--color-primary-dark);
+    background: var(--brand-dark-teal);
     color: var(--color-text-inverse);
     padding: var(--spacing-8) 0 var(--spacing-4);
     margin-top: auto;
@@ -1395,7 +1541,7 @@ footer {
     right: 0;
     width: 40px;
     height: 3px;
-    background: var(--color-secondary);
+    background: var(--brand-gold);
     border-radius: var(--radius-full);
 }
 
@@ -1451,8 +1597,8 @@ footer {
     min-width: 44px;
 }
 .social-links a:hover {
-    background: var(--color-secondary);
-    color: var(--color-primary-dark);
+    background: var(--brand-gold);
+    color: var(--brand-dark-teal);
     transform: translateY(-4px);
 }
 
@@ -1572,7 +1718,7 @@ footer {
     transition: all var(--transition-fast);
 }
 .booking-item:hover {
-    border-color: var(--color-secondary);
+    border-color: var(--brand-gold);
 }
 .booking-item .booking-header {
     display: flex;
@@ -1590,7 +1736,7 @@ footer {
 }
 .booking-item .booking-price {
     font-weight: var(--font-weight-bold);
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 .booking-item .booking-actions {
     display: flex;
@@ -1646,7 +1792,7 @@ footer {
     color: var(--color-heading);
 }
 .smart-widget h3 i {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
     margin-left: var(--spacing-2);
 }
 
@@ -1656,7 +1802,7 @@ footer {
 
 .sidebar {
     width: 280px;
-    background: var(--color-primary-dark);
+    background: var(--brand-dark-teal);
     color: var(--color-text-inverse);
     height: 100vh;
     position: sticky;
@@ -1676,7 +1822,7 @@ footer {
 }
 .sidebar-brand i {
     font-size: var(--font-size-xl);
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 .sidebar-brand span {
     font-size: var(--font-size-xl);
@@ -1707,7 +1853,7 @@ footer {
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
     background: rgba(197, 160, 101, 0.15);
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 .sidebar-menu .sub-label {
     font-size: var(--font-size-xs);
@@ -1759,7 +1905,7 @@ footer {
     justify-content: center;
 }
 .topbar-right .theme-toggle:hover {
-    color: var(--color-secondary);
+    color: var(--brand-gold);
 }
 .notification-bell {
     position: relative;
@@ -1791,8 +1937,8 @@ footer {
     display: flex;
     align-items: center;
     gap: var(--spacing-1);
-    background: var(--color-secondary);
-    color: var(--color-primary-dark);
+    background: var(--brand-gold);
+    color: var(--brand-dark-teal);
     padding: var(--spacing-1) var(--spacing-3);
     border-radius: var(--radius-full);
     font-weight: var(--font-weight-bold);
@@ -1983,8 +2129,8 @@ footer {
     white-space: nowrap;
 }
 .tf-pill.active {
-    background: var(--color-secondary);
-    color: var(--color-primary-dark);
+    background: var(--brand-gold);
+    color: var(--brand-dark-teal);
     font-weight: var(--font-weight-bold);
     box-shadow: var(--shadow-sm);
 }
@@ -1999,7 +2145,7 @@ footer {
     font-size: var(--font-size-sm);
 }
 .tf-btn {
-    background: var(--color-primary);
+    background: var(--brand-dark-teal);
     color: var(--color-text-inverse);
     border: none;
     padding: 0 var(--spacing-4);
@@ -2017,7 +2163,7 @@ footer {
     transition: all var(--transition-fast);
 }
 .tf-btn:hover {
-    background: var(--color-primary-dark);
+    background: #1a4d45;
     transform: scale(1.02);
 }
 
@@ -2109,7 +2255,7 @@ footer {
     padding: var(--spacing-1) var(--spacing-2);
     font-size: var(--font-size-sm);
     text-align: center;
-    background: var(--color-primary);
+    background: var(--brand-dark-teal);
     color: var(--color-text-inverse);
     border-radius: var(--radius-md);
     margin-top: var(--spacing-2);
@@ -2142,9 +2288,9 @@ footer {
     z-index: 1000;
 }
 .price-marker-box.premium {
-    background: var(--color-primary);
-    color: var(--color-secondary);
-    border-color: var(--color-secondary);
+    background: var(--brand-dark-teal);
+    color: var(--brand-gold);
+    border-color: var(--brand-gold);
 }
 .custom-none {
     background: transparent !important;
@@ -2217,7 +2363,8 @@ footer {
 .bottom-navbar { display: flex !important; }
 #desktop-chatbot-toggle { display: none !important; }
 .theme-toggle span { display: inline !important; }
-header { height: var(--header-height-mobile); }
+.user-actions { display: none !important; } /* إخفاء أزرار المستخدم في الجوال */
+header { min-height: var(--header-height-mobile); padding: 10px 0; }
 body {
     padding-top: calc(var(--header-height-mobile) + var(--safe-area-top));
     padding-bottom: calc(75px + var(--safe-area-bottom));
@@ -2240,8 +2387,12 @@ body {
     #desktop-chatbot-toggle { display: flex !important; }
     .theme-toggle span { display: none !important; }
     .hamburger { display: none !important; }
-    header { height: var(--header-height); }
-    body { padding-bottom: var(--safe-area-bottom); }
+    .user-actions { display: flex !important; } /* إظهار أزرار المستخدم في الديسكتوب */
+    header { min-height: var(--header-height); padding: 15px 0; }
+    body {
+        padding-top: calc(var(--header-height) + var(--safe-area-top));
+        padding-bottom: var(--safe-area-bottom);
+    }
     .dashboard { grid-template-columns: 260px 1fr; }
     .charts-row { grid-template-columns: 2fr 1fr; }
     .sidebar { display: block; }
@@ -2304,7 +2455,7 @@ body {
 [dir="rtl"] .car-price { text-align: left; }
 [dir="rtl"] .search-input .form-control { padding-right: var(--spacing-3); padding-left: var(--spacing-8); }
 [dir="rtl"] .search-input .search-icon { right: auto; left: var(--spacing-3); }
-[dir="rtl"] .stat-card { border-right: none; border-left: 3px solid var(--color-secondary); }
+[dir="rtl"] .stat-card { border-right: none; border-left: 3px solid var(--brand-gold); }
 [dir="rtl"] .footer-col h3::after { right: 0; left: auto; }
 [dir="rtl"] .footer-col ul li a:hover { transform: translateX(-5px); }
 [dir="rtl"] select.form-control { background-position: right var(--spacing-3) center; padding-right: var(--spacing-3); padding-left: var(--spacing-8); }
@@ -2322,7 +2473,7 @@ body {
    ============================================================ */
 
 :focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--brand-gold);
     outline-offset: 2px;
 }
 
@@ -2392,7 +2543,7 @@ input[type="reset"],
         border: 1px solid #ddd !important;
     }
     .hero {
-        background: #1a3c37 !important;
+        background: var(--brand-dark-teal) !important;
         color: #fff !important;
         min-height: auto !important;
         padding: 40px 0 !important;
