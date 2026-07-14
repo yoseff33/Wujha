@@ -4,98 +4,261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | أضف سيارتك</title>
+
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
+
+    <!-- Supabase & Project Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
 </head>
 <body>
+
+    <!-- ===== HEADER (موحد) ===== -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">و</div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
+
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
-                    <li><a href="index.html#how-it-works">كيف تعمل</a></li>
-                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة تحكم المؤجر</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة تحكم المستأجر</a></li>
-                    <li><a href="add-car.html" class="auth-link active" id="nav-add-car">أضف سيارتك</a></li>
-                    <li><a href="quiz.html">اختبار السيارة المناسبة</a></li>
-                    <li><a href="qassim-map.html">خريطة</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link active" data-role="owner">أضف سيارتك</a></li>
+                    <li><a href="qassim-map.html">الخريطة</a></li>
+                    <li><a href="quiz.html">اختبار السيارة</a></li>
                 </ul>
+
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
-                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">تسجيل دخول / جديد</a>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
 
-    <section id="add-car" class="add-car-section">
-        <div class="container">
-            <div class="section-title" data-aos="fade-up"><h2>أضف سيارتك وابدأ الربح</h2><p>املأ النموذج التالي لإضافة سيارتك إلى منصتنا والبدء في تحقيق أرباح</p></div>
-            <div class="add-car-form" data-aos="zoom-in" id="add-car-form">
-                <form id="car-form" onsubmit="handleAddCar(event)">
-                    <div class="form-grid">
-                        <div class="form-group"><label>نوع السيارة <span>*</span></label><select class="form-control" id="car-type" required><option value="">اختر نوع السيارة</option><option value="sedan">سيدان</option><option value="suv">دفع رباعي</option><option value="luxury">فاخرة</option><option value="economic">اقتصادية</option></select></div>
-                        <div class="form-group"><label>الماركة <span>*</span></label><input type="text" class="form-control" id="car-brand" placeholder="مثال: تويوتا" required></div>
-                        <div class="form-group"><label>الموديل <span>*</span></label><input type="text" class="form-control" id="car-model" placeholder="مثال: كامري" required></div>
-                        <div class="form-group"><label>سنة الصنع <span>*</span></label><input type="number" class="form-control" id="car-year" placeholder="مثال: 2022" min="2000" max="2025" required></div>
-                        <div class="form-group"><label>اللون</label><input type="text" class="form-control" id="car-color" placeholder="مثال: أبيض"></div>
-                        <div class="form-group"><label>رقم اللوحة</label><input type="text" class="form-control" id="car-plate" placeholder="مثال: ح ب ر 2030"></div>
-                        <div class="form-group"><label>سعر التأجير اليومي (ريال) <span>*</span></label><input type="number" class="form-control" id="car-daily-price" placeholder="مثال: 100" required></div>
-                        <div class="form-group"><label>المدينة <span>*</span></label><select class="form-control" id="car-city" required><option value="">اختر المدينة</option><option value="الرياض">الرياض</option><option value="جدة">جدة</option><option value="الدمام">الدمام</option><option value="الخبر">الخبر</option><option value="بريدة">بريدة</option></select></div>
-                        <div class="form-group"><label>الحي</label><input type="text" class="form-control" id="car-location" placeholder="اسم الحي"></div>
-                        <div class="form-group"><label>عدد الركاب</label><select class="form-control" id="car-passengers"><option value="2">2</option><option value="4">4</option><option value="5" selected>5</option><option value="7">7</option></select></div>
-                        <div class="form-group"><label>نوع ناقل الحركة</label><select class="form-control" id="car-transmission"><option value="automatic">أوتوماتيك</option><option value="manual">يدوي</option></select></div>
-                        <div class="form-group"><label>نوع الوقود</label><select class="form-control" id="car-fuel"><option value="gasoline">بنزين</option><option value="hybrid">هايبرد</option><option value="electric">كهرباء</option></select></div>
-                    </div>
-
-                    <!-- ===== إضافة موقع السيارة ===== -->
-                    <div>
-                        <h4><i class="fas fa-map-pin"></i> موقع السيارة (اختياري)</h4>
-                        <div class="form-grid">
-                            <div class="form-group"><label>خط العرض (Latitude)</label><input type="text" class="form-control" id="car-latitude" placeholder="مثال: 24.8375"></div>
-                            <div class="form-group"><label>خط الطول (Longitude)</label><input type="text" class="form-control" id="car-longitude" placeholder="مثال: 46.7297"></div>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline" onclick="getCurrentLocation()">
-                            <i class="fas fa-location-dot"></i> استخدم موقعي الحالي
-                        </button>
-                    </div>
-
-                    <div class="form-group"><label>وصف السيارة</label><textarea class="form-control" id="car-description" rows="4" placeholder="أضف وصفاً دقيقاً لسيارتك..."></textarea></div>
-                    <div class="form-group">
-                        <label>صور السيارة (يمكن رفع حتى 5 صور)</label>
-                        <div>
-                            <div onclick="document.getElementById('car-images-input').click()"><i class="fas fa-plus"></i></div>
-                            <input type="file" id="car-images-input" accept="image/*" multiple style="display:none;" onchange="handleCarImages(this)">
-                            <div id="image-previews"></div>
-                        </div>
-                    </div>
-                    <div id="form-message" style="display:none;"></div>
-                    <div class="form-actions"><button type="submit" class="btn btn-primary" id="submit-btn"><i class="fas fa-check-circle"></i> إضافة السيارة</button></div>
-                </form>
-            </div>
+    <!-- ===== القائمة الجانبية للجوال ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">و</div>
+                <span class="logo-text">وُجْهَة</span>
+            </a>
+            <button class="close-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
         </div>
-    </section>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+            <li><a href="cars.html"><i class="fas fa-car"></i> استكشف السيارات</a></li>
+            <li><a href="dashboard-owner.html" class="auth-link" data-role="owner"><i class="fas fa-user-tie"></i> لوحة المؤجر</a></li>
+            <li><a href="dashboard-renter.html" class="auth-link" data-role="renter"><i class="fas fa-user"></i> لوحة المستأجر</a></li>
+            <li><a href="add-car.html" class="auth-link active" data-role="owner"><i class="fas fa-plus-circle"></i> أضف سيارتك</a></li>
+            <li><a href="qassim-map.html"><i class="fas fa-map-marked-alt"></i> الخريطة</a></li>
+            <li><a href="quiz.html"><i class="fas fa-clipboard-list"></i> اختبار السيارة</a></li>
+        </ul>
+        <div class="mobile-sidebar-footer">
+            <a href="landing.html" class="btn btn-primary guest-only" id="mobile-guest-btn">تسجيل دخول / جديد</a>
+            <button id="mobile-theme-toggle" class="btn btn-outline"><i class="fas fa-moon"></i> الوضع الليلي</button>
+        </div>
+    </aside>
 
+    <!-- ===== المحتوى الرئيسي ===== -->
+    <main>
+        <section id="add-car" class="add-car-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">
+                    <h2>أضف سيارتك وابدأ الربح</h2>
+                    <p>املأ النموذج التالي لإضافة سيارتك إلى منصتنا والبدء في تحقيق أرباح</p>
+                </div>
+                <div class="add-car-form" data-aos="zoom-in" id="add-car-form">
+                    <form id="car-form" onsubmit="handleAddCar(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>نوع السيارة <span class="text-muted">*</span></label>
+                                <select class="form-control" id="car-type" required>
+                                    <option value="">اختر نوع السيارة</option>
+                                    <option value="sedan">سيدان</option>
+                                    <option value="suv">دفع رباعي</option>
+                                    <option value="luxury">فاخرة</option>
+                                    <option value="economic">اقتصادية</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>الماركة <span class="text-muted">*</span></label>
+                                <input type="text" class="form-control" id="car-brand" placeholder="مثال: تويوتا" required>
+                            </div>
+                            <div class="form-group">
+                                <label>الموديل <span class="text-muted">*</span></label>
+                                <input type="text" class="form-control" id="car-model" placeholder="مثال: كامري" required>
+                            </div>
+                            <div class="form-group">
+                                <label>سنة الصنع <span class="text-muted">*</span></label>
+                                <input type="number" class="form-control" id="car-year" placeholder="مثال: 2022" min="2000" max="2025" required>
+                            </div>
+                            <div class="form-group">
+                                <label>اللون</label>
+                                <input type="text" class="form-control" id="car-color" placeholder="مثال: أبيض">
+                            </div>
+                            <div class="form-group">
+                                <label>رقم اللوحة</label>
+                                <input type="text" class="form-control" id="car-plate" placeholder="مثال: ح ب ر 2030">
+                            </div>
+                            <div class="form-group">
+                                <label>سعر التأجير اليومي (ريال) <span class="text-muted">*</span></label>
+                                <input type="number" class="form-control" id="car-daily-price" placeholder="مثال: 100" required>
+                            </div>
+                            <div class="form-group">
+                                <label>المدينة <span class="text-muted">*</span></label>
+                                <select class="form-control" id="car-city" required>
+                                    <option value="">اختر المدينة</option>
+                                    <option value="الرياض">الرياض</option>
+                                    <option value="جدة">جدة</option>
+                                    <option value="الدمام">الدمام</option>
+                                    <option value="الخبر">الخبر</option>
+                                    <option value="بريدة">بريدة</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>الحي</label>
+                                <input type="text" class="form-control" id="car-location" placeholder="اسم الحي">
+                            </div>
+                            <div class="form-group">
+                                <label>عدد الركاب</label>
+                                <select class="form-control" id="car-passengers">
+                                    <option value="2">2</option>
+                                    <option value="4">4</option>
+                                    <option value="5" selected>5</option>
+                                    <option value="7">7</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>نوع ناقل الحركة</label>
+                                <select class="form-control" id="car-transmission">
+                                    <option value="automatic">أوتوماتيك</option>
+                                    <option value="manual">يدوي</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>نوع الوقود</label>
+                                <select class="form-control" id="car-fuel">
+                                    <option value="gasoline">بنزين</option>
+                                    <option value="hybrid">هايبرد</option>
+                                    <option value="electric">كهرباء</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- ===== موقع السيارة ===== -->
+                        <div class="card" style="padding:var(--spacing-4); margin:var(--spacing-4) 0; border-color:var(--color-border);">
+                            <h4 style="margin-bottom:var(--spacing-3);"><i class="fas fa-map-pin" style="color:var(--color-secondary);"></i> موقع السيارة (اختياري)</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>خط العرض (Latitude)</label>
+                                    <input type="text" class="form-control" id="car-latitude" placeholder="مثال: 24.8375">
+                                </div>
+                                <div class="form-group">
+                                    <label>خط الطول (Longitude)</label>
+                                    <input type="text" class="form-control" id="car-longitude" placeholder="مثال: 46.7297">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline" onclick="getCurrentLocation()">
+                                <i class="fas fa-location-dot"></i> استخدم موقعي الحالي
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>وصف السيارة</label>
+                            <textarea class="form-control" id="car-description" rows="4" placeholder="أضف وصفاً دقيقاً لسيارتك..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>صور السيارة (يمكن رفع حتى 5 صور)</label>
+                            <div style="display:flex; gap:var(--spacing-3); flex-wrap:wrap; margin-top:var(--spacing-2);">
+                                <div style="width:120px; height:90px; background:var(--color-bg-secondary); border:2px dashed var(--color-border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--color-text-tertiary); cursor:pointer;" onclick="document.getElementById('car-images-input').click()">
+                                    <i class="fas fa-plus" style="font-size:1.5rem;"></i>
+                                </div>
+                                <input type="file" id="car-images-input" accept="image/*" multiple style="display:none;" onchange="handleCarImages(this)">
+                                <div id="image-previews" style="display:flex; gap:var(--spacing-2); flex-wrap:wrap;"></div>
+                            </div>
+                        </div>
+
+                        <div id="form-message" style="display:none; margin-top:var(--spacing-3); padding:var(--spacing-3); border-radius:var(--radius-md);"></div>
+
+                        <div class="form-actions" style="display:flex; justify-content:center; margin-top:var(--spacing-5);">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" style="min-width:200px;">
+                                <i class="fas fa-check-circle"></i> إضافة السيارة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER (موحد) ===== -->
     <footer>
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col"><h3>عن وُجْهَة</h3><p style="color:rgba(255,255,255,0.7); margin-bottom:25px; line-height:1.8;">أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p><div class="social-links"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a></div></div>
-                <div class="footer-col"><h3>روابط سريعة</h3><ul><li><a href="index.html">الرئيسية</a></li><li><a href="cars.html">استكشف السيارات</a></li><li><a href="https://wa.me/966565464718">اتصل بنا</a></li></ul></div>
-                <div class="footer-col"><h3>تواصل معنا</h3><ul class="footer-contact"><li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li><li><i class="fas fa-phone"></i> +966 56 546 4718</li></ul></div>
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p>أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="qassim-map.html">الخريطة</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>الحساب</h3>
+                    <ul>
+                        <li><a href="landing.html" class="guest-only">تسجيل دخول</a></li>
+                        <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                        <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                        <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
+                        <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
+                        <li><i class="fas fa-envelope"></i> info@wajhah.sa</li>
+                    </ul>
+                </div>
             </div>
-            <div class="copyright"><p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p></div>
+            <div class="footer-bottom">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p>
+                <div class="footer-legal">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <!-- ===== القائمة السفلية (الجوال) ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -105,16 +268,18 @@
         <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
+    <!-- ===== سكريبتات ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
     <script>
-        AOS.init({ once: true });
+        AOS.init({ once: true, duration: 600 });
 
-        // ===== المتغيرات العامة =====
+        // ===== متغيرات عامة =====
         let uploadedImages = [];
         let currentUserId = null;
         let currentUserRole = null;
 
-        // ===== 1. جلب المستخدم الحقيقي من Supabase =====
+        // ===== 1. جلب المستخدم =====
         async function loadUserData() {
             try {
                 const { data: { user }, error } = await window.supabaseClient.auth.getUser();
@@ -124,19 +289,16 @@
                 }
                 const role = user.user_metadata?.role || 'user';
                 if (role !== 'owner' && role !== 'admin') {
-                    alert('❌ عذراً، هذه الصفحة مخصصة للمالكين فقط.');
+                    alert('❌ هذه الصفحة مخصصة للمالكين فقط.');
                     window.location.href = 'index.html';
                     return false;
                 }
-                currentUserId = user.id; // UUID حقيقي
+                currentUserId = user.id;
                 currentUserRole = role;
-
-                // تحديث الاسم في localStorage للدوال الأخرى
                 const name = user.user_metadata?.name || user.email || 'مالك';
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userType', role);
                 localStorage.setItem('userName', name);
-
                 if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                     updateNavbarBasedOnLoginStatus();
                 }
@@ -164,7 +326,7 @@
                     img.style.height = '80px';
                     img.style.objectFit = 'cover';
                     img.style.borderRadius = '8px';
-                    img.style.border = '1px solid #ddd';
+                    img.style.border = '1px solid var(--color-border)';
                     previews.appendChild(img);
                 };
                 reader.readAsDataURL(file);
@@ -172,7 +334,7 @@
             input.value = '';
         }
 
-        // ===== 3. الحصول على الموقع الحالي =====
+        // ===== 3. الحصول على الموقع =====
         function getCurrentLocation() {
             if (!navigator.geolocation) {
                 alert('المتصفح لا يدعم تحديد الموقع.');
@@ -190,31 +352,29 @@
             );
         }
 
-        // ===== 4. دالة عرض الرسائل =====
+        // ===== 4. عرض الرسائل =====
         function showMessage(text, type = 'info') {
             const msg = document.getElementById('form-message');
             msg.style.display = 'block';
             msg.textContent = text;
             if (type === 'success') {
-                msg.style.background = '#e8f5e9';
-                msg.style.color = '#27ae60';
+                msg.style.background = 'var(--color-success-bg)';
+                msg.style.color = 'var(--color-success)';
             } else if (type === 'error') {
-                msg.style.background = '#fde8e8';
-                msg.style.color = '#e74c3c';
+                msg.style.background = 'var(--color-danger-bg)';
+                msg.style.color = 'var(--color-danger)';
             } else {
-                msg.style.background = '#e3f2fd';
-                msg.style.color = '#0d47a1';
+                msg.style.background = 'var(--color-info-bg)';
+                msg.style.color = 'var(--color-info)';
             }
         }
 
-        // ===== 5. إضافة سيارة (دالة createCar المحسنة) =====
+        // ===== 5. إضافة سيارة =====
         window.createCar = async function(carData) {
             try {
-                // التأكد من وجود owner_id
                 if (!currentUserId) {
                     throw new Error('المستخدم غير مسجل الدخول');
                 }
-
                 const payload = {
                     owner_id: currentUserId,
                     brand: carData.brand,
@@ -231,18 +391,16 @@
                     transmission: carData.transmission || 'automatic',
                     fuel: carData.fuel || 'gasoline',
                     images: carData.images || [],
-                    status: 'pending', // ينتظر موافقة الأدمن
+                    status: 'pending',
                     latitude: parseFloat(carData.latitude) || null,
                     longitude: parseFloat(carData.longitude) || null,
                     created_at: new Date().toISOString()
                 };
-
                 const { data, error } = await window.supabaseClient
                     .from('cars')
                     .insert([payload])
                     .select()
                     .single();
-
                 if (error) throw error;
                 return data;
             } catch (err) {
@@ -263,7 +421,6 @@
                 return;
             }
 
-            // جمع البيانات
             const carData = {
                 brand: document.getElementById('car-brand').value.trim(),
                 model: document.getElementById('car-model').value.trim(),
@@ -283,13 +440,11 @@
                 images: uploadedImages.slice(0, 5)
             };
 
-            // التحقق من الحقول المطلوبة
             if (!carData.brand || !carData.model || !carData.year || !carData.daily_price || !carData.city) {
                 showMessage('يرجى ملء جميع الحقول المطلوبة (*)', 'error');
                 return;
             }
 
-            // تحويل الموقع إلى أرقام إذا كانت موجودة
             if (carData.latitude) {
                 const lat = parseFloat(carData.latitude);
                 if (!isNaN(lat)) carData.latitude = lat;
@@ -309,10 +464,8 @@
                 if (result) {
                     showMessage('✅ تم إضافة السيارة بنجاح، في انتظار موافقة الأدمن.', 'success');
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> تم الإضافة';
-                    btn.style.background = '#2ecc71';
-                    btn.style.borderColor = '#2ecc71';
-
-                    // إعادة تعيين النموذج بعد 3 ثواني
+                    btn.style.background = 'var(--color-success)';
+                    btn.style.borderColor = 'var(--color-success)';
                     setTimeout(() => {
                         document.getElementById('car-form').reset();
                         document.getElementById('image-previews').innerHTML = '';
@@ -338,48 +491,19 @@
             }
         }
 
-        // ===== 7. الوضع الليلي =====
-        (function setupTheme() {
-            const themeToggle = document.getElementById('theme-toggle-desktop');
-            if (!themeToggle) return;
-            const applyTheme = (theme) => {
-                document.body.classList.toggle('dark-mode', theme === 'dark');
-                localStorage.setItem('theme', theme);
-                const icon = themeToggle.querySelector('i');
-                const span = themeToggle.querySelector('span');
-                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
-            };
-            const current = localStorage.getItem('theme') || 'light';
-            applyTheme(current);
-            themeToggle.addEventListener('click', () => {
-                const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-                applyTheme(next);
-            });
-        })();
-
-        // ===== 8. تهيئة الصفحة =====
+        // ===== 7. تهيئة الصفحة =====
         (async function init() {
             const loaded = await loadUserData();
-            if (!loaded) {
-                // loadUserData ستقوم بالتوجيه إذا فشلت
-                return;
+            if (loaded) {
+                console.log('✅ صفحة إضافة السيارة جاهزة');
             }
-            // التأكد من أن الدالة createCar متاحة عالمياً
-            if (typeof window.createCar !== 'function') {
-                console.warn('⚠️ createCar غير معرّفة، سيتم تعريفها محلياً');
-                // تم تعريفها أعلاه
-            }
-            console.log('✅ صفحة إضافة السيارة جاهزة (مع UUID حقيقي وموقع)');
         })();
 
-        // ===== 9. تعريض الدوال للنافذة العامة =====
+        // ===== تعريض الدوال =====
         window.handleAddCar = handleAddCar;
         window.handleCarImages = handleCarImages;
         window.getCurrentLocation = getCurrentLocation;
         window.showMessage = showMessage;
-
-        console.log('✅ add-car.html جاهز للعمل مع Supabase!');
     </script>
 </body>
 </html>
