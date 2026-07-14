@@ -12,6 +12,7 @@
     <script src="supabase-config.js"></script>
     <script src="script.js" defer></script>
     <style>
+        /* أنماط خاصة بصفحة السيارات */
         .cars-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -233,6 +234,154 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* ===== MODAL (نافذة الحجز) ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: var(--spacing-4);
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: var(--spacing-6);
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease;
+            position: relative;
+            border: 1px solid var(--color-border);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close-modal {
+            position: absolute;
+            top: var(--spacing-3);
+            left: var(--spacing-3);
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            transition: 0.2s;
+            padding: 0.3rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-modal:hover {
+            background: var(--color-bg-secondary);
+            color: var(--color-danger);
+        }
+        .modal-box h2 {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-extrabold);
+            margin-bottom: var(--spacing-4);
+            color: var(--color-heading);
+        }
+        .modal-box h2 i {
+            color: var(--color-secondary);
+            margin-left: 0.5rem;
+        }
+        .car-summary {
+            display: flex;
+            gap: var(--spacing-3);
+            background: var(--color-bg-secondary);
+            padding: var(--spacing-3);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-4);
+            align-items: center;
+            border: 1px solid var(--color-border);
+        }
+        .car-summary img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+        .car-summary-info h4 {
+            margin-bottom: var(--spacing-1);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-heading);
+        }
+        .car-summary-info p {
+            color: var(--color-secondary);
+            font-weight: var(--font-weight-bold);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-4);
+        }
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        .form-group label {
+            display: block;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-1);
+            font-size: var(--font-size-sm);
+            color: var(--color-heading);
+        }
+        .form-group label i {
+            color: var(--color-secondary);
+            margin-left: 0.3rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: var(--spacing-3);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+            transition: all var(--transition-fast);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: var(--shadow-focus);
+        }
+        .bg-secondary {
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+            border: 1px solid var(--color-border);
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .border-bottom {
+            border-bottom: 1px solid var(--color-border);
+        }
+        .w-100 { width: 100%; }
+        .text-center { text-align: center; }
+        .text-muted { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+        .mt-2 { margin-top: var(--spacing-2); }
+        .p-4 { padding: var(--spacing-4); }
+        .btn-lg {
+            padding: var(--spacing-4) var(--spacing-6);
+            font-size: var(--font-size-md);
+        }
     </style>
 </head>
 <body>
@@ -296,6 +445,102 @@
             </div>
         </div>
     </main>
+
+    <!-- ===== MODAL (نافذة الحجز) ===== -->
+    <div class="modal-overlay" id="booking-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-box">
+            <button class="close-modal" onclick="closeBookingModal()" aria-label="إغلاق">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="modal-title"><i class="fas fa-calendar-check"></i> حجز السيارة</h2>
+
+            <!-- ملخص السيارة -->
+            <div class="car-summary" id="modal-car-summary">
+                <img src="" alt="صورة السيارة" id="modal-car-img" loading="lazy">
+                <div class="car-summary-info">
+                    <h4 id="modal-car-name">اسم السيارة</h4>
+                    <p id="modal-car-price">0 ر.س / يوم</p>
+                </div>
+            </div>
+
+            <!-- حقول التاريخ والوقت -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-play-circle"></i> تاريخ الاستلام</label>
+                    <input type="date" id="pickup-date" class="form-control" min="">
+                    <div style="display: flex; gap: var(--spacing-2); margin-top: var(--spacing-2);">
+                        <select id="pickup-hour" class="form-control" style="flex:1;">
+                            <option value="08">08 صباحاً</option>
+                            <option value="09">09 صباحاً</option>
+                            <option value="10" selected>10 صباحاً</option>
+                            <option value="11">11 صباحاً</option>
+                            <option value="12">12 ظهراً</option>
+                            <option value="13">01 مساءً</option>
+                            <option value="14">02 مساءً</option>
+                            <option value="15">03 مساءً</option>
+                            <option value="16">04 مساءً</option>
+                            <option value="17">05 مساءً</option>
+                            <option value="18">06 مساءً</option>
+                        </select>
+                        <select id="pickup-minute" class="form-control" style="flex:1;">
+                            <option value="00">:00</option>
+                            <option value="15">:15</option>
+                            <option value="30" selected>:30</option>
+                            <option value="45">:45</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-stop-circle"></i> تاريخ التسليم</label>
+                    <input type="date" id="return-date" class="form-control" min="">
+                    <div style="display: flex; gap: var(--spacing-2); margin-top: var(--spacing-2);">
+                        <select id="return-hour" class="form-control" style="flex:1;">
+                            <option value="08">08 صباحاً</option>
+                            <option value="09">09 صباحاً</option>
+                            <option value="10">10 صباحاً</option>
+                            <option value="11">11 صباحاً</option>
+                            <option value="12">12 ظهراً</option>
+                            <option value="13">01 مساءً</option>
+                            <option value="14">02 مساءً</option>
+                            <option value="15">03 مساءً</option>
+                            <option value="16">04 مساءً</option>
+                            <option value="17">05 مساءً</option>
+                            <option value="18" selected>06 مساءً</option>
+                        </select>
+                        <select id="return-minute" class="form-control" style="flex:1;">
+                            <option value="00">:00</option>
+                            <option value="15">:15</option>
+                            <option value="30" selected>:30</option>
+                            <option value="45">:45</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ملخص الحجز -->
+            <div class="bg-secondary p-4" id="booking-summary-box" style="margin: var(--spacing-4) 0;">
+                <div class="flex-between border-bottom" style="padding: var(--spacing-2) 0;">
+                    <span>عدد الأيام</span>
+                    <span id="summary-days" style="font-weight: var(--font-weight-bold);">-- يوم</span>
+                </div>
+                <div class="flex-between border-bottom" style="padding: var(--spacing-2) 0;">
+                    <span>السعر اليومي</span>
+                    <span id="summary-daily-price" style="font-weight: var(--font-weight-bold);">0 ر.س</span>
+                </div>
+                <div class="flex-between" style="padding: var(--spacing-2) 0; font-weight: var(--font-weight-extrabold); color: var(--color-secondary); font-size: var(--font-size-md);">
+                    <span>الإجمالي التقديري</span>
+                    <span id="summary-total">0 ر.س</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary w-100 btn-lg" id="btn-confirm-booking" onclick="confirmBooking()">
+                <i class="fas fa-check-circle"></i> تأكيد الحجز
+            </button>
+            <p class="text-center text-muted mt-2">
+                سيتم تحويلك لاستكمال الدفع بعد التأكيد
+            </p>
+        </div>
+    </div>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -368,6 +613,7 @@
                 updateNavbarBasedOnLoginStatus();
             }
 
+            // تحميل السيارات
             const cars = await fetchCars({ status: 'active' });
             allCarsCache = cars;
             const container = document.getElementById('cars-grid');
@@ -385,7 +631,8 @@
             renderCars(cars, 'cars-grid');
         });
 
-        function renderCars(cars, containerId = 'cars-grid') {
+        // ===== دالة عرض السيارات =====
+        window.renderCars = function(cars, containerId = 'cars-grid') {
             const container = document.getElementById(containerId);
             if (!container) return;
 
@@ -453,26 +700,23 @@
 
             // ربط أزرار الحجز
             document.querySelectorAll('.btn-book:not([disabled])').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const carId = this.dataset.carId;
-                    if (carId) openBookingModalFromCarId(carId);
-                });
+                btn.removeEventListener('click', handleBookClick);
+                btn.addEventListener('click', handleBookClick);
             });
-        }
-
-        window.filterCars = function(type, btn) {
-            if (!allCarsCache || allCarsCache.length === 0) return;
-
-            document.querySelectorAll('.filter-tag').forEach(p => p.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-
-            let filtered = allCarsCache;
-            if (type !== 'all') {
-                filtered = allCarsCache.filter(car => car.type === type);
-            }
-            renderCars(filtered, 'cars-grid');
         };
 
+        // ===== معالج الضغط على زر الحجز =====
+        function handleBookClick(e) {
+            const btn = e.currentTarget;
+            const card = btn.closest('.car-card');
+            if (!card) return;
+            const carId = card.dataset.carId;
+            if (carId) {
+                openBookingModalFromCarId(carId);
+            }
+        }
+
+        // ===== دالة جلب السيارات =====
         window.fetchCars = async function(filter = {}) {
             const client = window.supabaseClient;
             if (!client) return [];
@@ -487,6 +731,193 @@
                 return [];
             }
         };
+
+        // ===== دالة التصفية =====
+        window.filterCars = function(type, btn) {
+            if (!allCarsCache || allCarsCache.length === 0) return;
+            document.querySelectorAll('.filter-tag').forEach(p => p.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            let filtered = allCarsCache;
+            if (type !== 'all') {
+                filtered = allCarsCache.filter(car => car.type === type);
+            }
+            renderCars(filtered, 'cars-grid');
+        };
+
+        // ===== دوال الحجز (مستوردة من script.js) =====
+        // هذه الدوال موجودة في script.js ولكننا نعيد تعريفها هنا للتأكد
+        window.openBookingModalFromCarId = function(carId) {
+            const user = getCurrentUser();
+            if (!user) {
+                alert('الرجاء تسجيل الدخول أولاً');
+                window.location.href = 'landing.html';
+                return;
+            }
+            const client = window.supabaseClient;
+            if (!client) {
+                alert('خطأ في الاتصال بقاعدة البيانات');
+                return;
+            }
+            client.from('cars').select('*').eq('id', carId).single().then(({ data: car, error }) => {
+                if (error || !car) {
+                    alert('تعذر العثور على بيانات السيارة');
+                    return;
+                }
+                window.currentCarData = {
+                    id: car.id,
+                    name: `${car.brand} ${car.model}`,
+                    image: car.images && car.images.length > 0 ? car.images[0] : 'https://via.placeholder.com/300x200?text=سيارة',
+                    dailyPrice: car.daily_price || 0
+                };
+                openBookingModal(window.currentCarData);
+            }).catch(err => {
+                console.error('خطأ في فتح نافذة الحجز:', err);
+                alert('حدث خطأ، الرجاء المحاولة مرة أخرى');
+            });
+        };
+
+        window.openBookingModal = function(carData) {
+            const modal = document.getElementById('booking-modal');
+            if (!modal) {
+                alert('نظام الحجز غير جاهز (المودال غير موجود)');
+                return;
+            }
+            document.getElementById('modal-car-img').src = carData.image || 'https://via.placeholder.com/80x60?text=سيارة';
+            document.getElementById('modal-car-name').textContent = carData.name;
+            document.getElementById('modal-car-price').textContent = `${carData.dailyPrice} ر.س / يوم`;
+            document.getElementById('summary-daily-price').textContent = `${carData.dailyPrice} ر.س`;
+            document.getElementById('summary-days').textContent = '-- يوم';
+            document.getElementById('summary-total').textContent = '0 ر.س';
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pickup-date').setAttribute('min', today);
+            document.getElementById('return-date').setAttribute('min', today);
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('pickup-date').value = tomorrow.toISOString().split('T')[0];
+            const dayAfter = new Date(tomorrow);
+            dayAfter.setDate(dayAfter.getDate() + 1);
+            document.getElementById('return-date').value = dayAfter.toISOString().split('T')[0];
+
+            updateBookingSummary();
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeBookingModal = function() {
+            const modal = document.getElementById('booking-modal');
+            if (modal) modal.classList.remove('open');
+            document.body.style.overflow = '';
+        };
+
+        window.updateBookingSummary = function() {
+            const pickupDate = document.getElementById('pickup-date').value;
+            const returnDate = document.getElementById('return-date').value;
+            if (!pickupDate || !returnDate) {
+                document.getElementById('summary-days').textContent = '-- يوم';
+                document.getElementById('summary-total').textContent = '0 ر.س';
+                return;
+            }
+            const pickup = new Date(pickupDate);
+            const returnD = new Date(returnDate);
+            if (returnD <= pickup) {
+                document.getElementById('summary-days').textContent = 'تاريخ غير صالح';
+                document.getElementById('summary-total').textContent = '0 ر.س';
+                return;
+            }
+            const diffDays = Math.ceil(Math.abs(returnD - pickup) / (1000 * 60 * 60 * 24));
+            document.getElementById('summary-days').textContent = `${diffDays} يوم`;
+            if (window.currentCarData && window.currentCarData.dailyPrice) {
+                document.getElementById('summary-total').textContent = `${window.currentCarData.dailyPrice * diffDays} ر.س`;
+            }
+        };
+
+        window.confirmBooking = async function() {
+            if (!window.currentCarData) {
+                alert('❌ لم يتم تحديد السيارة');
+                return;
+            }
+            const user = getCurrentUser();
+            if (!user) {
+                alert('❌ يجب تسجيل الدخول أولاً');
+                window.location.href = 'landing.html';
+                return;
+            }
+            const pickupDate = document.getElementById('pickup-date').value;
+            const returnDate = document.getElementById('return-date').value;
+            if (!pickupDate || !returnDate) {
+                alert('⚠️ الرجاء اختيار تاريخي الاستلام والتسليم.');
+                return;
+            }
+            const pickup = new Date(pickupDate);
+            const returnD = new Date(returnDate);
+            if (returnD <= pickup) {
+                alert('⚠️ تاريخ التسليم يجب أن يكون بعد تاريخ الاستلام.');
+                return;
+            }
+            const diffDays = Math.ceil(Math.abs(returnD - pickup) / (1000 * 60 * 60 * 24));
+            const totalPrice = window.currentCarData.dailyPrice * diffDays;
+
+            const bookingPayload = {
+                car_id: window.currentCarData.id,
+                renter_id: user.id,
+                start_date: pickupDate,
+                end_date: returnDate,
+                total_price: totalPrice,
+                status: 'pending_owner_approval'
+            };
+
+            const confirmBtn = document.getElementById('btn-confirm-booking');
+            const originalText = confirmBtn?.innerHTML || 'تأكيد الحجز';
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحجز...';
+            }
+
+            try {
+                const booking = await window.createBooking(bookingPayload);
+                alert(`✅ تم إنشاء الحجز بنجاح!\nالسيارة: ${window.currentCarData.name}\nالمدة: ${diffDays} يوم\nالإجمالي: ${totalPrice} ر.س\nفي انتظار موافقة المالك.`);
+                localStorage.setItem('current_booking_id', booking.id);
+                // حفظ بيانات السيارة لصفحة الرحلات
+                localStorage.setItem('wujha_car_name', window.currentCarData.name);
+                localStorage.setItem('wujha_car_image', window.currentCarData.image);
+                localStorage.setItem('wujha_car_plate', '--');
+                closeBookingModal();
+                window.location.href = 'dashboard-renter.html';
+            } catch (err) {
+                alert(`❌ حدث خطأ أثناء الحجز: ${err.message || 'يرجى المحاولة مرة أخرى'}`);
+            } finally {
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = originalText;
+                }
+            }
+        };
+
+        window.createBooking = async function(bookingData) {
+            const client = window.supabaseClient;
+            if (!client) throw new Error('Supabase غير مهيأ');
+            const { data, error } = await client.from('bookings').insert([bookingData]).select().single();
+            if (error) throw new Error(error.message);
+            return data;
+        };
+
+        // ربط أحداث تغيير التواريخ
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('pickup-date').addEventListener('change', updateBookingSummary);
+            document.getElementById('return-date').addEventListener('change', updateBookingSummary);
+            document.getElementById('pickup-hour').addEventListener('change', updateBookingSummary);
+            document.getElementById('return-hour').addEventListener('change', updateBookingSummary);
+            document.getElementById('pickup-minute').addEventListener('change', updateBookingSummary);
+            document.getElementById('return-minute').addEventListener('change', updateBookingSummary);
+
+            // إغلاق المودال عند النقر خارجها
+            document.getElementById('booking-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeBookingModal();
+            });
+        });
+
+        console.log('✅ صفحة السيارات جاهزة مع نظام الحجز');
     </script>
 </body>
 </html>
