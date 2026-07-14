@@ -6,98 +6,11 @@
     <title>وُجْهَة | تسجيل الدخول</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <!-- ===== إضافة مكتبة Supabase وملفات المشروع ===== -->
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
     <style>
-        /* Reset and base */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background-color: #f8f9fa; }
-        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-        
-        /* Header */
-        header {
-            background: rgba(255,255,255,0.98);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 15px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #0f2925, #c5a065);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.4rem;
-            font-weight: 800;
-        }
-        .logo-text {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #0f2925;
-        }
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 25px;
-        }
-        .nav-links li a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-        .nav-links li a:hover { color: #c5a065; }
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        .theme-toggle {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #0f2925;
-            color: #0f2925;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .btn-outline:hover { background: #0f2925; color: white; }
-
-        /* Login Wrapper */
         .login-wrapper {
             background: linear-gradient(105deg, rgba(15, 41, 37, 0.95) 0%, rgba(26, 60, 55, 0.9) 100%), url('https://www.almowaten.net/wp-content/uploads/2022/10/Ff0vop3XkAACLm8-877x492.jpg') no-repeat center/cover;
             min-height: 100vh;
@@ -107,12 +20,12 @@
             padding: 120px 20px 50px;
         }
         .auth-card {
-            background: white;
+            background: var(--color-card);
             padding: 40px 30px;
-            border-radius: 20px;
+            border-radius: var(--radius-lg);
             width: 100%;
             max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-xl);
             animation: slideUp 0.5s ease-out;
         }
         @keyframes slideUp {
@@ -124,28 +37,29 @@
             margin-bottom: 30px;
         }
         .auth-header .logo-icon {
-            font-size: 2.5rem;
-            background: #00ab6b;
-            color: white;
             width: 70px;
             height: 70px;
-            line-height: 70px;
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
             border-radius: 50%;
             margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
             font-weight: 800;
         }
         .auth-header h2 {
+            color: var(--color-heading);
             margin: 10px 0 5px;
-            color: #1a3d37;
         }
         .auth-header p {
-            color: #666;
-            font-size: 0.95rem;
+            color: var(--color-text-secondary);
         }
         .tab-switch {
             display: flex;
-            background: #f0f0f0;
-            border-radius: 30px;
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-full);
             padding: 5px;
             margin-bottom: 30px;
         }
@@ -153,18 +67,18 @@
             flex: 1;
             padding: 10px;
             border: none;
-            border-radius: 30px;
+            border-radius: var(--radius-full);
             background: transparent;
-            font-weight: bold;
+            font-weight: var(--font-weight-bold);
             font-size: 1rem;
             cursor: pointer;
-            transition: 0.3s;
-            color: #555;
+            transition: all var(--transition-fast);
+            color: var(--color-text-secondary);
         }
         .tab-switch button.active {
-            background: #00ab6b;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,171,107,0.3);
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+            box-shadow: var(--shadow-sm);
         }
         .auth-form {
             display: none;
@@ -178,63 +92,63 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-4);
             text-align: right;
         }
         .input-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
+            margin-bottom: var(--spacing-1);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-heading);
         }
         .auth-input, .auth-select {
             width: 100%;
             padding: 14px 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
             font-size: 1rem;
-            transition: 0.3s;
-            background: #fafafa;
+            transition: all var(--transition-fast);
+            background: var(--color-surface);
+            color: var(--color-text);
         }
         .auth-input:focus, .auth-select:focus {
-            border-color: #00ab6b;
+            border-color: var(--color-secondary);
             outline: none;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(0,171,107,0.2);
+            box-shadow: var(--shadow-focus);
         }
         .auth-btn {
-            background-color: #00ab6b;
-            color: white;
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
             width: 100%;
             padding: 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: var(--radius-md);
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: var(--font-weight-bold);
             cursor: pointer;
-            transition: 0.3s;
+            transition: all var(--transition-fast);
             margin-top: 10px;
         }
         .auth-btn:hover {
-            background-color: #008f59;
+            background: var(--color-primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,171,107,0.3);
+            box-shadow: var(--shadow-md);
         }
         .auth-error {
-            color: #e74c3c;
-            background: #fde8e8;
+            color: var(--color-danger);
+            background: var(--color-danger-bg);
             padding: 10px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             margin-top: 15px;
             font-size: 0.9rem;
             display: none;
             text-align: center;
         }
         .auth-success {
-            color: #27ae60;
-            background: #e8f8ed;
+            color: var(--color-success);
+            background: var(--color-success-bg);
             padding: 10px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             margin-top: 15px;
             font-size: 0.9rem;
             display: none;
@@ -242,13 +156,12 @@
         }
         .auth-extra {
             text-align: center;
-            margin-top: 20px;
+            margin-top: var(--spacing-4);
             font-size: 0.9rem;
         }
         .auth-extra a {
-            color: #00ab6b;
-            font-weight: bold;
-            text-decoration: none;
+            color: var(--color-secondary);
+            font-weight: var(--font-weight-bold);
             cursor: pointer;
         }
         .auth-extra a:hover {
@@ -263,196 +176,38 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #888;
-        }
-
-        /* Footer */
-        footer {
-            background: #0f2925;
-            color: white;
-            padding: 40px 0 20px;
-        }
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        .footer-col h3 {
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        .footer-col ul {
-            list-style: none;
-        }
-        .footer-col ul li {
-            margin-bottom: 8px;
-        }
-        .footer-col ul li a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .footer-col ul li a:hover { color: white; }
-        .footer-contact li {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            color: rgba(255,255,255,0.7);
-        }
-        .copyright {
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 20px;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-        }
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .social-links a {
-            color: white;
-            background: rgba(255,255,255,0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-        }
-        .social-links a:hover { background: #c5a065; }
-
-        /* Bottom Navbar (Mobile) */
-        .bottom-navbar {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            justify-content: space-around;
-            padding: 10px 0;
-            z-index: 999;
-        }
-        .bottom-navbar .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #888;
-            font-size: 0.8rem;
-            transition: 0.3s;
-        }
-        .bottom-navbar .nav-item i {
-            font-size: 1.3rem;
-            margin-bottom: 3px;
-        }
-        .bottom-navbar .nav-item.active { color: #00ab6b; }
-
-        @media (max-width: 992px) {
-            .nav-links { display: none; }
-            .bottom-navbar { display: flex; }
-            body { padding-bottom: 70px; }
+            color: var(--color-text-tertiary);
         }
         @media (max-width: 480px) {
             .auth-card { padding: 30px 20px; }
         }
-
-        /* Chatbot popup (minimal) */
-        .chatbot-popup {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 320px;
-            max-height: 400px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 2000;
-        }
-        .chatbot-popup.open { display: flex; }
-        .chatbot-header {
-            background: #0f2925;
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chatbot-header h3 { font-size: 1rem; margin: 0; }
-        .chatbot-header .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .chatbot-body {
-            padding: 15px;
-            overflow-y: auto;
-            max-height: 250px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .bot-message, .user-message {
-            padding: 10px 14px;
-            border-radius: 16px;
-            max-width: 85%;
-            font-size: 0.9rem;
-        }
-        .bot-message { background: #f1f1f1; align-self: flex-start; }
-        .user-message { background: #00ab6b; color: white; align-self: flex-end; }
-        .chatbot-footer {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #eee;
-            gap: 8px;
-        }
-        .chatbot-footer input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        .chatbot-footer button {
-            background: #00ab6b;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
+    <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
             <nav class="navbar">
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+
                 <a href="index.html" class="logo">
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
-                <ul class="nav-links">
+
+                <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
-                    <li><a href="index.html#how-it-works">كيف تعمل</a></li>
-                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة المستأجر</a></li>
-                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
                     <li><a href="quiz.html">اختبار السيارة</a></li>
-                    <li><a href="qassim-map.html">خريطة الرياض</a></li>
+                    <li><a href="qassim-map.html">خريطة السيارات</a></li>
                 </ul>
-                <div class="nav-buttons">
+
+                <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle">
                         <i class="fas fa-moon"></i> <span>الوضع</span>
                     </button>
@@ -461,6 +216,7 @@
         </div>
     </header>
 
+    <!-- ===== LOGIN WRAPPER ===== -->
     <div class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
@@ -474,15 +230,15 @@
                 <button data-tab="register">إنشاء حساب</button>
             </div>
 
-            <!-- ===== نموذج تسجيل الدخول ===== -->
+            <!-- ===== LOGIN ===== -->
             <div id="login-form" class="auth-form active">
                 <form id="login-form-element" onsubmit="handleLogin(event)">
                     <div class="input-group">
-                        <label for="login-email">البريد الإلكتروني <span style="color:red;">*</span></label>
+                        <label>البريد الإلكتروني <span style="color:red;">*</span></label>
                         <input type="email" class="auth-input" id="login-email" placeholder="example@domain.com" required>
                     </div>
                     <div class="input-group password-toggle">
-                        <label for="login-password">كلمة المرور <span style="color:red;">*</span></label>
+                        <label>كلمة المرور <span style="color:red;">*</span></label>
                         <input type="password" class="auth-input" id="login-password" placeholder="••••••••" required>
                         <span class="toggle-icon" onclick="togglePassword('login-password', this)"><i class="fas fa-eye"></i></span>
                     </div>
@@ -495,72 +251,53 @@
                 </div>
             </div>
 
-            <!-- ===== نموذج التسجيل المطور ===== -->
+            <!-- ===== REGISTER ===== -->
             <div id="register-form" class="auth-form">
                 <form id="register-form-element" onsubmit="handleRegister(event)">
-                    <!-- الاسم الكامل -->
                     <div class="input-group">
-                        <label for="register-name">الاسم الكامل <span style="color:red;">*</span></label>
+                        <label>الاسم الكامل <span style="color:red;">*</span></label>
                         <input type="text" class="auth-input" id="register-name" placeholder="أدخل اسمك الثلاثي" required>
                     </div>
-                    
-                    <!-- البريد الإلكتروني -->
                     <div class="input-group">
-                        <label for="register-email">البريد الإلكتروني <span style="color:red;">*</span></label>
+                        <label>البريد الإلكتروني <span style="color:red;">*</span></label>
                         <input type="email" class="auth-input" id="register-email" placeholder="example@domain.com" required>
                     </div>
-                    
-                    <!-- رقم الجوال -->
                     <div class="input-group">
-                        <label for="register-phone">رقم الجوال <span style="color:red;">*</span></label>
+                        <label>رقم الجوال <span style="color:red;">*</span></label>
                         <input type="tel" class="auth-input" id="register-phone" placeholder="05xxxxxxxx" required>
                     </div>
-
-                    <!-- رقم الهوية الوطنية -->
                     <div class="input-group">
-                        <label for="register-national-id">رقم الهوية الوطنية <span style="color:red;">*</span></label>
+                        <label>رقم الهوية الوطنية <span style="color:red;">*</span></label>
                         <input type="text" class="auth-input" id="register-national-id" placeholder="مثال: 1012345678" required pattern="[0-9]{10}" title="رقم الهوية مكون من 10 أرقام">
                     </div>
-
-                    <!-- تاريخ الميلاد -->
                     <div class="input-group">
-                        <label for="register-birthdate">تاريخ الميلاد <span style="color:red;">*</span></label>
+                        <label>تاريخ الميلاد <span style="color:red;">*</span></label>
                         <input type="date" class="auth-input" id="register-birthdate" required>
                     </div>
-
-                    <!-- رقم رخصة القيادة -->
                     <div class="input-group">
-                        <label for="register-driver-license">رقم رخصة القيادة <span style="color:red;">*</span></label>
+                        <label>رقم رخصة القيادة <span style="color:red;">*</span></label>
                         <input type="text" class="auth-input" id="register-driver-license" placeholder="مثال: 1234567890" required>
                     </div>
-
-                    <!-- الجنس -->
                     <div class="input-group">
-                        <label for="register-gender">الجنس <span style="color:red;">*</span></label>
+                        <label>الجنس <span style="color:red;">*</span></label>
                         <select class="auth-select" id="register-gender" required>
                             <option value="">اختر</option>
                             <option value="ذكر">ذكر</option>
                             <option value="أنثى">أنثى</option>
                         </select>
                     </div>
-
-                    <!-- كلمة المرور -->
                     <div class="input-group password-toggle">
-                        <label for="register-password">كلمة المرور <span style="color:red;">*</span></label>
+                        <label>كلمة المرور <span style="color:red;">*</span></label>
                         <input type="password" class="auth-input" id="register-password" placeholder="••••••••" required minlength="6">
                         <span class="toggle-icon" onclick="togglePassword('register-password', this)"><i class="fas fa-eye"></i></span>
                     </div>
-                    
-                    <!-- تأكيد كلمة المرور -->
                     <div class="input-group password-toggle">
-                        <label for="register-password-confirm">تأكيد كلمة المرور <span style="color:red;">*</span></label>
+                        <label>تأكيد كلمة المرور <span style="color:red;">*</span></label>
                         <input type="password" class="auth-input" id="register-password-confirm" placeholder="••••••••" required>
                         <span class="toggle-icon" onclick="togglePassword('register-password-confirm', this)"><i class="fas fa-eye"></i></span>
                     </div>
-
-                    <!-- نوع الحساب (الدور) -->
                     <div class="input-group">
-                        <label for="register-role">نوع الحساب <span style="color:red;">*</span></label>
+                        <label>نوع الحساب <span style="color:red;">*</span></label>
                         <select class="auth-select" id="register-role" required>
                             <option value="user">مستخدم عادي</option>
                             <option value="renter">مستأجر</option>
@@ -568,7 +305,6 @@
                             <option value="admin">أدمن (للاستخدام الداخلي)</option>
                         </select>
                     </div>
-                    
                     <button type="submit" class="auth-btn">إنشاء حساب</button>
                 </form>
                 <div id="register-error" class="auth-error"></div>
@@ -580,17 +316,17 @@
         </div>
     </div>
 
+    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
                     <h3>عن وُجْهَة</h3>
-                    <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
-                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان. نمكن زوار المملكة من التنقل اليسير والآمن.
-                    </p>
+                    <p>أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -598,71 +334,54 @@
                     <ul>
                         <li><a href="index.html">الرئيسية</a></li>
                         <li><a href="cars.html">استكشف السيارات</a></li>
-                        <li><a href="index.html#how-it-works">كيف تعمل</a></li>
-                        <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
+                        <li><a href="qassim-map.html">الخريطة</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h3>للأفراد</h3>
+                    <h3>الحساب</h3>
                     <ul>
-                        <li><a href="dashboard-renter.html">لوحة المستأجر</a></li>
-                        <li><a href="cars.html">البحث عن سيارة</a></li>
-                        <li><a href="rental-terms.html">شروط الاستئجار</a></li>
-                        <li><a href="user-guide.html">دليل المستخدم</a></li>
+                        <li><a href="landing.html" class="guest-only">تسجيل دخول</a></li>
+                        <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                        <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                        <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h3>تواصل معنا</h3>
                     <ul class="footer-contact">
-                        <li><i class="fas fa-map-marker-alt"></i><span>الرياض، واجهة روشن</span></li>
-                        <li><i class="fas fa-phone"></i><span>+966 56 546 4718</span></li>
-                        <li><i class="fas fa-envelope"></i><span>contact@wujha.sa</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
+                        <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
+                        <li><i class="fas fa-envelope"></i> info@wajhah.sa</li>
                     </ul>
                 </div>
             </div>
-            <div class="copyright">
-                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. | صنع في السعودية 🇸🇦</p>
+            <div class="footer-bottom">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p>
+                <div class="footer-legal">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- ===== الشريط السفلي للجوال ===== -->
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
         <a href="landing.html" class="nav-item active"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
         <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
         <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
-        <a href="#" class="nav-item" id="mobile-chatbot-toggle"><i class="fas fa-comment-dots"></i><span>المساعد</span></a>
     </nav>
 
-    <!-- ===== نافذة المساعد ===== -->
-    <div id="chatbot-popup" class="chatbot-popup">
-        <div class="chatbot-header">
-            <h3>المساعد الأمني</h3>
-            <button id="chatbot-close-btn" class="close-btn">&times;</button>
-        </div>
-        <div class="chatbot-body" id="chatbot-body">
-            <div class="bot-message">مرحباً بك في بوابة الدخول الآمن. هل تواجه مشكلة في تسجيل الدخول؟</div>
-        </div>
-        <div class="chatbot-footer">
-            <input type="text" id="chatbot-input" placeholder="اكتب سؤالك...">
-            <button id="chatbot-send-btn"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
-
-    <!-- ===================================================== -->
-    <!-- ===== الأكواد الخاصة بـ landing.html (محلية) ===== -->
-    <!-- ===================================================== -->
+    <!-- ===== SCRIPTS ===== -->
     <script>
-        // ===== دوال مساعدة محلية =====
         function switchTab(tab) {
-            const tabButtons = document.querySelectorAll('.tab-switch button');
-            const forms = document.querySelectorAll('.auth-form');
-            tabButtons.forEach(btn => {
+            document.querySelectorAll('.tab-switch button').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.tab === tab);
             });
-            forms.forEach(form => {
+            document.querySelectorAll('.auth-form').forEach(form => {
                 form.classList.toggle('active', form.id === tab + '-form');
             });
             document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.style.display = 'none');
@@ -671,16 +390,13 @@
         function togglePassword(inputId, iconSpan) {
             const input = document.getElementById(inputId);
             if (!input) return;
-            const icon = iconSpan ? iconSpan.querySelector('i') : null;
-            if (!icon) return;
+            const icon = iconSpan.querySelector('i');
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
@@ -692,17 +408,8 @@
             el.className = isSuccess ? 'auth-success' : 'auth-error';
         }
 
-        // ===== معالج تسجيل الدخول (يستخدم window.signInUser) =====
         async function handleLogin(e) {
             e.preventDefault();
-            
-            // التحقق المباشر من وجود الدالة
-            if (typeof window.signInUser !== 'function') {
-                showMessage('login-error', '⚠️ النظام غير جاهز، يرجى تحديث الصفحة.');
-                console.error('❌ window.signInUser غير معرّف');
-                return;
-            }
-            
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
@@ -718,7 +425,6 @@
                 const result = await window.signInUser(email, password);
                 if (result.success) {
                     showMessage('login-success', '✅ تم تسجيل الدخول بنجاح، جاري التحويل...', true);
-                    // تحديث شريط التنقل (في script.js)
                     if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                         updateNavbarBasedOnLoginStatus();
                     }
@@ -733,29 +439,17 @@
                 }
             } catch (error) {
                 showMessage('login-error', 'حدث خطأ غير متوقع: ' + error.message);
-                console.error(error);
             }
         }
 
-        // ===== معالج التسجيل المطور (يستخدم window.signUpUser) =====
         async function handleRegister(e) {
             e.preventDefault();
-            
-            if (typeof window.signUpUser !== 'function') {
-                showMessage('register-error', '⚠️ النظام غير جاهز، يرجى تحديث الصفحة.');
-                console.error('❌ window.signUpUser غير معرّف');
-                return;
-            }
-            
-            // جمع البيانات الأساسية
             const name = document.getElementById('register-name').value.trim();
             const email = document.getElementById('register-email').value.trim();
             const phone = document.getElementById('register-phone').value.trim();
             const password = document.getElementById('register-password').value;
             const passwordConfirm = document.getElementById('register-password-confirm').value;
             const role = document.getElementById('register-role').value;
-            
-            // جمع البيانات الإضافية
             const nationalId = document.getElementById('register-national-id').value.trim();
             const birthDate = document.getElementById('register-birthdate').value;
             const driverLicense = document.getElementById('register-driver-license').value.trim();
@@ -764,7 +458,6 @@
             document.getElementById('register-error').style.display = 'none';
             document.getElementById('register-success').style.display = 'none';
 
-            // التحقق من صحة البيانات
             if (password !== passwordConfirm) {
                 showMessage('register-error', 'كلمة المرور وتأكيدها غير متطابقتين');
                 return;
@@ -786,17 +479,14 @@
                 return;
             }
 
-            // تجهيز البيانات الإضافية
-            const extraData = {
-                national_id: nationalId,
-                birth_date: birthDate,
-                driver_license: driverLicense,
-                gender: gender
-            };
-
             try {
-                const result = await window.signUpUser(email, password, role, name, phone, extraData);
-                
+                const result = await window.signUpUser(email, password, role, name, phone, {
+                    national_id: nationalId,
+                    birth_date: birthDate,
+                    driver_license: driverLicense,
+                    gender: gender
+                });
+
                 if (result.success) {
                     showMessage('register-success', '✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.', true);
                     if (typeof updateNavbarBasedOnLoginStatus === 'function') {
@@ -810,37 +500,20 @@
                 }
             } catch (error) {
                 showMessage('register-error', 'حدث خطأ غير متوقع: ' + error.message);
-                console.error(error);
             }
         }
 
-        // ===== التحقق من وجود جلسة نشطة عند تحميل الصفحة =====
-        (function checkExistingSession() {
-            const token = localStorage.getItem('supabase_token');
-            if (token && typeof window.supabaseClient !== 'undefined') {
-                (async () => {
-                    const { data: { user }, error } = await window.supabaseClient.auth.getUser(token);
-                    if (user && !error) {
-                        const role = user.user_metadata?.role || 'user';
-                        if (role === 'admin') window.location.href = 'admin_dashboard.html';
-                        else if (role === 'owner') window.location.href = 'dashboard-owner.html';
-                        else window.location.href = 'dashboard-renter.html';
-                    }
-                })();
-            }
-        })();
-
-        // ===== أحداث المستمعين الإضافية =====
         document.addEventListener('DOMContentLoaded', function() {
-            // تبديل التبويبات
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
+            }
             document.querySelectorAll('.tab-switch button').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const tab = this.dataset.tab;
-                    if (tab) switchTab(tab);
+                    switchTab(this.dataset.tab);
                 });
             });
 
-            // تبديل الوضع (داكن / فاتح)
+            // Theme toggle
             const themeToggle = document.getElementById('theme-toggle-desktop');
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
@@ -860,49 +533,6 @@
                     if (span) span.textContent = 'الوضع النهاري';
                 }
             }
-
-            // تشغيل/إيقاف الدردشة (محلي)
-            const chatbotPopup = document.getElementById('chatbot-popup');
-            const mobileToggle = document.getElementById('mobile-chatbot-toggle');
-            const closeBtn = document.getElementById('chatbot-close-btn');
-
-            function toggleChatbot() {
-                chatbotPopup.classList.toggle('open');
-            }
-
-            if (mobileToggle) mobileToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                toggleChatbot();
-            });
-            if (closeBtn) closeBtn.addEventListener('click', toggleChatbot);
-
-            // إرسال رسالة الدردشة
-            const sendBtn = document.getElementById('chatbot-send-btn');
-            const input = document.getElementById('chatbot-input');
-            const body = document.getElementById('chatbot-body');
-
-            function sendChatMessage() {
-                const msg = input.value.trim();
-                if (!msg) return;
-                const userDiv = document.createElement('div');
-                userDiv.className = 'user-message';
-                userDiv.textContent = msg;
-                body.appendChild(userDiv);
-                input.value = '';
-                setTimeout(() => {
-                    const botDiv = document.createElement('div');
-                    botDiv.className = 'bot-message';
-                    botDiv.textContent = 'شكراً لسؤالك. سيتم الرد عليك قريباً.';
-                    body.appendChild(botDiv);
-                    body.scrollTop = body.scrollHeight;
-                }, 500);
-                body.scrollTop = body.scrollHeight;
-            }
-
-            if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
-            if (input) input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') sendChatMessage();
-            });
         });
     </script>
 </body>
