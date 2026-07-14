@@ -1,6 +1,7 @@
 // ============================================================
 //  script.js - الملف الأساسي لمنصة وُجْهَة (نسخة حقيقية)
 //  يعتمد على Supabase الحقيقي بدون أي محاكاة
+//  يحتوي على جميع الدوال بما فيها دوال الحجز
 // ============================================================
 
 // -------------------------------------
@@ -263,16 +264,31 @@ function renderCarsGrid(cars, containerId = 'cars-grid') {
 
 // -------------------------------------
 // دوال النافذة المنبثقة للحجز (Modal) وتأكيد الحجز
+// هذه الدوال عامة ويمكن استخدامها في أي صفحة تحتوي على المودال
 // -------------------------------------
 
-async function openBookingModalFromCarId(carId) {
+// متغير عام لحفظ بيانات السيارة المختارة
+window.currentCarData = null;
+
+// فتح مودال الحجز من معرف السيارة
+window.openBookingModalFromCarId = async function(carId) {
     const user = getCurrentUser();
-    if (!user) { alert('الرجاء تسجيل الدخول أولاً'); window.location.href = 'landing.html'; return; }
+    if (!user) {
+        alert('الرجاء تسجيل الدخول أولاً');
+        window.location.href = 'landing.html';
+        return;
+    }
     const client = getSupabaseClient();
-    if (!client) { alert('خطأ في الاتصال بقاعدة البيانات'); return; }
+    if (!client) {
+        alert('خطأ في الاتصال بقاعدة البيانات');
+        return;
+    }
     try {
         const { data: car, error } = await client.from('cars').select('*').eq('id', carId).single();
-        if (error || !car) { alert('تعذر العثور على بيانات السيارة'); return; }
+        if (error || !car) {
+            alert('تعذر العثور على بيانات السيارة');
+            return;
+        }
         window.currentCarData = {
             id: car.id,
             name: `${car.brand} ${car.model}`,
@@ -284,39 +300,48 @@ async function openBookingModalFromCarId(carId) {
         console.error('خطأ في فتح نافذة الحجز:', err);
         alert('حدث خطأ، الرجاء المحاولة مرة أخرى');
     }
-}
+};
 
-function openBookingModal(carData) {
+// فتح المودال وعرض بيانات السيارة
+window.openBookingModal = function(carData) {
     const modal = document.getElementById('booking-modal');
     if (!modal) {
-        alert('نظام الحجز غير جاهز');
+        alert('نظام الحجز غير جاهز (المودال غير موجود في هذه الصفحة)');
         return;
     }
-    document.getElementById('modal-car-img').src = carData.image;
+    // تعبئة البيانات
+    document.getElementById('modal-car-img').src = carData.image || 'https://via.placeholder.com/80x60?text=سيارة';
     document.getElementById('modal-car-name').textContent = carData.name;
     document.getElementById('modal-car-price').textContent = `${carData.dailyPrice} ر.س / يوم`;
     document.getElementById('summary-daily-price').textContent = `${carData.dailyPrice} ر.س`;
     document.getElementById('summary-days').textContent = '-- يوم';
     document.getElementById('summary-total').textContent = '0 ر.س';
+
+    // تعيين التواريخ الافتراضية
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('pickup-date').setAttribute('min', today);
     document.getElementById('return-date').setAttribute('min', today);
-    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('pickup-date').value = tomorrow.toISOString().split('T')[0];
-    const dayAfter = new Date(tomorrow); dayAfter.setDate(dayAfter.getDate() + 1);
+    const dayAfter = new Date(tomorrow);
+    dayAfter.setDate(dayAfter.getDate() + 1);
     document.getElementById('return-date').value = dayAfter.toISOString().split('T')[0];
+
     updateBookingSummary();
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
-}
+};
 
-function closeBookingModal() {
+// إغلاق المودال
+window.closeBookingModal = function() {
     const modal = document.getElementById('booking-modal');
     if (modal) modal.classList.remove('open');
     document.body.style.overflow = '';
-}
+};
 
-function updateBookingSummary() {
+// تحديث ملخص الحجز (عدد الأيام والإجمالي)
+window.updateBookingSummary = function() {
     const pickupDate = document.getElementById('pickup-date').value;
     const returnDate = document.getElementById('return-date').value;
     if (!pickupDate || !returnDate) {
@@ -336,18 +361,32 @@ function updateBookingSummary() {
     if (window.currentCarData && window.currentCarData.dailyPrice) {
         document.getElementById('summary-total').textContent = `${window.currentCarData.dailyPrice * diffDays} ر.س`;
     }
-}
+};
 
+// تأكيد الحجز وإنشاءه في قاعدة البيانات
 window.confirmBooking = async function() {
-    if (!window.currentCarData) { alert('❌ لم يتم تحديد السيارة'); return; }
+    if (!window.currentCarData) {
+        alert('❌ لم يتم تحديد السيارة');
+        return;
+    }
     const user = getCurrentUser();
-    if (!user) { alert('❌ يجب تسجيل الدخول أولاً'); window.location.href = 'landing.html'; return; }
+    if (!user) {
+        alert('❌ يجب تسجيل الدخول أولاً');
+        window.location.href = 'landing.html';
+        return;
+    }
     const pickupDate = document.getElementById('pickup-date').value;
     const returnDate = document.getElementById('return-date').value;
-    if (!pickupDate || !returnDate) { alert('⚠️ الرجاء اختيار تاريخي الاستلام والتسليم.'); return; }
+    if (!pickupDate || !returnDate) {
+        alert('⚠️ الرجاء اختيار تاريخي الاستلام والتسليم.');
+        return;
+    }
     const pickup = new Date(pickupDate);
     const returnD = new Date(returnDate);
-    if (returnD <= pickup) { alert('⚠️ تاريخ التسليم يجب أن يكون بعد تاريخ الاستلام.'); return; }
+    if (returnD <= pickup) {
+        alert('⚠️ تاريخ التسليم يجب أن يكون بعد تاريخ الاستلام.');
+        return;
+    }
     const diffDays = Math.ceil(Math.abs(returnD - pickup) / (1000 * 60 * 60 * 24));
     const totalPrice = window.currentCarData.dailyPrice * diffDays;
 
@@ -362,21 +401,29 @@ window.confirmBooking = async function() {
 
     const confirmBtn = document.getElementById('btn-confirm-booking');
     const originalText = confirmBtn?.innerHTML || 'تأكيد الحجز';
-    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحجز...'; }
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحجز...';
+    }
 
     try {
         const booking = await window.createBooking(bookingPayload);
         alert(`✅ تم إنشاء الحجز بنجاح!\nالسيارة: ${window.currentCarData.name}\nالمدة: ${diffDays} يوم\nالإجمالي: ${totalPrice} ر.س\nفي انتظار موافقة المالك.`);
         localStorage.setItem('current_booking_id', booking.id);
         closeBookingModal();
+        // توجيه المستخدم إلى لوحة المستأجر
         window.location.href = 'dashboard-renter.html';
     } catch (err) {
         alert(`❌ حدث خطأ أثناء الحجز: ${err.message || 'يرجى المحاولة مرة أخرى'}`);
     } finally {
-        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.innerHTML = originalText; }
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = originalText;
+        }
     }
 };
 
+// إنشاء الحجز في Supabase
 window.createBooking = async function(bookingData) {
     const client = getSupabaseClient();
     if (!client) throw new Error('Supabase غير مهيأ');
@@ -445,24 +492,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Booking modal events
+    // ربط أحداث تغيير التواريخ في المودال (إن وجدت)
     const pickupDate = document.getElementById('pickup-date');
     const returnDate = document.getElementById('return-date');
-    if (pickupDate) pickupDate.addEventListener('change', updateBookingSummary);
-    if (returnDate) returnDate.addEventListener('change', updateBookingSummary);
+    if (pickupDate) pickupDate.addEventListener('change', window.updateBookingSummary);
+    if (returnDate) returnDate.addEventListener('change', window.updateBookingSummary);
 
-    // Close modal on overlay click
+    // إغلاق المودال عند النقر على الخلفية
     const modal = document.getElementById('booking-modal');
     if (modal) {
         modal.addEventListener('click', function(e) {
-            if (e.target === this) closeBookingModal();
+            if (e.target === this) window.closeBookingModal();
         });
     }
 
-    console.log('✅ script.js جاهز');
+    console.log('✅ script.js جاهز (جميع الدوال متوفرة)');
 });
 
-// تصدير الدوال للنطاق العام
+// تصدير جميع الدوال للنطاق العام (بعضها تم تعريفه باستخدام window أعلاه)
 window.getSupabaseClient = getSupabaseClient;
 window.getCurrentUser = getCurrentUser;
 window.getUserRole = getUserRole;
@@ -471,80 +518,4 @@ window.logoutUser = logoutUser;
 window.getCarLocation = getCarLocation;
 window.updateCarLocation = updateCarLocation;
 window.renderCarsGrid = renderCarsGrid;
-window.openBookingModalFromCarId = openBookingModalFromCarId;
-window.openBookingModal = openBookingModal;
-window.closeBookingModal = closeBookingModal;
-window.updateBookingSummary = updateBookingSummary;
-// ============================================================
-// دوال الحجز (مضافة إلى script.js)
-// ============================================================
-
-window.openBookingModalFromCarId = async function(carId) {
-    const user = getCurrentUser();
-    if (!user) {
-        alert('الرجاء تسجيل الدخول أولاً');
-        window.location.href = 'landing.html';
-        return;
-    }
-    const client = getSupabaseClient();
-    if (!client) {
-        alert('خطأ في الاتصال بقاعدة البيانات');
-        return;
-    }
-    try {
-        const { data: car, error } = await client.from('cars').select('*').eq('id', carId).single();
-        if (error || !car) {
-            alert('تعذر العثور على بيانات السيارة');
-            return;
-        }
-        window.currentCarData = {
-            id: car.id,
-            name: `${car.brand} ${car.model}`,
-            image: car.images && car.images.length > 0 ? car.images[0] : 'https://via.placeholder.com/300x200?text=سيارة',
-            dailyPrice: car.daily_price || 0
-        };
-        // استدعاء الدالة في الصفحة (إذا كانت معرفة محلياً)
-        if (typeof window.openBookingModal === 'function') {
-            window.openBookingModal(window.currentCarData);
-        } else {
-            // محاولة استخدام الدالة العامة من script.js
-            openBookingModalGlobal(window.currentCarData);
-        }
-    } catch (err) {
-        console.error('خطأ في فتح نافذة الحجز:', err);
-        alert('حدث خطأ، الرجاء المحاولة مرة أخرى');
-    }
-};
-
-// دالة عامة لفتح المودال (يجب أن تكون معرفة في الصفحة)
-function openBookingModalGlobal(carData) {
-    const modal = document.getElementById('booking-modal');
-    if (!modal) {
-        alert('نظام الحجز غير جاهز (المودال غير موجود في هذه الصفحة)');
-        return;
-    }
-    // تنفيذ عرض المودال (يمكن استدعاء الدالة المحلية في الصفحة)
-    if (typeof window.openBookingModal === 'function') {
-        window.openBookingModal(carData);
-    } else {
-        alert('نظام الحجز غير جاهز (دالة openBookingModal غير معرفة)');
-    }
-}
-
-window.createBooking = async function(bookingData) {
-    const client = getSupabaseClient();
-    if (!client) throw new Error('Supabase غير مهيأ');
-    const { data, error } = await client.from('bookings').insert([bookingData]).select().single();
-    if (error) throw new Error(error.message);
-    return data;
-};
-
-window.confirmBooking = async function() {
-    // هذه الدالة سيتم استدعاؤها من زر التأكيد في المودال
-    // يجب أن تكون معرفة في الصفحة التي تحتوي على المودال
-    if (typeof window.confirmBookingLocal === 'function') {
-        await window.confirmBookingLocal();
-    } else {
-        alert('نظام الحجز غير جاهز (دالة confirmBooking غير معرفة في هذه الصفحة)');
-    }
-};
+// دوال الحجز موجودة بالفعل على window
