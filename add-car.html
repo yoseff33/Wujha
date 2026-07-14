@@ -4,20 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | أضف سيارتك</title>
-
-    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Supabase & Project Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+        .add-car-section {
+            padding: var(--spacing-8) 0;
+        }
+        .add-car-form {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--color-card);
+            padding: var(--spacing-6);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-4);
+        }
+        .form-group label {
+            display: block;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-1);
+            font-size: var(--font-size-sm);
+            color: var(--color-heading);
+        }
+        .form-group label .text-muted { color: var(--color-danger); }
+        .form-control {
+            width: 100%;
+            padding: var(--spacing-3);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+            transition: all var(--transition-fast);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: var(--shadow-focus);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: var(--spacing-5);
+        }
+        .image-upload-area {
+            display: flex;
+            gap: var(--spacing-3);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-2);
+        }
+        .image-upload-box {
+            width: 120px;
+            height: 90px;
+            background: var(--color-bg-secondary);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-tertiary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .image-upload-box:hover {
+            border-color: var(--color-secondary);
+            background: var(--color-surface-hover);
+        }
+        .image-preview {
+            width: 100px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+        }
+        .form-message {
+            display: none;
+            padding: var(--spacing-3);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-3);
+            text-align: center;
+            font-weight: var(--font-weight-semibold);
+        }
+        .form-message.success {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+        .form-message.error {
+            background: var(--color-danger-bg);
+            color: var(--color-danger);
+        }
+        .form-message.info {
+            background: var(--color-info-bg);
+            color: var(--color-info);
+        }
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-
     <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
@@ -37,53 +133,32 @@
                     <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
                     <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
                     <li><a href="add-car.html" class="auth-link active" data-role="owner">أضف سيارتك</a></li>
-                    <li><a href="qassim-map.html">الخريطة</a></li>
                     <li><a href="quiz.html">اختبار السيارة</a></li>
+                    <li><a href="qassim-map.html">خريطة السيارات</a></li>
                 </ul>
 
                 <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
-                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
+                    <button id="theme-toggle-desktop" class="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>الوضع</span>
+                    </button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">
+                        <i class="fas fa-shield-alt"></i> دخول آمن
+                    </a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
 
-    <!-- ===== القائمة الجانبية ===== -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <aside class="mobile-sidebar" id="mobileSidebar">
-        <div class="mobile-sidebar-header">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">و</div>
-                <span class="logo-text">وُجْهَة</span>
-            </a>
-            <button class="close-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
-        </div>
-        <ul class="mobile-nav-links">
-            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
-            <li><a href="cars.html"><i class="fas fa-car"></i> استكشف السيارات</a></li>
-            <li><a href="dashboard-owner.html" class="auth-link" data-role="owner"><i class="fas fa-user-tie"></i> لوحة المؤجر</a></li>
-            <li><a href="dashboard-renter.html" class="auth-link" data-role="renter"><i class="fas fa-user"></i> لوحة المستأجر</a></li>
-            <li><a href="add-car.html" class="auth-link active" data-role="owner"><i class="fas fa-plus-circle"></i> أضف سيارتك</a></li>
-            <li><a href="qassim-map.html"><i class="fas fa-map-marked-alt"></i> الخريطة</a></li>
-            <li><a href="quiz.html"><i class="fas fa-clipboard-list"></i> اختبار السيارة</a></li>
-        </ul>
-        <div class="mobile-sidebar-footer">
-            <a href="landing.html" class="btn btn-primary guest-only" id="mobile-guest-btn">تسجيل دخول / جديد</a>
-            <button id="mobile-theme-toggle" class="btn btn-outline"><i class="fas fa-moon"></i> الوضع الليلي</button>
-        </div>
-    </aside>
-
-    <!-- ===== المحتوى ===== -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main>
-        <section id="add-car" class="add-car-section">
+        <section class="add-car-section">
             <div class="container">
                 <div class="section-title" data-aos="fade-up">
                     <h2>أضف سيارتك وابدأ الربح</h2>
                     <p>املأ النموذج التالي لإضافة سيارتك إلى منصتنا والبدء في تحقيق أرباح</p>
                 </div>
-                <div class="add-car-form" data-aos="zoom-in" id="add-car-form">
+                <div class="add-car-form" data-aos="zoom-in">
                     <form id="car-form" onsubmit="handleAddCar(event)">
                         <div class="form-grid">
                             <div class="form-group">
@@ -127,7 +202,6 @@
                                     <option value="الرياض">الرياض</option>
                                     <option value="جدة">جدة</option>
                                     <option value="الدمام">الدمام</option>
-                                    <option value="الخبر">الخبر</option>
                                     <option value="بريدة">بريدة</option>
                                 </select>
                             </div>
@@ -161,8 +235,8 @@
                             </div>
                         </div>
 
-                        <!-- موقع السيارة -->
-                        <div class="card" style="padding:var(--spacing-4); margin:var(--spacing-4) 0; border-color:var(--color-border);">
+                        <!-- Location -->
+                        <div class="card" style="padding:var(--spacing-4); margin:var(--spacing-4) 0;">
                             <h4 style="margin-bottom:var(--spacing-3);"><i class="fas fa-map-pin" style="color:var(--color-secondary);"></i> موقع السيارة (اختياري)</h4>
                             <div class="form-grid">
                                 <div class="form-group">
@@ -186,8 +260,8 @@
 
                         <div class="form-group">
                             <label>صور السيارة (يمكن رفع حتى 5 صور)</label>
-                            <div style="display:flex; gap:var(--spacing-3); flex-wrap:wrap; margin-top:var(--spacing-2);">
-                                <div style="width:120px; height:90px; background:var(--color-bg-secondary); border:2px dashed var(--color-border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--color-text-tertiary); cursor:pointer;" onclick="document.getElementById('car-images-input').click()">
+                            <div class="image-upload-area">
+                                <div class="image-upload-box" onclick="document.getElementById('car-images-input').click()">
                                     <i class="fas fa-plus" style="font-size:1.5rem;"></i>
                                 </div>
                                 <input type="file" id="car-images-input" accept="image/*" multiple style="display:none;" onchange="handleCarImages(this)">
@@ -195,9 +269,9 @@
                             </div>
                         </div>
 
-                        <div id="form-message" style="display:none; margin-top:var(--spacing-3); padding:var(--spacing-3); border-radius:var(--radius-md);"></div>
+                        <div id="form-message" class="form-message"></div>
 
-                        <div class="form-actions" style="display:flex; justify-content:center; margin-top:var(--spacing-5);">
+                        <div class="form-actions">
                             <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" style="min-width:200px;">
                                 <i class="fas fa-check-circle"></i> إضافة السيارة
                             </button>
@@ -258,7 +332,7 @@
         </div>
     </footer>
 
-    <!-- ===== القائمة السفلية ===== -->
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -268,22 +342,19 @@
         <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
-    <!-- ===== سكريبتات ===== -->
+    <!-- ===== SCRIPTS ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
     <script>
         AOS.init({ once: true, duration: 600 });
 
         let uploadedImages = [];
         let currentUserId = null;
-        let currentUserRole = null;
 
-        // ===== 1. جلب المستخدم =====
         async function loadUserData() {
             try {
                 const { data: { user }, error } = await window.supabaseClient.auth.getUser();
                 if (error || !user) {
-                    console.warn('لا توجد جلسة نشطة');
+                    window.location.href = 'landing.html';
                     return false;
                 }
                 const role = user.user_metadata?.role || 'user';
@@ -293,7 +364,6 @@
                     return false;
                 }
                 currentUserId = user.id;
-                currentUserRole = role;
                 const name = user.user_metadata?.name || user.email || 'مالك';
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userType', role);
@@ -304,13 +374,11 @@
                 return true;
             } catch (err) {
                 console.error('فشل تحميل بيانات المستخدم:', err);
-                alert('حدث خطأ في التحقق من الجلسة.');
                 window.location.href = 'landing.html';
                 return false;
             }
         }
 
-        // ===== 2. معالجة الصور =====
         function handleCarImages(input) {
             const previews = document.getElementById('image-previews');
             const files = input.files;
@@ -321,11 +389,7 @@
                     uploadedImages.push(e.target.result);
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.style.width = '100px';
-                    img.style.height = '80px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '8px';
-                    img.style.border = '1px solid var(--color-border)';
+                    img.className = 'image-preview';
                     previews.appendChild(img);
                 };
                 reader.readAsDataURL(file);
@@ -333,7 +397,6 @@
             input.value = '';
         }
 
-        // ===== 3. الموقع =====
         function getCurrentLocation() {
             if (!navigator.geolocation) {
                 alert('المتصفح لا يدعم تحديد الموقع.');
@@ -351,64 +414,45 @@
             );
         }
 
-        // ===== 4. الرسائل =====
         function showMessage(text, type = 'info') {
             const msg = document.getElementById('form-message');
             msg.style.display = 'block';
             msg.textContent = text;
-            if (type === 'success') {
-                msg.style.background = 'var(--color-success-bg)';
-                msg.style.color = 'var(--color-success)';
-            } else if (type === 'error') {
-                msg.style.background = 'var(--color-danger-bg)';
-                msg.style.color = 'var(--color-danger)';
-            } else {
-                msg.style.background = 'var(--color-info-bg)';
-                msg.style.color = 'var(--color-info)';
-            }
+            msg.className = 'form-message ' + type;
         }
 
-        // ===== 5. إنشاء سيارة =====
         window.createCar = async function(carData) {
-            try {
-                if (!currentUserId) {
-                    throw new Error('المستخدم غير مسجل الدخول');
-                }
-                const payload = {
-                    owner_id: currentUserId,
-                    brand: carData.brand,
-                    model: carData.model,
-                    year: carData.year,
-                    color: carData.color || '',
-                    plate_number: carData.plate_number || '',
-                    daily_price: carData.daily_price,
-                    city: carData.city,
-                    location: carData.location || '',
-                    description: carData.description || '',
-                    type: carData.type,
-                    passengers: carData.passengers || 5,
-                    transmission: carData.transmission || 'automatic',
-                    fuel: carData.fuel || 'gasoline',
-                    images: carData.images || [],
-                    status: 'pending',
-                    latitude: parseFloat(carData.latitude) || null,
-                    longitude: parseFloat(carData.longitude) || null,
-                    created_at: new Date().toISOString()
-                };
-                const { data, error } = await window.supabaseClient
-                    .from('cars')
-                    .insert([payload])
-                    .select()
-                    .single();
-                if (error) throw error;
-                return data;
-            } catch (err) {
-                console.error('خطأ في createCar:', err);
-                throw err;
-            }
+            if (!currentUserId) throw new Error('المستخدم غير مسجل الدخول');
+            const payload = {
+                owner_id: currentUserId,
+                brand: carData.brand,
+                model: carData.model,
+                year: carData.year,
+                color: carData.color || '',
+                plate_number: carData.plate_number || '',
+                daily_price: carData.daily_price,
+                city: carData.city,
+                location: carData.location || '',
+                description: carData.description || '',
+                type: carData.type,
+                passengers: carData.passengers || 5,
+                transmission: carData.transmission || 'automatic',
+                fuel: carData.fuel || 'gasoline',
+                images: carData.images || [],
+                status: 'pending',
+                latitude: parseFloat(carData.latitude) || null,
+                longitude: parseFloat(carData.longitude) || null,
+                created_at: new Date().toISOString()
+            };
+            const { data, error } = await window.supabaseClient
+                .from('cars')
+                .insert([payload])
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
         };
 
-        // ===== 6. إرسال النموذج =====
         async function handleAddCar(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
@@ -444,17 +488,6 @@
                 return;
             }
 
-            if (carData.latitude) {
-                const lat = parseFloat(carData.latitude);
-                if (!isNaN(lat)) carData.latitude = lat;
-                else carData.latitude = null;
-            }
-            if (carData.longitude) {
-                const lng = parseFloat(carData.longitude);
-                if (!isNaN(lng)) carData.longitude = lng;
-                else carData.longitude = null;
-            }
-
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
             btn.disabled = true;
 
@@ -464,18 +497,13 @@
                     showMessage('✅ تم إضافة السيارة بنجاح، في انتظار موافقة الأدمن.', 'success');
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> تم الإضافة';
                     btn.style.background = 'var(--color-success)';
-                    btn.style.borderColor = 'var(--color-success)';
                     setTimeout(() => {
                         document.getElementById('car-form').reset();
                         document.getElementById('image-previews').innerHTML = '';
                         uploadedImages = [];
-                        document.getElementById('car-latitude').value = '';
-                        document.getElementById('car-longitude').value = '';
                         btn.innerHTML = '<i class="fas fa-check-circle"></i> إضافة السيارة';
                         btn.style.background = '';
-                        btn.style.borderColor = '';
                         btn.disabled = false;
-                        showMessage('🔄 تم إعادة تعيين النموذج، يمكنك إضافة سيارة أخرى.', 'info');
                     }, 3000);
                 } else {
                     showMessage('حدث خطأ أثناء إضافة السيارة، حاول مرة أخرى.', 'error');
@@ -483,14 +511,13 @@
                     btn.disabled = false;
                 }
             } catch (err) {
-                console.error('خطأ في handleAddCar:', err);
+                console.error('خطأ:', err);
                 showMessage('حدث خطأ غير متوقع: ' + err.message, 'error');
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> إضافة السيارة';
                 btn.disabled = false;
             }
         }
 
-        // ===== 7. تهيئة الصفحة =====
         (async function init() {
             const loaded = await loadUserData();
             if (loaded) {
@@ -501,15 +528,6 @@
         window.handleAddCar = handleAddCar;
         window.handleCarImages = handleCarImages;
         window.getCurrentLocation = getCurrentLocation;
-        window.showMessage = showMessage;
-        window.logoutUser = function() {
-            if (confirm('تسجيل الخروج؟')) {
-                window.supabaseClient.auth.signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'landing.html';
-                });
-            }
-        };
     </script>
 </body>
 </html>
