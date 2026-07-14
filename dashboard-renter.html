@@ -3,44 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وُجْهَة | لوحة المستأجر</title>
-
-    <!-- Fonts & Icons -->
+    <title>وُجْهَة | شروط الاستئجار</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Supabase & Project Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+        .terms-section { padding: var(--spacing-8) 0; }
+        .terms-content {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-6);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        .terms-content h3 {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-heading);
+            margin-top: var(--spacing-4);
+            margin-bottom: var(--spacing-2);
+        }
+        .terms-content p {
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-relaxed);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-3);
+        }
+        .terms-content ul {
+            list-style: none;
+            padding-right: var(--spacing-4);
+        }
+        .terms-content ul li {
+            position: relative;
+            padding-right: var(--spacing-5);
+            margin-bottom: var(--spacing-2);
+            font-size: var(--font-size-base);
+            color: var(--color-text-secondary);
+        }
+        .terms-content ul li::before {
+            content: "•";
+            color: var(--color-secondary);
+            font-weight: var(--font-weight-bold);
+            font-size: 1.2rem;
+            position: absolute;
+            right: 0;
+            top: -2px;
+        }
+    </style>
 </head>
 <body>
-
     <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
-                    <i class="fas fa-bars"></i>
-                </button>
-
-                <a href="index.html" class="logo">
-                    <div class="logo-icon">و</div>
-                    <div class="logo-text">وُجْهَة</div>
-                </a>
-
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
-                    <li><a href="dashboard-renter.html" class="active">لوحة المستأجر</a></li>
                     <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
                     <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    <li><a href="rental-terms.html" class="active">شروط الاستئجار</a></li>
+                    <li><a href="qassim-map.html">الخريطة</a></li>
                 </ul>
-
                 <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
+                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> <span>الوضع</span></button>
                     <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
@@ -48,122 +80,38 @@
         </div>
     </header>
 
-    <!-- ===== القائمة الجانبية ===== -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <aside class="mobile-sidebar" id="mobileSidebar">
-        <div class="mobile-sidebar-header">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">و</div>
-                <span class="logo-text">وُجْهَة</span>
-            </a>
-            <button class="close-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
-        </div>
-        <ul class="mobile-nav-links">
-            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
-            <li><a href="cars.html"><i class="fas fa-car"></i> استكشف السيارات</a></li>
-            <li><a href="dashboard-renter.html" class="active"><i class="fas fa-user"></i> لوحة المستأجر</a></li>
-            <li><a href="dashboard-owner.html" class="auth-link" data-role="owner"><i class="fas fa-user-tie"></i> لوحة المؤجر</a></li>
-            <li><a href="add-car.html" class="auth-link" data-role="owner"><i class="fas fa-plus-circle"></i> أضف سيارتك</a></li>
-        </ul>
-        <div class="mobile-sidebar-footer">
-            <a href="landing.html" class="btn btn-primary guest-only" id="mobile-guest-btn">تسجيل دخول / جديد</a>
-            <button id="mobile-theme-toggle" class="btn btn-outline"><i class="fas fa-moon"></i> الوضع الليلي</button>
-        </div>
-    </aside>
-
-    <!-- ===== المحتوى ===== -->
-    <div class="container dashboard-wrapper">
-        <div class="dashboard" data-aos="fade-up">
-            <!-- ===== القائمة الجانبية ===== -->
-            <div class="dashboard-sidebar">
-                <div class="user-profile">
-                    <div class="user-avatar" id="renter-avatar">م</div>
-                    <h3 id="renter-name-display">مستخدم</h3>
-                    <p><i class="fas fa-check-circle" style="color:var(--color-success);"></i> موثق (نفاذ)</p>
+    <!-- ===== MAIN ===== -->
+    <main>
+        <section class="terms-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">
+                    <h2>شروط وأحكام الاستئجار</h2>
+                    <p>يرجى قراءة الشروط والأحكام التالية بعناية قبل المتابعة.</p>
                 </div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" class="active" onclick="scrollToSection('bookings')"><i class="fas fa-calendar-check"></i> حجوزاتي</a></li>
-                    <li><a href="#" onclick="scrollToSection('contracts')"><i class="fas fa-file-signature"></i> عقودي</a></li>
-                    <li><a href="#" onclick="scrollToSection('scan')"><i class="fas fa-camera"></i> فحص السيارة</a></li>
-                    <li><a href="#" onclick="scrollToSection('pledge')"><i class="fas fa-hand-paper"></i> التعهد</a></li>
-                </ul>
+                <div class="terms-content" data-aos="fade-up" data-aos-delay="100">
+                    <h3>1. الأهلية والمتطلبات</h3>
+                    <p>يجب أن يكون المستأجر حاصلاً على رخصة قيادة سارية المفعول وصادرة من المملكة العربية السعودية أو رخصة قيادة دولية معترف بها. الحد الأدنى للعمر هو 21 عامًا. يجب تقديم بطاقة هوية سارية المفعول (هوية وطنية أو إقامة).</p>
+
+                    <h3>2. فترة الإيجار</h3>
+                    <p>تُحسب فترة الإيجار على أساس 24 ساعة لكل يوم. يتم تحديد وقت الاستلام والإرجاع في عقد الإيجار. أي تأخير في الإرجاع قد يؤدي إلى رسوم إضافية.</p>
+
+                    <h3>3. التأمين والمسؤولية</h3>
+                    <p>تشمل جميع الإيجارات تأمينًا ضد الغير. يمكن للمستأجر اختيار تأمين شامل إضافي للحماية من الأضرار التي تلحق بالسيارة. يتحمل المستأجر مسؤولية أي أضرار ناجمة عن سوء الاستخدام أو الإهمال.</p>
+
+                    <h3>4. الوقود</h3>
+                    <p>يتم تسليم السيارة للمستأجر بوقود كامل، ويجب إرجاعها بوقود كامل. في حالة عدم امتلاء خزان الوقود عند الإرجاع، سيتم احتساب رسوم إعادة تعبئة الوقود بالإضافة إلى تكلفة الوقود.</p>
+
+                    <h3>5. إلغاء الحجز</h3>
+                    <p>يمكن إلغاء الحجوزات قبل 24 ساعة من موعد الاستلام دون رسوم. الإلغاءات التي تتم في أقل من 24 ساعة قد تخضع لرسوم إلغاء.</p>
+
+                    <h3>6. انتهاكات المرور</h3>
+                    <p>المستأجر مسؤول عن جميع المخالفات المرورية والغرامات التي تحدث خلال فترة الإيجار.</p>
+
+                    <p style="margin-top: var(--spacing-4); font-style: italic; color: var(--color-text-tertiary);">هذه الشروط قابلة للتغيير. يرجى مراجعة العقد الفعلي عند الحجز للحصول على التفاصيل الكاملة.</p>
+                </div>
             </div>
-
-            <!-- ===== المحتوى ===== -->
-            <div class="dashboard-content">
-
-                <!-- Stats -->
-                <div class="stats-grid" id="stats-grid">
-                    <div class="stat-card"><div class="value" id="stat-total">0</div><div class="stat-label">إجمالي الحجوزات</div></div>
-                    <div class="stat-card"><div class="value" id="stat-pending">0</div><div class="stat-label">قيد الموافقة</div></div>
-                    <div class="stat-card"><div class="value" id="stat-active">0</div><div class="stat-label">نشطة</div></div>
-                    <div class="stat-card"><div class="value" id="stat-contracts">0</div><div class="stat-label">العقود</div></div>
-                </div>
-
-                <!-- حجوزاتي -->
-                <div class="smart-widget" id="bookings">
-                    <h3><i class="fas fa-calendar-check"></i> حجوزاتي</h3>
-                    <div id="bookings-container">
-                        <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
-                    </div>
-                </div>
-
-                <!-- عقودي -->
-                <div class="smart-widget" id="contracts">
-                    <h3><i class="fas fa-file-signature"></i> عقودي</h3>
-                    <div id="contracts-container">
-                        <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
-                    </div>
-                </div>
-
-                <!-- فحص السيارة (AI) -->
-                <div class="smart-widget inspection-widget" id="scan">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <h3 style="margin:0;"><i class="fas fa-camera"></i> فحص استلام السيارة (AI)</h3>
-                        <span class="status-badge" style="background:var(--color-info); color:#fff; padding:4px 14px; border-radius:30px; font-size:0.8rem;">مطلوب</span>
-                    </div>
-                    <p id="pre-desc" style="color:var(--color-text-secondary); margin-bottom:15px;">
-                        صور السيارة بجوالك الآن. سيقوم النظام بتوثيق أي خدوش قديمة وحفظها.
-                    </p>
-                    <div class="scan-container" id="pre-scan-visual" style="display:none;">
-                        <div class="scan-image-placeholder"></div>
-                        <div class="scanner-beam"></div>
-                        <div class="scan-status-text">جاري تحليل صورتك... <span id="scan-progress">0%</span></div>
-                    </div>
-                    <div id="pre-scan-result" style="display:none; background:var(--color-bg-secondary); padding:15px; border-radius:10px; border-right:4px solid var(--color-warning); margin-bottom:16px;">
-                        <h4 style="margin:0 0 8px; color:var(--color-warning);">📊 تقرير الحالة:</h4>
-                        <ul style="margin:0; padding-right:20px; color:var(--color-text-secondary); font-size:0.9rem;">
-                            <li>✅ الهيكل سليم بنسبة 95%.</li>
-                            <li>⚠️ تم رصد (2) خدش سطحي.</li>
-                        </ul>
-                        <p style="margin:8px 0 0; font-size:0.8rem; color:var(--color-text-tertiary);">* تم حفظ التقرير لحمايتك عند التسليم.</p>
-                    </div>
-                    <input type="file" id="pre-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this, 'pre')" />
-                    <button class="btn btn-primary" style="width:100%; background:var(--color-info); border-color:var(--color-info);" onclick="document.getElementById('pre-file-input').click()">
-                        <i class="fas fa-camera"></i> رفع صورة وبدء الفحص
-                    </button>
-                </div>
-
-                <!-- التعهد -->
-                <div class="pledge-section" id="pledge">
-                    <h3 style="color:var(--color-primary); margin-bottom:12px;"><i class="fas fa-hand-paper"></i> التعهد الأمني الملزم</h3>
-                    <p style="color:var(--color-warning); font-size:0.9rem; margin-bottom:18px; background:var(--color-warning-bg); padding:10px; border-radius:8px;">
-                        <i class="fas fa-exclamation-triangle"></i> تنبيه: لن يعمل "المفتاح الرقمي" للسيارة إلا بعد الموافقة على جميع البنود.
-                    </p>
-                    <form id="mandatory-pledge-form" class="mandatory-pledge">
-                        <label><input type="checkbox" required /> <span>أتعهد بالالتزام بالسرعة النظامية وعدم استخدام الجوال أثناء القيادة.</span></label>
-                        <label><input type="checkbox" required /> <span>أتعهد بربط حزام الأمان لي ولجميع الركاب طوال الرحلة.</span></label>
-                        <label><input type="checkbox" required /> <span>أتعهد بالمحافظة على نظافة السيارة (سيتم فحصها بالذكاء الاصطناعي عند الإرجاع).</span></label>
-                        <label><input type="checkbox" required /> <span>أقر بأن تفويض "تم" ساري طوال مدة الحجز وأتحمل كافة المسؤوليات.</span></label>
-                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px; padding:14px; font-weight:bold; font-size:1.1rem;">
-                            <i class="fas fa-fingerprint"></i> توثيق وبدء الرحلة
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -184,7 +132,7 @@
                         <li><a href="index.html">الرئيسية</a></li>
                         <li><a href="cars.html">استكشف السيارات</a></li>
                         <li><a href="qassim-map.html">الخريطة</a></li>
-                        <li><a href="quiz.html">اختبار السيارة</a></li>
+                        <li><a href="rental-terms.html">شروط الاستئجار</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -215,293 +163,23 @@
         </div>
     </footer>
 
-    <!-- ===== القائمة السفلية ===== -->
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
-        <a href="dashboard-renter.html" class="nav-item active"><i class="fas fa-user"></i><span>لوحتي</span></a>
         <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
+        <a href="rental-terms.html" class="nav-item active"><i class="fas fa-file-contract"></i><span>الشروط</span></a>
+        <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
-    <!-- ===== سكريبتات ===== -->
+    <!-- ===== SCRIPTS ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
     <script>
-        AOS.init({ once: true, duration: 600 });
-
-        // ============================================================
-        //  دوال لوحة المستأجر (كاملة)
-        // ============================================================
-
-        let currentUserId = null;
-        let currentUserName = 'مستخدم';
-
-        // ===== 1. جلب المستخدم =====
-        async function loadUserData() {
-            try {
-                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
-                if (error || !user) {
-                    console.warn('لا توجد جلسة نشطة');
-                    window.location.href = 'landing.html';
-                    return false;
-                }
-
-                const role = user.user_metadata?.role || 'user';
-                if (role !== 'renter' && role !== 'admin') {
-                    alert('❌ هذه الصفحة مخصصة للمستأجرين فقط.');
-                    window.location.href = 'index.html';
-                    return false;
-                }
-
-                currentUserId = user.id;
-                currentUserName = user.user_metadata?.name || user.email || 'مستخدم';
-
-                document.getElementById('renter-name-display').textContent = currentUserName;
-                document.getElementById('renter-avatar').textContent = currentUserName.charAt(0);
-
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userType', role);
-                localStorage.setItem('userName', currentUserName);
-
-                if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                    updateNavbarBasedOnLoginStatus();
-                }
-
-                return true;
-            } catch (err) {
-                console.error('فشل تحميل بيانات المستخدم:', err);
-                alert('حدث خطأ في التحقق من الجلسة.');
-                window.location.href = 'landing.html';
-                return false;
-            }
-        }
-
-        // ===== 2. التمرير =====
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // ===== 3. تحميل الحجوزات =====
-        async function loadBookings() {
-            const container = document.getElementById('bookings-container');
-            if (!currentUserId) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>الرجاء تسجيل الدخول.</p></div>';
-                return;
-            }
-
-            try {
-                const { data: bookings, error } = await window.supabaseClient
-                    .from('bookings')
-                    .select('*, cars(*)')
-                    .eq('renter_id', currentUserId)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                document.getElementById('stat-total').textContent = bookings?.length || 0;
-                const pending = bookings?.filter(b => b.status === 'pending_owner_approval').length || 0;
-                document.getElementById('stat-pending').textContent = pending;
-                const active = bookings?.filter(b => b.status === 'approved' || b.status === 'active').length || 0;
-                document.getElementById('stat-active').textContent = active;
-
-                if (!bookings || bookings.length === 0) {
-                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-times"></i><p>لا توجد حجوزات حالياً.</p></div>`;
-                    return;
-                }
-
-                container.innerHTML = bookings.map(b => {
-                    const statusText = b.status === 'pending_owner_approval' ? 'قيد الموافقة' :
-                                       b.status === 'approved' ? 'موافق عليه' :
-                                       b.status === 'active' ? 'نشط' :
-                                       b.status === 'completed' ? 'مكتمل' :
-                                       b.status === 'cancelled' ? 'ملغي' :
-                                       b.status === 'rejected' ? 'مرفوض' : b.status;
-                    const isPending = b.status === 'pending_owner_approval';
-                    const isApproved = b.status === 'approved' || b.status === 'active';
-
-                    return `
-                        <div class="booking-item">
-                            <div class="booking-header">
-                                <div>
-                                    <span class="booking-car">${b.cars?.brand || ''} ${b.cars?.model || ''}</span>
-                                    <small style="color:var(--color-text-secondary);">${b.cars?.city || ''}</small>
-                                </div>
-                                <span class="status-badge ${b.status}">${statusText}</span>
-                            </div>
-                            <div class="booking-dates">
-                                <i class="fas fa-calendar-alt"></i> ${new Date(b.start_date).toLocaleDateString('ar-SA')} - ${new Date(b.end_date).toLocaleDateString('ar-SA')}
-                                <span style="margin-right:15px;"><i class="fas fa-money-bill"></i> ${b.total_price || 0} ر.س</span>
-                            </div>
-                            ${isPending ? `<div style="color:var(--color-warning); font-size:0.85rem;"><i class="fas fa-clock"></i> في انتظار موافقة المالك</div>` : ''}
-                            ${isApproved ? `
-                                <div class="booking-actions">
-                                    <button class="btn btn-primary btn-sm" onclick="window.open('car-location-view.html?carId=${b.car_id}&bookingId=${b.id}', '_blank')">
-                                        <i class="fas fa-map-marked-alt"></i> عرض موقع السيارة
-                                    </button>
-                                    <button class="btn btn-primary btn-sm" onclick="openContractForBooking('${b.id}')">
-                                        <i class="fas fa-file-contract"></i> عرض العقد
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                }).join('');
-
-            } catch (err) {
-                console.error('خطأ في تحميل الحجوزات:', err);
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>حدث خطأ: ${err.message}</p></div>`;
-            }
-        }
-
-        // ===== 4. فتح العقد =====
-        function openContractForBooking(bookingId) {
-            localStorage.setItem('current_booking_id', bookingId);
-            window.location.href = 'contract_final.html';
-        }
-
-        // ===== 5. تحميل العقود =====
-        async function loadContracts() {
-            const container = document.getElementById('contracts-container');
-            if (!currentUserId) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>الرجاء تسجيل الدخول.</p></div>';
-                return;
-            }
-
-            try {
-                const { data: contracts, error } = await window.supabaseClient
-                    .from('contracts')
-                    .select(`
-                        *,
-                        bookings!inner (
-                            *,
-                            cars!inner (*)
-                        )
-                    `)
-                    .eq('bookings.renter_id', currentUserId)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                document.getElementById('stat-contracts').textContent = contracts?.length || 0;
-
-                if (!contracts || contracts.length === 0) {
-                    container.innerHTML = `<div class="empty-state"><i class="fas fa-file-signature"></i><p>لا توجد عقود مسجلة.</p></div>`;
-                    return;
-                }
-
-                container.innerHTML = contracts.map(c => {
-                    const booking = c.bookings;
-                    const car = booking?.cars;
-                    return `
-                        <div class="booking-item" style="border-right: 3px solid var(--color-secondary);">
-                            <div class="booking-header">
-                                <div>
-                                    <span style="font-weight:bold;">عقد رقم: ${c.contract_number || 'N/A'}</span>
-                                    <span class="status-badge ${c.status}" style="margin-right:10px;">
-                                        ${c.status === 'active' ? 'ساري' : c.status === 'draft' ? 'مسودة' : c.status}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="booking-dates">
-                                <i class="fas fa-car"></i> ${car?.brand || ''} ${car?.model || ''}
-                                <span style="margin-right:15px;"><i class="fas fa-calendar-alt"></i> ${new Date(c.start_date).toLocaleDateString('ar-SA')} - ${new Date(c.end_date).toLocaleDateString('ar-SA')}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } catch (err) {
-                console.error('خطأ في تحميل العقود:', err);
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>حدث خطأ: ${err.message}</p></div>`;
-            }
-        }
-
-        // ===== 6. فحص الذكاء الاصطناعي =====
-        function handleImageUpload(input, type) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const placeholder = document.querySelector('#pre-scan-visual .scan-image-placeholder');
-                    if (placeholder) {
-                        placeholder.style.backgroundImage = 'url(' + e.target.result + ')';
-                    }
-                    runAIScan(type);
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function runAIScan(type) {
-            let timer = 0;
-            if (type === 'pre') {
-                const scanVisual = document.getElementById('pre-scan-visual');
-                const resultArea = document.getElementById('pre-scan-result');
-                const startBtn = document.querySelector('#scan .btn-primary');
-                if (startBtn) startBtn.style.display = 'none';
-                scanVisual.style.display = 'block';
-                const interval = setInterval(() => {
-                    timer += 2;
-                    const progressEl = document.getElementById('scan-progress');
-                    if (progressEl) progressEl.innerText = Math.min(timer, 100) + '%';
-                    if (timer >= 100) {
-                        clearInterval(interval);
-                        scanVisual.style.display = 'none';
-                        resultArea.style.display = 'block';
-                        const widget = document.getElementById('scan');
-                        widget.classList.add('completed');
-                        const badge = widget.querySelector('.status-badge');
-                        if (badge) {
-                            badge.style.background = 'var(--color-success)';
-                            badge.innerText = 'تم التوثيق';
-                        }
-                        const desc = document.getElementById('pre-desc');
-                        if (desc) desc.innerText = '✅ تم حفظ صورك في السجل الآمن. رحلة سعيدة!';
-                    }
-                }, 50);
-            }
-        }
-
-        // ===== 7. نموذج التعهد =====
-        document.getElementById('mandatory-pledge-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = this.querySelector('button');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوثيق...';
-            btn.disabled = true;
-            setTimeout(() => {
-                alert('✅ تم التوثيق بنجاح! 🚗\n- تم إصدار تفويض القيادة.\n- تم تفعيل المفتاح الرقمي.\nنتمنى لك رحلة آمنة.');
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> تم التوثيق';
-                btn.style.background = 'var(--color-success)';
-                btn.style.borderColor = 'var(--color-success)';
-                btn.disabled = false;
-            }, 1500);
+        AOS.init({ once: true });
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') updateNavbarBasedOnLoginStatus();
         });
-
-        // ===== 8. تهيئة الصفحة =====
-        (async function init() {
-            const loaded = await loadUserData();
-            if (loaded) {
-                await loadBookings();
-                await loadContracts();
-            }
-        })();
-
-        // ===== تعريض الدوال =====
-        window.loadBookings = loadBookings;
-        window.loadContracts = loadContracts;
-        window.scrollToSection = scrollToSection;
-        window.openContractForBooking = openContractForBooking;
-        window.handleImageUpload = handleImageUpload;
-        window.logoutUser = function() {
-            if (confirm('تسجيل الخروج؟')) {
-                window.supabaseClient.auth.signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'landing.html';
-                });
-            }
-        };
-
-        console.log('✅ لوحة المستأجر جاهزة');
     </script>
 </body>
 </html>
