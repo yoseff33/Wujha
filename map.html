@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -228,6 +229,41 @@
         .popup-btn:hover {
             background: var(--color-accent);
         }
+        /* زر تبديل الطبقات */
+        .layer-switch {
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            z-index: 1000;
+            background: var(--color-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-2);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+            border: 1px solid var(--color-border);
+        }
+        .layer-switch button {
+            padding: var(--spacing-1) var(--spacing-3);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-bold);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+        .layer-switch button.active {
+            background: var(--color-secondary);
+            color: var(--color-primary-dark);
+        }
+        .layer-switch button:hover {
+            transform: scale(1.05);
+        }
         @media (max-width: 768px) {
             .top-filter-bar {
                 flex-direction: column;
@@ -238,6 +274,12 @@
             }
             .new-map-container {
                 height: 380px;
+            }
+            .layer-switch {
+                flex-direction: row;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
             }
         }
         @media (max-width: 480px) {
@@ -326,6 +368,12 @@
                         <div id="loading-map-overlay" class="loading-map">
                             <i class="fas fa-spinner fa-spin"></i> جاري تحميل السيارات...
                         </div>
+                        <!-- زر تبديل الطبقات -->
+                        <div class="layer-switch" id="layerSwitch">
+                            <button class="active" data-layer="carto">شارع</button>
+                            <button data-layer="satellite">قمر صناعي</button>
+                            <button data-layer="topo">تضاريس</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -403,18 +451,42 @@
             initMap();
         });
 
+        // تعريف طبقات الخريطة
+        const LAYERS = {
+            carto: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© CartoDB',
+                maxZoom: 20
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri',
+                maxZoom: 19
+            }),
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenTopoMap',
+                maxZoom: 17
+            })
+        };
+
+        let map, currentLayer = 'carto', markerLayer;
+
         function initMap() {
             const mapElement = document.getElementById('mapid');
             if (!mapElement || typeof L === 'undefined') return;
 
             const center = [24.8375090, 46.7297325];
-            const map = L.map('mapid').setView(center, 14);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; CARTO',
-                maxZoom: 20
-            }).addTo(map);
+            map = L.map('mapid', {
+                center: center,
+                zoom: 14,
+                zoomControl: true,
+                fadeAnimation: true,
+                zoomAnimation: true
+            });
 
-            const markerLayer = L.layerGroup().addTo(map);
+            // إضافة الطبقة الافتراضية
+            LAYERS.carto.addTo(map);
+            markerLayer = L.layerGroup().addTo(map);
+
+            // إخفاء التحميل
             document.getElementById('loading-map-overlay').style.display = 'none';
 
             // تحميل السيارات
@@ -431,9 +503,13 @@
                         cars.forEach(car => {
                             if (!car.latitude || !car.longitude) return;
                             const price = car.daily_price || 0;
+                            // أيقونة محسنة
                             const icon = L.divIcon({
                                 className: 'custom-none',
-                                html: `<div class="price-marker-box">${price} ﷼</div>`,
+                                html: `<div class="price-marker-box" style="background:var(--color-card);border:2px solid var(--color-secondary);border-radius:50px;padding:4px 12px;display:flex;align-items:center;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.15);">
+                                        <i class="fas fa-car" style="color:var(--color-secondary);font-size:12px;"></i>
+                                        ${price} ﷼
+                                      </div>`,
                                 iconSize: [80, 30],
                                 iconAnchor: [40, 35],
                                 popupAnchor: [0, -35]
@@ -453,6 +529,31 @@
                     console.error('خطأ في تحميل السيارات:', err);
                 }
             })();
+
+            // زر تحديد الموقع الحالي
+            L.control.locate({
+                position: 'topright',
+                icon: 'fa fa-crosshairs',
+                iconLoading: 'fa fa-spinner fa-spin',
+                strings: {
+                    title: 'حدد موقعي'
+                }
+            }).addTo(map);
+
+            // زر تبديل الطبقات
+            document.querySelectorAll('#layerSwitch button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const layer = this.dataset.layer;
+                    if (layer === currentLayer) return;
+                    // إزالة الطبقة الحالية وإضافة الجديدة
+                    map.removeLayer(LAYERS[currentLayer]);
+                    LAYERS[layer].addTo(map);
+                    currentLayer = layer;
+                    // تحديث النشاط
+                    document.querySelectorAll('#layerSwitch button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
 
             // التحكم في الفلاتر
             document.getElementById('priceSlider').addEventListener('input', function() {
