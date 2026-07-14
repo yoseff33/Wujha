@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وُجْهَة | اختبار السيارة المناسبة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+        .quiz-section { padding: var(--spacing-8) 0; }
+        .quiz-box {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-6);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .quiz-box label {
+            display: block;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-2);
+            color: var(--color-heading);
+        }
+        .quiz-box select, .quiz-box input {
+            width: 100%;
+            padding: var(--spacing-3);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-4);
+        }
+        .quiz-box select:focus, .quiz-box input:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: var(--shadow-focus);
+        }
+        .quiz-results {
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+            margin-top: var(--spacing-4);
+            display: none;
+            border-right: 4px solid var(--color-secondary);
+        }
+        .quiz-results h3 {
+            color: var(--color-heading);
+            margin-bottom: var(--spacing-2);
+        }
+        .quiz-results p {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-relaxed);
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <a href="index.html" class="logo"><div class="logo-icon">و</div><div class="logo-text">وُجْهَة</div></a>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    <li><a href="quiz.html" class="active">اختبار السيارة</a></li>
+                    <li><a href="qassim-map.html">الخريطة</a></li>
+                </ul>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i> <span>الوضع</span></button>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
+                    <div id="nav-user-profile-placeholder"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+        <section class="quiz-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">
+                    <h2>اختر سيارتك المثالية</h2>
+                    <p>أجب عن الأسئلة التالية وسنوصيك بالسيارة المناسبة لك</p>
+                </div>
+                <div class="quiz-box" data-aos="zoom-in">
+                    <form id="quiz-form">
+                        <label>كم عدد الركاب المتوقعين؟</label>
+                        <select id="q-passengers" required>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
+                            <option value="7">7 أو أكثر</option>
+                        </select>
+
+                        <label>ما هي ميزانيتك اليومية التقريبية؟</label>
+                        <select id="q-budget" required>
+                            <option value="low">أقل من 150 ريال</option>
+                            <option value="medium" selected>150 - 300 ريال</option>
+                            <option value="high">أكثر من 300 ريال</option>
+                        </select>
+
+                        <label>ما هو الاستخدام الأساسي للسيارة؟</label>
+                        <select id="q-usage" required>
+                            <option value="daily" selected>استخدام يومي (تنقلات)</option>
+                            <option value="family">رحلات عائلية</option>
+                            <option value="business">أعمال وسفر</option>
+                            <option value="sporty">قيادة رياضية</option>
+                        </select>
+
+                        <label>هل تفضل السيارة الكهربائية أو الهجينة؟</label>
+                        <select id="q-fuel" required>
+                            <option value="any">لا يهم</option>
+                            <option value="electric">كهربائية</option>
+                            <option value="hybrid">هايبرد</option>
+                            <option value="gasoline">بنزين</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: var(--spacing-2);">
+                            <i class="fas fa-search"></i> ابحث عن سيارتي
+                        </button>
+                    </form>
+                    <div id="quiz-results" class="quiz-results"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p>أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="qassim-map.html">الخريطة</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>الحساب</h3>
+                    <ul>
+                        <li><a href="landing.html" class="guest-only">تسجيل دخول</a></li>
+                        <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                        <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                        <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
+                        <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
+                        <li><i class="fas fa-envelope"></i> info@wajhah.sa</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p>
+                <div class="footer-legal">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
+    <nav class="bottom-navbar mobile-bottom-navbar">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+        <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
+        <a href="quiz.html" class="nav-item active"><i class="fas fa-question-circle"></i><span>اختبار</span></a>
+        <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
+    </nav>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') updateNavbarBasedOnLoginStatus();
+
+            document.getElementById('quiz-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const passengers = document.getElementById('q-passengers').value;
+                const budget = document.getElementById('q-budget').value;
+                const usage = document.getElementById('q-usage').value;
+                const fuel = document.getElementById('q-fuel').value;
+
+                let recommendation = "لا يمكننا تحديد سيارة مناسبة بناءً على اختياراتك.";
+                let carType = "";
+
+                if (passengers >= '5' && (budget === 'medium' || budget === 'high')) {
+                    recommendation = "نوصي بسيارة دفع رباعي فسيحة ومريحة لرحلاتك العائلية.";
+                    carType = "دفع رباعي";
+                } else if (passengers <= '4' && budget === 'low') {
+                    recommendation = "سيارة اقتصادية صغيرة ستكون مثالية لتنقلاتك اليومية داخل المدينة.";
+                    carType = "اقتصادية";
+                } else if (usage === 'sporty' || usage === 'business') {
+                    recommendation = "سيارة فاخرة أو رياضية ستلبي رغبتك في الأناقة والأداء العالي.";
+                    carType = "فاخرة";
+                } else {
+                    recommendation = "سيارة سيدان أنيقة وعملية ستكون خياراً ممتازاً لك.";
+                    carType = "سيدان";
+                }
+
+                const resultsDiv = document.getElementById('quiz-results');
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = `
+                    <h3>نتائج اختبارك</h3>
+                    <p>${recommendation}</p>
+                    <p>يمكنك استكشاف السيارات من فئة: <strong>${carType}</strong></p>
+                    <a href="cars.html" class="btn btn-primary" style="margin-top: var(--spacing-3);"><i class="fas fa-search"></i> استكشف السيارات</a>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
