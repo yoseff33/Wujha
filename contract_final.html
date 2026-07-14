@@ -4,145 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | العقد الإلكتروني الموحد</title>
-
-    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
-
-    <!-- PDF & Image libraries -->
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
-
+    <script src="script.js" defer></script>
     <style>
-        /* ============================================================
-           GLOBAL STYLES
-           ============================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-        }
-
-        body {
-            background: #f0f2f5;
-            color: #1e293b;
+        .contract-wrapper {
+            padding: var(--spacing-4) 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            transition: background 0.3s, color 0.3s;
         }
-
-        body.dark-mode {
-            background: #0f172a;
-            color: #e2e8f0;
-        }
-
-        /* ============================================================
-           OPEN CONTRACT BUTTON
-           ============================================================ */
-        .open-btn-wrapper {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .open-btn-wrapper h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #0f2925;
-            margin-bottom: 8px;
-        }
-
-        body.dark-mode .open-btn-wrapper h1 {
-            color: #f0f0f0;
-        }
-
-        .open-btn-wrapper p {
-            color: #64748b;
-            margin-bottom: 20px;
-        }
-
-        .btn-open {
-            background: linear-gradient(135deg, #0f2925, #1a4d45);
-            color: #fff;
-            border: none;
-            padding: 16px 50px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 8px 30px rgba(15, 41, 37, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-open:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(15, 41, 37, 0.4);
-        }
-
-        .btn-open i {
-            font-size: 1.4rem;
-        }
-
-        /* ============================================================
-           CONTRACT MODAL
-           ============================================================ */
-        .contract-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(6px);
-            z-index: 9999;
-            display: none;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 40px 20px 60px;
-            overflow-y: auto;
-        }
-
-        .contract-modal.open {
-            display: flex;
-        }
-
-        /* ============================================================
-           CONTRACT PAPER (A4 style)
-           ============================================================ */
         .contract-paper {
-            background: #ffffff;
+            background: var(--color-card);
             width: 210mm;
             min-height: 297mm;
             padding: 50px 55px;
             margin: 0 auto 40px;
-            border-radius: 8px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
             position: relative;
-            color: #1e293b;
+            color: var(--color-text);
             display: flex;
             flex-direction: column;
-            transition: background 0.3s, color 0.3s;
+            border: 1px solid var(--color-border);
         }
-
-        body.dark-mode .contract-paper {
-            background: #1e293b;
-            color: #e2e8f0;
-        }
-
-        /* Watermark */
         .watermark {
             position: absolute;
             top: 50%;
@@ -150,295 +41,187 @@
             transform: translate(-50%, -50%) rotate(-30deg);
             font-size: 8rem;
             font-weight: 900;
-            color: rgba(0, 0, 0, 0.03);
+            color: rgba(0,0,0,0.03);
             white-space: nowrap;
             pointer-events: none;
             z-index: 0;
             text-transform: uppercase;
-            border: 6px solid rgba(0, 0, 0, 0.03);
+            border: 6px solid rgba(0,0,0,0.03);
             padding: 20px 40px;
-            border-radius: 20px;
+            border-radius: var(--radius-lg);
             letter-spacing: 8px;
         }
-
-        body.dark-mode .watermark {
-            color: rgba(255, 255, 255, 0.03);
-            border-color: rgba(255, 255, 255, 0.03);
-        }
-
-        /* ============================================================
-           STATUS BAR
-           ============================================================ */
         .contract-status-bar {
-            background: #fef9e7;
-            color: #b45309;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+            padding: var(--spacing-3) var(--spacing-4);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-6);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            border: 1px dashed #f59e0b;
+            gap: var(--spacing-2);
+            font-weight: var(--font-weight-bold);
+            border: 1px dashed var(--color-warning);
             position: relative;
             z-index: 1;
         }
-
         .contract-status-bar.verified {
-            background: #ecfdf5;
-            color: #065f46;
+            background: var(--color-success-bg);
+            color: var(--color-success);
             border-style: solid;
-            border-color: #10b981;
+            border-color: var(--color-success);
         }
-
-        body.dark-mode .contract-status-bar {
-            background: #422006;
-            color: #fcd34d;
-            border-color: #d97706;
-        }
-
-        body.dark-mode .contract-status-bar.verified {
-            background: #064e3b;
-            color: #6ee7b7;
-            border-color: #059669;
-        }
-
-        /* ============================================================
-           HEADER
-           ============================================================ */
         .contract-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            border-bottom: 3px solid #0f2925;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            border-bottom: 3px solid var(--color-primary);
+            padding-bottom: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
             position: relative;
             z-index: 1;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: var(--spacing-3);
         }
-
-        body.dark-mode .contract-header {
-            border-bottom-color: #c5a065;
-        }
-
         .contract-header .title h2 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #0f2925;
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-extrabold);
+            color: var(--color-heading);
             margin: 0;
         }
-
-        body.dark-mode .contract-header .title h2 {
-            color: #f0f0f0;
-        }
-
         .contract-header .title p {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin: 4px 0 0;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin: var(--spacing-1) 0 0;
         }
-
         .contract-header .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: var(--spacing-2);
         }
-
         .brand .logo-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, #0f2925, #c5a065);
-            border-radius: 12px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: var(--color-text-inverse);
             font-size: 1.6rem;
             font-weight: 800;
         }
-
         .brand .logo-text {
             font-size: 1.4rem;
             font-weight: 800;
-            color: #0f2925;
+            color: var(--color-heading);
         }
-
-        body.dark-mode .brand .logo-text {
-            color: #f0f0f0;
-        }
-
-        /* ============================================================
-           INFO GRID
-           ============================================================ */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 28px;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-5);
             position: relative;
             z-index: 1;
         }
-
         .info-box {
-            background: #f8fafc;
-            padding: 12px 14px;
-            border-radius: 8px;
-            border: 1px solid #e9edf2;
-            transition: background 0.3s;
+            background: var(--color-bg-secondary);
+            padding: var(--spacing-3) var(--spacing-4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
         }
-
-        body.dark-mode .info-box {
-            background: #2d3a4f;
-            border-color: #3d4a5f;
-        }
-
         .info-box .label {
             display: block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #94a3b8;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-tertiary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
-
         .info-box .value {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #0f172a;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-base);
+            color: var(--color-heading);
         }
-
-        body.dark-mode .info-box .value {
-            color: #e2e8f0;
-        }
-
-        /* ============================================================
-           CAR DETAILS TABLE
-           ============================================================ */
         .car-table-wrap {
-            margin-bottom: 28px;
+            margin-bottom: var(--spacing-5);
             position: relative;
             z-index: 1;
             overflow-x: auto;
         }
-
         .car-table-wrap h4 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #0f2925;
-            margin-bottom: 10px;
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-2);
         }
-
-        body.dark-mode .car-table-wrap h4 {
-            color: #f0f0f0;
-        }
-
         .car-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: var(--font-size-sm);
         }
-
         .car-table th {
-            background: #0f2925;
-            color: #fff;
-            padding: 10px 14px;
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+            padding: var(--spacing-2) var(--spacing-3);
             text-align: center;
-            font-weight: 600;
-            border: 1px solid #0f2925;
+            font-weight: var(--font-weight-semibold);
+            border: 1px solid var(--color-primary);
         }
-
-        body.dark-mode .car-table th {
-            background: #2d3a4f;
-            border-color: #3d4a5f;
-        }
-
         .car-table td {
-            border: 1px solid #e9edf2;
-            padding: 10px 14px;
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-2) var(--spacing-3);
             text-align: center;
-            font-weight: 600;
-            background: #fff;
+            background: var(--color-card);
         }
-
-        body.dark-mode .car-table td {
-            border-color: #3d4a5f;
-            background: #1e293b;
-            color: #e2e8f0;
-        }
-
-        /* ============================================================
-           TERMS
-           ============================================================ */
         .terms-box {
-            border-top: 1px solid #e9edf2;
-            padding-top: 20px;
-            margin-bottom: 32px;
-            font-size: 0.85rem;
+            border-top: 1px solid var(--color-border);
+            padding-top: var(--spacing-4);
+            margin-bottom: var(--spacing-5);
+            font-size: var(--font-size-sm);
             line-height: 1.8;
             text-align: justify;
             position: relative;
             z-index: 1;
         }
-
-        body.dark-mode .terms-box {
-            border-top-color: #3d4a5f;
-        }
-
         .terms-box h4 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #0f2925;
-            margin-bottom: 8px;
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-2);
         }
-
-        body.dark-mode .terms-box h4 {
-            color: #f0f0f0;
-        }
-
         .terms-box ul {
             list-style: none;
             padding-right: 0;
         }
-
         .terms-box ul li {
             position: relative;
-            padding-right: 24px;
-            margin-bottom: 6px;
+            padding-right: var(--spacing-5);
+            margin-bottom: var(--spacing-1);
         }
-
         .terms-box ul li::before {
             content: "•";
-            color: #c5a065;
-            font-weight: 700;
+            color: var(--color-secondary);
+            font-weight: var(--font-weight-bold);
             font-size: 1.2rem;
             position: absolute;
             right: 0;
             top: -2px;
         }
-
-        /* ============================================================
-           SIGNATURES
-           ============================================================ */
         .signatures-area {
             display: flex;
-            gap: 30px;
-            margin-bottom: 40px;
+            gap: var(--spacing-6);
+            margin-bottom: var(--spacing-6);
             position: relative;
             z-index: 1;
             flex-wrap: wrap;
         }
-
         .sig-block {
             flex: 1;
             min-width: 200px;
-            border: 1px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 16px;
+            border: 1px dashed var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
             text-align: center;
             position: relative;
             height: 150px;
@@ -446,44 +229,26 @@
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
-            background: #fff;
-            transition: border-color 0.3s, background 0.3s;
+            background: var(--color-card);
         }
-
-        body.dark-mode .sig-block {
-            background: #1e293b;
-            border-color: #3d4a5f;
-        }
-
         .sig-block .sig-label {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            background: #f8fafc;
-            padding: 6px 0;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: #64748b;
-            border-radius: 12px 12px 0 0;
-            border-bottom: 1px dashed #d1d5db;
+            background: var(--color-bg-secondary);
+            padding: var(--spacing-1) 0;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border-bottom: 1px dashed var(--color-border);
         }
-
-        body.dark-mode .sig-block .sig-label {
-            background: #2d3a4f;
-            color: #94a3b8;
-            border-bottom-color: #3d4a5f;
-        }
-
         .sig-block .sig-placeholder {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 10px;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-tertiary);
+            margin-bottom: var(--spacing-2);
         }
-
-        /* ============================================================
-           DIGITAL STAMP
-           ============================================================ */
         .digital-stamp {
             position: absolute;
             top: 55%;
@@ -498,562 +263,299 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-weight: 700;
+            font-weight: var(--font-weight-bold);
             text-transform: uppercase;
             pointer-events: none;
             z-index: 10;
-            background: rgba(255, 255, 255, 0.95);
-            font-size: 0.75rem;
+            background: var(--color-card);
+            font-size: var(--font-size-xs);
             line-height: 1.3;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        body.dark-mode .digital-stamp {
-            background: rgba(30, 41, 59, 0.95);
-        }
-
-        .stamp-company {
-            border-color: #2563eb;
-            color: #2563eb;
-        }
-
-        .stamp-nafath {
-            border-color: #10b981;
-            color: #10b981;
-        }
-
+        .stamp-company { border-color: #2563eb; color: #2563eb; }
+        .stamp-nafath { border-color: #10b981; color: #10b981; }
         .stamp-effect {
             opacity: 1;
             transform: translate(-50%, -50%) rotate(-10deg) scale(1);
         }
-
-        /* ============================================================
-           FOOTER / BARCODE
-           ============================================================ */
         .contract-footer {
             margin-top: auto;
-            border-top: 1px solid #e9edf2;
-            padding-top: 20px;
+            border-top: 1px solid var(--color-border);
+            padding-top: var(--spacing-4);
             text-align: center;
             position: relative;
             z-index: 1;
         }
-
-        body.dark-mode .contract-footer {
-            border-top-color: #3d4a5f;
-        }
-
         .contract-footer .partners {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: var(--spacing-6);
             align-items: center;
             opacity: 0.4;
             filter: grayscale(100%);
             transition: all 0.5s;
-            margin-bottom: 15px;
+            margin-bottom: var(--spacing-3);
+            flex-wrap: wrap;
         }
-
         .contract-footer .partners.verified {
             opacity: 1;
             filter: grayscale(0);
         }
-
         .contract-footer .partners img {
             height: 36px;
             object-fit: contain;
         }
-
         .barcode {
             font-family: 'Libre Barcode 39 Text', cursive;
             font-size: 36px;
-            color: #1e293b;
+            color: var(--color-heading);
             letter-spacing: 2px;
         }
-
-        body.dark-mode .barcode {
-            color: #e2e8f0;
-        }
-
-        /* ============================================================
-           ACTION BUTTONS (floating)
-           ============================================================ */
         .actions-bar {
             position: fixed;
-            bottom: 30px;
+            bottom: var(--spacing-4);
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: var(--spacing-2);
             z-index: 10000;
-            background: #fff;
-            padding: 10px 16px;
-            border-radius: 60px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            background: var(--color-card);
+            padding: var(--spacing-2) var(--spacing-4);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
             flex-wrap: wrap;
             justify-content: center;
+            border: 1px solid var(--color-border);
         }
-
-        body.dark-mode .actions-bar {
-            background: #1e293b;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        }
-
         .action-btn {
-            padding: 10px 24px;
-            border-radius: 50px;
+            padding: var(--spacing-2) var(--spacing-5);
+            border-radius: var(--radius-full);
             border: none;
-            font-weight: 700;
-            font-size: 0.9rem;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-sm);
             cursor: pointer;
-            transition: 0.2s;
+            transition: all var(--transition-fast);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-1);
             white-space: nowrap;
         }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .action-btn.primary {
-            background: #c5a065;
-            color: #0f2925;
-        }
-
-        .action-btn.primary:hover {
-            background: #b08a4e;
-        }
-
-        .action-btn.pdf {
-            background: #e74c3c;
-            color: #fff;
-        }
-
-        .action-btn.pdf:hover {
-            background: #c0392b;
-        }
-
-        .action-btn.image {
-            background: #0f2925;
-            color: #fff;
-        }
-
-        .action-btn.image:hover {
-            background: #1a4d45;
-        }
-
-        .action-btn.email {
-            background: #3498db;
-            color: #fff;
-        }
-
-        .action-btn.email:hover {
-            background: #2980b9;
-        }
-
-        .action-btn.close {
-            background: #e9edf2;
-            color: #1e293b;
-        }
-
-        body.dark-mode .action-btn.close {
-            background: #2d3a4f;
-            color: #e2e8f0;
-        }
-
-        .action-btn.close:hover {
-            background: #d1d5db;
-        }
-
-        .action-btn.hidden {
-            display: none !important;
-        }
-
-        /* ============================================================
-           LOADING OVERLAY
-           ============================================================ */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 41, 37, 0.7);
-            backdrop-filter: blur(4px);
-            z-index: 99999;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-size: 1.2rem;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .loading-overlay i {
-            font-size: 3rem;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* ============================================================
-           RESPONSIVE
-           ============================================================ */
+        .action-btn:hover { transform: translateY(-2px); }
+        .action-btn.primary { background: var(--color-secondary); color: var(--color-primary-dark); }
+        .action-btn.pdf { background: #e74c3c; color: #fff; }
+        .action-btn.image { background: var(--color-primary); color: #fff; }
+        .action-btn.email { background: #3498db; color: #fff; }
+        .action-btn.close { background: var(--color-bg-secondary); color: var(--color-text-secondary); }
+        .action-btn.hidden { display: none !important; }
         @media (max-width: 768px) {
-            .contract-paper {
-                padding: 30px 24px;
-                width: 100%;
-                min-height: auto;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .signatures-area {
-                flex-direction: column;
-            }
-
-            .sig-block {
-                min-height: 120px;
-            }
-
-            .actions-bar {
-                flex-wrap: wrap;
-                border-radius: 20px;
-                padding: 12px;
-                gap: 6px;
-                bottom: 16px;
-                width: 95%;
-            }
-
-            .action-btn {
-                flex: 1;
-                justify-content: center;
-                font-size: 0.8rem;
-                padding: 8px 14px;
-            }
-
-            .contract-header .title h2 {
-                font-size: 1.3rem;
-            }
-
-            .watermark {
-                font-size: 4rem;
-            }
+            .contract-paper { padding: 30px 24px; width: 100%; min-height: auto; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .signatures-area { flex-direction: column; }
+            .sig-block { min-height: 120px; }
+            .actions-bar { padding: var(--spacing-2); gap: var(--spacing-1); width: 95%; border-radius: var(--radius-lg); }
+            .action-btn { flex: 1; justify-content: center; padding: var(--spacing-2) var(--spacing-3); font-size: var(--font-size-xs); }
+            .watermark { font-size: 4rem; }
         }
-
         @media print {
-            body {
-                background: #fff;
-                padding: 0;
-            }
-            .open-btn-wrapper,
-            .actions-bar,
-            .loading-overlay {
-                display: none !important;
-            }
-            .contract-modal {
-                position: relative;
-                padding: 0;
-                background: #fff;
-            }
-            .contract-paper {
-                box-shadow: none;
-                border-radius: 0;
-                margin: 0;
-                padding: 30px 40px;
-                width: 100%;
-                min-height: auto;
-            }
-            .contract-status-bar {
-                border: 1px solid #ccc;
-            }
-            .digital-stamp {
-                opacity: 0.6 !important;
-                transform: translate(-50%, -50%) rotate(-10deg) scale(1) !important;
-            }
+            body { background: #fff; padding: 0; }
+            .actions-bar { display: none !important; }
+            .contract-paper { box-shadow: none; border-radius: 0; margin: 0; padding: 30px 40px; width: 100%; min-height: auto; }
+            .digital-stamp { opacity: 0.6 !important; transform: translate(-50%, -50%) rotate(-10deg) scale(1) !important; }
         }
     </style>
 </head>
 <body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
 
-    <!-- ===== LOADING OVERLAY ===== -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <i class="fas fa-spinner"></i>
-        <span>جاري تحميل بيانات العقد...</span>
-    </div>
-
-    <!-- ===== OPEN BUTTON ===== -->
-    <div class="open-btn-wrapper">
-        <h1>📄 العقد الإلكتروني الموحد</h1>
-        <p>عقد تأجير مركبات معتمد وفق نظام التأجير التمويلي</p>
-        <button class="btn-open" onclick="openContract()">
-            <i class="fas fa-file-contract"></i> فتح العقد
-        </button>
-    </div>
-
-    <!-- ===== CONTRACT MODAL ===== -->
-    <div id="contractModal" class="contract-modal">
-        <div class="contract-paper" id="contractPaper">
-
-            <!-- Watermark -->
-            <div class="watermark">WUJHA</div>
-
-            <!-- Status Bar -->
-            <div id="statusBar" class="contract-status-bar">
-                <i class="fas fa-clock"></i>
-                حالة العقد: بانتظار التوثيق
-            </div>
-
-            <!-- Header -->
-            <div class="contract-header">
-                <div class="title">
-                    <h2>عقد تأجير مركبة موحد</h2>
-                    <p>Unified Car Rental Agreement • نسخة 3.0</p>
-                </div>
-                <div class="brand">
+                <a href="index.html" class="logo">
                     <div class="logo-icon">و</div>
-                    <span class="logo-text">وُجْهَة</span>
-                </div>
-            </div>
+                    <div class="logo-text">وُجْهَة</div>
+                </a>
 
-            <!-- Info Grid -->
-            <div class="info-grid" id="infoGrid">
-                <div class="info-box">
-                    <span class="label">رقم العقد</span>
-                    <span class="value" id="contractNumber">--</span>
-                </div>
-                <div class="info-box">
-                    <span class="label">تاريخ الإصدار</span>
-                    <span class="value" id="contractDate">--</span>
-                </div>
-                <div class="info-box">
-                    <span class="label">مكان الإصدار</span>
-                    <span class="value">الرياض، واجهة روشن</span>
-                </div>
-                <div class="info-box">
-                    <span class="label">المؤجر (المالك)</span>
-                    <span class="value" id="ownerName">--</span>
-                </div>
-                <div class="info-box">
-                    <span class="label">المستأجر</span>
-                    <span class="value" id="renterName">--</span>
-                </div>
-                <div class="info-box">
-                    <span class="label">رقم الهوية / الإقامة</span>
-                    <span class="value" id="renterId">--</span>
-                </div>
-            </div>
-
-            <!-- Car Details -->
-            <div class="car-table-wrap">
-                <h4><i class="fas fa-car"></i> بيانات المركبة المؤجرة</h4>
-                <table class="car-table">
-                    <thead>
-                        <tr>
-                            <th>الماركة</th>
-                            <th>الموديل</th>
-                            <th>السنة</th>
-                            <th>اللون</th>
-                            <th>رقم اللوحة</th>
-                            <th>السعر اليومي</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td id="carBrand">--</td>
-                            <td id="carModel">--</td>
-                            <td id="carYear">--</td>
-                            <td id="carColor">--</td>
-                            <td id="carPlate">--</td>
-                            <td id="carPrice">--</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Terms -->
-            <div class="terms-box">
-                <h4>📋 إقرار وتعهد</h4>
-                <ul>
-                    <li>أقر أنا المستأجر بأنني استلمت المركبة الموضحة أعلاه وهي بحالة فنية سليمة وجاهزة للاستخدام.</li>
-                    <li>ألتزم بعدم استخدام المركبة في غير الغرض المخصص لها (نقل الركاب أو البضائع بترخيص تجاري).</li>
-                    <li>أتحمل كافة المخالفات المرورية المسجلة باسم اللوحة خلال فترة العقد.</li>
-                    <li>ألتزم بإعادة المركبة في الوقت والمكان المتفق عليهما، وإلا سأتحمل رسوم تأخير يومية.</li>
-                    <li>هذا العقد سند تنفيذي وفق نظام التنفيذ بالمملكة العربية السعودية.</li>
+                <ul class="nav-links desktop-nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="cars.html">استكشف السيارات</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="qassim-map.html">خريطة السيارات</a></li>
                 </ul>
-            </div>
 
-            <!-- Signatures -->
-            <div class="signatures-area">
-                <div class="sig-block">
-                    <div class="sig-label">المؤجر (المالك)</div>
-                    <div class="sig-placeholder">التوقيع الرقمي للمنشأة</div>
-                    <div id="stampOwner" class="digital-stamp stamp-company">
-                        <i class="fas fa-building" style="font-size: 1.4rem; margin-bottom: 4px;"></i>
-                        وُجْهَة<br><small>CONFIRMED</small>
+                <div class="nav-buttons nav-buttons-desktop-only">
+                    <button id="theme-toggle-desktop" class="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>الوضع</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+        <div class="container contract-wrapper">
+            <div class="contract-paper" id="contractPaper">
+                <div class="watermark">WUJHA</div>
+
+                <div id="statusBar" class="contract-status-bar">
+                    <i class="fas fa-clock"></i> حالة العقد: بانتظار التوثيق
+                </div>
+
+                <div class="contract-header">
+                    <div class="title">
+                        <h2>عقد تأجير مركبة موحد</h2>
+                        <p>Unified Car Rental Agreement • نسخة 3.0</p>
+                    </div>
+                    <div class="brand">
+                        <div class="logo-icon">و</div>
+                        <span class="logo-text">وُجْهَة</span>
                     </div>
                 </div>
-                <div class="sig-block">
-                    <div class="sig-label">المستأجر</div>
-                    <div id="renterSigText" class="sig-placeholder">بانتظار المصادقة...</div>
-                    <div id="stampRenter" class="digital-stamp stamp-nafath">
-                        <i class="fas fa-fingerprint" style="font-size: 1.4rem; margin-bottom: 4px;"></i>
-                        تم التوثيق<br><small>IAM.GOV.SA</small>
+
+                <div class="info-grid" id="infoGrid">
+                    <div class="info-box"><span class="label">رقم العقد</span><span class="value" id="contractNumber">--</span></div>
+                    <div class="info-box"><span class="label">تاريخ الإصدار</span><span class="value" id="contractDate">--</span></div>
+                    <div class="info-box"><span class="label">مكان الإصدار</span><span class="value">الرياض، واجهة روشن</span></div>
+                    <div class="info-box"><span class="label">المؤجر (المالك)</span><span class="value" id="ownerName">--</span></div>
+                    <div class="info-box"><span class="label">المستأجر</span><span class="value" id="renterName">--</span></div>
+                    <div class="info-box"><span class="label">رقم الهوية / الإقامة</span><span class="value" id="renterId">--</span></div>
+                </div>
+
+                <div class="car-table-wrap">
+                    <h4><i class="fas fa-car"></i> بيانات المركبة المؤجرة</h4>
+                    <table class="car-table">
+                        <thead><tr><th>الماركة</th><th>الموديل</th><th>السنة</th><th>اللون</th><th>رقم اللوحة</th><th>السعر اليومي</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td id="carBrand">--</td>
+                                <td id="carModel">--</td>
+                                <td id="carYear">--</td>
+                                <td id="carColor">--</td>
+                                <td id="carPlate">--</td>
+                                <td id="carPrice">--</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="terms-box">
+                    <h4>📋 إقرار وتعهد</h4>
+                    <ul>
+                        <li>أقر أنا المستأجر بأنني استلمت المركبة الموضحة أعلاه وهي بحالة فنية سليمة وجاهزة للاستخدام.</li>
+                        <li>ألتزم بعدم استخدام المركبة في غير الغرض المخصص لها (نقل الركاب أو البضائع بترخيص تجاري).</li>
+                        <li>أتحمل كافة المخالفات المرورية المسجلة باسم اللوحة خلال فترة العقد.</li>
+                        <li>ألتزم بإعادة المركبة في الوقت والمكان المتفق عليهما، وإلا سأتحمل رسوم تأخير يومية.</li>
+                        <li>هذا العقد سند تنفيذي وفق نظام التنفيذ بالمملكة العربية السعودية.</li>
+                    </ul>
+                </div>
+
+                <div class="signatures-area">
+                    <div class="sig-block">
+                        <div class="sig-label">المؤجر (المالك)</div>
+                        <div class="sig-placeholder">التوقيع الرقمي للمنشأة</div>
+                        <div id="stampOwner" class="digital-stamp stamp-company">
+                            <i class="fas fa-building" style="font-size: 1.4rem; margin-bottom: 4px;"></i>
+                            وُجْهَة<br><small>CONFIRMED</small>
+                        </div>
+                    </div>
+                    <div class="sig-block">
+                        <div class="sig-label">المستأجر</div>
+                        <div id="renterSigText" class="sig-placeholder">بانتظار المصادقة...</div>
+                        <div id="stampRenter" class="digital-stamp stamp-nafath">
+                            <i class="fas fa-fingerprint" style="font-size: 1.4rem; margin-bottom: 4px;"></i>
+                            تم التوثيق<br><small>IAM.GOV.SA</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contract-footer">
+                    <div class="partners" id="partners">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.wsZLumcMstGylhq--ZNISQHaE8?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="TGA">
+                        <img src="https://th.bing.com/th/id/R.6f1c6ad91c5ce7276e1653e5c04ebd83?rik=lFt4dQd%2fTfkkig&pid=ImgRaw&r=0" alt="Tamm">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.r-QVOMw552g1daSVkWP8kQHaC5?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Nafath">
+                    </div>
+                    <div class="barcode">*WUJHA-2025-SA*</div>
+                    <div style="font-size:0.7rem; color:var(--color-text-tertiary); margin-top:6px;">
+                        تم إنشاء هذا العقد إلكترونياً ويعتبر نافذاً دون توقيع خطي
                     </div>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="contract-footer">
-                <div class="partners" id="partners">
-                    <img src="https://tse4.mm.bing.net/th/id/OIP.wsZLumcMstGylhq--ZNISQHaE8?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="TGA">
-                    <img src="https://th.bing.com/th/id/R.6f1c6ad91c5ce7276e1653e5c04ebd83?rik=lFt4dQd%2fTfkkig&pid=ImgRaw&r=0" alt="Tamm">
-                    <img src="https://tse3.mm.bing.net/th/id/OIP.r-QVOMw552g1daSVkWP8kQHaC5?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Nafath">
-                </div>
-                <div class="barcode">*WUJHA-2025-SA*</div>
-                <div style="font-size:0.7rem; color:#94a3b8; margin-top:6px;">
-                    تم إنشاء هذا العقد إلكترونياً ويعتبر نافذاً دون توقيع خطي
-                </div>
+            <div class="actions-bar" id="actionsBar">
+                <button class="action-btn primary" id="btnApprove" onclick="approveContract()">
+                    <i class="fas fa-fingerprint"></i> توثيق العقد
+                </button>
+                <button class="action-btn pdf hidden" id="btnPdf" onclick="savePDF()">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="action-btn image hidden" id="btnImage" onclick="saveImage()">
+                    <i class="fas fa-image"></i> صورة
+                </button>
+                <button class="action-btn email hidden" id="btnEmail" onclick="sendEmail()">
+                    <i class="fas fa-envelope"></i> إرسال
+                </button>
+                <button class="action-btn close" onclick="window.location.href='dashboard-renter.html'">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
             </div>
-
         </div>
+    </main>
 
-        <!-- Actions -->
-        <div class="actions-bar" id="actionsBar">
-            <button class="action-btn primary" id="btnApprove" onclick="approveContract()">
-                <i class="fas fa-fingerprint"></i> توثيق العقد
-            </button>
-            <button class="action-btn pdf hidden" id="btnPdf" onclick="savePDF()">
-                <i class="fas fa-file-pdf"></i> PDF
-            </button>
-            <button class="action-btn image hidden" id="btnImage" onclick="saveImage()">
-                <i class="fas fa-image"></i> صورة
-            </button>
-            <button class="action-btn email hidden" id="btnEmail" onclick="sendEmail()">
-                <i class="fas fa-envelope"></i> إرسال
-            </button>
-            <button class="action-btn close" onclick="closeContract()">
-                <i class="fas fa-times"></i> إغلاق
-            </button>
-        </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- SCRIPTS -->
-    <!-- ============================================================ -->
+    <!-- ===== SCRIPTS ===== -->
     <script>
-        // ============================================================
-        //  GLOBALS
-        // ============================================================
         let currentBooking = null;
         let currentCar = null;
         let currentOwner = null;
         let currentRenter = null;
         let contractId = null;
 
-        // ============================================================
-        //  WAIT FOR SUPABASE
-        // ============================================================
-        function waitForSupabase() {
-            return new Promise((resolve) => {
-                let attempts = 0;
-                const maxAttempts = 30;
-                const checkInterval = setInterval(() => {
-                    attempts++;
-                    if (typeof window.supabaseClient !== 'undefined') {
-                        clearInterval(checkInterval);
-                        resolve();
-                    } else if (attempts >= maxAttempts) {
-                        clearInterval(checkInterval);
-                        console.error('❌ window.supabaseClient لم يحمّل');
-                        resolve();
-                    }
-                }, 200);
-            });
-        }
-
-        // ============================================================
-        //  OPEN CONTRACT
-        // ============================================================
-        async function openContract() {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.classList.add('active');
+        async function loadContractData() {
+            const bookingId = localStorage.getItem('current_booking_id');
+            if (!bookingId) {
+                alert('❌ لا توجد عملية حجز حالية.');
+                window.location.href = 'cars.html';
+                return;
+            }
 
             try {
-                await waitForSupabase();
-
-                if (typeof window.supabaseClient === 'undefined') {
-                    alert('❌ لم يتم تحميل عميل Supabase. يرجى تحديث الصفحة.');
-                    overlay.classList.remove('active');
-                    return;
-                }
-
-                const bookingId = localStorage.getItem('current_booking_id');
-                if (!bookingId) {
-                    alert('❌ لا توجد عملية حجز حالية. قم بحجز سيارة أولاً.');
-                    overlay.classList.remove('active');
-                    return;
-                }
-
-                // جلب الحجز مع بيانات السيارة
-                const { data: booking, error: bookingErr } = await window.supabaseClient
+                const { data: booking, error } = await window.supabaseClient
                     .from('bookings')
                     .select('*, cars(*)')
                     .eq('id', bookingId)
                     .single();
-
-                if (bookingErr || !booking) {
-                    console.error('خطأ في جلب الحجز:', bookingErr);
-                    alert('❌ حدث خطأ في جلب بيانات الحجز.');
-                    overlay.classList.remove('active');
-                    return;
-                }
+                if (error || !booking) throw error;
 
                 currentBooking = booking;
                 currentCar = booking.cars;
 
-                // جلب المالك
                 if (currentCar?.owner_id) {
-                    const { data: owner, error: ownerErr } = await window.supabaseClient
+                    const { data: owner } = await window.supabaseClient
                         .from('users')
                         .select('*')
                         .eq('id', currentCar.owner_id)
                         .single();
-                    if (!ownerErr) currentOwner = owner;
+                    currentOwner = owner;
                 }
-
-                // جلب المستأجر
                 if (booking.renter_id) {
-                    const { data: renter, error: renterErr } = await window.supabaseClient
+                    const { data: renter } = await window.supabaseClient
                         .from('users')
                         .select('*')
                         .eq('id', booking.renter_id)
                         .single();
-                    if (!renterErr) currentRenter = renter;
+                    currentRenter = renter;
                 }
 
-                // تعبئة البيانات
                 document.getElementById('contractNumber').textContent = `WJ-${Date.now().toString().slice(-6)}`;
                 document.getElementById('contractDate').textContent = new Date().toLocaleDateString('ar-SA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+                    year: 'numeric', month: 'long', day: 'numeric'
                 });
-
                 document.getElementById('ownerName').textContent = currentOwner?.name || 'غير معروف';
                 document.getElementById('renterName').textContent = currentRenter?.name || 'غير معروف';
                 document.getElementById('renterId').textContent = currentRenter?.id?.slice(0, 10) || '--';
-
                 document.getElementById('carBrand').textContent = currentCar?.brand || '--';
                 document.getElementById('carModel').textContent = currentCar?.model || '--';
                 document.getElementById('carYear').textContent = currentCar?.year || '--';
@@ -1061,198 +563,107 @@
                 document.getElementById('carPlate').textContent = currentCar?.plate_number || '--';
                 document.getElementById('carPrice').textContent = `${currentCar?.daily_price || 0} ر.س/يوم`;
 
-                // إظهار العقد
-                document.getElementById('contractModal').classList.add('open');
-                overlay.classList.remove('active');
-
             } catch (err) {
-                console.error('خطأ في فتح العقد:', err);
+                console.error('خطأ في تحميل العقد:', err);
                 alert('❌ حدث خطأ أثناء تحميل العقد: ' + err.message);
-                overlay.classList.remove('active');
+                window.location.href = 'cars.html';
             }
         }
 
-        // ============================================================
-        //  CLOSE CONTRACT
-        // ============================================================
-        function closeContract() {
-            document.getElementById('contractModal').classList.remove('open');
-        }
-
-        // ============================================================
-        //  APPROVE (SIGN) CONTRACT
-        // ============================================================
         async function approveContract() {
-            if (!currentBooking) {
-                alert('❌ لا توجد بيانات حجز.');
-                return;
-            }
-
+            if (!currentBooking) return;
             const btn = document.getElementById('btnApprove');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوثيق...';
             btn.disabled = true;
-            btn.style.opacity = '0.6';
 
             try {
-                const contractData = {
-                    booking_id: currentBooking.id,
-                    contract_number: `WJ-${Date.now().toString().slice(-6)}`,
-                    start_date: currentBooking.start_date,
-                    end_date: currentBooking.end_date,
-                    status: 'active'
-                };
-
                 const { data: contract, error } = await window.supabaseClient
                     .from('contracts')
-                    .insert([contractData])
+                    .insert([{
+                        booking_id: currentBooking.id,
+                        contract_number: `WJ-${Date.now().toString().slice(-6)}`,
+                        start_date: currentBooking.start_date,
+                        end_date: currentBooking.end_date,
+                        status: 'active'
+                    }])
                     .select()
                     .single();
-
                 if (error) throw error;
-
                 contractId = contract.id;
                 localStorage.setItem('current_contract_id', contract.id);
 
-                // تفعيل الأختام
                 document.getElementById('stampOwner').classList.add('stamp-effect');
                 setTimeout(() => {
                     document.getElementById('stampRenter').classList.add('stamp-effect');
                     document.getElementById('renterSigText').textContent = '✅ تم التوثيق عبر نفاذ';
                     document.getElementById('renterSigText').style.color = '#10b981';
-                    document.getElementById('renterSigText').style.fontWeight = 'bold';
-
                     const statusBar = document.getElementById('statusBar');
                     statusBar.classList.add('verified');
                     statusBar.innerHTML = '<i class="fas fa-check-circle"></i> تم توثيق العقد رسمياً وأصبح ساري المفعول';
-
                     document.getElementById('partners').classList.add('verified');
-
                     btn.classList.add('hidden');
                     document.getElementById('btnPdf').classList.remove('hidden');
                     document.getElementById('btnImage').classList.remove('hidden');
                     document.getElementById('btnEmail').classList.remove('hidden');
-
-                    localStorage.setItem('wujha_contract_signed', 'true');
-                    alert('✅ تم توثيق العقد بنجاح! يمكنك الآن حفظه أو إرساله.');
+                    alert('✅ تم توثيق العقد بنجاح!');
                 }, 500);
-
             } catch (err) {
-                console.error('خطأ في التوثيق:', err);
                 alert('❌ فشل توثيق العقد: ' + err.message);
                 btn.innerHTML = '<i class="fas fa-fingerprint"></i> توثيق العقد';
                 btn.disabled = false;
-                btn.style.opacity = '1';
             }
         }
 
-        // ============================================================
-        //  SAVE PDF
-        // ============================================================
         async function savePDF() {
             const element = document.getElementById('contractPaper');
             const btn = document.getElementById('btnPdf');
-            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...';
-            btn.disabled = true;
-
             try {
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff',
-                    scrollY: -window.scrollY,
-                });
-
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
                 const imgData = canvas.toDataURL('image/jpeg', 0.95);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                const w = pdf.internal.pageSize.getWidth();
+                const h = pdf.internal.pageSize.getHeight();
+                pdf.addImage(imgData, 'JPEG', 0, 0, w, h);
                 pdf.save(`Wujha-Contract-${contractId || Date.now()}.pdf`);
-
             } catch (err) {
-                alert('⚠️ تم الحفظ مع تحذير: قد لا تظهر بعض الصور الخارجية.');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                alert('⚠️ تم الحفظ مع تحذير: قد لا تظهر بعض الصور.');
             }
+            btn.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
         }
 
-        // ============================================================
-        //  SAVE IMAGE
-        // ============================================================
         function saveImage() {
             const element = document.getElementById('contractPaper');
             const btn = document.getElementById('btnImage');
-            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري...';
-            btn.disabled = true;
-
-            html2canvas(element, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-            }).then(canvas => {
+            html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Wujha-Contract-${contractId || Date.now()}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.95);
                 link.click();
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-image"></i> صورة';
             }).catch(() => {
-                alert('⚠️ تم الحفظ مع تحذير: قد لا تظهر بعض الصور.');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                alert('⚠️ تم الحفظ مع تحذير.');
+                btn.innerHTML = '<i class="fas fa-image"></i> صورة';
             });
         }
 
-        // ============================================================
-        //  SEND EMAIL (simulation)
-        // ============================================================
         function sendEmail() {
             const email = currentRenter?.email || 'example@domain.com';
             const subject = encodeURIComponent('عقد تأجير السيارة - وُجْهَة');
             const body = encodeURIComponent(
-                `مرحباً ${currentRenter?.name || 'المستأجر'},\n\n` +
-                `نرفق لك عقد تأجير السيارة رقم ${document.getElementById('contractNumber').textContent}.\n` +
-                `يمكنك الاطلاع عليه وتحميله من الرابط التالي:\n` +
-                `${window.location.href}\n\n` +
-                `مع خالص الشكر،\nفريق وُجْهَة`
+                `مرحباً ${currentRenter?.name || 'المستأجر'},\n\nنرفق لك عقد تأجير السيارة رقم ${document.getElementById('contractNumber').textContent}.\n\nمع خالص الشكر،\nفريق وُجْهَة`
             );
             window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
         }
 
-        // ============================================================
-        //  CHECK IF BOOKING EXISTS
-        // ============================================================
-        (function checkBooking() {
-            const bookingId = localStorage.getItem('current_booking_id');
-            if (!bookingId) {
-                document.querySelector('.btn-open').innerHTML = '<i class="fas fa-exclamation-triangle"></i> لا توجد حجوزات';
-                document.querySelector('.btn-open').style.background = '#94a3b8';
-                document.querySelector('.btn-open').style.cursor = 'not-allowed';
-                document.querySelector('.btn-open').onclick = function() {
-                    alert('❌ لا توجد عملية حجز حالية. قم بحجز سيارة أولاً.');
-                };
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
             }
-        })();
-
-        // ============================================================
-        //  DARK MODE (sync with global)
-        // ============================================================
-        (function syncTheme() {
-            const isDark = localStorage.getItem('theme') === 'dark';
-            if (isDark) {
-                document.body.classList.add('dark-mode');
-            }
-        })();
-
-        console.log('✅ العقد الإلكتروني جاهز (نسخة مطورة احترافية)');
+            loadContractData();
+        });
     </script>
-
 </body>
 </html>
