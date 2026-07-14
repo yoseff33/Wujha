@@ -2,113 +2,98 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | أسطول السيارات</title>
-
-    <!-- ===== ربط الخطوط والأيقونات ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-
-    <!-- ===== ربط ملف CSS المُحسَّن (الخارجي) ===== -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- ===== مكتبات خارجية ===== -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="script.js"></script>
-
+    <script src="script.js" defer></script>
     <style>
-        /* ===== تعريف المتغيرات (في حال عدم وجودها في style.css) ===== */
-        :root {
-            --spacing-1: 0.25rem;
-            --spacing-2: 0.5rem;
-            --spacing-3: 0.75rem;
-            --spacing-4: 1rem;
-            --spacing-5: 1.25rem;
-            --spacing-6: 1.5rem;
-            --spacing-8: 2rem;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --font-size-sm: 0.875rem;
-            --font-size-md: 1.125rem;
-            --font-weight-bold: 700;
-            --font-weight-extrabold: 800;
-            --line-height-relaxed: 1.8;
-            --color-primary: #0f2925;
-            --color-secondary: #c5a065;
-            --color-bg-secondary: #f8f9fa;
-            --color-text-secondary: #6c757d;
-            --color-border: #e9edf2;
-            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        /* ===== تنسيقات إضافية لتحسين الصفحة ===== */
-        body.dark-mode {
-            --color-bg-secondary: #2a2a2a;
-            --color-text-secondary: #a0aec0;
-            --color-border: #3d4a5f;
-            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.5);
-        }
-
         .cars-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: var(--spacing-6);
             margin-top: var(--spacing-6);
         }
-
+        .page-header {
+            text-align: center;
+            margin: var(--spacing-6) 0;
+        }
+        .page-header h2 {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-extrabold);
+            color: var(--color-heading);
+        }
+        .page-header p {
+            color: var(--color-text-secondary);
+        }
+        .filter-tags {
+            display: flex;
+            gap: var(--spacing-2);
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: var(--spacing-3);
+        }
+        .filter-tag {
+            padding: var(--spacing-2) var(--spacing-4);
+            border-radius: var(--radius-full);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+            cursor: pointer;
+            font-weight: var(--font-weight-semibold);
+            transition: all var(--transition-fast);
+            font-size: var(--font-size-sm);
+        }
+        .filter-tag.active {
+            background: var(--color-secondary);
+            color: var(--color-primary-dark);
+            border-color: var(--color-secondary);
+        }
+        .filter-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
         .car-card {
-            background: white;
+            background: var(--color-card);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: var(--shadow-card);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
             border: 1px solid var(--color-border);
             display: flex;
             flex-direction: column;
-            position: relative;
         }
-
-        body.dark-mode .car-card {
-            background: #2a2a2a;
-        }
-
         .car-card:hover {
             transform: translateY(-8px);
             box-shadow: var(--shadow-hover);
             border-color: var(--color-secondary);
         }
-
         .car-img-box {
             height: 220px;
             overflow: hidden;
             position: relative;
-            background: #f4f4f4;
+            background: var(--color-bg-secondary);
         }
-
         .car-img-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease;
         }
-
         .car-card:hover .car-img-box img {
             transform: scale(1.05);
         }
-
         .car-badge {
             position: absolute;
             top: var(--spacing-3);
             right: var(--spacing-3);
-            background: rgba(15, 41, 37, 0.85);
-            color: white;
             padding: 0.3rem 1rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
             font-weight: var(--font-weight-bold);
             backdrop-filter: blur(4px);
             z-index: 2;
@@ -116,46 +101,9 @@
             align-items: center;
             gap: 0.3rem;
         }
-
-        body.dark-mode .car-badge {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .car-badge.available {
-            background: #2ecc71;
-            color: #fff;
-        }
-
-        .car-badge.pending {
-            background: #f39c12;
-            color: #fff;
-        }
-
-        .car-badge.rejected {
-            background: #e74c3c;
-            color: #fff;
-        }
-
-        .car-location-badge {
-            position: absolute;
-            bottom: var(--spacing-3);
-            right: var(--spacing-3);
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            z-index: 2;
-        }
-
-        .car-location-badge i {
-            color: #c5a065;
-        }
-
+        .car-badge.available { background: var(--color-success); color: #fff; }
+        .car-badge.pending { background: var(--color-warning); color: #fff; }
+        .car-badge.rejected { background: var(--color-danger); color: #fff; }
         .car-info {
             padding: var(--spacing-5);
             flex: 1;
@@ -163,54 +111,37 @@
             flex-direction: column;
             gap: var(--spacing-2);
         }
-
         .car-title {
-            font-size: 1.2rem;
+            font-size: var(--font-size-lg);
             font-weight: var(--font-weight-extrabold);
-            color: #0f2925;
+            color: var(--color-heading);
             margin: 0;
-            line-height: 1.3;
         }
-
-        body.dark-mode .car-title {
-            color: #f0f0f0;
-        }
-
         .car-year-city {
-            font-size: 0.9rem;
+            font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: var(--spacing-2);
         }
-
         .car-specs {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: var(--spacing-2);
             margin: var(--spacing-2) 0;
         }
-
         .spec {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: var(--spacing-1);
             background: var(--color-bg-secondary);
             padding: 0.3rem 0.8rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            color: #555;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
             border: 1px solid var(--color-border);
         }
-
-        body.dark-mode .spec {
-            color: #ccc;
-        }
-
-        .spec i {
-            color: var(--color-secondary);
-        }
-
+        .spec i { color: var(--color-secondary); }
         .car-price-box {
             display: flex;
             justify-content: space-between;
@@ -219,522 +150,152 @@
             padding-top: var(--spacing-4);
             border-top: 1px solid var(--color-border);
         }
-
         .car-price {
-            font-size: 1.5rem;
+            font-size: var(--font-size-xl);
             font-weight: var(--font-weight-extrabold);
             color: var(--color-secondary);
         }
-
         .car-price small {
-            font-size: 0.8rem;
+            font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
             font-weight: normal;
         }
-
         .btn-book {
-            background: linear-gradient(135deg, #0f2925, #1a4d45);
-            color: white;
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
             border: none;
             padding: 0.6rem 1.8rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             font-weight: var(--font-weight-bold);
             cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Tajawal';
-            box-shadow: 0 4px 12px rgba(15, 41, 37, 0.2);
+            transition: all var(--transition-fast);
+            font-family: var(--font-family);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
         }
-
         .btn-book:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(15, 41, 37, 0.3);
             background: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
-
         .btn-book:disabled {
-            background: #95a5a6;
+            background: var(--color-text-tertiary);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-
         .btn-outline-sm {
             background: transparent;
             border: 1px solid var(--color-border);
             color: var(--color-text-secondary);
             padding: 0.3rem 0.8rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
             cursor: pointer;
-            transition: 0.2s;
+            transition: all var(--transition-fast);
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
         }
-
         .btn-outline-sm:hover {
             border-color: var(--color-secondary);
             color: var(--color-secondary);
         }
-
         .car-actions-row {
             display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-2);
             flex-wrap: wrap;
         }
-
-        /* ===== تنسيق المودال (محسّن) ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(6px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            padding: var(--spacing-4);
-        }
-
-        .modal-overlay.open {
-            display: flex;
-        }
-
-        .modal-box {
-            background: white;
-            border-radius: var(--radius-lg);
-            max-width: 560px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: var(--spacing-6);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.3s ease;
-            position: relative;
-        }
-
-        body.dark-mode .modal-box {
-            background: #1e293b;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: var(--spacing-3);
-            left: var(--spacing-3);
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--color-text-secondary);
-            transition: 0.2s;
-            padding: 0.3rem;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-modal:hover {
-            background: var(--color-bg-secondary);
-            color: #e74c3c;
-        }
-
-        body.dark-mode .close-modal:hover {
-            background: #2d3a4f;
-        }
-
-        .modal-box h2 {
-            font-size: 1.5rem;
-            font-weight: var(--font-weight-extrabold);
-            margin-bottom: var(--spacing-4);
-            color: #0f2925;
-        }
-
-        body.dark-mode .modal-box h2 {
-            color: #f0f0f0;
-        }
-
-        .modal-box h2 i {
-            color: var(--color-secondary);
-            margin-left: 0.5rem;
-        }
-
-        .car-summary {
-            display: flex;
-            gap: var(--spacing-3);
-            background: var(--color-bg-secondary);
-            padding: var(--spacing-3);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-4);
-            align-items: center;
-            border: 1px solid var(--color-border);
-        }
-
-        .car-summary img {
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: var(--radius-sm);
-        }
-
-        .car-summary-info h4 {
-            margin-bottom: var(--spacing-1);
-            font-weight: var(--font-weight-bold);
-            color: #0f2925;
-        }
-
-        body.dark-mode .car-summary-info h4 {
-            color: #f0f0f0;
-        }
-
-        .car-summary-info p {
-            color: var(--color-secondary);
-            font-weight: var(--font-weight-bold);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-4);
-        }
-
-        @media (max-width: 480px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: var(--font-weight-bold);
-            margin-bottom: var(--spacing-1);
-            font-size: 0.9rem;
-            color: #0f2925;
-        }
-
-        body.dark-mode .form-group label {
-            color: #e2e8f0;
-        }
-
-        .form-group label i {
-            color: var(--color-secondary);
-            margin-left: 0.3rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-sm);
-            font-family: 'Tajawal', sans-serif;
-            font-size: 0.95rem;
-            background: white;
-            color: #1e293b;
-            transition: 0.2s;
-        }
-
-        body.dark-mode .form-control {
-            background: #2d3a4f;
-            border-color: #3d4a5f;
-            color: #e2e8f0;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--color-secondary);
-            box-shadow: 0 0 0 3px rgba(197, 160, 101, 0.2);
-        }
-
-        .d-flex {
-            display: flex;
-        }
-
-        .gap-2 {
-            gap: var(--spacing-2);
-        }
-
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .border-bottom {
-            border-bottom: 1px solid var(--color-border);
-        }
-
-        .w-100 {
-            width: 100%;
-        }
-
-        .btn-lg {
-            padding: 0.8rem 1.5rem;
-            font-size: 1.05rem;
-        }
-
-        .card.bg-secondary {
-            background: var(--color-bg-secondary);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-4);
-            border: 1px solid var(--color-border);
-        }
-
-        .p-4 {
-            padding: var(--spacing-4);
-        }
-
-        .mt-2 {
-            margin-top: var(--spacing-2);
-        }
-
-        .mt-3 {
-            margin-top: var(--spacing-3);
-        }
-
-        .mt-4 {
-            margin-top: var(--spacing-4);
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-muted {
-            color: var(--color-text-secondary);
-            font-size: var(--font-size-sm);
-        }
-
         .empty-state {
             text-align: center;
             padding: var(--spacing-8);
             color: var(--color-text-secondary);
         }
-
         .empty-state i {
             font-size: 3rem;
             display: block;
             margin-bottom: var(--spacing-3);
             opacity: 0.4;
         }
-
         .loading-spinner {
             text-align: center;
             padding: var(--spacing-8);
             color: var(--color-text-secondary);
         }
-
         .loading-spinner i {
             font-size: 2.5rem;
             display: block;
             margin-bottom: var(--spacing-3);
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .page-header {
-            text-align: center;
-            margin: var(--spacing-6) 0;
-        }
-
-        .page-header h2 {
-            font-size: 2rem;
-            font-weight: var(--font-weight-extrabold);
-            color: #0f2925;
-        }
-
-        body.dark-mode .page-header h2 {
-            color: #f0f0f0;
-        }
-
-        .page-header p {
-            color: var(--color-text-secondary);
-        }
-
-        /* تحسين accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-
     <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
-            <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <nav class="navbar">
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+
                 <a href="index.html" class="logo">
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
+
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html" class="active">استكشف السيارات</a></li>
-                    <li><a href="index.html#how-it-works">كيف تعمل</a></li>
-                    <li><a href="dashboard-owner.html" class="auth-link" id="nav-owner-dashboard">لوحة المؤجر</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link" id="nav-renter-dashboard">لوحة المستأجر</a></li>
-                    <li><a href="add-car.html" class="auth-link" id="nav-add-car">أضف سيارتك</a></li>
+                    <li><a href="index.html#how-it-works">رحلة الأمان</a></li>
+                    <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
                     <li><a href="quiz.html">اختبار السيارة</a></li>
-                    <li><a href="qassim-map.html">الخريطة</a></li>
+                    <li><a href="qassim-map.html">خريطة السيارات</a></li>
                 </ul>
+
                 <div class="nav-buttons nav-buttons-desktop-only">
-                    <button id="theme-toggle-desktop" class="theme-toggle" aria-label="تبديل الوضع">
-                        <i class="fas fa-moon"></i>
-                        <span>الوضع</span>
+                    <button id="theme-toggle-desktop" class="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>الوضع</span>
                     </button>
-                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول / تسجيل</a>
+                    <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">
+                        <i class="fas fa-shield-alt"></i> دخول آمن
+                    </a>
                     <div id="nav-user-profile-placeholder"></div>
                 </div>
             </nav>
         </div>
     </header>
 
-    <!-- ===== قسم السيارات ===== -->
-    <section class="container" style="padding-top: 50px;">
-        <div class="page-header">
-            <h2>أسطول وُجْهَة</h2>
-            <p>اختر السيارة التي تناسب وجهتك القادمة، بكل سهولة وأمان</p>
-            <!-- فلتر سريع (اختياري) -->
-            <div style="display: flex; gap: var(--spacing-2); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-3);">
-                <button class="tf-pill active" data-filter="all" onclick="filterCars('all', this)">الكل</button>
-                <button class="tf-pill" data-filter="sedan" onclick="filterCars('sedan', this)">سيدان</button>
-                <button class="tf-pill" data-filter="suv" onclick="filterCars('suv', this)">دفع رباعي</button>
-                <button class="tf-pill" data-filter="luxury" onclick="filterCars('luxury', this)">فاخرة</button>
-                <button class="tf-pill" data-filter="economic" onclick="filterCars('economic', this)">اقتصادية</button>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h2>أسطول وُجْهَة</h2>
+                <p>اختر السيارة التي تناسب وجهتك القادمة، بكل سهولة وأمان</p>
+                <div class="filter-tags">
+                    <button class="filter-tag active" data-filter="all" onclick="filterCars('all', this)">الكل</button>
+                    <button class="filter-tag" data-filter="sedan" onclick="filterCars('sedan', this)">سيدان</button>
+                    <button class="filter-tag" data-filter="suv" onclick="filterCars('suv', this)">دفع رباعي</button>
+                    <button class="filter-tag" data-filter="luxury" onclick="filterCars('luxury', this)">فاخرة</button>
+                    <button class="filter-tag" data-filter="economic" onclick="filterCars('economic', this)">اقتصادية</button>
+                </div>
+            </div>
+
+            <div id="cars-grid" class="cars-grid">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    جاري تحميل السيارات...
+                </div>
             </div>
         </div>
-
-        <div id="cars-grid" class="cars-grid">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i>
-                جاري تحميل السيارات...
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== نافذة الحجز المنبثقة (Modal) محسّنة ===== -->
-    <div class="modal-overlay" id="booking-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-box">
-            <button class="close-modal" onclick="closeBookingModal()" aria-label="إغلاق">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 id="modal-title"><i class="fas fa-calendar-check"></i> حجز السيارة</h2>
-
-            <!-- ملخص السيارة المختارة -->
-            <div class="car-summary" id="modal-car-summary">
-                <img src="" alt="صورة السيارة" id="modal-car-img" loading="lazy">
-                <div class="car-summary-info">
-                    <h4 id="modal-car-name">اسم السيارة</h4>
-                    <p id="modal-car-price">0 ر.س / يوم</p>
-                </div>
-            </div>
-
-            <!-- حقول التاريخ والوقت -->
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="fas fa-play-circle"></i> تاريخ الاستلام</label>
-                    <input type="date" id="pickup-date" class="form-control" min="">
-                    <div style="display: flex; gap: var(--spacing-2); margin-top: var(--spacing-2);">
-                        <select id="pickup-hour" class="form-control" style="flex:1;" aria-label="ساعة الاستلام">
-                            <option value="08">08 صباحاً</option>
-                            <option value="09">09 صباحاً</option>
-                            <option value="10" selected>10 صباحاً</option>
-                            <option value="11">11 صباحاً</option>
-                            <option value="12">12 ظهراً</option>
-                            <option value="13">01 مساءً</option>
-                            <option value="14">02 مساءً</option>
-                            <option value="15">03 مساءً</option>
-                            <option value="16">04 مساءً</option>
-                            <option value="17">05 مساءً</option>
-                            <option value="18">06 مساءً</option>
-                        </select>
-                        <select id="pickup-minute" class="form-control" style="flex:1;" aria-label="دقيقة الاستلام">
-                            <option value="00">:00</option>
-                            <option value="15">:15</option>
-                            <option value="30" selected>:30</option>
-                            <option value="45">:45</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-stop-circle"></i> تاريخ التسليم</label>
-                    <input type="date" id="return-date" class="form-control" min="">
-                    <div style="display: flex; gap: var(--spacing-2); margin-top: var(--spacing-2);">
-                        <select id="return-hour" class="form-control" style="flex:1;" aria-label="ساعة التسليم">
-                            <option value="08">08 صباحاً</option>
-                            <option value="09">09 صباحاً</option>
-                            <option value="10">10 صباحاً</option>
-                            <option value="11">11 صباحاً</option>
-                            <option value="12">12 ظهراً</option>
-                            <option value="13">01 مساءً</option>
-                            <option value="14">02 مساءً</option>
-                            <option value="15">03 مساءً</option>
-                            <option value="16">04 مساءً</option>
-                            <option value="17">05 مساءً</option>
-                            <option value="18" selected>06 مساءً</option>
-                        </select>
-                        <select id="return-minute" class="form-control" style="flex:1;" aria-label="دقيقة التسليم">
-                            <option value="00">:00</option>
-                            <option value="15">:15</option>
-                            <option value="30" selected>:30</option>
-                            <option value="45">:45</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ملخص الحجز -->
-            <div class="card bg-secondary p-4" id="booking-summary-box" style="margin: var(--spacing-4) 0;">
-                <div class="flex-between border-bottom" style="padding: var(--spacing-2) 0;">
-                    <span>عدد الأيام</span>
-                    <span id="summary-days" style="font-weight: var(--font-weight-bold);">-- يوم</span>
-                </div>
-                <div class="flex-between border-bottom" style="padding: var(--spacing-2) 0;">
-                    <span>السعر اليومي</span>
-                    <span id="summary-daily-price" style="font-weight: var(--font-weight-bold);">0 ر.س</span>
-                </div>
-                <div class="flex-between" style="padding: var(--spacing-2) 0; font-weight: var(--font-weight-extrabold); color: var(--color-secondary); font-size: var(--font-size-md);">
-                    <span>الإجمالي التقديري</span>
-                    <span id="summary-total">0 ر.س</span>
-                </div>
-            </div>
-
-            <button class="btn btn-primary btn-lg w-100" id="btn-confirm-booking" onclick="confirmBooking()">
-                <i class="fas fa-check-circle"></i> تأكيد الحجز
-            </button>
-            <p class="text-center text-muted mt-2" style="font-size: var(--font-size-sm);">
-                سيتم تحويلك لاستكمال الدفع بعد التأكيد
-            </p>
-        </div>
-    </div>
+    </main>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -742,12 +303,11 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <h3>عن وُجْهَة</h3>
-                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: var(--spacing-4); line-height: var(--line-height-relaxed);">
-                        أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان. نسعى لتحويل السيارات المتوقفة إلى أصول منتجة.
-                    </p>
+                    <p>أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-twitter"></i></a>
                         <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -755,8 +315,17 @@
                     <ul>
                         <li><a href="index.html">الرئيسية</a></li>
                         <li><a href="cars.html">استكشف السيارات</a></li>
-                        <li><a href="qassim-map.html">خريطة السيارات</a></li>
-                        <li><a href="https://wa.me/966565464718">الدعم الفني</a></li>
+                        <li><a href="qassim-map.html">الخريطة</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>الحساب</h3>
+                    <ul>
+                        <li><a href="landing.html" class="guest-only">تسجيل دخول</a></li>
+                        <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                        <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                        <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -764,49 +333,41 @@
                     <ul class="footer-contact">
                         <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
                         <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
-                        <li><i class="fas fa-envelope"></i> contact@wujha.sa</li>
+                        <li><i class="fas fa-envelope"></i> info@wajhah.sa</li>
                     </ul>
                 </div>
             </div>
-            <div class="copyright">
+            <div class="footer-bottom">
                 <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p>
+                <div class="footer-legal">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- ===== BOTTOM NAVBAR (Mobile) ===== -->
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
-        <a href="index.html" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>الرئيسية</span>
-        </a>
-        <a href="cars.html" class="nav-item active">
-            <i class="fas fa-car"></i>
-            <span>السيارات</span>
-        </a>
-        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>دخول</span>
-        </a>
-        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button">
-            <i class="fas fa-user-circle"></i>
-            <span>حسابي</span>
-        </a>
-        <a href="qassim-map.html" class="nav-item">
-            <i class="fas fa-map-marked-alt"></i>
-            <span>الخريطة</span>
-        </a>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+        <a href="cars.html" class="nav-item active"><i class="fas fa-car"></i><span>السيارات</span></a>
+        <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
+        <a href="#" class="nav-item auth-link-bottom" id="mobile-bottom-user-button"><i class="fas fa-user-circle"></i><span>حسابي</span></a>
+        <a href="qassim-map.html" class="nav-item"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
     </nav>
 
-    <!-- ===== JAVASCRIPT محسّن ===== -->
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // ===== متغيرات عامة =====
-        let currentCarData = null;
+        AOS.init({ once: true, duration: 600 });
+
         let allCarsCache = [];
 
-        // ===== تهيئة الصفحة =====
         document.addEventListener('DOMContentLoaded', async function() {
-            // تحميل السيارات من API
+            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
+                updateNavbarBasedOnLoginStatus();
+            }
+
             const cars = await fetchCars({ status: 'active' });
             allCarsCache = cars;
             const container = document.getElementById('cars-grid');
@@ -822,32 +383,8 @@
             }
 
             renderCars(cars, 'cars-grid');
-
-            // ربط أزرار الحجز بعد التحميل
-            setTimeout(() => attachBookingButtons(), 300);
-
-            // تحديث شريط التنقل
-            if (typeof updateNavbarBasedOnLoginStatus === 'function') {
-                updateNavbarBasedOnLoginStatus();
-            }
-
-            // ضبط الحد الأدنى للتواريخ
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('pickup-date').setAttribute('min', today);
-            document.getElementById('return-date').setAttribute('min', today);
-
-            // تعيين تاريخ افتراضي (غداً)
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            document.getElementById('pickup-date').value = tomorrowStr;
-            const dayAfter = new Date(tomorrow);
-            dayAfter.setDate(dayAfter.getDate() + 1);
-            document.getElementById('return-date').value = dayAfter.toISOString().split('T')[0];
-            updateBookingSummary();
         });
 
-        // ===== عرض السيارات (مع تحسينات) =====
         function renderCars(cars, containerId = 'cars-grid') {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -856,19 +393,17 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-car"></i>
-                        <p>لا توجد سيارات متاحة حالياً</p>
+                        <p>لا توجد سيارات تطابق الفلتر</p>
                     </div>
                 `;
                 return;
             }
 
-            const html = cars.map(car => {
-                const hasLocation = car.latitude && car.longitude;
+            container.innerHTML = cars.map(car => {
                 const badgeClass = car.status === 'active' ? 'available' :
                     car.status === 'pending' ? 'pending' : 'rejected';
                 const badgeText = car.status === 'active' ? 'متاحة' :
                     car.status === 'pending' ? 'قيد المراجعة' : 'غير متاحة';
-
                 const imgSrc = car.images && car.images.length > 0 ?
                     car.images[0] :
                     'https://via.placeholder.com/400x250?text=سيارة';
@@ -881,11 +416,6 @@
                                 <i class="fas ${car.status === 'active' ? 'fa-check-circle' : car.status === 'pending' ? 'fa-clock' : 'fa-times-circle'}"></i>
                                 ${badgeText}
                             </span>
-                            ${hasLocation ? `
-                                <span class="car-location-badge">
-                                    <i class="fas fa-map-pin"></i> موقع محدد
-                                </span>
-                            ` : ''}
                         </div>
                         <div class="car-info">
                             <h3 class="car-title">${car.brand || ''} ${car.model || ''}</h3>
@@ -900,14 +430,9 @@
                                 ${car.fuel ? `<span class="spec"><i class="fas fa-gas-pump"></i> ${car.fuel === 'electric' ? 'كهرباء' : car.fuel === 'hybrid' ? 'هايبرد' : 'بنزين'}</span>` : ''}
                             </div>
                             <div class="car-actions-row">
-                                <button class="btn-outline-sm" onclick="window.open('car-location-preview.html?carId=${car.id}', '_blank')" title="عرض الموقع التقريبي">
+                                <button class="btn-outline-sm" onclick="window.open('car-location-preview.html?carId=${car.id}', '_blank')">
                                     <i class="fas fa-map-pin"></i> الموقع
                                 </button>
-                                ${car.status === 'active' ? `
-                                    <button class="btn-outline-sm" onclick="window.open('car-location-preview.html?carId=${car.id}', '_blank')" title="عرض النطاق التقريبي">
-                                        <i class="fas fa-eye"></i> نطاق تقريبي
-                                    </button>
-                                ` : ''}
                             </div>
                             <div class="car-price-box">
                                 <div class="car-price">${car.daily_price || 0} <small>ر.س/يوم</small></div>
@@ -926,227 +451,42 @@
                 `;
             }).join('');
 
-            container.innerHTML = html;
-            attachBookingButtons();
-        }
-
-        // ===== ربط أزرار الحجز =====
-        function attachBookingButtons() {
-            const bookButtons = document.querySelectorAll('.btn-book:not([disabled])');
-            bookButtons.forEach(btn => {
-                // منع إضافة مستمعين متكررين
-                btn.removeEventListener('click', handleBookingClick);
-                btn.addEventListener('click', handleBookingClick);
+            // ربط أزرار الحجز
+            document.querySelectorAll('.btn-book:not([disabled])').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const carId = this.dataset.carId;
+                    if (carId) openBookingModalFromCarId(carId);
+                });
             });
         }
 
-        function handleBookingClick(e) {
-            const btn = e.currentTarget;
-            const card = btn.closest('.car-card');
-            if (!card) return;
-
-            const carId = card.dataset.carId;
-            const title = card.querySelector('.car-title')?.textContent || 'سيارة';
-            const img = card.querySelector('.car-img-box img')?.src || '';
-            const priceEl = card.querySelector('.car-price');
-            const dailyPrice = priceEl ? parseFloat(priceEl.textContent.replace(/[^0-9.]/g, '')) : 0;
-
-            currentCarData = {
-                id: carId,
-                name: title,
-                image: img,
-                dailyPrice: dailyPrice
-            };
-
-            openBookingModal(currentCarData);
-        }
-
-        // ===== نافذة الحجز =====
-        function openBookingModal(carData) {
-            document.getElementById('modal-car-img').src = carData.image || 'https://via.placeholder.com/80x60?text=سيارة';
-            document.getElementById('modal-car-name').textContent = carData.name;
-            document.getElementById('modal-car-price').textContent = `${carData.dailyPrice} ر.س / يوم`;
-
-            document.getElementById('summary-daily-price').textContent = `${carData.dailyPrice} ر.س`;
-            document.getElementById('summary-days').textContent = '-- يوم';
-            document.getElementById('summary-total').textContent = '0 ر.س';
-
-            // تعيين التواريخ الافتراضية إذا كانت فارغة
-            const pickup = document.getElementById('pickup-date');
-            const returnD = document.getElementById('return-date');
-            if (!pickup.value) {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                pickup.value = tomorrow.toISOString().split('T')[0];
-            }
-            if (!returnD.value) {
-                const dayAfter = new Date();
-                dayAfter.setDate(dayAfter.getDate() + 2);
-                returnD.value = dayAfter.toISOString().split('T')[0];
-            }
-            updateBookingSummary();
-
-            document.getElementById('booking-modal').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        window.closeBookingModal = function() {
-            document.getElementById('booking-modal').classList.remove('open');
-            document.body.style.overflow = '';
-        };
-
-        // إغلاق المودال عند النقر خارجها
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'booking-modal') {
-                window.closeBookingModal();
-            }
-        });
-
-        // ===== تحديث ملخص الحجز =====
-        window.updateBookingSummary = function() {
-            const pickupDate = document.getElementById('pickup-date').value;
-            const returnDate = document.getElementById('return-date').value;
-
-            if (!pickupDate || !returnDate) {
-                document.getElementById('summary-days').textContent = '-- يوم';
-                document.getElementById('summary-total').textContent = '0 ر.س';
-                return;
-            }
-
-            const pickup = new Date(pickupDate);
-            const returnD = new Date(returnDate);
-
-            if (returnD <= pickup) {
-                document.getElementById('summary-days').textContent = 'تاريخ غير صالح';
-                document.getElementById('summary-total').textContent = '0 ر.س';
-                return;
-            }
-
-            const diffTime = Math.abs(returnD - pickup);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            document.getElementById('summary-days').textContent = `${diffDays} يوم`;
-
-            if (currentCarData && currentCarData.dailyPrice) {
-                const total = currentCarData.dailyPrice * diffDays;
-                document.getElementById('summary-total').textContent = `${total} ر.س`;
-            }
-        };
-
-        // ربط التغييرات في التواريخ
-        document.getElementById('pickup-date').addEventListener('change', window.updateBookingSummary);
-        document.getElementById('return-date').addEventListener('change', window.updateBookingSummary);
-        document.getElementById('pickup-hour').addEventListener('change', window.updateBookingSummary);
-        document.getElementById('return-hour').addEventListener('change', window.updateBookingSummary);
-        document.getElementById('pickup-minute').addEventListener('change', window.updateBookingSummary);
-        document.getElementById('return-minute').addEventListener('change', window.updateBookingSummary);
-
-        // ===== تأكيد الحجز (يستخدم bookCar من script.js) =====
-        window.confirmBooking = async function() {
-            const pickupDate = document.getElementById('pickup-date').value;
-            const returnDate = document.getElementById('return-date').value;
-            const pickupHour = document.getElementById('pickup-hour').value;
-            const pickupMinute = document.getElementById('pickup-minute').value;
-            const returnHour = document.getElementById('return-hour').value;
-            const returnMinute = document.getElementById('return-minute').value;
-
-            if (!pickupDate || !returnDate) {
-                alert('الرجاء اختيار تاريخي الاستلام والتسليم');
-                return;
-            }
-
-            const pickup = new Date(pickupDate);
-            const returnD = new Date(returnDate);
-
-            if (returnD <= pickup) {
-                alert('تاريخ التسليم يجب أن يكون بعد تاريخ الاستلام');
-                return;
-            }
-
-            if (!currentCarData || !currentCarData.id) {
-                alert('حدث خطأ في بيانات السيارة');
-                return;
-            }
-
-            // التحقق من وجود دالة bookCar في script.js
-            if (typeof bookCar === 'function') {
-                // استخدام الدالة الموجودة
-                await bookCar(currentCarData.id);
-                window.closeBookingModal();
-                return;
-            }
-
-            // بديل: إنشاء حجز مباشر
-            const startDateTime = `${pickupDate}T${pickupHour.padStart(2, '0')}:${pickupMinute}:00`;
-            const endDateTime = `${returnDate}T${returnHour.padStart(2, '0')}:${returnMinute}:00`;
-
-            const days = Math.ceil(Math.abs(returnD - pickup) / (1000 * 60 * 60 * 24));
-            const total = currentCarData.dailyPrice * days;
-
-            try {
-                const booking = await createBooking({
-                    car_id: currentCarData.id,
-                    start_date: startDateTime,
-                    end_date: endDateTime,
-                    total_price: total
-                });
-
-                if (booking) {
-                    alert(`✅ تم إنشاء الحجز بنجاح!\nالسيارة: ${currentCarData.name}\nالمدة: ${days} يوم\nالإجمالي: ${total} ر.س\nفي انتظار موافقة المالك.`);
-                    localStorage.setItem('current_booking_id', booking.id);
-                    window.closeBookingModal();
-                    window.location.href = 'dashboard-renter.html';
-                } else {
-                    alert('❌ حدث خطأ أثناء إنشاء الحجز');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('❌ حدث خطأ غير متوقع: ' + err.message);
-            }
-        };
-
-        // ===== دالة التصفية حسب النوع =====
         window.filterCars = function(type, btn) {
             if (!allCarsCache || allCarsCache.length === 0) return;
 
-            // تحديث الأزرار النشطة
-            document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.filter-tag').forEach(p => p.classList.remove('active'));
             if (btn) btn.classList.add('active');
 
             let filtered = allCarsCache;
             if (type !== 'all') {
                 filtered = allCarsCache.filter(car => car.type === type);
             }
-
             renderCars(filtered, 'cars-grid');
         };
 
-        // ===== تبديل الوضع (داكن/فاتح) =====
-        (function setupTheme() {
-            const themeToggle = document.getElementById('theme-toggle-desktop');
-            if (!themeToggle) return;
-
-            const applyTheme = (theme) => {
-                document.documentElement.setAttribute('data-theme', theme);
-                document.body.classList.toggle('dark-mode', theme === 'dark');
-                localStorage.setItem('theme', theme);
-                const icon = themeToggle.querySelector('i');
-                const span = themeToggle.querySelector('span');
-                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
-            };
-
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            applyTheme(savedTheme);
-
-            themeToggle.addEventListener('click', () => {
-                const current = document.documentElement.getAttribute('data-theme') || 'light';
-                const newTheme = current === 'dark' ? 'light' : 'dark';
-                applyTheme(newTheme);
-            });
-        })();
-
-        console.log('✅ صفحة السيارات (نسخة محسّنة) جاهزة!');
+        window.fetchCars = async function(filter = {}) {
+            const client = window.supabaseClient;
+            if (!client) return [];
+            try {
+                let query = client.from('cars').select('*');
+                if (filter.status) query = query.eq('status', filter.status);
+                const { data, error } = await query;
+                if (error) throw error;
+                return data || [];
+            } catch (err) {
+                console.error('فشل جلب السيارات:', err);
+                return [];
+            }
+        };
     </script>
 </body>
 </html>
