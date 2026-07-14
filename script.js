@@ -265,9 +265,12 @@ function attachBookingButtonsToCards() {
 }
 
 // -------------------------------------
-// دوال النافذة المنبثقة للحجز (Modal)
+// دوال النافذة المنبثقة للحجز (Modal) وتأكيد الحجز
 // -------------------------------------
 
+/**
+ * فتح نافذة الحجز مع بيانات السيارة المختارة
+ */
 async function openBookingModalFromCarId(carId) {
     const user = getCurrentUser();
     if (!user) {
@@ -301,6 +304,9 @@ async function openBookingModalFromCarId(carId) {
             dailyPrice: car.daily_price || 0
         };
 
+        // تخزين البيانات في النطاق العام لتستخدمها دالة التأكيد
+        window.currentCarData = carData;
+
         if (typeof window.openBookingModal === 'function') {
             window.openBookingModal(carData);
         } else {
@@ -312,31 +318,131 @@ async function openBookingModalFromCarId(carId) {
     }
 }
 
-// دالة bookCar تحوّل إلى النافذة الجديدة
+/**
+ * دالة إنشاء الحجز (حقيقية) مع تحسين معالجة الأخطاء
+ */
+window.createBooking = async function(bookingData) {
+    const client = getSupabaseClient();
+    if (!client) {
+        throw new Error('Supabase غير مهيأ، تعذر الاتصال بقاعدة البيانات.');
+    }
+
+    try {
+        const { data, error } = await client
+            .from('bookings')
+            .insert([bookingData])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('خطأ من Supabase أثناء إنشاء الحجز:', error);
+            throw new Error(error.message || 'فشل إنشاء الحجز في قاعدة البيانات.');
+        }
+        return data;
+    } catch (err) {
+        console.error('استثناء في createBooking:', err);
+        throw err;
+    }
+};
+
+/**
+ * دالة تأكيد الحجز – يتم استدعاؤها من زر "تأكيد الحجز" في المودال
+ */
+window.confirmBooking = async function() {
+    // 1. التحقق من وجود بيانات السيارة
+    if (!window.currentCarData || !window.currentCarData.id) {
+        alert('❌ حدث خطأ: لم يتم تحديد السيارة المطلوبة.');
+        return;
+    }
+
+    // 2. التحقق من تسجيل الدخول
+    const user = getCurrentUser();
+    if (!user) {
+        alert('❌ يجب تسجيل الدخول أولاً لإتمام الحجز.');
+        window.location.href = 'landing.html';
+        return;
+    }
+
+    // 3. قراءة تواريخ الحجز من المودال
+    const pickupDate = document.getElementById('pickup-date')?.value;
+    const returnDate = document.getElementById('return-date')?.value;
+    const pickupHour = document.getElementById('pickup-hour')?.value || '10';
+    const pickupMinute = document.getElementById('pickup-minute')?.value || '30';
+    const returnHour = document.getElementById('return-hour')?.value || '18';
+    const returnMinute = document.getElementById('return-minute')?.value || '30';
+
+    if (!pickupDate || !returnDate) {
+        alert('⚠️ الرجاء اختيار تاريخي الاستلام والتسليم.');
+        return;
+    }
+
+    const pickup = new Date(pickupDate);
+    const returnD = new Date(returnDate);
+    if (returnD <= pickup) {
+        alert('⚠️ تاريخ التسليم يجب أن يكون بعد تاريخ الاستلام.');
+        return;
+    }
+
+    // 4. حساب عدد الأيام والتكلفة الإجمالية
+    const diffTime = Math.abs(returnD - pickup);
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const totalPrice = window.currentCarData.dailyPrice * days;
+
+    // 5. بناء كائن الحجز
+    const startDateTime = `${pickupDate}T${pickupHour.padStart(2, '0')}:${pickupMinute}:00`;
+    const endDateTime = `${returnDate}T${returnHour.padStart(2, '0')}:${returnMinute}:00`;
+
+    const bookingPayload = {
+        car_id: window.currentCarData.id,
+        renter_id: user.id,
+        start_date: startDateTime,
+        end_date: endDateTime,
+        total_price: totalPrice,
+        status: 'pending' // أو 'confirmed' حسب منطق التطبيق
+    };
+
+    // 6. عرض رسالة انتظار أثناء الإنشاء
+    const confirmBtn = document.getElementById('btn-confirm-booking');
+    const originalText = confirmBtn?.innerHTML || 'تأكيد الحجز';
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحجز...';
+    }
+
+    try {
+        const booking = await window.createBooking(bookingPayload);
+
+        // 7. نجاح الحجز
+        alert(`✅ تم إنشاء الحجز بنجاح!\n\nالسيارة: ${window.currentCarData.name}\nالمدة: ${days} يوم\nالإجمالي: ${totalPrice} ر.س\n\nفي انتظار موافقة المالك.`);
+        localStorage.setItem('current_booking_id', booking.id);
+
+        // 8. إغلاق المودال والانتقال إلى لوحة المستأجر
+        if (typeof window.closeBookingModal === 'function') {
+            window.closeBookingModal();
+        } else {
+            // إغلاق المودال يدوياً
+            const modal = document.getElementById('booking-modal');
+            if (modal) modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        window.location.href = 'dashboard-renter.html';
+
+    } catch (err) {
+        console.error('❌ فشل الحجز:', err);
+        alert(`❌ حدث خطأ أثناء الحجز: ${err.message || 'يرجى المحاولة مرة أخرى'}`);
+    } finally {
+        // إعادة الزر إلى حالته الطبيعية
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = originalText;
+        }
+    }
+};
+
+// دالة bookCar تحوّل إلى النافذة الجديدة (اختصار)
 window.bookCar = async function(carId) {
     openBookingModalFromCarId(carId);
 };
-
-// دالة إنشاء الحجز (حقيقية)
-if (typeof createBooking === 'undefined') {
-    window.createBooking = async function(bookingData) {
-        const client = getSupabaseClient();
-        if (!client) return null;
-        try {
-            const { data, error } = await client
-                .from('bookings')
-                .insert([bookingData])
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
-        } catch (err) {
-            console.error('فشل إنشاء الحجز:', err);
-            alert('حدث خطأ أثناء الحجز');
-            return null;
-        }
-    };
-}
 
 // -------------------------------------
 // دوال الخريطة (واجهة روشن) - بيانات حقيقية من قاعدة البيانات
@@ -884,7 +990,6 @@ window.getCurrentUser = getCurrentUser;
 window.logoutUser = logoutUser;
 window.updateNavbarBasedOnLoginStatus = updateNavbarBasedOnLoginStatus;
 window.attachBookingButtonsToCards = attachBookingButtonsToCards;
-window.createBooking = createBooking;
-window.bookCar = bookCar;
+// تم تصدير createBooking و confirmBooking أعلاه مباشرة
 
 console.log('✅ script.js حقيقي ومُحدث مع Supabase');
