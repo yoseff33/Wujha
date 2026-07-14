@@ -4,35 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وُجْهَة | لوحة المؤجر</title>
-    
+
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <!-- ===== مكتبة Supabase وملفات المشروع ===== -->
+
+    <!-- Supabase & Project Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
-    
 </head>
 <body>
 
-    <!-- ===== الهيدر ===== -->
+    <!-- ===== HEADER ===== -->
     <header>
         <div class="container">
             <nav class="navbar">
+                <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+
                 <a href="index.html" class="logo">
                     <div class="logo-icon">و</div>
                     <div class="logo-text">وُجْهَة</div>
                 </a>
+
                 <ul class="nav-links desktop-nav-links">
                     <li><a href="index.html">الرئيسية</a></li>
                     <li><a href="cars.html">استكشف السيارات</a></li>
                     <li><a href="dashboard-owner.html" class="active">لوحة المؤجر</a></li>
-                    <li><a href="add-car.html" class="auth-link">أضف سيارتك</a></li>
-                    <li><a href="dashboard-renter.html" class="auth-link">لوحة المستأجر</a></li>
+                    <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
                 </ul>
+
                 <div class="nav-buttons nav-buttons-desktop-only">
                     <button id="theme-toggle-desktop" class="theme-toggle"><i class="fas fa-moon"></i><span>الوضع</span></button>
                     <a href="landing.html" class="btn btn-primary guest-only" id="nav-guest-button">دخول</a>
@@ -42,21 +48,43 @@
         </div>
     </header>
 
-    <!-- ===== المحتوى الرئيسي ===== -->
+    <!-- ===== القائمة الجانبية ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">و</div>
+                <span class="logo-text">وُجْهَة</span>
+            </a>
+            <button class="close-btn" id="closeSidebarBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+            <li><a href="cars.html"><i class="fas fa-car"></i> استكشف السيارات</a></li>
+            <li><a href="dashboard-owner.html" class="active"><i class="fas fa-user-tie"></i> لوحة المؤجر</a></li>
+            <li><a href="add-car.html" class="auth-link" data-role="owner"><i class="fas fa-plus-circle"></i> أضف سيارتك</a></li>
+            <li><a href="dashboard-renter.html" class="auth-link" data-role="renter"><i class="fas fa-user"></i> لوحة المستأجر</a></li>
+        </ul>
+        <div class="mobile-sidebar-footer">
+            <a href="landing.html" class="btn btn-primary guest-only" id="mobile-guest-btn">تسجيل دخول / جديد</a>
+            <button id="mobile-theme-toggle" class="btn btn-outline"><i class="fas fa-moon"></i> الوضع الليلي</button>
+        </div>
+    </aside>
+
+    <!-- ===== المحتوى ===== -->
     <div class="container dashboard-wrapper">
         <div class="dashboard" data-aos="fade-up">
-            
-            <!-- ===== القائمة الجانبية ===== -->
+            <!-- ===== القائمة الجانبية (ديسكتوب) ===== -->
             <div class="dashboard-sidebar">
                 <div class="user-profile">
                     <div class="user-avatar" id="owner-avatar">م</div>
                     <h3 id="owner-name-display">مستخدم</h3>
-                    <p><i class="fas fa-check-circle" style="color: #2ecc71;"></i> هوية موثقة (نفاذ)</p>
+                    <p><i class="fas fa-check-circle" style="color:var(--color-success);"></i> هوية موثقة (نفاذ)</p>
                 </div>
                 <ul class="sidebar-menu">
                     <li><a href="#" class="active" onclick="loadDashboard()"><i class="fas fa-chart-line"></i> نظرة عامة</a></li>
-                    <li><a href="#" onclick="loadOwnerCars()"><i class="fas fa-car"></i> سياراتي <span id="car-count-badge" style="background:#c5a065;color:#0f2925;padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
-                    <li><a href="#" onclick="loadOwnerBookings()"><i class="fas fa-calendar-check"></i> طلبات الحجز <span id="booking-count-badge" style="background:#e74c3c;color:white;padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
+                    <li><a href="#" onclick="loadOwnerCars()"><i class="fas fa-car"></i> سياراتي <span id="car-count-badge" style="background:var(--color-secondary);color:var(--color-primary-dark);padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
+                    <li><a href="#" onclick="loadOwnerBookings()"><i class="fas fa-calendar-check"></i> طلبات الحجز <span id="booking-count-badge" style="background:var(--color-danger);color:#fff;padding:2px 8px;border-radius:50%;font-size:0.8rem;">0</span></a></li>
                     <li><a href="#" onclick="loadContracts()"><i class="fas fa-file-contract"></i> العقود</a></li>
                     <li><a href="add-car.html"><i class="fas fa-plus-circle"></i> أضف سيارة</a></li>
                 </ul>
@@ -64,28 +92,15 @@
 
             <!-- ===== المحتوى ===== -->
             <div class="dashboard-content" id="dashboard-content">
-
-                <!-- ===== بطاقات الإحصائيات ===== -->
+                <!-- Stats -->
                 <div class="stats-grid" id="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-cars">0</div>
-                        <div class="stat-label"><i class="fas fa-car"></i> إجمالي السيارات</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-bookings">0</div>
-                        <div class="stat-label"><i class="fas fa-calendar-check"></i> طلبات الحجز</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-pending">0</div>
-                        <div class="stat-label"><i class="fas fa-clock"></i> قيد المراجعة</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-earnings">0</div>
-                        <div class="stat-label"><i class="fas fa-money-bill-wave"></i> إجمالي الأرباح (ر.س)</div>
-                    </div>
+                    <div class="stat-card"><div class="value" id="stat-cars">0</div><div class="stat-label"><i class="fas fa-car"></i> إجمالي السيارات</div></div>
+                    <div class="stat-card"><div class="value" id="stat-bookings">0</div><div class="stat-label"><i class="fas fa-calendar-check"></i> طلبات الحجز</div></div>
+                    <div class="stat-card"><div class="value" id="stat-pending">0</div><div class="stat-label"><i class="fas fa-clock"></i> قيد المراجعة</div></div>
+                    <div class="stat-card"><div class="value" id="stat-earnings">0</div><div class="stat-label"><i class="fas fa-money-bill-wave"></i> إجمالي الأرباح (ر.س)</div></div>
                 </div>
 
-                <!-- ===== سياراتي ===== -->
+                <!-- سياراتي -->
                 <div class="smart-widget" id="cars-widget">
                     <h3><i class="fas fa-car"></i> سياراتي</h3>
                     <div id="cars-container">
@@ -93,7 +108,7 @@
                     </div>
                 </div>
 
-                <!-- ===== طلبات الحجز ===== -->
+                <!-- طلبات الحجز -->
                 <div class="smart-widget" id="bookings-widget">
                     <h3><i class="fas fa-calendar-check"></i> طلبات الحجز على سياراتي</h3>
                     <div id="bookings-container">
@@ -101,19 +116,68 @@
                     </div>
                 </div>
 
-                <!-- ===== العقود ===== -->
+                <!-- العقود -->
                 <div class="smart-widget" id="contracts-widget">
                     <h3><i class="fas fa-file-contract"></i> العقود</h3>
                     <div id="contracts-container">
                         <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- ===== الشريط السفلي للجوال ===== -->
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>عن وُجْهَة</h3>
+                    <p>أول منصة سعودية متخصصة في تأجير السيارات بين الأفراد بثقة وأمان وسهولة تامة.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="cars.html">استكشف السيارات</a></li>
+                        <li><a href="qassim-map.html">الخريطة</a></li>
+                        <li><a href="quiz.html">اختبار السيارة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>الحساب</h3>
+                    <ul>
+                        <li><a href="landing.html" class="guest-only">تسجيل دخول</a></li>
+                        <li><a href="dashboard-owner.html" class="auth-link" data-role="owner">لوحة المؤجر</a></li>
+                        <li><a href="dashboard-renter.html" class="auth-link" data-role="renter">لوحة المستأجر</a></li>
+                        <li><a href="add-car.html" class="auth-link" data-role="owner">أضف سيارتك</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>تواصل معنا</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> الرياض، واجهة روشن</li>
+                        <li><i class="fas fa-phone"></i> +966 56 546 4718</li>
+                        <li><i class="fas fa-envelope"></i> info@wajhah.sa</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 وُجْهَة. جميع الحقوق محفوظة. 🇸🇦</p>
+                <div class="footer-legal">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== القائمة السفلية ===== -->
     <nav class="bottom-navbar mobile-bottom-navbar">
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
         <a href="cars.html" class="nav-item"><i class="fas fa-car"></i><span>السيارات</span></a>
@@ -122,12 +186,14 @@
         <a href="landing.html" class="nav-item guest-only" id="mobile-bottom-guest-button"><i class="fas fa-sign-in-alt"></i><span>دخول</span></a>
     </nav>
 
+    <!-- ===== سكريبتات ===== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
     <script>
-        AOS.init({ once: true });
+        AOS.init({ once: true, duration: 600 });
 
         // ============================================================
-        //  دوال لوحة المالك (معدلة)
+        //  دوال لوحة المالك (كاملة)
         // ============================================================
 
         let currentUserId = null;
@@ -136,7 +202,6 @@
         // ===== 1. جلب المستخدم الحقيقي من Supabase =====
         async function loadUserData() {
             try {
-                // جلب جلسة المستخدم الحالية من Supabase
                 const { data: { user }, error } = await window.supabaseClient.auth.getUser();
                 if (error || !user) {
                     console.warn('لا توجد جلسة نشطة، توجيه إلى صفحة الدخول');
@@ -144,7 +209,6 @@
                     return false;
                 }
 
-                // التأكد من أن المستخدم لديه دور "owner" أو "admin"
                 const role = user.user_metadata?.role || 'user';
                 if (role !== 'owner' && role !== 'admin') {
                     alert('❌ هذه الصفحة مخصصة للمالكين فقط.');
@@ -152,21 +216,17 @@
                     return false;
                 }
 
-                // تخزين معلومات المستخدم
-                currentUserId = user.id; // UUID حقيقي
+                currentUserId = user.id;
                 currentUserEmail = user.email || '';
 
-                // تحديث واجهة المستخدم
                 const name = user.user_metadata?.name || user.email || 'مالك';
                 document.getElementById('owner-name-display').textContent = name;
                 document.getElementById('owner-avatar').textContent = name.charAt(0);
 
-                // تحديث حالة الدخول في localStorage (للدوال الأخرى)
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userType', role);
                 localStorage.setItem('userName', name);
 
-                // تحديث شريط التنقل
                 if (typeof updateNavbarBasedOnLoginStatus === 'function') {
                     updateNavbarBasedOnLoginStatus();
                 }
@@ -180,7 +240,7 @@
             }
         }
 
-        // ===== 2. تحميل لوحة التحكم (الإحصائيات) =====
+        // ===== 2. تحميل لوحة التحكم =====
         async function loadDashboard() {
             if (!currentUserId) {
                 console.error('لا يوجد مستخدم مسجل');
@@ -188,7 +248,6 @@
             }
 
             try {
-                // جلب سيارات المالك
                 const { data: cars, error: carsError } = await window.supabaseClient
                     .from('cars')
                     .select('*')
@@ -215,7 +274,6 @@
                     }
                 }
 
-                // تحديث الإحصائيات
                 document.getElementById('stat-cars').textContent = cars?.length || 0;
                 document.getElementById('stat-bookings').textContent = bookings.length;
                 document.getElementById('stat-pending').textContent = pendingCount;
@@ -224,16 +282,14 @@
                 document.getElementById('car-count-badge').textContent = cars?.length || 0;
                 document.getElementById('booking-count-badge').textContent = bookings.length;
 
-                // عرض السيارات والحجوزات والعقود
                 renderOwnerCars(cars);
                 renderOwnerBookings(bookings, cars);
                 await loadContracts();
 
             } catch (err) {
                 console.error('خطأ في تحميل لوحة التحكم:', err);
-                // عرض رسالة خطأ في الواجهة
                 document.querySelector('.stats-grid').innerHTML = `
-                    <div class="stat-card" style="grid-column:1/-1;color:#e74c3c;">
+                    <div class="stat-card" style="grid-column:1/-1;color:var(--color-danger);">
                         <i class="fas fa-exclamation-triangle"></i> حدث خطأ في تحميل البيانات: ${err.message}
                     </div>
                 `;
@@ -317,7 +373,7 @@
                         <div class="booking-header">
                             <div>
                                 <span class="booking-car">${car.brand || ''} ${car.model || ''}</span>
-                                <span class="status-badge ${booking.status}">
+                                <span class="status-badge ${booking.status}" style="margin-right:10px;">
                                     ${statusMap[booking.status] || booking.status}
                                 </span>
                             </div>
@@ -326,7 +382,7 @@
                         <div class="booking-dates">
                             <i class="fas fa-calendar-alt"></i> 
                             ${new Date(booking.start_date).toLocaleDateString('ar-SA')} 
-                            <i class="fas fa-arrow-left"></i> 
+                            <i class="fas fa-arrow-left" style="margin:0 5px;"></i> 
                             ${new Date(booking.end_date).toLocaleDateString('ar-SA')}
                         </div>
                         ${booking.status === 'pending_owner_approval' ? `
@@ -396,7 +452,6 @@
             }
 
             try {
-                // جلب جميع العقود مع تفاصيل الحجز والسيارة
                 const { data: contracts, error } = await window.supabaseClient
                     .from('contracts')
                     .select(`
@@ -409,7 +464,6 @@
 
                 if (error) throw error;
 
-                // تصفية العقود التي تخص سيارات هذا المالك
                 const ownerContracts = contracts.filter(c => 
                     c.bookings?.cars?.owner_id === currentUserId
                 );
@@ -425,18 +479,18 @@
                 }
 
                 container.innerHTML = ownerContracts.map(c => `
-                    <div class="booking-item" style="border-right: 3px solid #2ecc71;">
+                    <div class="booking-item" style="border-right: 3px solid var(--color-secondary);">
                         <div class="booking-header">
                             <div>
                                 <span style="font-weight:bold;">عقد رقم: ${c.contract_number || 'N/A'}</span>
-                                <span class="status-badge ${c.status || 'draft'}">
+                                <span class="status-badge ${c.status || 'draft'}" style="margin-right:10px;">
                                     ${c.status === 'active' ? '✅ ساري' : 
                                       c.status === 'draft' ? '📝 مسودة' :
                                       c.status === 'completed' ? '✔️ مكتمل' : c.status}
                                 </span>
                             </div>
                         </div>
-                        <div style="font-size:0.85rem; color:#777; margin-top:5px;">
+                        <div style="font-size:0.85rem; color:var(--color-text-secondary); margin-top:5px;">
                             <i class="fas fa-car"></i> ${c.bookings?.cars?.brand || ''} ${c.bookings?.cars?.model || ''}
                             <span style="margin-right:15px;">
                                 <i class="fas fa-calendar-alt"></i> 
@@ -466,30 +520,7 @@
             document.getElementById('contracts-widget').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ===== 9. الوضع الليلي =====
-        (function setupTheme() {
-            const themeToggle = document.getElementById('theme-toggle-desktop');
-            if (!themeToggle) return;
-
-            const applyTheme = (theme) => {
-                document.body.classList.toggle('dark-mode', theme === 'dark');
-                localStorage.setItem('theme', theme);
-                const icon = themeToggle.querySelector('i');
-                const span = themeToggle.querySelector('span');
-                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                if (span) span.textContent = theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
-            };
-
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            applyTheme(currentTheme);
-
-            themeToggle.addEventListener('click', () => {
-                const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-                applyTheme(newTheme);
-            });
-        })();
-
-        // ===== 10. تهيئة الصفحة =====
+        // ===== 9. تهيئة الصفحة =====
         (async function init() {
             const loaded = await loadUserData();
             if (loaded) {
@@ -497,30 +528,23 @@
             }
         })();
 
-        // ===== 11. دالة الخروج (تحتاج إلى تنفيذها في script.js أو هنا) =====
-        window.logoutUser = function() {
-            if (confirm('هل تريد تسجيل الخروج؟')) {
-                window.supabaseClient.auth.signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'landing.html';
-                }).catch(err => {
-                    console.error(err);
-                    localStorage.clear();
-                    window.location.href = 'landing.html';
-                });
-            }
-        };
-
-        // تعريض الدوال للنافذة العامة للاستخدام في onclick
+        // ===== تعريض الدوال للنافذة العامة =====
         window.loadDashboard = loadDashboard;
         window.loadOwnerCars = loadOwnerCars;
         window.loadOwnerBookings = loadOwnerBookings;
         window.loadContracts = loadContracts;
         window.approveBooking = approveBooking;
         window.rejectBooking = rejectBooking;
+        window.logoutUser = function() {
+            if (confirm('تسجيل الخروج؟')) {
+                window.supabaseClient.auth.signOut().then(() => {
+                    localStorage.clear();
+                    window.location.href = 'landing.html';
+                });
+            }
+        };
 
-        console.log('✅ لوحة المالك (مع موقع السيارة) جاهزة للعمل!');
+        console.log('✅ لوحة المالك جاهزة');
     </script>
-
 </body>
 </html>
