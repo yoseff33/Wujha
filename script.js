@@ -475,3 +475,76 @@ window.openBookingModalFromCarId = openBookingModalFromCarId;
 window.openBookingModal = openBookingModal;
 window.closeBookingModal = closeBookingModal;
 window.updateBookingSummary = updateBookingSummary;
+// ============================================================
+// دوال الحجز (مضافة إلى script.js)
+// ============================================================
+
+window.openBookingModalFromCarId = async function(carId) {
+    const user = getCurrentUser();
+    if (!user) {
+        alert('الرجاء تسجيل الدخول أولاً');
+        window.location.href = 'landing.html';
+        return;
+    }
+    const client = getSupabaseClient();
+    if (!client) {
+        alert('خطأ في الاتصال بقاعدة البيانات');
+        return;
+    }
+    try {
+        const { data: car, error } = await client.from('cars').select('*').eq('id', carId).single();
+        if (error || !car) {
+            alert('تعذر العثور على بيانات السيارة');
+            return;
+        }
+        window.currentCarData = {
+            id: car.id,
+            name: `${car.brand} ${car.model}`,
+            image: car.images && car.images.length > 0 ? car.images[0] : 'https://via.placeholder.com/300x200?text=سيارة',
+            dailyPrice: car.daily_price || 0
+        };
+        // استدعاء الدالة في الصفحة (إذا كانت معرفة محلياً)
+        if (typeof window.openBookingModal === 'function') {
+            window.openBookingModal(window.currentCarData);
+        } else {
+            // محاولة استخدام الدالة العامة من script.js
+            openBookingModalGlobal(window.currentCarData);
+        }
+    } catch (err) {
+        console.error('خطأ في فتح نافذة الحجز:', err);
+        alert('حدث خطأ، الرجاء المحاولة مرة أخرى');
+    }
+};
+
+// دالة عامة لفتح المودال (يجب أن تكون معرفة في الصفحة)
+function openBookingModalGlobal(carData) {
+    const modal = document.getElementById('booking-modal');
+    if (!modal) {
+        alert('نظام الحجز غير جاهز (المودال غير موجود في هذه الصفحة)');
+        return;
+    }
+    // تنفيذ عرض المودال (يمكن استدعاء الدالة المحلية في الصفحة)
+    if (typeof window.openBookingModal === 'function') {
+        window.openBookingModal(carData);
+    } else {
+        alert('نظام الحجز غير جاهز (دالة openBookingModal غير معرفة)');
+    }
+}
+
+window.createBooking = async function(bookingData) {
+    const client = getSupabaseClient();
+    if (!client) throw new Error('Supabase غير مهيأ');
+    const { data, error } = await client.from('bookings').insert([bookingData]).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+};
+
+window.confirmBooking = async function() {
+    // هذه الدالة سيتم استدعاؤها من زر التأكيد في المودال
+    // يجب أن تكون معرفة في الصفحة التي تحتوي على المودال
+    if (typeof window.confirmBookingLocal === 'function') {
+        await window.confirmBookingLocal();
+    } else {
+        alert('نظام الحجز غير جاهز (دالة confirmBooking غير معرفة في هذه الصفحة)');
+    }
+};
