@@ -274,6 +274,7 @@
 
 <script>
     const LOGO_URL = 'https://via.placeholder.com/150x80.png?text=شعار+فزاع';
+
     const defaultData = {
         contract_day:'الأربعاء', contract_date_g:'16/07/2026', contract_date_h:'02/02/1448', contract_city:'الرياض',
         agent_name:'سليمان بن عبد الله الحربي', agent_nationality:'سعودي', agent_id:'1029384756', agent_id_source:'الأحوال المدنية بالرياض', agent_id_date:'15/08/1442هـ',
@@ -282,41 +283,127 @@
         investor_address:'الرياض، حي السليمانية، مبنى 4492', investor_email:'investor@alruwad.com', investor_phone:'0500123456', investor_bank:'البنك الأهلي', investor_iban:'SA4310000098765432109876',
         duration:'سنة واحدة', start_date:'16/07/2026', maturity_date:'16/07/2027', capital_num:'100,000', capital_words:'مائة ألف ريال لا غير', court_city:'الرياض'
     };
+
     function syncFields(id,val){ const clean=val.trim()===''?'............':val; const el=document.getElementById(id); if(el)el.innerText=clean; if(id==='court_city'){ const c2=document.getElementById('court_city_2'); if(c2)c2.innerText=clean; } const tbl=document.getElementById('tbl_'+id); if(tbl)tbl.innerText=clean; const sig=document.getElementById('sig_'+id); if(sig)sig.innerText=clean; }
     function syncControls(id,val){ const ctrl=document.getElementById('ctrl_'+id); if(ctrl)ctrl.value=val; syncFields(id,val); }
     function updatePayoutSelection(val){ const p=document.getElementById('tbl_payout_period'); const map={monthly:'شهري (نهاية كل شهر)',quarterly:'ربع سنوي',thirdly:'ثلث سنوي (كل 4 أشهر)',yearly:'سنوي'}; if(p)p.innerText=map[val]||val; }
     function updateDisputeSelection(val){ document.getElementById('dispute_court').checked=(val==='court'); document.getElementById('dispute_arbitration').checked=(val==='arbitration'); }
-    function resetForm(){ Object.keys(defaultData).forEach(k=>{ const ctrl=document.getElementById('ctrl_'+k); if(ctrl)ctrl.value=defaultData[k]; const view=document.getElementById(k); if(view)view.innerText=defaultData[k]; if(k==='court_city'){ const c2=document.getElementById('court_city_2'); if(c2)c2.innerText=defaultData[k]; } const tbl=document.getElementById('tbl_'+k); if(tbl)tbl.innerText=defaultData[k]; const sig=document.getElementById('sig_'+k); if(sig)sig.innerText=defaultData[k]; }); document.getElementById('ctrl_payout_period').value='monthly'; updatePayoutSelection('monthly'); document.getElementById('ctrl_dispute_method').value='court'; updateDisputeSelection('court'); }
+
+    function resetForm(){ 
+        Object.keys(defaultData).forEach(k=>{ 
+            const ctrl=document.getElementById('ctrl_'+k); if(ctrl)ctrl.value=defaultData[k];
+            const view=document.getElementById(k); if(view)view.innerText=defaultData[k];
+            if(k==='court_city'){ const c2=document.getElementById('court_city_2'); if(c2)c2.innerText=defaultData[k]; }
+            const tbl=document.getElementById('tbl_'+k); if(tbl)tbl.innerText=defaultData[k];
+            const sig=document.getElementById('sig_'+k); if(sig)sig.innerText=defaultData[k];
+        });
+        document.getElementById('ctrl_payout_period').value='monthly'; updatePayoutSelection('monthly');
+        document.getElementById('ctrl_dispute_method').value='court'; updateDisputeSelection('court');
+    }
+
+    // إعداد محتوى التصدير مع الشعار والتنسيق
     function prepareExportContent(){
-        const original=document.getElementById('printable-contract-area'); const clone=original.cloneNode(true);
+        const original=document.getElementById('printable-contract-area');
+        const clone=original.cloneNode(true);
         clone.querySelectorAll('[contenteditable]').forEach(el=>{ el.removeAttribute('contenteditable'); el.classList.remove('live-input-blank'); el.style.borderBottom='1px dotted #000'; });
-        const wrapper=document.createElement('div'); wrapper.style.padding='20px'; wrapper.style.backgroundColor='white';
-        wrapper.innerHTML=`<div style="text-align:center;margin-bottom:20px"><img src="${LOGO_URL}" style="width:150px" alt="شعار"></div>`;
+        const wrapper=document.createElement('div');
+        wrapper.style.padding='20px'; wrapper.style.backgroundColor='white';
+        wrapper.innerHTML='<div style="text-align:center;margin-bottom:20px"><img src="'+LOGO_URL+'" style="width:150px" alt="شعار"></div>';
         wrapper.appendChild(clone);
-        wrapper.innerHTML+=`<div style="text-align:center;margin-top:30px;border-top:1px solid #ccc;padding-top:10px"><img src="${LOGO_URL}" style="width:100px" alt="فزاع"><p style="font-size:10px;color:#666">عقد استثمار محوكم - مشروع فزاع 2026</p></div>`;
+        wrapper.innerHTML+='<div style="text-align:center;margin-top:30px;border-top:1px solid #ccc;padding-top:10px"><img src="'+LOGO_URL+'" style="width:100px" alt="فزاع"><p style="font-size:10px;color:#666">عقد استثمار محوكم - مشروع فزاع 2026</p></div>';
         return wrapper;
     }
-    function exportToPDF(){ const el=prepareExportContent(); html2pdf().set({margin:[10,10,10,10],filename:'عقد_استثمار_فزاع.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save(); }
-    function exportToWord(){ const el=prepareExportContent(); const blob=htmlDocx.asBlob(el.outerHTML); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='عقد_استثمار_فزاع.docx'; a.click(); }
+
+    // تصدير PDF
+    function exportToPDF(){
+        if(typeof html2pdf === 'undefined'){
+            alert('مكتبة PDF لم تحمل بعد. جاري إعادة المحاولة...');
+            location.reload();
+            return;
+        }
+        const element = prepareExportContent();
+        const opt = {
+            margin: [10,10,10,10],
+            filename: 'عقد_استثمار_فزاع.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // تصدير Word (باستخدام Blob مباشرة دون مكتبات خارجية)
+    function exportToWord(){
+        const element = prepareExportContent();
+        // الحصول على HTML المحتوى
+        const htmlContent = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Tajawal,sans-serif;direction:rtl;}</style></head><body>'+element.innerHTML+'</body></html>';
+        // إنشاء Blob بصيغة doc
+        const blob = new Blob([htmlContent], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'عقد_استثمار_فزاع.doc';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // إرسال واتساب (مع معالجة فشل الرفع)
     async function sendViaWhatsApp(){
-        const el=prepareExportContent(); const opt={margin:0,filename:'temp.pdf',image:{type:'jpeg',quality:0.9},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
-        try{
-            const blob=await html2pdf().set(opt).from(el).outputPdf('blob'); const form=new FormData(); form.append('file',blob,'عقد.pdf');
-            const res=await fetch('https://transfer.sh/',{method:'POST',body:form}); const url=await res.text();
-            window.open(`https://wa.me/?text=${encodeURIComponent('📄 عقد استثمار مشروع فزاع\n'+url.trim())}`, '_blank');
-        }catch(e){
-            alert('تعذر الرفع، جاري تحميل العقد.'); const blob=await html2pdf().set(opt).from(el).outputPdf('blob');
-            const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='عقد_فزاع.pdf'; a.click();
+        if(typeof html2pdf === 'undefined'){
+            alert('مكتبة PDF غير متاحة. جاري تحميل العقد للمشاركة اليدوية.');
+            // تحميل Word بدلاً من PDF كبديل
+            exportToWord();
+            window.open('https://wa.me/?text=مرحباً، يمكنك مشاركة ملف العقد بعد تحميله.', '_blank');
+            return;
+        }
+        const element = prepareExportContent();
+        const opt = {
+            margin: 0,
+            filename: 'temp_contract.pdf',
+            image: { type: 'jpeg', quality: 0.9 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        try {
+            const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
+            // محاولة رفع الملف إلى transfer.sh
+            const formData = new FormData();
+            formData.append('file', blob, 'عقد_استثمار_فزاع.pdf');
+            const response = await fetch('https://transfer.sh/', { method: 'POST', body: formData });
+            if(response.ok){
+                const fileURL = await response.text();
+                window.open('https://wa.me/?text='+encodeURIComponent('📄 عقد استثمار مشروع فزاع\nالرابط: '+fileURL.trim()), '_blank');
+            } else {
+                throw new Error('فشل الرفع');
+            }
+        } catch(e){
+            // في حال الفشل: ننزل الملف ونفتح واتساب مع تعليمات
+            alert('تعذر رفع الملف تلقائياً. سيتم تحميل العقد على جهازك، الرجاء إرفاقه يدوياً في المحادثة.');
+            const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'عقد_استثمار_فزاع.pdf';
+            a.click();
             window.open('https://wa.me/', '_blank');
         }
     }
+
+    // طباعة مع الشعار
     function printContract(){
-        const container=document.getElementById('printable-contract-area');
-        const div=document.createElement('div'); div.className='print-logo'; div.style.textAlign='center'; div.style.marginBottom='20px';
-        div.innerHTML=`<img src="${LOGO_URL}" style="width:150px">`; container.prepend(div);
-        window.print(); setTimeout(()=>{ const logo=container.querySelector('.print-logo'); if(logo)logo.remove(); },100);
+        const container = document.getElementById('printable-contract-area');
+        const div = document.createElement('div');
+        div.className = 'print-logo';
+        div.style.textAlign = 'center';
+        div.style.marginBottom = '20px';
+        div.innerHTML = '<img src="'+LOGO_URL+'" style="width:150px">';
+        container.prepend(div);
+        window.print();
+        setTimeout(()=>{ const logo=container.querySelector('.print-logo'); if(logo)logo.remove(); }, 100);
     }
-    window.onload=resetForm;
+
+    window.onload = resetForm;
 </script>
 </body>
 </html>
