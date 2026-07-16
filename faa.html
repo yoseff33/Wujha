@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدفتر المحاسبي المتكامل – النسخة الاحترافية (كود واحد)</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Marhey:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- QR Code & Barcode Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js">
+    </script>
+
+    <style>
+        /* ========== الأساسيات ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f5f5f0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        :root {
+            --sidebar-width: 260px;
+            --ink: #1a1a1a;
+            --paper: #ffffff;
+            --border: #2c2c2c;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        /* ===== الشريط الجانبي ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #1e1e1e;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            border-left: 2px solid #000;
+        }
+        .sidebar.collapsed {
+            transform: translateX(100%);
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid #333;
+            gap: 10px;
+        }
+        .logo-svg {
+            color: #d4af37;
+        }
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: auto;
+        }
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #2a2a2a;
+            transition: 0.2s;
+            gap: 10px;
+        }
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #2c2c2c;
+            color: #fff;
+            border-right: 4px solid #d4af37;
+        }
+        .sidebar-footer {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 110;
+            background: #1e1e1e;
+            color: #fff;
+            border: none;
+            font-size: 1.8rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        /* ===== المحتوى الرئيسي ===== */
+        .main-content {
+            flex: 1;
+            margin-right: var(--sidebar-width);
+            padding: 20px;
+            transition: margin 0.3s;
+            width: calc(100% - var(--sidebar-width));
+        }
+        .sidebar.collapsed ~ .main-content {
+            margin-right: 0;
+            width: 100%;
+        }
+        .toolbar {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: sticky;
+            top: 10px;
+            z-index: 50;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .btn {
+            background: #f8f8f8;
+            border: 1px solid #999;
+            padding: 8px 16px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            background: #e0e0e0;
+            border-color: #333;
+        }
+        
+        /* ===== صفحات الدفتر ===== */
+        .page-sheet {
+            background: #fff;
+            margin: 0 auto 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+        /* أبعاد حقيقية A4 للشاشة (تقريبية) */
+        .page-sheet.portrait {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 12mm 20mm 12mm;
+        }
+        .page-sheet.landscape {
+            width: 297mm;
+            min-height: 210mm;
+            padding: 12mm 15mm 20mm 15mm;
+        }
+        /* العلامة المائية */
+        .page-sheet::after {
+            content: "الدفتر المحاسبي";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 6rem;
+            color: rgba(0,0,0,0.03);
+            font-family: 'Marhey', cursive;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .page-inner {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .header-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+        .page-title {
+            font-family: 'Amiri', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .page-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #000;
+            padding-top: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333;
+            font-family: 'Marhey', cursive;
+        }
+        /* الجداول */
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Marhey', cursive;
+            font-size: 0.9rem;
+            line-height: 2.2;
+            margin-top: 5px;
+        }
+        .ledger-table th {
+            background: #f0f0f0;
+            border: 1px solid #000;
+            padding: 6px 4px;
+            font-weight: 700;
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.85rem;
+        }
+        .ledger-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            vertical-align: middle;
+            height: 32px;
+        }
+        .ledger-table tbody tr:nth-child(even) td {
+            background-color: #fafafa;
+        }
+        /* رؤوس تتكرر عند الطباعة */
+        .ledger-table thead {
+            display: table-header-group;
+        }
+        .ledger-table tbody tr {
+            page-break-inside: avoid;
+        }
+        
+        /* ===== غلاف احترافي ===== */
+        .cover-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            border: 3px double #000;
+            padding: 30px;
+        }
+        .cover-border {
+            width: 80%;
+            border: 2px solid #000;
+            padding: 40px 20px;
+        }
+        .cover-logo svg {
+            width: 70px;
+            height: 70px;
+            color: #1a1a1a;
+        }
+        .cover-title {
+            font-family: 'Amiri', serif;
+            font-size: 2.8rem;
+            margin: 20px 0 5px;
+            letter-spacing: 2px;
+        }
+        .cover-divider {
+            width: 100px;
+            height: 3px;
+            background: #000;
+            margin: 15px auto;
+        }
+        .cover-subtitle {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+        }
+        .cover-year {
+            font-size: 1.2rem;
+            border: 1px solid #000;
+            display: inline-block;
+            padding: 6px 25px;
+            margin-bottom: 30px;
+        }
+        .cover-info p {
+            font-size: 1rem;
+            margin: 10px 0;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 4px;
+        }
+        .cover-stamp {
+            margin-top: 30px;
+            border: 2px solid #000;
+            padding: 12px 25px;
+            display: inline-block;
+            font-weight: bold;
+            transform: rotate(-5deg);
+        }
+        
+        /* ===== ملاحظات ===== */
+        .notes-area {
+            flex: 1;
+            background: repeating-linear-gradient(#fff, #fff 29px, #ccc 30px);
+            border: 1px solid #aaa;
+            margin-top: 15px;
+            padding: 10px 15px;
+            min-height: 400px;
+        }
+        
+        /* ===== للطباعة ===== */
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+            .sidebar, .mobile-menu-btn, .toolbar, .overlay, .no-print {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0 !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            .page-sheet {
+                box-shadow: none;
+                border: none;
+                margin: 0 auto;
+                page-break-after: always;
+                width: 100% !important;
+                height: auto !important;
+                padding: 12mm 10mm 15mm 10mm;
+            }
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            @page landscape {
+                size: A4 landscape;
+            }
+            .page-sheet.landscape {
+                page: landscape;
+                width: 100% !important;
+            }
+            .page-sheet.portrait {
+                page: portrait;
+            }
+            .page-sheet::after {
+                opacity: 0.05;
+                color: #000;
+            }
+        }
+        
+        /* ===== استجابة للجوال ===== */
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-right: 0;
+                width: 100%;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .page-sheet {
+                width: 100% !important;
+                min-height: auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الشريط الجانبي -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <svg class="logo-svg" viewBox="0 0 64 64" width="40" height="40">
+                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/>
+                <path d="M20 20h24v24H20z" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="28" y1="20" x2="28" y2="44" stroke="currentColor" stroke-width="2"/>
+                <line x1="20" y1="28" x2="44" y2="28" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <h2>الدفتر المحاسبي</h2>
+            <button class="sidebar-toggle" id="sidebarToggle" title="طي القائمة">☰</button>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- يتم ملؤها ديناميكياً -->
+        </nav>
+        <div class="sidebar-footer">
+            <small>© 2026 – نسخة احترافية</small>
+        </div>
+    </aside>
+    
+    <!-- زر القائمة للجوال -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" title="القائمة">☰</button>
+    
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content" id="mainContent">
+        <div class="toolbar no-print" id="toolbar">
+            <div class="toolbar-left">
+                <button class="btn" id="btnPrint" title="طباعة الصفحة النشطة">🖨️ طباعة</button>
+                <button class="btn" id="btnPdf" title="حفظ PDF">📄 PDF</button>
+                <button class="btn" id="btnExcel" title="تصدير Excel">📥 Excel</button>
+                <button class="btn" id="btnPrintAll" title="طباعة الكل">📚 الكل</button>
+                <button class="btn" id="btnSettings" title="إعدادات الطباعة">⚙️ الإعدادات</button>
+            </div>
+            <div class="toolbar-right">
+                <span class="current-page-label" id="currentPageLabel">غلاف الدفتر</span>
+            </div>
+        </div>
+        <!-- حاوية الصفحات -->
+        <div id="pagesContainer"></div>
+    </main>
+    <div class="overlay" id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:90;" onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
+
+    <script>
+        (function() {
+            // ========== عناصر أساسية ==========
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const overlay = document.getElementById('overlay');
+            const sidebarNav = document.getElementById('sidebarNav');
+            const pagesContainer = document.getElementById('pagesContainer');
+            const currentPageLabel = document.getElementById('currentPageLabel');
+
+            // ========== قائمة الصفحات ==========
+            const pageDefs = [
+                { id: 'cover', title: 'غلاف الدفتر', type: 'cover', orientation: 'portrait' },
+                { id: 'company', title: 'بيانات المؤسسة', type: 'company', orientation: 'portrait' },
+                { id: 'index', title: 'الفهرس', type: 'index', orientation: 'portrait' },
+                { id: 'journal', title: 'دفتر اليومية', type: 'journal', orientation: 'landscape' },
+                { id: 'ledger', title: 'دفتر الأستاذ', type: 'ledger', orientation: 'landscape' },
+                { id: 'purchases', title: 'سجل المشتريات', type: 'purchases', orientation: 'landscape' },
+                { id: 'sales', title: 'سجل المبيعات', type: 'sales', orientation: 'landscape' },
+                { id: 'inventory', title: 'سجل المخزون', type: 'inventory', orientation: 'landscape' },
+                { id: 'clients', title: 'سجل العملاء', type: 'clients', orientation: 'landscape' },
+                { id: 'suppliers', title: 'سجل الموردين', type: 'suppliers', orientation: 'landscape' },
+                { id: 'revenues', title: 'سجل الإيرادات', type: 'revenues', orientation: 'landscape' },
+                { id: 'expenses', title: 'سجل المصروفات', type: 'expenses', orientation: 'landscape' },
+                { id: 'cash', title: 'سجل الصندوق', type: 'cash', orientation: 'landscape' },
+                { id: 'bank', title: 'سجل البنك', type: 'bank', orientation: 'landscape' },
+                { id: 'monthly', title: 'ملخص شهري', type: 'monthly', orientation: 'portrait' },
+                { id: 'yearly', title: 'ملخص سنوي', type: 'yearly', orientation: 'portrait' },
+                { id: 'stocktaking', title: 'جرد المخزون', type: 'stocktaking', orientation: 'landscape' },
+                { id: 'notes', title: 'صفحة الملاحظات', type: 'notes', orientation: 'portrait' }
+            ];
+
+            const rowsPerPage = 28; // عدد الصفوف الافتراضي لكل صفحة جدول
+
+            // ========== بناء القائمة الجانبية ==========
+            function buildNav() {
+                sidebarNav.innerHTML = '';
+                pageDefs.forEach((def) => {
+                    const a = document.createElement('a');
+                    a.href = `#${def.id}`;
+                    a.className = 'nav-item';
+                    a.dataset.page = def.id;
+                    a.innerHTML = `<span class="nav-icon">📄</span> ${def.title}`;
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navigateTo(def.id);
+                    });
+                    sidebarNav.appendChild(a);
+                });
+            }
+
+            // ========== إنشاء صفحات متعددة للسجل ==========
+            function generateSheetHTML(def, pageIndex, totalPages) {
+                const sheetId = `${def.id}-${pageIndex}`;
+                const orientation = def.orientation;
+                const sheet = document.createElement('div');
+                sheet.className = `page-sheet ${orientation}`;
+                sheet.id = sheetId;
+                sheet.dataset.pageType = def.type;
+                sheet.dataset.pageId = def.id;
+                sheet.dataset.pageIndex = pageIndex;
+
+                let innerHTML = '<div class="page-inner">';
+                // رأس الصفحة
+                innerHTML += `<div class="page-header">
+                    <div class="header-logo">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8v8H8z" fill="none" stroke="currentColor"/></svg>
+                        الدفتر المحاسبي
+                    </div>
+                    <h2 class="page-title">${def.title} ${totalPages > 1 ? '(' + (pageIndex+1) + ')' : ''}</h2>
+                </div>`;
+
+                // المحتوى حسب النوع
+                if (def.type === 'cover') {
+                    innerHTML += `
+                    <div class="cover-content">
+                        <div class="cover-border">
+                            <div class="cover-logo"><svg viewBox="0 0 64 64" width="70" height="70"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 20h24v24H20z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+                            <h1 class="cover-title">الدفتر المحاسبي</h1>
+                            <div class="cover-divider"></div>
+                            <p class="cover-subtitle">نسخة احترافية متكاملة</p>
+                            <p class="cover-year">السنة المالية: 20____ / 20____</p>
+                            <div class="cover-info">
+                                <p>اسم المؤسسة: ____________________________</p>
+                                <p>المدير المالي: ____________________________</p>
+                            </div>
+                            <div id="qrcode" style="margin:20px auto; width:100px; height:100px;"></div>
+                            <div class="cover-stamp">ختم المؤسسة</div>
+                        </div>
+                    </div>`;
+                } else if (def.type === 'company') {
+                    innerHTML += `
+                    <div class="company-details">
+                        <table class="info-table" style="width:100%; border-collapse:collapse; font-size:1rem;">
+                            <tr><td style="width:30%; font-weight:bold;">اسم المؤسسة:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
+                            <tr><td style="font-weight:bold;">العنوان:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
+                            <tr><td style="font-weight:bold;">الهاتف:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
+                            <tr><td style="font-weight:bold;">السجل التجاري:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
+                            <tr><td style="font-weight:bold;">الرقم الضريبي:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
+                        </table>
+                        <div style="margin-top:30px; display:flex; justify-content:space-between; align-items:center;">
+                            <div><strong>باركود المؤسسة:</strong><svg id="barcode"></svg></div>
+                            <div><strong>QR معلومات:</strong><div id="companyQR" style="width:90px; height:90px;"></div></div>
+                        </div>
+                    </div>`;
+                } else if (def.type === 'index') {
+                    innerHTML += `<table class="ledger-table index-table"><thead><tr><th>الرقم</th><th>الصفحة</th><th>رقم الصفحة</th></tr></thead><tbody id="indexTbody"></tbody></table>`;
+                } else if (def.type === 'notes') {
+                    innerHTML += `<div class="notes-area" style="min-height:600px;"></div>`;
+                } else {
+                    // جداول السجلات
+                    const columns = getTableColumns(def.type);
+                    innerHTML += `<div class="table-responsive"><table class="ledger-table"><thead><tr>`;
+                    columns.forEach(col => innerHTML += `<th>${col}</th>`);
+                    innerHTML += `</tr></thead><tbody></tbody></table></div>`;
+                }
+
+                // تذييل الصفحة
+                innerHTML += `<div class="page-footer">
+                    <span class="footer-date">التاريخ: ____/____/____</span>
+                    <span class="footer-page">الصفحة: <span class="page-num"></span></span>
+                </div></div>`; // page-inner
+
+                sheet.innerHTML = innerHTML;
+                return sheet;
+            }
+
+            function getTableColumns(type) {
+                const cols = {
+                    journal: ['م', 'التاريخ', 'البيان', 'رقم المستند', 'مدين', 'دائن', 'الرصيد', 'الملاحظات'],
+                    ledger: ['م', 'التاريخ', 'البيان', 'رقم المستند', 'مدين', 'دائن', 'الرصيد', 'الملاحظات'],
+                    purchases: ['م', 'التاريخ', 'البيان', 'رقم الفاتورة', 'المورد', 'القيمة', 'الضريبة', 'الإجمالي', 'الملاحظات'],
+                    sales: ['م', 'التاريخ', 'البيان', 'رقم الفاتورة', 'العميل', 'القيمة', 'الضريبة', 'الإجمالي', 'الملاحظات'],
+                    inventory: ['م', 'التاريخ', 'الصنف', 'الوحدة', 'وارد', 'منصرف', 'الرصيد', 'سعر الوحدة', 'الملاحظات'],
+                    clients: ['م', 'الرقم', 'اسم العميل', 'الهاتف', 'البريد الإلكتروني', 'الرصيد', 'الملاحظات'],
+                    suppliers: ['م', 'الرقم', 'اسم المورد', 'الهاتف', 'البريد الإلكتروني', 'الرصيد', 'الملاحظات'],
+                    revenues: ['م', 'التاريخ', 'البيان', 'المصدر', 'المبلغ', 'طريقة الدفع', 'الملاحظات'],
+                    expenses: ['م', 'التاريخ', 'البيان', 'البند', 'المبلغ', 'طريقة الدفع', 'الملاحظات'],
+                    cash: ['م', 'التاريخ', 'البيان', 'وارد', 'منصرف', 'الرصيد', 'الملاحظات'],
+                    bank: ['م', 'التاريخ', 'البيان', 'إيداع', 'سحب', 'الرصيد', 'الملاحظات'],
+                    monthly: ['م', 'البند', 'مدين', 'دائن', 'الرصيد', 'ملاحظات'],
+                    yearly: ['م', 'الشهر', 'إجمالي الإيرادات', 'إجمالي المصروفات', 'صافي الربح', 'ملاحظات'],
+                    stocktaking: ['م', 'الصنف', 'الوحدة', 'الرصيد الدفتري', 'الجرد الفعلي', 'الفرق', 'الملاحظات']
+                };
+                return cols[type] || ['م', 'البيان', 'ملاحظات'];
+            }
+
+            // ========== ملء الصفوف تلقائياً ==========
+            function fillTableRows(sheet, type, rowsCount = rowsPerPage) {
+                const tbody = sheet.querySelector('tbody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                const colsCount = getTableColumns(type).length;
+                for (let i = 0; i < rowsCount; i++) {
+                    const tr = document.createElement('tr');
+                    for (let j = 0; j < colsCount; j++) {
+                        const td = document.createElement('td');
+                        if (j === 0) td.textContent = i + 1;
+                        else td.innerHTML = '&nbsp;';
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+            }
+
+            // ========== إنشاء كل الصفحات ==========
+            function buildAllPages() {
+                pagesContainer.innerHTML = '';
+                pageDefs.forEach(def => {
+                    let totalPages = 1;
+                    if (['journal','ledger','purchases','sales','inventory','clients','suppliers','revenues','expenses','cash','bank','monthly','yearly','stocktaking'].includes(def.type)) {
+                        totalPages = 3; // 3 صفحات لكل سجل لإظهار التعدد
+                    }
+                    for (let p = 0; p < totalPages; p++) {
+                        const sheet = generateSheetHTML(def, p, totalPages);
+                        pagesContainer.appendChild(sheet);
+                        if (def.type !== 'cover' && def.type !== 'company' && def.type !== 'index' && def.type !== 'notes') {
+                            fillTableRows(sheet, def.type);
+                        }
+                    }
+                });
+                updateAllPageNumbers();
+                buildIndexTable();
+                generateQRCodes();
+            }
+
+            // ========== ترقيم الصفحات تلقائي ==========
+            function updateAllPageNumbers() {
+                const sheets = document.querySelectorAll('.page-sheet');
+                sheets.forEach((sheet, idx) => {
+                    const pageNumSpan = sheet.querySelector('.page-num');
+                    if (pageNumSpan) pageNumSpan.textContent = idx + 1;
+                });
+            }
+
+            // ========== بناء الفهرس التلقائي ==========
+            function buildIndexTable() {
+                const indexTbody = document.getElementById('indexTbody');
+                if (!indexTbody) return;
+                indexTbody.innerHTML = '';
+                const sheets = document.querySelectorAll('.page-sheet');
+                sheets.forEach((sheet, idx) => {
+                    const title = sheet.querySelector('.page-title')?.textContent || 'صفحة';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${idx+1}</td><td>${title}</td><td>${idx+1}</td>`;
+                    indexTbody.appendChild(tr);
+                });
+            }
+
+            // ========== QR Code and Barcode ==========
+            function generateQRCodes() {
+                const qrContainer = document.getElementById('qrcode');
+                if (qrContainer && typeof QRCode !== 'undefined') {
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: 'دفتر محاسبي احترافي - 2026',
+                        width: 100,
+                        height: 100
+                    });
+                }
+                const companyQR = document.getElementById('companyQR');
+                if (companyQR && typeof QRCode !== 'undefined') {
+                    companyQR.innerHTML = '';
+                    new QRCode(companyQR, {
+                        text: 'شركة نموذجية - سجل تجاري 123456',
+                        width: 90,
+                        height: 90
+                    });
+                }
+                const barcodeSvg = document.getElementById('barcode');
+                if (barcodeSvg && typeof JsBarcode !== 'undefined') {
+                    try {
+                        JsBarcode(barcodeSvg, "123456789012", {
+                            format: "CODE128",
+                            width: 2,
+                            height: 50,
+                            displayValue: true
+                        });
+                    } catch(e) {}
+                }
+            }
+
+            // ========== التنقل ==========
+            function navigateTo(pageId) {
+                const targetSheet = document.querySelector(`.page-sheet[data-page-id="${pageId}"]`);
+                if (targetSheet) {
+                    targetSheet.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    currentPageLabel.textContent = targetSheet.querySelector('.page-title')?.textContent || pageId;
+                }
+                document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
+                const activeLink = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+                if (activeLink) activeLink.classList.add('active');
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('open');
+                    overlay.style.display = 'none';
+                }
+            }
+
+            // ========== أزرار الأدوات ==========
+            document.getElementById('btnPrint').addEventListener('click', () => window.print());
+            document.getElementById('btnPdf').addEventListener('click', () => window.print());
+            document.getElementById('btnExcel').addEventListener('click', () => {
+                const activeSheet = document.querySelector('.page-sheet:hover') || document.querySelector('.page-sheet');
+                if (!activeSheet) return;
+                const table = activeSheet.querySelector('table');
+                if (!table) return alert('لا يوجد جدول في هذه الصفحة');
+                let csv = [];
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    let rowData = [];
+                    row.querySelectorAll('th, td').forEach(cell => rowData.push(cell.innerText));
+                    csv.push(rowData.join(','));
+                });
+                const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'سجل_محاسبي.csv';
+                link.click();
+            });
+            document.getElementById('btnPrintAll').addEventListener('click', () => {
+                alert('سيتم طباعة جميع الصفحات. استخدم إعدادات الطباعة (Ctrl+P) واختر "الكل".');
+                window.print();
+            });
+            document.getElementById('btnSettings').addEventListener('click', () => {
+                alert('إعدادات الطباعة: استخدم نافذة الطباعة (Ctrl+P) لاختيار حجم الورق والهوامش.');
+            });
+
+            // ========== تفاعلات القائمة والجوال ==========
+            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+            });
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.style.display = 'none';
+            });
+
+            // ========== بدء التشغيل ==========
+            buildNav();
+            buildAllPages();
+            setTimeout(() => {
+                const firstPage = document.querySelector('.page-sheet');
+                if (firstPage) {
+                    currentPageLabel.textContent = firstPage.querySelector('.page-title')?.textContent || 'غلاف';
+                }
+            }, 100);
+        })();
+    </script>
+</body>
+</html>
