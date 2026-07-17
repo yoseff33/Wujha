@@ -3,42 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الدفتر المحاسبي المتكامل – النسخة الاحترافية (كود واحد)</title>
-    
+    <title>الدفتر المحاسبي المتكامل – النسخة الاحترافية</title>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Marhey:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    
-    <!-- QR Code & Barcode Libraries -->
+
+    <!-- QR Code & Barcode -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js">
     </script>
 
+    <!-- SheetJS for Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js">
+    </script>
+
+    <!-- html2canvas + jsPDF for PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+
     <style>
-        /* ========== الأساسيات ========== */
+        /* ============================================================
+                   BASE / RESET
+                   ============================================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: #f5f5f0;
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+
         :root {
             --sidebar-width: 260px;
             --ink: #1a1a1a;
             --paper: #ffffff;
             --border: #2c2c2c;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --gold: #d4af37;
+            --bg-light: #f5f5f0;
+            --font-main: 'Tajawal', sans-serif;
+            --font-arabic: 'Amiri', serif;
+            --font-numbers: 'Marhey', cursive;
         }
-        
-        /* ===== الشريط الجانبي ===== */
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--ink);
+        }
+
+        /* ============================================================
+                   SIDEBAR
+                   ============================================================ */
         .sidebar {
             width: var(--sidebar-width);
             background: #1e1e1e;
@@ -50,62 +76,101 @@
             bottom: 0;
             right: 0;
             z-index: 100;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-left: 2px solid #000;
+            overflow: hidden;
         }
+
         .sidebar.collapsed {
             transform: translateX(100%);
         }
+
         .sidebar-header {
             display: flex;
             align-items: center;
-            padding: 20px 15px;
+            padding: 18px 16px;
             border-bottom: 1px solid #333;
             gap: 10px;
+            flex-shrink: 0;
         }
-        .logo-svg {
-            color: #d4af37;
+
+        .sidebar-header .logo-svg {
+            color: var(--gold);
+            flex-shrink: 0;
         }
+
         .sidebar-header h2 {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 700;
+            white-space: nowrap;
         }
+
         .sidebar-toggle {
             background: none;
             border: none;
             color: #aaa;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
             margin-right: auto;
+            padding: 0 6px;
+            transition: color 0.2s;
         }
+        .sidebar-toggle:hover {
+            color: #fff;
+        }
+
         .sidebar-nav {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 0;
+            padding: 8px 0;
         }
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            padding: 11px 20px;
             color: #ccc;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             border-bottom: 1px solid #2a2a2a;
             transition: 0.2s;
             gap: 10px;
+            cursor: pointer;
         }
-        .sidebar-nav a:hover,
+        .sidebar-nav a:hover {
+            background: #2c2c2c;
+            color: #fff;
+        }
         .sidebar-nav a.active {
             background: #2c2c2c;
             color: #fff;
-            border-right: 4px solid #d4af37;
+            border-right: 4px solid var(--gold);
         }
+        .sidebar-nav a .nav-icon {
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
         .sidebar-footer {
             padding: 12px;
             text-align: center;
-            font-size: 0.8rem;
-            color: #777;
+            font-size: 0.75rem;
+            color: #666;
+            border-top: 1px solid #2a2a2a;
+            flex-shrink: 0;
         }
+
         .mobile-menu-btn {
             display: none;
             position: fixed;
@@ -116,79 +181,176 @@
             color: #fff;
             border: none;
             font-size: 1.8rem;
-            width: 44px;
-            height: 44px;
+            width: 46px;
+            height: 46px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        
-        /* ===== المحتوى الرئيسي ===== */
+        .mobile-menu-btn:hover {
+            background: #2c2c2c;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 90;
+            backdrop-filter: blur(2px);
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
         .main-content {
             flex: 1;
             margin-right: var(--sidebar-width);
-            padding: 20px;
-            transition: margin 0.3s;
+            padding: 20px 24px 40px;
+            transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
         }
-        .sidebar.collapsed ~ .main-content {
+
+        .sidebar.collapsed~.main-content {
             margin-right: 0;
             width: 100%;
         }
+
+        /* ============================================================
+                   TOOLBAR
+                   ============================================================ */
         .toolbar {
             background: #fff;
-            border: 1px solid #ccc;
-            padding: 12px 16px;
+            border: 1px solid #d0d0d0;
+            padding: 10px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            border-radius: 8px;
+            margin-bottom: 22px;
+            border-radius: 10px;
             flex-wrap: wrap;
             gap: 10px;
             position: sticky;
             top: 10px;
             z-index: 50;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
+
+        .toolbar .toolbar-left {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .btn {
             background: #f8f8f8;
-            border: 1px solid #999;
-            padding: 8px 16px;
-            font-family: 'Tajawal', sans-serif;
+            border: 1px solid #bbb;
+            padding: 7px 15px;
+            font-family: var(--font-main);
             font-weight: 600;
             cursor: pointer;
             border-radius: 6px;
             transition: 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #222;
         }
         .btn:hover {
-            background: #e0e0e0;
-            border-color: #333;
+            background: #eaeaea;
+            border-color: #888;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
-        
-        /* ===== صفحات الدفتر ===== */
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-primary {
+            background: #1e1e1e;
+            border-color: #1e1e1e;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #333;
+            border-color: #333;
+            color: #fff;
+        }
+        .btn-success {
+            background: #2d7d46;
+            border-color: #2d7d46;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #1f5f34;
+            border-color: #1f5f34;
+            color: #fff;
+        }
+        .btn-danger {
+            background: #b33c3c;
+            border-color: #b33c3c;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #8f2e2e;
+            border-color: #8f2e2e;
+            color: #fff;
+        }
+
+        .current-page-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #333;
+            background: #f0f0f0;
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+                   PAGE SHEETS
+                   ============================================================ */
         .page-sheet {
             background: #fff;
-            margin: 0 auto 25px;
+            margin: 0 auto 30px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
             position: relative;
             overflow: hidden;
             page-break-after: always;
             page-break-inside: avoid;
+            transition: box-shadow 0.3s;
         }
-        /* أبعاد حقيقية A4 للشاشة (تقريبية) */
+        .page-sheet:hover {
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+        }
+
         .page-sheet.portrait {
             width: 210mm;
             min-height: 297mm;
-            padding: 15mm 12mm 20mm 12mm;
+            padding: 14mm 12mm 18mm 12mm;
         }
+
         .page-sheet.landscape {
             width: 297mm;
             min-height: 210mm;
-            padding: 12mm 15mm 20mm 15mm;
+            padding: 12mm 14mm 16mm 14mm;
         }
-        /* العلامة المائية */
+
+        /* Watermark */
         .page-sheet::after {
             content: "الدفتر المحاسبي";
             position: absolute;
@@ -196,91 +358,72 @@
             left: 50%;
             transform: translate(-50%, -50%) rotate(-30deg);
             font-size: 6rem;
-            color: rgba(0,0,0,0.03);
-            font-family: 'Marhey', cursive;
+            color: rgba(0, 0, 0, 0.025);
+            font-family: var(--font-arabic);
             white-space: nowrap;
             pointer-events: none;
             z-index: 0;
+            font-weight: 700;
         }
+
         .page-inner {
             position: relative;
             z-index: 1;
             height: 100%;
             display: flex;
             flex-direction: column;
+            min-height: 100%;
         }
+
+        /* ============================================================
+                   PAGE HEADER / FOOTER
+                   ============================================================ */
         .page-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid #000;
             padding-bottom: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 6px;
         }
         .header-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            color: #1a1a1a;
         }
         .header-logo svg {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
         }
         .page-title {
-            font-family: 'Amiri', serif;
-            font-size: 1.6rem;
+            font-family: var(--font-arabic);
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            color: #1a1a1a;
         }
+
         .page-footer {
             margin-top: auto;
             display: flex;
             justify-content: space-between;
             border-top: 1px solid #000;
             padding-top: 6px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: #333;
-            font-family: 'Marhey', cursive;
+            font-family: var(--font-numbers);
         }
-        /* الجداول */
-        .ledger-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: 'Marhey', cursive;
-            font-size: 0.9rem;
-            line-height: 2.2;
-            margin-top: 5px;
-        }
-        .ledger-table th {
-            background: #f0f0f0;
-            border: 1px solid #000;
-            padding: 6px 4px;
-            font-weight: 700;
-            text-align: center;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 0.85rem;
-        }
-        .ledger-table td {
-            border: 1px solid #000;
-            padding: 4px 6px;
-            vertical-align: middle;
-            height: 32px;
-        }
-        .ledger-table tbody tr:nth-child(even) td {
-            background-color: #fafafa;
-        }
-        /* رؤوس تتكرر عند الطباعة */
-        .ledger-table thead {
-            display: table-header-group;
-        }
-        .ledger-table tbody tr {
-            page-break-inside: avoid;
-        }
-        
-        /* ===== غلاف احترافي ===== */
+
+        /* ============================================================
+                   COVER
+                   ============================================================ */
         .cover-content {
             display: flex;
             flex-direction: column;
@@ -289,136 +432,709 @@
             height: 100%;
             text-align: center;
             border: 3px double #000;
-            padding: 30px;
+            padding: 30px 20px;
+            min-height: 400px;
+            flex: 1;
         }
         .cover-border {
-            width: 80%;
+            width: 85%;
+            max-width: 500px;
             border: 2px solid #000;
-            padding: 40px 20px;
+            padding: 40px 20px 30px;
+            background: #fcfcfc;
         }
         .cover-logo svg {
-            width: 70px;
-            height: 70px;
+            width: 72px;
+            height: 72px;
             color: #1a1a1a;
         }
         .cover-title {
-            font-family: 'Amiri', serif;
-            font-size: 2.8rem;
-            margin: 20px 0 5px;
+            font-family: var(--font-arabic);
+            font-size: 2.6rem;
+            margin: 16px 0 4px;
             letter-spacing: 2px;
+            font-weight: 700;
         }
         .cover-divider {
             width: 100px;
             height: 3px;
             background: #000;
-            margin: 15px auto;
+            margin: 14px auto;
         }
         .cover-subtitle {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 500;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            color: #333;
         }
         .cover-year {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             border: 1px solid #000;
             display: inline-block;
-            padding: 6px 25px;
-            margin-bottom: 30px;
+            padding: 6px 28px;
+            margin-bottom: 24px;
+            background: #fafafa;
         }
         .cover-info p {
             font-size: 1rem;
-            margin: 10px 0;
-            border-bottom: 1px dashed #333;
+            margin: 8px 0;
+            border-bottom: 1px dashed #aaa;
             padding-bottom: 4px;
+            color: #222;
         }
         .cover-stamp {
-            margin-top: 30px;
+            margin-top: 24px;
             border: 2px solid #000;
-            padding: 12px 25px;
+            padding: 10px 28px;
             display: inline-block;
-            font-weight: bold;
-            transform: rotate(-5deg);
+            font-weight: 700;
+            transform: rotate(-4deg);
+            background: #f8f8f8;
+            font-size: 0.95rem;
         }
-        
-        /* ===== ملاحظات ===== */
+        #qrcode {
+            margin: 16px auto 10px;
+            display: inline-block;
+        }
+        #qrcode img,
+        #qrcode canvas {
+            display: block;
+        }
+
+        /* ============================================================
+                   COMPANY INFO
+                   ============================================================ */
+        .company-details {
+            padding: 8px 0;
+            flex: 1;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1rem;
+        }
+        .info-table td {
+            padding: 8px 6px;
+            vertical-align: middle;
+        }
+        .info-table .label {
+            font-weight: 700;
+            width: 30%;
+            white-space: nowrap;
+        }
+        .info-table .lined {
+            border-bottom: 1px dashed #999;
+            min-width: 120px;
+        }
+        .info-table .lined input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            padding: 2px 4px;
+            outline: none;
+            color: #111;
+        }
+        .info-table .lined input:focus {
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .company-barcode-section {
+            margin-top: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .company-barcode-section>div {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ============================================================
+                   TABLES
+                   ============================================================ */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            flex: 1;
+        }
+
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-numbers);
+            font-size: 0.85rem;
+            line-height: 2;
+            margin-top: 4px;
+        }
+        .ledger-table th {
+            background: #f0f0f0;
+            border: 1px solid #000;
+            padding: 5px 4px;
+            font-weight: 700;
+            text-align: center;
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .ledger-table td {
+            border: 1px solid #000;
+            padding: 2px 5px;
+            vertical-align: middle;
+            height: 30px;
+            min-height: 30px;
+            position: relative;
+        }
+        .ledger-table td[contenteditable="true"] {
+            outline: none;
+            cursor: text;
+        }
+        .ledger-table td[contenteditable="true"]:focus {
+            background: #fffbe6;
+            box-shadow: inset 0 0 0 2px var(--gold);
+        }
+        .ledger-table td[contenteditable="true"]:hover {
+            background: #fcf9f0;
+        }
+        .ledger-table tbody tr:nth-child(even) td {
+            background-color: #fafafa;
+        }
+        .ledger-table tbody tr:nth-child(even) td[contenteditable="true"]:focus {
+            background: #fffbe6;
+        }
+        .ledger-table tbody tr:nth-child(even) td[contenteditable="true"]:hover {
+            background: #f8f4e8;
+        }
+
+        /* table header repeat for print */
+        .ledger-table thead {
+            display: table-header-group;
+        }
+        .ledger-table tbody tr {
+            page-break-inside: avoid;
+        }
+
+        /* ============================================================
+                   NOTES
+                   ============================================================ */
         .notes-area {
             flex: 1;
-            background: repeating-linear-gradient(#fff, #fff 29px, #ccc 30px);
+            background: repeating-linear-gradient(#fff, #fff 29px, #e0e0e0 30px);
             border: 1px solid #aaa;
-            margin-top: 15px;
-            padding: 10px 15px;
-            min-height: 400px;
+            margin-top: 10px;
+            padding: 8px 14px;
+            min-height: 500px;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            line-height: 30px;
+            outline: none;
+            color: #111;
+            direction: rtl;
         }
-        
-        /* ===== للطباعة ===== */
+        .notes-area:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        /* ============================================================
+                   INDEX
+                   ============================================================ */
+        .index-table td {
+            text-align: center;
+        }
+
+        /* ============================================================
+                   TOAST / NOTIFICATION
+                   ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1e1e1e;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+            z-index: 200;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            border: 1px solid #444;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            border-right: 4px solid #4caf50;
+        }
+        .toast.error {
+            border-right: 4px solid #f44336;
+        }
+        .toast.info {
+            border-right: 4px solid #2196f3;
+        }
+
+        /* ============================================================
+                   PRINT STYLES
+                   ============================================================ */
         @media print {
+            html,
             body {
-                background: white;
-                margin: 0;
-                padding: 0;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                min-height: 100vh !important;
             }
-            .sidebar, .mobile-menu-btn, .toolbar, .overlay, .no-print {
+
+            .sidebar,
+            .mobile-menu-btn,
+            .toolbar,
+            .overlay,
+            .no-print {
                 display: none !important;
             }
+
             .main-content {
                 margin: 0 !important;
                 width: 100% !important;
                 padding: 0 !important;
+                display: block !important;
+                background: white !important;
             }
+
+            #pagesContainer {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
             .page-sheet {
-                box-shadow: none;
-                border: none;
-                margin: 0 auto;
-                page-break-after: always;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 auto !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
                 width: 100% !important;
                 height: auto !important;
-                padding: 12mm 10mm 15mm 10mm;
+                padding: 12mm 10mm 14mm 10mm !important;
+                background: white !important;
+                border-radius: 0 !important;
+                min-height: auto !important;
+                display: block !important;
             }
-            @page {
-                size: A4;
-                margin: 0;
-            }
-            @page landscape {
-                size: A4 landscape;
-            }
-            .page-sheet.landscape {
-                page: landscape;
-                width: 100% !important;
-            }
+
             .page-sheet.portrait {
                 page: portrait;
             }
+            .page-sheet.landscape {
+                page: landscape;
+            }
+
             .page-sheet::after {
-                opacity: 0.05;
-                color: #000;
+                opacity: 0.04 !important;
+                font-size: 5rem !important;
+            }
+
+            .page-sheet .page-inner {
+                display: block !important;
+                min-height: auto !important;
+                height: auto !important;
+            }
+
+            .ledger-table th {
+                background: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .ledger-table tbody tr:nth-child(even) td {
+                background-color: #fafafa !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .ledger-table td[contenteditable="true"] {
+                background: transparent !important;
+            }
+            .ledger-table td[contenteditable="true"]:focus {
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .notes-area {
+                border: 1px solid #aaa !important;
+                background: repeating-linear-gradient(#fff, #fff 29px, #e0e0e0 30px) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .cover-content {
+                border: 3px double #000 !important;
+            }
+            .cover-border {
+                border: 2px solid #000 !important;
+                background: #fcfcfc !important;
+            }
+            .cover-stamp {
+                border: 2px solid #000 !important;
+                background: #f8f8f8 !important;
+            }
+
+            .page-footer {
+                border-top: 1px solid #000 !important;
+            }
+            .page-header {
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .ledger-table {
+                font-size: 0.75rem !important;
+                line-height: 1.8 !important;
+            }
+            .ledger-table th {
+                font-size: 0.7rem !important;
+                padding: 3px 3px !important;
+            }
+            .ledger-table td {
+                padding: 2px 4px !important;
+                height: 26px !important;
+                min-height: 26px !important;
+            }
+
+            .info-table .lined input {
+                border-bottom: 1px dashed #999 !important;
+            }
+
+            #qrcode img,
+            #qrcode canvas {
+                max-width: 80px !important;
+                height: auto !important;
+            }
+
+            .page-sheet:hover {
+                box-shadow: none !important;
+            }
+
+            /* prevent orphans */
+            .ledger-table tbody tr {
+                page-break-inside: avoid !important;
+            }
+            .ledger-table thead {
+                display: table-header-group !important;
+            }
+
+            /* force page breaks at section boundaries */
+            .page-sheet[data-page-id="cover"] {
+                page-break-after: always !important;
+            }
+            .page-sheet[data-page-id="company"] {
+                page-break-after: always !important;
+            }
+            .page-sheet[data-page-id="index"] {
+                page-break-after: always !important;
+            }
+            .page-sheet[data-page-id="journal"] {
+                page-break-after: always !important;
+            }
+            .page-sheet[data-page-id="ledger"] {
+                page-break-after: always !important;
             }
         }
-        
-        /* ===== استجابة للجوال ===== */
+
+        /* ============================================================
+                   @PAGE RULES
+                   ============================================================ */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        @page portrait {
+            size: A4 portrait;
+            margin: 0;
+        }
+        @page landscape {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media screen and (max-width: 1024px) {
+            .page-sheet.portrait,
+            .page-sheet.landscape {
+                width: 100% !important;
+                min-height: auto !important;
+                padding: 20px 16px !important;
+            }
+            .page-sheet.portrait {
+                min-height: 600px !important;
+            }
+            .page-sheet.landscape {
+                min-height: 450px !important;
+            }
+            .cover-title {
+                font-size: 2rem !important;
+            }
+            .cover-border {
+                padding: 24px 16px !important;
+                width: 95% !important;
+            }
+        }
+
         @media screen and (max-width: 768px) {
+            :root {
+                --sidebar-width: 280px;
+            }
             .sidebar {
                 transform: translateX(100%);
             }
             .sidebar.open {
                 transform: translateX(0);
             }
+            .sidebar.collapsed {
+                transform: translateX(100%);
+            }
+            .sidebar.collapsed.open {
+                transform: translateX(0);
+            }
+
             .main-content {
-                margin-right: 0;
-                width: 100%;
-            }
-            .mobile-menu-btn {
-                display: block;
-            }
-            .page-sheet {
+                margin-right: 0 !important;
                 width: 100% !important;
-                min-height: auto;
-                padding: 20px;
+                padding: 14px 12px 30px !important;
             }
+
+            .mobile-menu-btn {
+                display: block !important;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 10px 12px;
+                top: 0;
+                border-radius: 0 0 10px 10px;
+            }
+            .toolbar .toolbar-left {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .toolbar .toolbar-right {
+                justify-content: center;
+            }
+            .btn {
+                font-size: 0.78rem;
+                padding: 6px 12px;
+            }
+            .current-page-label {
+                font-size: 0.8rem;
+                padding: 3px 12px;
+            }
+
+            .page-sheet {
+                margin-bottom: 18px;
+                border-radius: 4px;
+            }
+            .page-sheet.portrait,
+            .page-sheet.landscape {
+                padding: 14px 12px !important;
+                min-height: auto !important;
+            }
+            .page-sheet.portrait {
+                min-height: 480px !important;
+            }
+            .page-sheet.landscape {
+                min-height: 360px !important;
+            }
+
+            .page-title {
+                font-size: 1.2rem !important;
+            }
+            .header-logo {
+                font-size: 0.85rem !important;
+            }
+            .header-logo svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+
+            .cover-title {
+                font-size: 1.6rem !important;
+            }
+            .cover-subtitle {
+                font-size: 1rem !important;
+            }
+            .cover-border {
+                padding: 16px 12px !important;
+                width: 100% !important;
+            }
+            .cover-year {
+                font-size: 0.9rem !important;
+                padding: 4px 18px !important;
+            }
+            .cover-stamp {
+                font-size: 0.8rem !important;
+                padding: 6px 16px !important;
+            }
+
+            .ledger-table {
+                font-size: 0.7rem !important;
+                line-height: 1.6 !important;
+            }
+            .ledger-table th {
+                font-size: 0.65rem !important;
+                padding: 3px 2px !important;
+            }
+            .ledger-table td {
+                padding: 2px 3px !important;
+                height: 24px !important;
+                min-height: 24px !important;
+            }
+
+            .info-table {
+                font-size: 0.85rem !important;
+            }
+            .info-table td {
+                padding: 5px 3px !important;
+            }
+            .info-table .label {
+                width: 35% !important;
+            }
+
+            .company-barcode-section {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+
+            .notes-area {
+                min-height: 300px !important;
+                font-size: 0.85rem !important;
+                line-height: 26px !important;
+            }
+
+            .page-footer {
+                font-size: 0.7rem !important;
+            }
+
+            #qrcode img,
+            #qrcode canvas {
+                max-width: 70px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .main-content {
+                padding: 10px 8px 20px !important;
+            }
+            .page-sheet.portrait {
+                min-height: 380px !important;
+            }
+            .page-sheet.landscape {
+                min-height: 300px !important;
+            }
+            .page-sheet.portrait,
+            .page-sheet.landscape {
+                padding: 10px 8px !important;
+            }
+            .page-title {
+                font-size: 1rem !important;
+            }
+            .cover-title {
+                font-size: 1.3rem !important;
+            }
+            .cover-border {
+                padding: 12px 8px !important;
+            }
+            .ledger-table {
+                font-size: 0.6rem !important;
+            }
+            .ledger-table th {
+                font-size: 0.55rem !important;
+                padding: 2px 1px !important;
+            }
+            .ledger-table td {
+                padding: 1px 2px !important;
+                height: 20px !important;
+                min-height: 20px !important;
+            }
+            .btn {
+                font-size: 0.7rem !important;
+                padding: 4px 10px !important;
+            }
+            .toolbar {
+                padding: 6px 8px !important;
+                gap: 4px !important;
+            }
+            .current-page-label {
+                font-size: 0.7rem !important;
+                padding: 2px 10px !important;
+            }
+            .notes-area {
+                min-height: 220px !important;
+                font-size: 0.75rem !important;
+                line-height: 22px !important;
+            }
+            .info-table {
+                font-size: 0.75rem !important;
+            }
+        }
+
+        /* ============================================================
+                   SCROLLBAR STYLING (desktop)
+                   ============================================================ */
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .main-content::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 4px;
+        }
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* ============================================================
+                   UTILITY
+                   ============================================================ */
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+        .mt-8 {
+            margin-top: 8px !important;
+        }
+        .mb-8 {
+            margin-bottom: 8px !important;
+        }
+        .flex-1 {
+            flex: 1 !important;
+        }
+        .w-full {
+            width: 100% !important;
         }
     </style>
 </head>
 <body>
-    <!-- الشريط الجانبي -->
+
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <svg class="logo-svg" viewBox="0 0 64 64" width="40" height="40">
@@ -430,49 +1146,56 @@
             <h2>الدفتر المحاسبي</h2>
             <button class="sidebar-toggle" id="sidebarToggle" title="طي القائمة">☰</button>
         </div>
-        <nav class="sidebar-nav" id="sidebarNav">
-            <!-- يتم ملؤها ديناميكياً -->
-        </nav>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
         <div class="sidebar-footer">
             <small>© 2026 – نسخة احترافية</small>
         </div>
     </aside>
-    
-    <!-- زر القائمة للجوال -->
+
+    <!-- ===== MOBILE MENU ===== -->
     <button class="mobile-menu-btn" id="mobileMenuBtn" title="القائمة">☰</button>
-    
-    <!-- المحتوى الرئيسي -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content" id="mainContent">
+
         <div class="toolbar no-print" id="toolbar">
             <div class="toolbar-left">
                 <button class="btn" id="btnPrint" title="طباعة الصفحة النشطة">🖨️ طباعة</button>
-                <button class="btn" id="btnPdf" title="حفظ PDF">📄 PDF</button>
-                <button class="btn" id="btnExcel" title="تصدير Excel">📥 Excel</button>
+                <button class="btn btn-primary" id="btnPdf" title="تصدير PDF">📄 PDF</button>
+                <button class="btn btn-success" id="btnExcel" title="تصدير Excel">📊 Excel</button>
                 <button class="btn" id="btnPrintAll" title="طباعة الكل">📚 الكل</button>
-                <button class="btn" id="btnSettings" title="إعدادات الطباعة">⚙️ الإعدادات</button>
+                <button class="btn" id="btnSave" title="حفظ يدوي">💾 حفظ</button>
+                <button class="btn btn-danger" id="btnReset" title="حذف كل البيانات">🗑️ إعادة ضبط</button>
             </div>
             <div class="toolbar-right">
                 <span class="current-page-label" id="currentPageLabel">غلاف الدفتر</span>
+                <span style="font-size:0.75rem;color:#888;" id="saveStatus">✓ محفوظ</span>
             </div>
         </div>
-        <!-- حاوية الصفحات -->
+
         <div id="pagesContainer"></div>
+
     </main>
-    <div class="overlay" id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:90;" onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
 
     <script>
         (function() {
-            // ========== عناصر أساسية ==========
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const overlay = document.getElementById('overlay');
-            const sidebarNav = document.getElementById('sidebarNav');
-            const pagesContainer = document.getElementById('pagesContainer');
-            const currentPageLabel = document.getElementById('currentPageLabel');
+            'use strict';
 
-            // ========== قائمة الصفحات ==========
-            const pageDefs = [
+            // ================================================================
+            //  CONFIG
+            // ================================================================
+            const ROWS_PER_PAGE = 28;
+            const SAVE_DEBOUNCE_MS = 800;
+            const STORAGE_KEY = 'ledger_data_v2';
+
+            // ================================================================
+            //  PAGE DEFINITIONS
+            // ================================================================
+            const PAGE_DEFS = [
                 { id: 'cover', title: 'غلاف الدفتر', type: 'cover', orientation: 'portrait' },
                 { id: 'company', title: 'بيانات المؤسسة', type: 'company', orientation: 'portrait' },
                 { id: 'index', title: 'الفهرس', type: 'index', orientation: 'portrait' },
@@ -493,15 +1216,425 @@
                 { id: 'notes', title: 'صفحة الملاحظات', type: 'notes', orientation: 'portrait' }
             ];
 
-            const rowsPerPage = 28; // عدد الصفوف الافتراضي لكل صفحة جدول
+            const TABLE_COLUMNS = {
+                journal: ['م', 'التاريخ', 'البيان', 'رقم المستند', 'مدين', 'دائن', 'الرصيد', 'الملاحظات'],
+                ledger: ['م', 'التاريخ', 'البيان', 'رقم المستند', 'مدين', 'دائن', 'الرصيد', 'الملاحظات'],
+                purchases: ['م', 'التاريخ', 'البيان', 'رقم الفاتورة', 'المورد', 'القيمة', 'الضريبة', 'الإجمالي',
+                    'الملاحظات'
+                ],
+                sales: ['م', 'التاريخ', 'البيان', 'رقم الفاتورة', 'العميل', 'القيمة', 'الضريبة', 'الإجمالي', 'الملاحظات'],
+                inventory: ['م', 'التاريخ', 'الصنف', 'الوحدة', 'وارد', 'منصرف', 'الرصيد', 'سعر الوحدة', 'الملاحظات'],
+                clients: ['م', 'الرقم', 'اسم العميل', 'الهاتف', 'البريد الإلكتروني', 'الرصيد', 'الملاحظات'],
+                suppliers: ['م', 'الرقم', 'اسم المورد', 'الهاتف', 'البريد الإلكتروني', 'الرصيد', 'الملاحظات'],
+                revenues: ['م', 'التاريخ', 'البيان', 'المصدر', 'المبلغ', 'طريقة الدفع', 'الملاحظات'],
+                expenses: ['م', 'التاريخ', 'البيان', 'البند', 'المبلغ', 'طريقة الدفع', 'الملاحظات'],
+                cash: ['م', 'التاريخ', 'البيان', 'وارد', 'منصرف', 'الرصيد', 'الملاحظات'],
+                bank: ['م', 'التاريخ', 'البيان', 'إيداع', 'سحب', 'الرصيد', 'الملاحظات'],
+                monthly: ['م', 'البند', 'مدين', 'دائن', 'الرصيد', 'ملاحظات'],
+                yearly: ['م', 'الشهر', 'إجمالي الإيرادات', 'إجمالي المصروفات', 'صافي الربح', 'ملاحظات'],
+                stocktaking: ['م', 'الصنف', 'الوحدة', 'الرصيد الدفتري', 'الجرد الفعلي', 'الفرق', 'الملاحظات']
+            };
 
-            // ========== بناء القائمة الجانبية ==========
+            // ================================================================
+            //  STATE
+            // ================================================================
+            let allSheets = [];
+            let saveTimeout = null;
+            let isSaving = false;
+
+            // ================================================================
+            //  DOM REFS
+            // ================================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const overlay = document.getElementById('overlay');
+            const sidebarNav = document.getElementById('sidebarNav');
+            const pagesContainer = document.getElementById('pagesContainer');
+            const currentPageLabel = document.getElementById('currentPageLabel');
+            const saveStatus = document.getElementById('saveStatus');
+            const toastEl = document.getElementById('toast');
+
+            // ================================================================
+            //  TOAST
+            // ================================================================
+            let toastTimer = null;
+
+            function showToast(msg, type) {
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    toastEl.classList.remove('show', 'success', 'error', 'info');
+                }
+                toastEl.textContent = msg;
+                toastEl.className = 'toast ' + (type || 'info');
+                // force reflow
+                void toastEl.offsetWidth;
+                toastEl.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                    toastTimer = null;
+                }, 2800);
+            }
+
+            // ================================================================
+            //  COLUMN HELPERS
+            // ================================================================
+            function getColumns(type) {
+                return TABLE_COLUMNS[type] || ['م', 'البيان', 'ملاحظات'];
+            }
+
+            // ================================================================
+            //  BUILD PAGES
+            // ================================================================
+            function buildAllPages() {
+                pagesContainer.innerHTML = '';
+                allSheets = [];
+
+                PAGE_DEFS.forEach(def => {
+                    const totalPages = (def.type === 'cover' || def.type === 'company' || def.type === 'index' ||
+                            def.type === 'notes') ?
+                        1 :
+                        3;
+
+                    for (let p = 0; p < totalPages; p++) {
+                        const sheet = createSheet(def, p, totalPages);
+                        pagesContainer.appendChild(sheet.element);
+                        allSheets.push({
+                            def: def,
+                            index: p,
+                            total: totalPages,
+                            element: sheet.element,
+                            id: sheet.id
+                        });
+                    }
+                });
+
+                // Populate tables with empty rows
+                allSheets.forEach((item) => {
+                    const def = item.def;
+                    if (def.type !== 'cover' && def.type !== 'company' && def.type !== 'index' && def.type !==
+                        'notes') {
+                        const tbody = item.element.querySelector('tbody');
+                        if (tbody) {
+                            fillTableRows(tbody, def.type, ROWS_PER_PAGE);
+                        }
+                    }
+                });
+
+                // Build index after pages exist
+                buildIndexTable();
+
+                // Update page numbers
+                updateAllPageNumbers();
+
+                // Generate QR / barcodes
+                generateQRCodes();
+
+                // Restore saved data
+                restoreData();
+
+                // Update nav
+                updateNavActive();
+
+                // Set initial label
+                const first = document.querySelector('.page-sheet');
+                if (first) {
+                    const t = first.querySelector('.page-title');
+                    if (t) currentPageLabel.textContent = t.textContent;
+                }
+            }
+
+            // ================================================================
+            //  CREATE SHEET
+            // ================================================================
+            function createSheet(def, pageIndex, totalPages) {
+                const sheetId = def.id + '-' + pageIndex;
+                const el = document.createElement('div');
+                el.className = 'page-sheet ' + def.orientation;
+                el.id = sheetId;
+                el.dataset.pageType = def.type;
+                el.dataset.pageId = def.id;
+                el.dataset.pageIndex = pageIndex;
+
+                let inner = '<div class="page-inner">';
+
+                // HEADER
+                inner += `
+                        <div class="page-header">
+                            <div class="header-logo">
+                                <svg viewBox="0 0 24 24" width="24" height="24">
+                                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M8 8h8v8H8z" fill="none" stroke="currentColor"/>
+                                </svg>
+                                الدفتر المحاسبي
+                            </div>
+                            <h2 class="page-title">${def.title}${totalPages > 1 ? ' (' + (pageIndex+1) + ')' : ''}</h2>
+                        </div>
+                    `;
+
+                // BODY
+                if (def.type === 'cover') {
+                    inner += coverHTML();
+                } else if (def.type === 'company') {
+                    inner += companyHTML();
+                } else if (def.type === 'index') {
+                    inner += `<div class="table-responsive"><table class="ledger-table index-table">
+                                <thead><tr><th>#</th><th>اسم الصفحة</th><th>رقم الصفحة</th></tr></thead>
+                                <tbody id="indexTbody"></tbody>
+                            </table></div>`;
+                } else if (def.type === 'notes') {
+                    inner += `<div class="notes-area" contenteditable="true" data-notes="true"></div>`;
+                } else {
+                    const cols = getColumns(def.type);
+                    let thead = '<thead><tr>';
+                    cols.forEach(c => thead += `<th>${c}</th>`);
+                    thead += '</tr></thead>';
+                    inner += `<div class="table-responsive"><table class="ledger-table" data-table-type="${def.type}">
+                                ${thead}
+                                <tbody></tbody>
+                            </table></div>`;
+                }
+
+                // FOOTER
+                inner += `
+                        <div class="page-footer">
+                            <span class="footer-date">التاريخ: ____/____/____</span>
+                            <span class="footer-page">الصفحة: <span class="page-num"></span></span>
+                        </div>
+                    `;
+
+                inner += '</div>'; // .page-inner
+                el.innerHTML = inner;
+
+                // Make all table cells editable (except header)
+                makeCellsEditable(el);
+
+                return { element: el, id: sheetId };
+            }
+
+            // ================================================================
+            //  COVER HTML
+            // ================================================================
+            function coverHTML() {
+                return `
+                        <div class="cover-content">
+                            <div class="cover-border">
+                                <div class="cover-logo">
+                                    <svg viewBox="0 0 64 64" width="72" height="72">
+                                        <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/>
+                                        <path d="M20 20h24v24H20z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <h1 class="cover-title">الدفتر المحاسبي</h1>
+                                <div class="cover-divider"></div>
+                                <p class="cover-subtitle">نسخة احترافية متكاملة</p>
+                                <p class="cover-year">السنة المالية: 20____ / 20____</p>
+                                <div class="cover-info">
+                                    <p>اسم المؤسسة: <span contenteditable="true" style="display:inline-block;min-width:120px;border-bottom:1px dashed #aaa;">________________</span></p>
+                                    <p>المدير المالي: <span contenteditable="true" style="display:inline-block;min-width:120px;border-bottom:1px dashed #aaa;">________________</span></p>
+                                </div>
+                                <div id="qrcode" style="margin:16px auto 8px;display:inline-block;"></div>
+                                <div class="cover-stamp">ختم المؤسسة</div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            // ================================================================
+            //  COMPANY HTML
+            // ================================================================
+            function companyHTML() {
+                return `
+                        <div class="company-details">
+                            <table class="info-table">
+                                <tr><td class="label">اسم المؤسسة:</td><td class="lined"><input type="text" data-field="company_name" placeholder="..." /></td></tr>
+                                <tr><td class="label">العنوان:</td><td class="lined"><input type="text" data-field="company_address" placeholder="..." /></td></tr>
+                                <tr><td class="label">الهاتف:</td><td class="lined"><input type="text" data-field="company_phone" placeholder="..." /></td></tr>
+                                <tr><td class="label">السجل التجاري:</td><td class="lined"><input type="text" data-field="company_reg" placeholder="..." /></td></tr>
+                                <tr><td class="label">الرقم الضريبي:</td><td class="lined"><input type="text" data-field="company_tax" placeholder="..." /></td></tr>
+                            </table>
+                            <div class="company-barcode-section">
+                                <div>
+                                    <strong>باركود المؤسسة:</strong>
+                                    <svg id="barcode" style="height:50px;"></svg>
+                                </div>
+                                <div>
+                                    <strong>QR معلومات:</strong>
+                                    <div id="companyQR" style="width:90px;height:90px;display:inline-block;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            // ================================================================
+            //  FILL TABLE ROWS
+            // ================================================================
+            function fillTableRows(tbody, type, count) {
+                tbody.innerHTML = '';
+                const cols = getColumns(type);
+                for (let i = 0; i < count; i++) {
+                    const tr = document.createElement('tr');
+                    for (let j = 0; j < cols.length; j++) {
+                        const td = document.createElement('td');
+                        if (j === 0) td.textContent = i + 1;
+                        else td.innerHTML = '&nbsp;';
+                        td.contentEditable = 'true';
+                        td.dataset.row = i;
+                        td.dataset.col = j;
+                        td.dataset.colName = cols[j] || '';
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+            }
+
+            // ================================================================
+            //  MAKE CELLS EDITABLE
+            // ================================================================
+            function makeCellsEditable(el) {
+                const tds = el.querySelectorAll('td:not([contenteditable])');
+                tds.forEach(td => {
+                    // skip index column (first) — keep as number
+                    const isFirst = td.parentElement && td === td.parentElement.firstElementChild;
+                    if (isFirst && td.textContent.trim().match(/^\d+$/)) {
+                        // keep it as-is
+                        return;
+                    }
+                    td.contentEditable = 'true';
+                });
+                // Also make cover info spans editable
+                const coverSpans = el.querySelectorAll('.cover-info span[contenteditable="true"]');
+                coverSpans.forEach(s => { s.contentEditable = 'true'; });
+            }
+
+            // ================================================================
+            //  INDEX
+            // ================================================================
+            function buildIndexTable() {
+                const tbody = document.getElementById('indexTbody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                const sheets = document.querySelectorAll('.page-sheet');
+                sheets.forEach((sheet, idx) => {
+                    const titleEl = sheet.querySelector('.page-title');
+                    let title = titleEl ? titleEl.textContent : 'صفحة';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${idx + 1}</td><td>${title}</td><td>${idx + 1}</td>`;
+                    // make index cells editable? no, keep as reference
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // ================================================================
+            //  PAGE NUMBERS
+            // ================================================================
+            function updateAllPageNumbers() {
+                const sheets = document.querySelectorAll('.page-sheet');
+                const total = sheets.length;
+                sheets.forEach((sheet, idx) => {
+                    const span = sheet.querySelector('.page-num');
+                    if (span) span.textContent = (idx + 1) + ' / ' + total;
+                });
+                // Also update index if needed
+                buildIndexTable();
+            }
+
+            // ================================================================
+            //  QR / BARCODE
+            // ================================================================
+            function generateQRCodes() {
+                // Cover QR
+                const qrContainer = document.getElementById('qrcode');
+                if (qrContainer && typeof QRCode !== 'undefined') {
+                    qrContainer.innerHTML = '';
+                    try {
+                        new QRCode(qrContainer, {
+                            text: 'دفتر محاسبي احترافي - 2026',
+                            width: 100,
+                            height: 100
+                        });
+                    } catch (e) { /* ignore */ }
+                }
+
+                // Company QR
+                const companyQR = document.getElementById('companyQR');
+                if (companyQR && typeof QRCode !== 'undefined') {
+                    companyQR.innerHTML = '';
+                    try {
+                        new QRCode(companyQR, {
+                            text: 'شركة نموذجية - سجل تجاري 123456',
+                            width: 90,
+                            height: 90
+                        });
+                    } catch (e) { /* ignore */ }
+                }
+
+                // Barcode
+                const barcodeSvg = document.getElementById('barcode');
+                if (barcodeSvg && typeof JsBarcode !== 'undefined') {
+                    try {
+                        JsBarcode(barcodeSvg, '123456789012', {
+                            format: 'CODE128',
+                            width: 2,
+                            height: 50,
+                            displayValue: true,
+                            fontSize: 14,
+                            font: 'monospace'
+                        });
+                    } catch (e) { /* ignore */ }
+                }
+            }
+
+            // ================================================================
+            //  NAVIGATION
+            // ================================================================
+            function navigateTo(pageId) {
+                const target = document.querySelector(`.page-sheet[data-page-id="${pageId}"]`);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const title = target.querySelector('.page-title');
+                    if (title) currentPageLabel.textContent = title.textContent;
+                }
+                updateNavActive();
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('open');
+                    overlay.style.display = 'none';
+                }
+            }
+
+            function updateNavActive() {
+                const links = sidebarNav.querySelectorAll('a');
+                links.forEach(a => a.classList.remove('active'));
+                const activeId = getActivePageId();
+                links.forEach(a => {
+                    if (a.dataset.page === activeId) a.classList.add('active');
+                });
+            }
+
+            function getActivePageId() {
+                const sheets = document.querySelectorAll('.page-sheet');
+                let best = null;
+                let bestDist = Infinity;
+                const scrollY = window.scrollY || window.pageYOffset;
+                sheets.forEach(s => {
+                    const rect = s.getBoundingClientRect();
+                    const dist = Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2);
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        best = s.dataset.pageId;
+                    }
+                });
+                return best || 'cover';
+            }
+
+            // ================================================================
+            //  BUILD NAV
+            // ================================================================
             function buildNav() {
                 sidebarNav.innerHTML = '';
-                pageDefs.forEach((def) => {
+                PAGE_DEFS.forEach(def => {
                     const a = document.createElement('a');
-                    a.href = `#${def.id}`;
-                    a.className = 'nav-item';
                     a.dataset.page = def.id;
                     a.innerHTML = `<span class="nav-icon">📄</span> ${def.title}`;
                     a.addEventListener('click', (e) => {
@@ -512,263 +1645,474 @@
                 });
             }
 
-            // ========== إنشاء صفحات متعددة للسجل ==========
-            function generateSheetHTML(def, pageIndex, totalPages) {
-                const sheetId = `${def.id}-${pageIndex}`;
-                const orientation = def.orientation;
-                const sheet = document.createElement('div');
-                sheet.className = `page-sheet ${orientation}`;
-                sheet.id = sheetId;
-                sheet.dataset.pageType = def.type;
-                sheet.dataset.pageId = def.id;
-                sheet.dataset.pageIndex = pageIndex;
-
-                let innerHTML = '<div class="page-inner">';
-                // رأس الصفحة
-                innerHTML += `<div class="page-header">
-                    <div class="header-logo">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8h8v8H8z" fill="none" stroke="currentColor"/></svg>
-                        الدفتر المحاسبي
-                    </div>
-                    <h2 class="page-title">${def.title} ${totalPages > 1 ? '(' + (pageIndex+1) + ')' : ''}</h2>
-                </div>`;
-
-                // المحتوى حسب النوع
-                if (def.type === 'cover') {
-                    innerHTML += `
-                    <div class="cover-content">
-                        <div class="cover-border">
-                            <div class="cover-logo"><svg viewBox="0 0 64 64" width="70" height="70"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 20h24v24H20z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-                            <h1 class="cover-title">الدفتر المحاسبي</h1>
-                            <div class="cover-divider"></div>
-                            <p class="cover-subtitle">نسخة احترافية متكاملة</p>
-                            <p class="cover-year">السنة المالية: 20____ / 20____</p>
-                            <div class="cover-info">
-                                <p>اسم المؤسسة: ____________________________</p>
-                                <p>المدير المالي: ____________________________</p>
-                            </div>
-                            <div id="qrcode" style="margin:20px auto; width:100px; height:100px;"></div>
-                            <div class="cover-stamp">ختم المؤسسة</div>
-                        </div>
-                    </div>`;
-                } else if (def.type === 'company') {
-                    innerHTML += `
-                    <div class="company-details">
-                        <table class="info-table" style="width:100%; border-collapse:collapse; font-size:1rem;">
-                            <tr><td style="width:30%; font-weight:bold;">اسم المؤسسة:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
-                            <tr><td style="font-weight:bold;">العنوان:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
-                            <tr><td style="font-weight:bold;">الهاتف:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
-                            <tr><td style="font-weight:bold;">السجل التجاري:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
-                            <tr><td style="font-weight:bold;">الرقم الضريبي:</td><td class="lined" style="border-bottom:1px dashed #000;">________________________</td></tr>
-                        </table>
-                        <div style="margin-top:30px; display:flex; justify-content:space-between; align-items:center;">
-                            <div><strong>باركود المؤسسة:</strong><svg id="barcode"></svg></div>
-                            <div><strong>QR معلومات:</strong><div id="companyQR" style="width:90px; height:90px;"></div></div>
-                        </div>
-                    </div>`;
-                } else if (def.type === 'index') {
-                    innerHTML += `<table class="ledger-table index-table"><thead><tr><th>الرقم</th><th>الصفحة</th><th>رقم الصفحة</th></tr></thead><tbody id="indexTbody"></tbody></table>`;
-                } else if (def.type === 'notes') {
-                    innerHTML += `<div class="notes-area" style="min-height:600px;"></div>`;
-                } else {
-                    // جداول السجلات
-                    const columns = getTableColumns(def.type);
-                    innerHTML += `<div class="table-responsive"><table class="ledger-table"><thead><tr>`;
-                    columns.forEach(col => innerHTML += `<th>${col}</th>`);
-                    innerHTML += `</tr></thead><tbody></tbody></table></div>`;
-                }
-
-                // تذييل الصفحة
-                innerHTML += `<div class="page-footer">
-                    <span class="footer-date">التاريخ: ____/____/____</span>
-                    <span class="footer-page">الصفحة: <span class="page-num"></span></span>
-                </div></div>`; // page-inner
-
-                sheet.innerHTML = innerHTML;
-                return sheet;
-            }
-
-            function getTableColumns(type) {
-                const cols = {
-                    journal: ['م', 'التاريخ', 'البيان', 'رقم المستند', 'مدين', 'دائن', 'الرصيد', 'الملاحظات'],
-                    ledger: ['م', 'التاريخ', 'البيان', 'رقم المستند', 'مدين', 'دائن', 'الرصيد', 'الملاحظات'],
-                    purchases: ['م', 'التاريخ', 'البيان', 'رقم الفاتورة', 'المورد', 'القيمة', 'الضريبة', 'الإجمالي', 'الملاحظات'],
-                    sales: ['م', 'التاريخ', 'البيان', 'رقم الفاتورة', 'العميل', 'القيمة', 'الضريبة', 'الإجمالي', 'الملاحظات'],
-                    inventory: ['م', 'التاريخ', 'الصنف', 'الوحدة', 'وارد', 'منصرف', 'الرصيد', 'سعر الوحدة', 'الملاحظات'],
-                    clients: ['م', 'الرقم', 'اسم العميل', 'الهاتف', 'البريد الإلكتروني', 'الرصيد', 'الملاحظات'],
-                    suppliers: ['م', 'الرقم', 'اسم المورد', 'الهاتف', 'البريد الإلكتروني', 'الرصيد', 'الملاحظات'],
-                    revenues: ['م', 'التاريخ', 'البيان', 'المصدر', 'المبلغ', 'طريقة الدفع', 'الملاحظات'],
-                    expenses: ['م', 'التاريخ', 'البيان', 'البند', 'المبلغ', 'طريقة الدفع', 'الملاحظات'],
-                    cash: ['م', 'التاريخ', 'البيان', 'وارد', 'منصرف', 'الرصيد', 'الملاحظات'],
-                    bank: ['م', 'التاريخ', 'البيان', 'إيداع', 'سحب', 'الرصيد', 'الملاحظات'],
-                    monthly: ['م', 'البند', 'مدين', 'دائن', 'الرصيد', 'ملاحظات'],
-                    yearly: ['م', 'الشهر', 'إجمالي الإيرادات', 'إجمالي المصروفات', 'صافي الربح', 'ملاحظات'],
-                    stocktaking: ['م', 'الصنف', 'الوحدة', 'الرصيد الدفتري', 'الجرد الفعلي', 'الفرق', 'الملاحظات']
+            // ================================================================
+            //  SAVE / RESTORE (LocalStorage)
+            // ================================================================
+            function collectData() {
+                const data = {
+                    version: 2,
+                    timestamp: Date.now(),
+                    pages: {}
                 };
-                return cols[type] || ['م', 'البيان', 'ملاحظات'];
+
+                // Company info
+                const inputs = document.querySelectorAll('.info-table input');
+                const company = {};
+                inputs.forEach(inp => {
+                    const field = inp.dataset.field;
+                    if (field) company[field] = inp.value;
+                });
+                data.company = company;
+
+                // Notes
+                const notesAreas = document.querySelectorAll('.notes-area');
+                if (notesAreas.length) {
+                    data.notes = notesAreas[0].innerHTML;
+                }
+
+                // Table data
+                const tables = document.querySelectorAll('.ledger-table');
+                tables.forEach((table, idx) => {
+                    const type = table.dataset.tableType || 'unknown';
+                    const rows = [];
+                    const tbody = table.querySelector('tbody');
+                    if (!tbody) return;
+                    const trs = tbody.querySelectorAll('tr');
+                    trs.forEach(tr => {
+                        const cells = tr.querySelectorAll('td');
+                        const rowData = [];
+                        cells.forEach(td => {
+                            rowData.push(td.innerHTML);
+                        });
+                        rows.push(rowData);
+                    });
+                    const key = 'table_' + type + '_' + idx;
+                    data.pages[key] = rows;
+                });
+
+                // Cover editable spans
+                const coverSpans = document.querySelectorAll('.cover-info span[contenteditable="true"]');
+                const coverData = [];
+                coverSpans.forEach(span => coverData.push(span.innerHTML));
+                if (coverData.length) data.coverSpans = coverData;
+
+                return data;
             }
 
-            // ========== ملء الصفوف تلقائياً ==========
-            function fillTableRows(sheet, type, rowsCount = rowsPerPage) {
-                const tbody = sheet.querySelector('tbody');
-                if (!tbody) return;
-                tbody.innerHTML = '';
-                const colsCount = getTableColumns(type).length;
-                for (let i = 0; i < rowsCount; i++) {
-                    const tr = document.createElement('tr');
-                    for (let j = 0; j < colsCount; j++) {
-                        const td = document.createElement('td');
-                        if (j === 0) td.textContent = i + 1;
-                        else td.innerHTML = '&nbsp;';
-                        tr.appendChild(td);
-                    }
-                    tbody.appendChild(tr);
+            function saveData() {
+                if (isSaving) return;
+                try {
+                    const data = collectData();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                    saveStatus.textContent = '✓ محفوظ';
+                    saveStatus.style.color = '#2d7d46';
+                    showToast('تم الحفظ تلقائياً', 'success');
+                } catch (e) {
+                    console.warn('Save error:', e);
+                    saveStatus.textContent = '⚠️ خطأ';
+                    saveStatus.style.color = '#b33c3c';
                 }
             }
 
-            // ========== إنشاء كل الصفحات ==========
-            function buildAllPages() {
-                pagesContainer.innerHTML = '';
-                pageDefs.forEach(def => {
-                    let totalPages = 1;
-                    if (['journal','ledger','purchases','sales','inventory','clients','suppliers','revenues','expenses','cash','bank','monthly','yearly','stocktaking'].includes(def.type)) {
-                        totalPages = 3; // 3 صفحات لكل سجل لإظهار التعدد
+            function debouncedSave() {
+                if (saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    saveData();
+                    saveTimeout = null;
+                }, SAVE_DEBOUNCE_MS);
+            }
+
+            function restoreData() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return;
+                    const data = JSON.parse(raw);
+                    if (!data || data.version !== 2) return;
+
+                    // Company
+                    if (data.company) {
+                        const inputs = document.querySelectorAll('.info-table input');
+                        inputs.forEach(inp => {
+                            const field = inp.dataset.field;
+                            if (field && data.company[field] !== undefined) {
+                                inp.value = data.company[field];
+                            }
+                        });
                     }
-                    for (let p = 0; p < totalPages; p++) {
-                        const sheet = generateSheetHTML(def, p, totalPages);
-                        pagesContainer.appendChild(sheet);
-                        if (def.type !== 'cover' && def.type !== 'company' && def.type !== 'index' && def.type !== 'notes') {
-                            fillTableRows(sheet, def.type);
+
+                    // Notes
+                    if (data.notes) {
+                        const notesAreas = document.querySelectorAll('.notes-area');
+                        if (notesAreas.length) {
+                            notesAreas[0].innerHTML = data.notes;
                         }
                     }
-                });
-                updateAllPageNumbers();
-                buildIndexTable();
-                generateQRCodes();
-            }
 
-            // ========== ترقيم الصفحات تلقائي ==========
-            function updateAllPageNumbers() {
-                const sheets = document.querySelectorAll('.page-sheet');
-                sheets.forEach((sheet, idx) => {
-                    const pageNumSpan = sheet.querySelector('.page-num');
-                    if (pageNumSpan) pageNumSpan.textContent = idx + 1;
-                });
-            }
-
-            // ========== بناء الفهرس التلقائي ==========
-            function buildIndexTable() {
-                const indexTbody = document.getElementById('indexTbody');
-                if (!indexTbody) return;
-                indexTbody.innerHTML = '';
-                const sheets = document.querySelectorAll('.page-sheet');
-                sheets.forEach((sheet, idx) => {
-                    const title = sheet.querySelector('.page-title')?.textContent || 'صفحة';
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${idx+1}</td><td>${title}</td><td>${idx+1}</td>`;
-                    indexTbody.appendChild(tr);
-                });
-            }
-
-            // ========== QR Code and Barcode ==========
-            function generateQRCodes() {
-                const qrContainer = document.getElementById('qrcode');
-                if (qrContainer && typeof QRCode !== 'undefined') {
-                    qrContainer.innerHTML = '';
-                    new QRCode(qrContainer, {
-                        text: 'دفتر محاسبي احترافي - 2026',
-                        width: 100,
-                        height: 100
-                    });
-                }
-                const companyQR = document.getElementById('companyQR');
-                if (companyQR && typeof QRCode !== 'undefined') {
-                    companyQR.innerHTML = '';
-                    new QRCode(companyQR, {
-                        text: 'شركة نموذجية - سجل تجاري 123456',
-                        width: 90,
-                        height: 90
-                    });
-                }
-                const barcodeSvg = document.getElementById('barcode');
-                if (barcodeSvg && typeof JsBarcode !== 'undefined') {
-                    try {
-                        JsBarcode(barcodeSvg, "123456789012", {
-                            format: "CODE128",
-                            width: 2,
-                            height: 50,
-                            displayValue: true
+                    // Cover spans
+                    if (data.coverSpans) {
+                        const spans = document.querySelectorAll('.cover-info span[contenteditable="true"]');
+                        spans.forEach((span, idx) => {
+                            if (idx < data.coverSpans.length) {
+                                span.innerHTML = data.coverSpans[idx];
+                            }
                         });
-                    } catch(e) {}
+                    }
+
+                    // Tables
+                    const tables = document.querySelectorAll('.ledger-table');
+                    tables.forEach((table, idx) => {
+                        const type = table.dataset.tableType || 'unknown';
+                        const key = 'table_' + type + '_' + idx;
+                        const rowsData = data.pages[key];
+                        if (!rowsData) return;
+                        const tbody = table.querySelector('tbody');
+                        if (!tbody) return;
+                        const trs = tbody.querySelectorAll('tr');
+                        const rowCount = Math.min(trs.length, rowsData.length);
+                        for (let r = 0; r < rowCount; r++) {
+                            const cells = trs[r].querySelectorAll('td');
+                            const rowData = rowsData[r] || [];
+                            for (let c = 0; c < Math.min(cells.length, rowData.length); c++) {
+                                if (c === 0 && cells[c]) {
+                                    // keep index number
+                                    continue;
+                                }
+                                if (cells[c]) {
+                                    cells[c].innerHTML = rowData[c] || '&nbsp;';
+                                }
+                            }
+                        }
+                    });
+
+                    showToast('تم استعادة البيانات المحفوظة', 'info');
+                    saveStatus.textContent = '✓ مستعاد';
+                    saveStatus.style.color = '#2d7d46';
+                } catch (e) {
+                    console.warn('Restore error:', e);
                 }
             }
 
-            // ========== التنقل ==========
-            function navigateTo(pageId) {
-                const targetSheet = document.querySelector(`.page-sheet[data-page-id="${pageId}"]`);
-                if (targetSheet) {
-                    targetSheet.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    currentPageLabel.textContent = targetSheet.querySelector('.page-title')?.textContent || pageId;
+            function resetData() {
+                if (!confirm('هل أنت متأكد من حذف جميع البيانات المدخلة؟ لا يمكن التراجع.')) return;
+                localStorage.removeItem(STORAGE_KEY);
+                showToast('تم حذف جميع البيانات', 'error');
+                saveStatus.textContent = '✓ فارغ';
+                saveStatus.style.color = '#888';
+                // Reload page to reset
+                location.reload();
+            }
+
+            // ================================================================
+            //  EXPORT: EXCEL (SheetJS)
+            // ================================================================
+            function exportExcel() {
+                try {
+                    if (typeof XLSX === 'undefined') {
+                        showToast('مكتبة Excel غير محملة، تأكد من الاتصال بالإنترنت', 'error');
+                        return;
+                    }
+
+                    const wb = XLSX.utils.book_new();
+                    const sheets = document.querySelectorAll('.page-sheet');
+
+                    sheets.forEach((sheet, idx) => {
+                        const titleEl = sheet.querySelector('.page-title');
+                        const sheetName = (titleEl ? titleEl.textContent : 'صفحة ' + (idx + 1)).slice(0, 31);
+                        const table = sheet.querySelector('.ledger-table');
+                        if (!table) {
+                            // Try to extract text content for non-table pages
+                            const textContent = sheet.innerText || '';
+                            const ws = XLSX.utils.aoa_to_sheet([
+                                [sheetName],
+                                [textContent.slice(0, 5000)]
+                            ]);
+                            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                            return;
+                        }
+
+                        // Build 2D array from table
+                        const data = [];
+                        const rows = table.querySelectorAll('tr');
+                        rows.forEach(tr => {
+                            const rowData = [];
+                            tr.querySelectorAll('th, td').forEach(cell => {
+                                rowData.push(cell.innerText.trim());
+                            });
+                            data.push(rowData);
+                        });
+
+                        const ws = XLSX.utils.aoa_to_sheet(data);
+                        // Auto column widths
+                        const colWidths = [];
+                        if (data.length) {
+                            const colCount = data[0].length;
+                            for (let c = 0; c < colCount; c++) {
+                                let max = 10;
+                                data.forEach(row => {
+                                    if (row[c]) max = Math.max(max, String(row[c]).length + 2);
+                                });
+                                colWidths.push({ wch: Math.min(max, 30) });
+                            }
+                            ws['!cols'] = colWidths;
+                        }
+                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                    });
+
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'الدفتر_المحاسبي.xlsx';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+
+                    showToast('تم تصدير Excel بنجاح', 'success');
+                } catch (e) {
+                    console.error('Excel export error:', e);
+                    showToast('خطأ في تصدير Excel: ' + e.message, 'error');
                 }
-                document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
-                const activeLink = document.querySelector(`.nav-item[data-page="${pageId}"]`);
-                if (activeLink) activeLink.classList.add('active');
-                if (window.innerWidth < 768) {
+            }
+
+            // ================================================================
+            //  EXPORT: PDF (html2canvas + jsPDF)
+            // ================================================================
+            function exportPdf() {
+                try {
+                    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+                        showToast('مكتبة PDF غير محملة، تأكد من الاتصال بالإنترنت', 'error');
+                        return;
+                    }
+
+                    const sheets = document.querySelectorAll('.page-sheet');
+                    if (!sheets.length) {
+                        showToast('لا توجد صفحات للتصدير', 'error');
+                        return;
+                    }
+
+                    const { jsPDF } = window.jspdf;
+                    let pdf = null;
+                    let isFirst = true;
+                    let totalPages = sheets.length;
+
+                    // Process each page sequentially
+                    const processSheet = (index) => {
+                        if (index >= totalPages) {
+                            // All done
+                            if (pdf) {
+                                pdf.save('الدفتر_المحاسبي.pdf');
+                                showToast('تم تصدير PDF بنجاح', 'success');
+                            }
+                            return;
+                        }
+
+                        const sheet = sheets[index];
+                        const isLandscape = sheet.classList.contains('landscape');
+
+                        html2canvas(sheet, {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true,
+                            logging: false,
+                            backgroundColor: '#ffffff',
+                            width: sheet.scrollWidth,
+                            height: sheet.scrollHeight,
+                            windowWidth: sheet.scrollWidth,
+                            windowHeight: sheet.scrollHeight
+                        }).then(canvas => {
+                            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                            const orientation = isLandscape ? 'landscape' : 'portrait';
+                            const format = isLandscape ? 'a4' : 'a4';
+
+                            if (isFirst) {
+                                pdf = new jsPDF({
+                                    orientation: orientation,
+                                    unit: 'mm',
+                                    format: format,
+                                    compress: true
+                                });
+                                isFirst = false;
+                            } else {
+                                pdf.addPage({
+                                    orientation: orientation,
+                                    format: format
+                                });
+                            }
+
+                            const pdfWidth = pdf.internal.pageSize.getWidth();
+                            const pdfHeight = pdf.internal.pageSize.getHeight();
+                            const imgWidth = canvas.width;
+                            const imgHeight = canvas.height;
+                            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                            const w = imgWidth * ratio;
+                            const h = imgHeight * ratio;
+                            const x = (pdfWidth - w) / 2;
+                            const y = (pdfHeight - h) / 2;
+
+                            pdf.addImage(imgData, 'JPEG', x, y, w, h);
+
+                            // Process next
+                            processSheet(index + 1);
+                        }).catch(err => {
+                            console.error('html2canvas error:', err);
+                            showToast('خطأ في معالجة الصفحة ' + (index + 1), 'error');
+                            processSheet(index + 1); // continue anyway
+                        });
+                    };
+
+                    showToast('جاري تحضير PDF...', 'info');
+                    processSheet(0);
+
+                } catch (e) {
+                    console.error('PDF export error:', e);
+                    showToast('خطأ في تصدير PDF: ' + e.message, 'error');
+                }
+            }
+
+            // ================================================================
+            //  PRINT
+            // ================================================================
+            function printActive() {
+                const active = document.querySelector('.page-sheet[data-page-id="' + getActivePageId() + '"]');
+                if (!active) {
+                    showToast('لا توجد صفحة نشطة', 'error');
+                    return;
+                }
+                // Hide other pages, print this one
+                const all = document.querySelectorAll('.page-sheet');
+                all.forEach(s => s.style.display = 'none');
+                active.style.display = 'block';
+                setTimeout(() => {
+                    window.print();
+                    setTimeout(() => {
+                        all.forEach(s => s.style.display = '');
+                    }, 300);
+                }, 100);
+            }
+
+            function printAll() {
+                window.print();
+            }
+
+            // ================================================================
+            //  EVENT BINDING
+            // ================================================================
+            function bindEvents() {
+
+                // Sidebar toggle
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                });
+
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                    overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+                });
+
+                overlay.addEventListener('click', () => {
                     sidebar.classList.remove('open');
                     overlay.style.display = 'none';
-                }
+                });
+
+                // Close sidebar on resize to desktop
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 768) {
+                        sidebar.classList.remove('open');
+                        overlay.style.display = 'none';
+                    }
+                });
+
+                // Navigation links (delegated)
+                sidebarNav.addEventListener('click', (e) => {
+                    const link = e.target.closest('a');
+                    if (link && link.dataset.page) {
+                        e.preventDefault();
+                        navigateTo(link.dataset.page);
+                    }
+                });
+
+                // Toolbar buttons
+                document.getElementById('btnPrint').addEventListener('click', printActive);
+                document.getElementById('btnPrintAll').addEventListener('click', printAll);
+                document.getElementById('btnPdf').addEventListener('click', exportPdf);
+                document.getElementById('btnExcel').addEventListener('click', exportExcel);
+                document.getElementById('btnSave').addEventListener('click', () => {
+                    saveData();
+                    showToast('تم الحفظ يدوياً', 'success');
+                });
+                document.getElementById('btnReset').addEventListener('click', resetData);
+
+                // Auto-save on input
+                document.addEventListener('input', (e) => {
+                    const target = e.target;
+                    // Check if it's an editable cell, notes, input, or contenteditable
+                    if (target.closest('.ledger-table td[contenteditable="true"]') ||
+                        target.closest('.notes-area') ||
+                        target.closest('.info-table input') ||
+                        target.closest('.cover-info span[contenteditable="true"]')) {
+                        debouncedSave();
+                        // Update status
+                        saveStatus.textContent = '⏳ حفظ...';
+                        saveStatus.style.color = '#e67e22';
+                    }
+                });
+
+                // Update page label on scroll
+                let scrollTimeout = null;
+                window.addEventListener('scroll', () => {
+                    if (scrollTimeout) return;
+                    scrollTimeout = setTimeout(() => {
+                        const activeId = getActivePageId();
+                        const target = document.querySelector(`.page-sheet[data-page-id="${activeId}"]`);
+                        if (target) {
+                            const title = target.querySelector('.page-title');
+                            if (title) currentPageLabel.textContent = title.textContent;
+                        }
+                        updateNavActive();
+                        scrollTimeout = null;
+                    }, 150);
+                });
+
+                // Keyboard shortcut: Ctrl+S
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                        e.preventDefault();
+                        saveData();
+                        showToast('تم الحفظ (Ctrl+S)', 'success');
+                    }
+                });
+
+                // Before unload, save
+                window.addEventListener('beforeunload', () => {
+                    if (saveTimeout) {
+                        clearTimeout(saveTimeout);
+                        saveData();
+                    }
+                });
             }
 
-            // ========== أزرار الأدوات ==========
-            document.getElementById('btnPrint').addEventListener('click', () => window.print());
-            document.getElementById('btnPdf').addEventListener('click', () => window.print());
-            document.getElementById('btnExcel').addEventListener('click', () => {
-                const activeSheet = document.querySelector('.page-sheet:hover') || document.querySelector('.page-sheet');
-                if (!activeSheet) return;
-                const table = activeSheet.querySelector('table');
-                if (!table) return alert('لا يوجد جدول في هذه الصفحة');
-                let csv = [];
-                const rows = table.querySelectorAll('tr');
-                rows.forEach(row => {
-                    let rowData = [];
-                    row.querySelectorAll('th, td').forEach(cell => rowData.push(cell.innerText));
-                    csv.push(rowData.join(','));
-                });
-                const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'سجل_محاسبي.csv';
-                link.click();
-            });
-            document.getElementById('btnPrintAll').addEventListener('click', () => {
-                alert('سيتم طباعة جميع الصفحات. استخدم إعدادات الطباعة (Ctrl+P) واختر "الكل".');
-                window.print();
-            });
-            document.getElementById('btnSettings').addEventListener('click', () => {
-                alert('إعدادات الطباعة: استخدم نافذة الطباعة (Ctrl+P) لاختيار حجم الورق والهوامش.');
-            });
+            // ================================================================
+            //  INIT
+            // ================================================================
+            function init() {
+                buildNav();
+                buildAllPages();
+                bindEvents();
+                // Update page numbers after any dynamic changes
+                setTimeout(updateAllPageNumbers, 200);
+                showToast('الدفتر المحاسبي جاهز', 'info');
+            }
 
-            // ========== تفاعلات القائمة والجوال ==========
-            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-            mobileMenuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-            });
-            overlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                overlay.style.display = 'none';
-            });
+            // Run when DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
 
-            // ========== بدء التشغيل ==========
-            buildNav();
-            buildAllPages();
-            setTimeout(() => {
-                const firstPage = document.querySelector('.page-sheet');
-                if (firstPage) {
-                    currentPageLabel.textContent = firstPage.querySelector('.page-title')?.textContent || 'غلاف';
-                }
-            }, 100);
         })();
     </script>
+
 </body>
 </html>
