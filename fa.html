@@ -337,17 +337,30 @@
             .contract-cover-front {
                 page-break-before: always;
                 page-break-after: always;
+                page-break-inside: avoid;
                 border: none;
-                height: 100vh;
-                margin: 0;
-                width: 100%;
+                height: 296.8mm !important;
+                max-height: 296.8mm !important;
+                width: 210mm !important;
+                max-width: 210mm !important;
+                margin: 0 auto !important;
+                padding: 30mm 20mm 20mm 20mm !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
             .contract-cover-back {
                 page-break-before: always;
-                page-break-after: avoid;
-                height: 100vh;
-                margin: 0;
-                width: 100%;
+                page-break-after: always;
+                page-break-inside: avoid;
+                border: none;
+                height: 296.8mm !important;
+                max-height: 296.8mm !important;
+                width: 210mm !important;
+                max-width: 210mm !important;
+                margin: 0 auto !important;
+                padding: 40mm 20mm 20mm 20mm !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
             h3,
             h4,
@@ -384,8 +397,10 @@
             }
             #printable-contract-area {
                 padding: 0 !important;
+                width: 100% !important;
             }
         }
+
         @media screen {
             .live-input-blank {
                 border-bottom: 2px dashed #cbd5e1;
