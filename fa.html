@@ -553,10 +553,11 @@
         </aside>
 
         <section class="lg:col-span-8 bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-10 md:p-14 print-container" id="printable-contract-area">
-            <!-- ==================== الغلاف الأمامي ==================== -->
+            <!-- ==================== الغلاف الأمامي ====================             <!-- ==================== الغلاف الأمامي ==================== -->
             <div class="contract-cover-front" id="contract-cover-front">
                 <div class="front-border"></div>
                 <div class="front-border-inner"></div>
+                
                 <div class="header-section">
                     <svg class="saudi-emblem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 2L2 22H22L12 2Z" stroke="#a67c1e" stroke-width="1.5" stroke-linejoin="round"/>
@@ -569,12 +570,19 @@
                         <div class="geo-line"></div>
                     </div>
                 </div>
-                <div class="main-title-section">
+
+                <!-- قسم الصورة في المنتصف تماماً مع الرابط المباشر -->
+                <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; width: 100%;">
+                    <img src="https://via.placeholder.com/140x140.png?text=Fazza+Logo" alt="شعار فزاع" style="max-width: 140px; max-height: 140px; height: auto; object-fit: contain;">
+                </div>
+
+                <div class="main-title-section" style="margin-top: 0;">
                     <h1 class="main-title">عقد استثمار وإدارة محفظة تجارية مستقلة</h1>
                     <div class="sub-title">مشروع فزاع للتجارة والتقسيط</div>
                     <div class="sub-title" style="font-size: 14px; font-weight: 500; color: #555; margin-bottom: 20px;">Fazza Commercial Investment</div>
                     <span class="version-tag">النسخة المعتمدة والمحوكمة رقمياً - عام 2026م</span>
                 </div>
+
                 <div class="meta-data-section">
                     <table class="parties-table">
                         <tr>
@@ -592,6 +600,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- محتوى العقد الأصلي -->
             <div class="space-y-6 text-sm text-slate-800 leading-relaxed text-justify font-sans page-break" id="contract-body"></div>
