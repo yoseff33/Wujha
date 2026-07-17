@@ -657,13 +657,13 @@
             };
 
             const defaultData = {
-                contract_day: 'الأربعاء', contract_date_g: '16/07/2026', contract_date_h: '02/02/1448', contract_city: 'الرياض',
-                agent_name: 'سليمان بن عبد الله الحربي', agent_nationality: 'سعودي', agent_id: '1029384756', agent_id_source: 'الأحوال المدنية بالرياض', agent_id_date: '15/08/1442هـ',
-                agent_address: 'الرياض، حي الياسمين، 11564', agent_email: 'ceo@fazza.sa', agent_phone: '0555123456', agent_bank: 'مصرف الراجحي', agent_iban: 'SA8980000123456789012345',
+                contract_day: 'الأربعاء', contract_date_g: '16/07/2026', contract_date_h: '02/02/1448', contract_city: 'حفر الباطن',
+                agent_name: 'يوسف عيد دليم المطيري', agent_nationality: 'سعودي', agent_id: '1116072107', agent_id_source: 'الأحوال المدنية بحفر الباطن', agent_id_date: '07/07/1444هـ',
+                agent_address: 'حفر الباطن، العنوان الوطني: CNDF6812', agent_email: 'fndske@gmail.com', agent_phone: '0565464718', agent_bank: 'مصرف الراجحي', agent_iban: 'SA0680000455608016471831',
                 investor_name: 'شركة الرواد العالمية للاستثمار', investor_nationality: 'سعودية', investor_id: '1010394857', investor_id_source: 'وزارة التجارة بالرياض', investor_id_date: '10/01/1445هـ',
                 investor_address: 'الرياض، حي السليمانية، مبنى 4492', investor_email: 'investor@alruwad.com', investor_phone: '0500123456', investor_bank: 'البنك الأهلي', investor_iban: 'SA4310000098765432109876',
                 duration: 'سنة واحدة', start_date: '16/07/2026', maturity_date: '16/07/2027', capital_num: '100,000', capital_words: 'مائة ألف ريال لا غير',
-                court_city: 'الرياض', dispute_method: 'court', payout_period: 'monthly'
+                court_city: 'حفر الباطن', dispute_method: 'court', payout_period: 'monthly'
             };
 
             let currentData = { ...defaultData };
@@ -726,7 +726,6 @@
                 const sig = document.getElementById(`sig_${fid}`); if (sig) sig.innerText = clean;
                 if (fid === 'court_city') { const c2 = document.getElementById('court_city_2'); if (c2) c2.innerText =
                         clean; }
-                // تحديث الغلاف
                 if (fid === 'agent_name') { const cover = document.getElementById('cover_agent_name'); if (cover) cover
                         .innerText = clean; }
                 if (fid === 'investor_name') { const cover = document.getElementById('cover_investor_name'); if (cover)
