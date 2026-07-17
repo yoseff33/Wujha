@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com">
     </script>
@@ -39,7 +39,7 @@
             --margin: 18mm;
         }
 
-        /* أنماط صفحات الغلاف */
+        /* ============ أنماط الغلاف ============ */
         .contract-cover-front {
             width: 210mm;
             height: 296.8mm;
@@ -51,7 +51,8 @@
             justify-content: space-between;
             overflow: hidden;
             border: 1px solid #e5e0d8;
-            margin: 0 auto;
+            margin: 0 auto 2rem auto;
+            box-sizing: border-box;
         }
         .contract-cover-back {
             width: 210mm;
@@ -64,7 +65,8 @@
             justify-content: space-between;
             overflow: hidden;
             color: #ffffff;
-            margin: 0 auto;
+            margin: 0 auto 2rem auto;
+            box-sizing: border-box;
         }
         .front-border {
             position: absolute;
@@ -188,7 +190,15 @@
         .pseudo-barcode {
             width: 120px;
             height: 45px;
-            background: repeating-linear-gradient(90deg, #1a1a1a, #1a1a1a 2px, transparent 2px, transparent 4px, #1a1a1a 4px, #1a1a1a 7px, transparent 7px, transparent 9px);
+            background: repeating-linear-gradient(90deg,
+                    #1a1a1a,
+                    #1a1a1a 2px,
+                    transparent 2px,
+                    transparent 4px,
+                    #1a1a1a 4px,
+                    #1a1a1a 7px,
+                    transparent 7px,
+                    transparent 9px);
             margin-bottom: 5px;
             opacity: 0.85;
         }
@@ -206,10 +216,30 @@
             pointer-events: none;
             opacity: 0.6;
         }
-        .top-right { top: 20mm; right: 20mm; border-bottom: none; border-left: none; }
-        .top-left { top: 20mm; left: 20mm; border-bottom: none; border-right: none; }
-        .bottom-right { bottom: 20mm; right: 20mm; border-top: none; border-left: none; }
-        .bottom-left { bottom: 20mm; left: 20mm; border-top: none; border-right: none; }
+        .top-right {
+            top: 20mm;
+            right: 20mm;
+            border-bottom: none;
+            border-left: none;
+        }
+        .top-left {
+            top: 20mm;
+            left: 20mm;
+            border-bottom: none;
+            border-right: none;
+        }
+        .bottom-right {
+            bottom: 20mm;
+            right: 20mm;
+            border-top: none;
+            border-left: none;
+        }
+        .bottom-left {
+            bottom: 20mm;
+            left: 20mm;
+            border-top: none;
+            border-right: none;
+        }
         .back-center-content {
             text-align: center;
             margin: auto 0;
@@ -276,316 +306,240 @@
             text-transform: uppercase;
         }
 
-        /* قواعد الطباعة */
         @media print {
-            @page { size: A4; margin: 0; }
-            body { background: white !important; color: black !important; font-size: 10.5pt !important; line-height: 1.7 !important; margin: 0; padding: 0; }
-            .no-print { display: none !important; }
-            .print-container { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; background: white !important; }
-
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 10.5pt !important;
+                line-height: 1.7 !important;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                background: white !important;
+                box-sizing: border-box;
+            }
             .contract-cover-front {
+                page-break-before: always;
                 page-break-after: always;
                 border: none;
                 height: 100vh;
+                margin: 0;
+                width: 100%;
             }
             .contract-cover-back {
                 page-break-before: always;
+                page-break-after: avoid;
                 height: 100vh;
+                margin: 0;
+                width: 100%;
             }
-            .page-break { page-break-before: always; }
-            h3, h4, .heading, .signature-box, table { page-break-inside: avoid; }
-            tr { page-break-inside: avoid; }
-            thead { display: table-header-group; }
-            .live-input-blank { border-bottom: 1px dotted #555 !important; background-color: transparent !important; padding: 0 2px !important; font-weight: 600 !important; color: #000 !important; min-width: auto !important; display: inline !important; outline: none !important; box-shadow: none !important; }
-            .print-logo { display: block !important; text-align: center; margin-bottom: 18px; }
-            #printable-contract-area { padding: 0 !important; }
+            h3,
+            h4,
+            .heading,
+            .signature-box,
+            table {
+                page-break-inside: avoid;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
+            thead {
+                display: table-header-group;
+            }
+            .page-break {
+                page-break-before: always;
+                margin-top: 8mm;
+            }
+            .live-input-blank {
+                border-bottom: 1px dotted #555 !important;
+                background-color: transparent !important;
+                padding: 0 2px !important;
+                font-weight: 600 !important;
+                color: #000 !important;
+                min-width: auto !important;
+                display: inline !important;
+                outline: none !important;
+                box-shadow: none !important;
+            }
+            .print-logo {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 18px;
+            }
+            #printable-contract-area {
+                padding: 0 !important;
+            }
         }
-
         @media screen {
-            .live-input-blank { border-bottom: 2px dashed #cbd5e1; background-color: #f8fafc; transition: all 0.2s; padding: 0 5px; font-weight: 600; color: #0f172a; min-width: 60px; display: inline-block; outline: none; border-radius: 2px; white-space: nowrap; }
-            .live-input-blank:focus { background-color: #fef3c7; border-bottom-color: #a67c1e; box-shadow: 0 2px 4px rgba(166,124,30,0.15); white-space: normal; }
+            .live-input-blank {
+                border-bottom: 2px dashed #cbd5e1;
+                background-color: #f8fafc;
+                transition: all 0.2s;
+                padding: 0 5px;
+                font-weight: 600;
+                color: #0f172a;
+                min-width: 60px;
+                display: inline-block;
+                outline: none;
+                border-radius: 2px;
+                white-space: nowrap;
+            }
+            .live-input-blank:focus {
+                background-color: #fef3c7;
+                border-bottom-color: #a67c1e;
+                box-shadow: 0 2px 4px rgba(166, 124, 30, 0.15);
+                white-space: normal;
+            }
         }
-        .print-logo { display: none; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white; font-size: 1.2rem; gap: 1rem; }
-        .spinner { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 44px; height: 44px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #0f2c1f; color: white; padding: 12px 28px; border-radius: 10px; z-index: 10000; font-weight: bold; font-size: 0.95rem; box-shadow: 0 6px 20px rgba(0,0,0,0.2); animation: fadeInOut 3s ease forwards; pointer-events: none; }
-        @keyframes fadeInOut { 0% { opacity: 0; bottom: 10px; } 10% { opacity: 1; bottom: 24px; } 90% { opacity: 1; bottom: 24px; } 100% { opacity: 0; bottom: 10px; } }
-        .field-error { border-color: #e53e3e !important; background-color: #fff5f5 !important; }
-        table { border-collapse: collapse; width: 100%; }
-        #contract-body p { margin-bottom: 0.35rem; }
-        #contract-body h3 { margin-top: 1.2rem; margin-bottom: 0.5rem; }
+        .print-logo {
+            display: none;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 1.2rem;
+            gap: 1rem;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f2c1f;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 10px;
+            z-index: 10000;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeInOut 3s ease forwards;
+            pointer-events: none;
+        }
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                bottom: 10px;
+            }
+            10% {
+                opacity: 1;
+                bottom: 24px;
+            }
+            90% {
+                opacity: 1;
+                bottom: 24px;
+            }
+            100% {
+                opacity: 0;
+                bottom: 10px;
+            }
+        }
+        .field-error {
+            border-color: #e53e3e !important;
+            background-color: #fff5f5 !important;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table td,
+        table th {
+            vertical-align: middle;
+        }
+        #contract-body p {
+            margin-bottom: 0.35rem;
+        }
+        #contract-body h3 {
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        #contract-body h4 {
+            margin-top: 0.8rem;
+            margin-bottom: 0.4rem;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 min-h-screen">
 
-<header class="no-print bg-saudi-dark text-white shadow-md sticky top-0 z-50 border-b border-saudi-gold/20">
-    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-3">
-            <div class="bg-white/10 p-2.5 rounded-xl border border-white/20">
-                <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+    <header class="no-print bg-saudi-dark text-white shadow-md sticky top-0 z-50 border-b border-saudi-gold/20">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2.5 rounded-xl border border-white/20">
+                    <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">منصة صياغة وحوكمة عقود الاستثمار</h1>
+                    <p class="text-xs text-emerald-300">نظام إدارة المحافظ المستقلة – متوافق مع الأنظمة السعودية 2026</p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-lg font-bold tracking-tight">منصة صياغة وحوكمة عقود الاستثمار</h1>
-                <p class="text-xs text-emerald-300">نظام إدارة المحافظ المستقلة – متوافق مع الأنظمة السعودية 2026</p>
+            <div class="flex flex-wrap items-center gap-2">
+                <button id="btn-clear-agent" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm font-bold text-white transition flex items-center gap-1.5" title="يمسح جميع بيانات المدير (الطرف الأول) فقط">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    مسح بيانات المدير
+                </button>
+                <button id="btn-reset" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-bold text-white transition flex items-center gap-1.5" title="يمسح جميع بيانات المستثمر (الطرف الثاني) فقط">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    مسح بيانات المستثمر
+                </button>
+                <button id="btn-print" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">🖨️ طباعة</button>
+                <button id="btn-pdf" class="px-4 py-2.5 bg-saudi-emerald hover:bg-green-800 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">📄 حفظ PDF</button>
+                <button id="btn-word" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">📝 حفظ Word</button>
+                <button id="btn-whatsapp" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">📱 واتساب</button>
             </div>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-            <button id="btn-clear-agent" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm font-bold text-white transition flex items-center gap-1.5" title="يمسح جميع بيانات المدير (الطرف الأول) فقط">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                مسح بيانات المدير
-            </button>
-            <button id="btn-reset" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-bold text-white transition flex items-center gap-1.5" title="يمسح جميع بيانات المستثمر (الطرف الثاني) فقط">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                مسح بيانات المستثمر
-            </button>
-            <button id="btn-print" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">🖨️ طباعة</button>
-            <button id="btn-pdf" class="px-4 py-2.5 bg-saudi-emerald hover:bg-green-800 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">📄 حفظ PDF</button>
-            <button id="btn-word" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">📝 حفظ Word</button>
-            <button id="btn-whatsapp" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-bold text-white flex items-center gap-2 transition">📱 واتساب</button>
-        </div>
-    </div>
-</header>
+    </header>
 
-<main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <aside class="no-print lg:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 h-fit lg:sticky lg:top-24 max-h-[85vh] overflow-y-auto" id="control-panel">
-        <h2 class="text-md font-bold text-saudi-dark border-b pb-3 mb-4 flex items-center gap-2"><span class="w-2.5 h-2.5 bg-saudi-gold rounded-full"></span>محددات وبيانات صياغة العقد</h2>
-        <div id="dynamic-controls" class="space-y-4"></div>
-    </aside>
+    <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <aside class="no-print lg:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 h-fit lg:sticky lg:top-24 max-h-[85vh] overflow-y-auto" id="control-panel">
+            <h2 class="text-md font-bold text-saudi-dark border-b pb-3 mb-4 flex items-center gap-2"><span class="w-2.5 h-2.5 bg-saudi-gold rounded-full"></span>محددات وبيانات صياغة العقد</h2>
+            <div id="dynamic-controls" class="space-y-4"></div>
+        </aside>
 
-    <section class="lg:col-span-8 bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-10 md:p-14 print-container" id="printable-contract-area">
-        <div class="space-y-6 text-sm text-slate-800 leading-relaxed text-justify font-sans" id="contract-body"></div>
-    </section>
-</main>
-
-<div id="loading-overlay" class="loading-overlay" style="display: none;"><div class="spinner"></div><span id="loading-text">جارٍ التجهيز...</span></div>
-
-<script>
-    (function() {
-        const LOGO_URL = 'https://via.placeholder.com/150x80.png?text=شعار+فزاع';
-        const STORAGE_KEY = 'fazza_contract_data_v7';
-
-        const EMPTY_AGENT_DATA = {
-            agent_name: '', agent_nationality: '', agent_id: '', agent_id_source: '', agent_id_date: '',
-            agent_address: '', agent_email: '', agent_phone: '', agent_bank: '', agent_iban: ''
-        };
-
-        const EMPTY_INVESTOR_DATA = {
-            investor_name: '', investor_nationality: '', investor_id: '', investor_id_source: '',
-            investor_id_date: '', investor_address: '', investor_email: '', investor_phone: '',
-            investor_bank: '', investor_iban: ''
-        };
-
-        const defaultData = {
-            contract_day: 'الأربعاء', contract_date_g: '16/07/2026', contract_date_h: '02/02/1448', contract_city: 'الرياض',
-            agent_name: 'سليمان بن عبد الله الحربي', agent_nationality: 'سعودي', agent_id: '1029384756', agent_id_source: 'الأحوال المدنية بالرياض', agent_id_date: '15/08/1442هـ',
-            agent_address: 'الرياض، حي الياسمين، 11564', agent_email: 'ceo@fazza.sa', agent_phone: '0555123456', agent_bank: 'مصرف الراجحي', agent_iban: 'SA8980000123456789012345',
-            investor_name: 'شركة الرواد العالمية للاستثمار', investor_nationality: 'سعودية', investor_id: '1010394857', investor_id_source: 'وزارة التجارة بالرياض', investor_id_date: '10/01/1445هـ',
-            investor_address: 'الرياض، حي السليمانية، مبنى 4492', investor_email: 'investor@alruwad.com', investor_phone: '0500123456', investor_bank: 'البنك الأهلي', investor_iban: 'SA4310000098765432109876',
-            duration: 'سنة واحدة', start_date: '16/07/2026', maturity_date: '16/07/2027', capital_num: '100,000', capital_words: 'مائة ألف ريال لا غير',
-            court_city: 'الرياض', dispute_method: 'court', payout_period: 'monthly'
-        };
-
-        let currentData = { ...defaultData };
-        let isExporting = false;
-        const contractBody = document.getElementById('contract-body');
-        const dynamicControls = document.getElementById('dynamic-controls');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
-
-        function showToast(msg, err = false) {
-            document.querySelectorAll('.toast').forEach(t => t.remove());
-            const t = document.createElement('div'); t.className = 'toast'; t.style.background = err ? '#c53030' : '#0f2c1f'; t.textContent = msg;
-            document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
-        }
-        function showLoading(txt) { loadingText.textContent = txt; loadingOverlay.style.display = 'flex'; }
-        function hideLoading() { loadingOverlay.style.display = 'none'; }
-
-        function validateField(fid, val) {
-            const el = document.getElementById(`ctrl_${fid}`); if (!el) return true;
-            el.classList.remove('field-error'); const v = val.trim(); if (v === '') return true;
-            let ok = true;
-            switch (fid) {
-                case 'agent_id': case 'investor_id': ok = /^[0-9]{10}$/.test(v); break;
-                case 'agent_email': case 'investor_email': ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); break;
-                case 'agent_phone': case 'investor_phone': ok = /^0[0-9]{9}$/.test(v); break;
-                case 'agent_iban': case 'investor_iban': ok = /^SA[0-9]{22}$/.test(v.toUpperCase()); break;
-                case 'capital_num': ok = /^[0-9,]+$/.test(v); break;
-            }
-            if (!ok) el.classList.add('field-error');
-            return ok;
-        }
-
-        function formatNum(v) { const n = v.replace(/[^0-9]/g, ''); return n === '' ? '' : Number(n).toLocaleString('en-US'); }
-
-        function syncAllViews(fid, val) {
-            const clean = val.trim() === '' ? '............' : val;
-            document.querySelectorAll(`[data-field="${fid}"]`).forEach(el => { el.innerText = clean; });
-            const tbl = document.getElementById(`tbl_${fid}`); if (tbl) tbl.innerText = clean;
-            const sig = document.getElementById(`sig_${fid}`); if (sig) sig.innerText = clean;
-            if (fid === 'court_city') { const c2 = document.getElementById('court_city_2'); if (c2) c2.innerText = clean; }
-            // تحديث الغلاف
-            const coverEl = document.getElementById(`cover_${fid}`); if (coverEl) coverEl.innerText = clean;
-        }
-
-        function updateCtrl(fid, val) { const c = document.getElementById(`ctrl_${fid}`); if (c) c.value = val; syncAllViews(fid, val); autoSave(); }
-
-        function handleFieldInput(e) {
-            const fid = e.target.dataset.field; if (!fid) return;
-            let val = e.target.innerText || e.target.value;
-            if (fid === 'capital_num') { val = formatNum(val); e.target.innerText = val; }
-            validateField(fid, val); updateCtrl(fid, val);
-        }
-
-        function handleControlInput(e) {
-            const fid = e.target.id.replace('ctrl_', ''); let val = e.target.value;
-            if (fid === 'capital_num') { val = formatNum(val); e.target.value = val; }
-            validateField(fid, val); syncAllViews(fid, val); autoSave();
-        }
-
-        function updateDisputeUI() {
-            document.getElementById('dispute_court').checked = currentData.dispute_method === 'court';
-            document.getElementById('dispute_arbitration').checked = currentData.dispute_method === 'arbitration';
-        }
-
-        function updatePayoutUI() {
-            const map = { monthly: 'شهري (نهاية كل شهر)', quarterly: 'ربع سنوي', thirdly: 'ثلث سنوي (كل 4 أشهر)', yearly: 'سنوي' };
-            const p = document.getElementById('tbl_payout_period'); if (p) p.innerText = map[currentData.payout_period] || currentData.payout_period;
-        }
-
-        function autoSave() {
-            try {
-                document.querySelectorAll('#dynamic-controls input, #dynamic-controls select').forEach(ctrl => {
-                    const fid = ctrl.id.replace('ctrl_', '');
-                    if (fid && currentData.hasOwnProperty(fid)) currentData[fid] = ctrl.value;
-                });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
-            } catch (e) {}
-        }
-
-        function loadSavedData() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) currentData = { ...defaultData, ...JSON.parse(saved) };
-            } catch (e) { currentData = { ...defaultData }; }
-        }
-
-        function clearAgentData() {
-            Object.keys(EMPTY_AGENT_DATA).forEach(k => { currentData[k] = ''; });
-            Object.keys(EMPTY_AGENT_DATA).forEach(k => {
-                const ctrl = document.getElementById(`ctrl_${k}`); if (ctrl) ctrl.value = '';
-                syncAllViews(k, '');
-            });
-            buildContractBody(); bindContentEditableEvents();
-            Object.keys(currentData).forEach(k => {
-                if (!EMPTY_AGENT_DATA.hasOwnProperty(k)) syncAllViews(k, currentData[k]);
-            });
-            localStorage.removeItem(STORAGE_KEY); autoSave();
-            showToast('✅ تم مسح جميع بيانات المدير (الطرف الأول) بنجاح');
-        }
-
-        function clearInvestorData() {
-            Object.keys(EMPTY_INVESTOR_DATA).forEach(k => { currentData[k] = ''; });
-            Object.keys(EMPTY_INVESTOR_DATA).forEach(k => {
-                const ctrl = document.getElementById(`ctrl_${k}`); if (ctrl) ctrl.value = '';
-                syncAllViews(k, '');
-            });
-            buildContractBody(); bindContentEditableEvents();
-            Object.keys(currentData).forEach(k => {
-                if (!EMPTY_INVESTOR_DATA.hasOwnProperty(k)) syncAllViews(k, currentData[k]);
-            });
-            localStorage.removeItem(STORAGE_KEY); autoSave();
-            showToast('✅ تم مسح جميع بيانات المستثمر (الطرف الثاني) بنجاح');
-        }
-
-        function buildControlPanel() {
-            const sections = [
-                { title: '📅 معلومات تاريخ ومكان التعاقد', fields: [
-                    { id: 'contract_day', label: 'يوم التعاقد', type: 'text' },
-                    { id: 'contract_date_g', label: 'التاريخ الميلادي', type: 'text' },
-                    { id: 'contract_date_h', label: 'التاريخ الهجري', type: 'text' },
-                    { id: 'contract_city', label: 'مدينة التعاقد', type: 'text' }
-                ]},
-                { title: '👤 الطرف الأول (المدير)', fields: [
-                    { id: 'agent_name', label: 'اسم المدير الكامل', type: 'text' },
-                    { id: 'agent_nationality', label: 'الجنسية', type: 'text' },
-                    { id: 'agent_id', label: 'رقم الهوية', type: 'text' },
-                    { id: 'agent_id_source', label: 'مصدر الهوية', type: 'text' },
-                    { id: 'agent_id_date', label: 'تاريخ الإصدار', type: 'text' },
-                    { id: 'agent_address', label: 'العنوان الوطني', type: 'text' },
-                    { id: 'agent_email', label: 'البريد الإلكتروني', type: 'email' },
-                    { id: 'agent_phone', label: 'رقم الجوال', type: 'text' },
-                    { id: 'agent_bank', label: 'بنك المدير', type: 'text' },
-                    { id: 'agent_iban', label: 'آيبان IBAN', type: 'text' }
-                ]},
-                { title: '🏢 الطرف الثاني (المستثمر)', fields: [
-                    { id: 'investor_name', label: 'اسم المستثمر / الشركة', type: 'text' },
-                    { id: 'investor_nationality', label: 'الجنسية', type: 'text' },
-                    { id: 'investor_id', label: 'رقم الهوية / السجل', type: 'text' },
-                    { id: 'investor_id_source', label: 'مصدر السجل', type: 'text' },
-                    { id: 'investor_id_date', label: 'تاريخ الإصدار', type: 'text' },
-                    { id: 'investor_address', label: 'العنوان الوطني', type: 'text' },
-                    { id: 'investor_email', label: 'البريد الإلكتروني', type: 'email' },
-                    { id: 'investor_phone', label: 'رقم الجوال', type: 'text' },
-                    { id: 'investor_bank', label: 'بنك المستثمر', type: 'text' },
-                    { id: 'investor_iban', label: 'آيبان IBAN', type: 'text' }
-                ]},
-                { title: '💰 البيانات المالية والمدد', fields: [
-                    { id: 'capital_num', label: 'رأس المال (رقمياً)', type: 'text' },
-                    { id: 'capital_words', label: 'رأس المال (كتابةً)', type: 'text' },
-                    { id: 'duration', label: 'مدة المحفظة', type: 'text' },
-                    { id: 'start_date', label: 'تاريخ البداية', type: 'text' },
-                    { id: 'maturity_date', label: 'تاريخ الاستحقاق', type: 'text' },
-                    { id: 'payout_period', label: 'دورية الأرباح', type: 'select', options: [
-                        { value: 'monthly', text: 'شهري' }, { value: 'quarterly', text: 'ربع سنوي' },
-                        { value: 'thirdly', text: 'ثلث سنوي' }, { value: 'yearly', text: 'سنوي' }
-                    ]}
-                ]},
-                { title: '⚖️ تسوية النزاعات', fields: [
-                    { id: 'dispute_method', label: 'طريقة التسوية', type: 'select', options: [
-                        { value: 'court', text: 'المحاكم المختصة' },
-                        { value: 'arbitration', text: 'مركز التحكيم السعودي' }
-                    ]},
-                    { id: 'court_city', label: 'المدينة المختصة', type: 'text' }
-                ]}
-            ];
-            let html = '';
-            sections.forEach((sec, idx) => {
-                const isOpen = idx < 2 ? 'open' : '';
-                html += `<details ${isOpen} class="group border border-slate-100 rounded-xl overflow-hidden">
-                    <summary class="flex justify-between items-center font-semibold text-slate-700 cursor-pointer list-none bg-slate-50 p-3 hover:bg-slate-100 transition">
-                        <span>${sec.title}</span><span class="transition group-open:rotate-180"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
-                    </summary><div class="p-3 bg-white space-y-3">`;
-                sec.fields.forEach(f => {
-                    html += `<div><label class="block text-xs font-semibold text-slate-500 mb-1">${f.label}</label>`;
-                    if (f.type === 'select') {
-                        html += `<select id="ctrl_${f.id}" class="w-full text-sm border border-slate-300 rounded-md px-3 py-1.5 focus:border-saudi-emerald outline-none bg-white">`;
-                        f.options.forEach(o => html += `<option value="${o.value}">${o.text}</option>`);
-                        html += `</select>`;
-                    } else {
-                        html += `<input type="${f.type}" id="ctrl_${f.id}" class="w-full text-sm border border-slate-300 rounded-md px-3 py-1.5 focus:border-saudi-emerald outline-none" placeholder="أدخل ${f.label}">`;
-                    }
-                    html += `</div>`;
-                });
-                html += `</div></details>`;
-            });
-            dynamicControls.innerHTML = html;
-            document.querySelectorAll('#dynamic-controls input, #dynamic-controls select').forEach(el => {
-                el.addEventListener('input', handleControlInput);
-                el.addEventListener('change', function() {
-                    if (el.id === 'ctrl_dispute_method') { currentData.dispute_method = el.value; updateDisputeUI(); }
-                    else if (el.id === 'ctrl_payout_period') { currentData.payout_period = el.value; updatePayoutUI(); }
-                    autoSave();
-                });
-            });
-        }
-
-        function buildContractBody() {
-            const d = currentData;
-            const esc = v => v || '............';
-            // الغلاف الأمامي
-            const frontCover = `
-            <div class="contract-cover-front">
+        <section class="lg:col-span-8 bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-10 md:p-14 print-container" id="printable-contract-area">
+            <!-- ==================== الغلاف الأمامي ==================== -->
+            <div class="contract-cover-front" id="contract-cover-front">
                 <div class="front-border"></div>
                 <div class="front-border-inner"></div>
                 <div class="header-section">
@@ -610,23 +564,25 @@
                     <table class="parties-table">
                         <tr>
                             <td class="label">الطرف الأول (المدير)</td>
-                            <td class="value"><span data-field="agent_name" id="cover_agent_name">${esc(d.agent_name)}</span></td>
+                            <td class="value js-first-party" id="cover_agent_name">سليمان بن عبد الله الحربي</td>
                         </tr>
                         <tr>
                             <td class="label">الطرف الثاني (المستثمر)</td>
-                            <td class="value"><span data-field="investor_name" id="cover_investor_name">${esc(d.investor_name)}</span></td>
+                            <td class="value js-second-party" id="cover_investor_name">شركة الرواد العالمية للاستثمار</td>
                         </tr>
                     </table>
                     <div class="digital-auth-box">
                         <div class="pseudo-barcode"></div>
-                        <div class="contract-id">FZ-2026-0001</div>
+                        <div class="contract-id js-contract-id">FZ-2026-9942</div>
                     </div>
                 </div>
             </div>
-            `;
-            // الغلاف الخلفي
-            const backCover = `
-            <div class="contract-cover-back">
+
+            <!-- محتوى العقد الأصلي -->
+            <div class="space-y-6 text-sm text-slate-800 leading-relaxed text-justify font-sans page-break" id="contract-body"></div>
+
+            <!-- ==================== الغلاف الخلفي ==================== -->
+            <div class="contract-cover-back page-break" id="contract-cover-back">
                 <div class="corner-pattern top-right"></div>
                 <div class="corner-pattern top-left"></div>
                 <div class="corner-pattern bottom-right"></div>
@@ -655,23 +611,471 @@
                     </div>
                 </div>
             </div>
-            `;
+        </section>
+    </main>
 
-            // محتوى العقد الأساسي
-            const mainContent = `
+    <div id="loading-overlay" class="loading-overlay" style="display: none;"><div class="spinner"></div><span id="loading-text">جارٍ التجهيز...</span></div>
+
+    <script>
+        (function() {
+            const LOGO_URL = 'https://via.placeholder.com/150x80.png?text=شعار+فزاع';
+            const STORAGE_KEY = 'fazza_contract_data_v7';
+
+            const EMPTY_AGENT_DATA = {
+                agent_name: '', agent_nationality: '', agent_id: '', agent_id_source: '', agent_id_date: '',
+                agent_address: '', agent_email: '', agent_phone: '', agent_bank: '', agent_iban: ''
+            };
+
+            const EMPTY_INVESTOR_DATA = {
+                investor_name: '', investor_nationality: '', investor_id: '', investor_id_source: '',
+                investor_id_date: '', investor_address: '', investor_email: '', investor_phone: '',
+                investor_bank: '', investor_iban: ''
+            };
+
+            const defaultData = {
+                contract_day: 'الأربعاء', contract_date_g: '16/07/2026', contract_date_h: '02/02/1448', contract_city: 'الرياض',
+                agent_name: 'سليمان بن عبد الله الحربي', agent_nationality: 'سعودي', agent_id: '1029384756', agent_id_source: 'الأحوال المدنية بالرياض', agent_id_date: '15/08/1442هـ',
+                agent_address: 'الرياض، حي الياسمين، 11564', agent_email: 'ceo@fazza.sa', agent_phone: '0555123456', agent_bank: 'مصرف الراجحي', agent_iban: 'SA8980000123456789012345',
+                investor_name: 'شركة الرواد العالمية للاستثمار', investor_nationality: 'سعودية', investor_id: '1010394857', investor_id_source: 'وزارة التجارة بالرياض', investor_id_date: '10/01/1445هـ',
+                investor_address: 'الرياض، حي السليمانية، مبنى 4492', investor_email: 'investor@alruwad.com', investor_phone: '0500123456', investor_bank: 'البنك الأهلي', investor_iban: 'SA4310000098765432109876',
+                duration: 'سنة واحدة', start_date: '16/07/2026', maturity_date: '16/07/2027', capital_num: '100,000', capital_words: 'مائة ألف ريال لا غير',
+                court_city: 'الرياض', dispute_method: 'court', payout_period: 'monthly'
+            };
+
+            let currentData = { ...defaultData };
+            let isExporting = false;
+            const contractBody = document.getElementById('contract-body');
+            const dynamicControls = document.getElementById('dynamic-controls');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+
+            function showToast(msg, err = false) {
+                document.querySelectorAll('.toast').forEach(t => t.remove());
+                const t = document.createElement('div'); t.className = 'toast'; t.style.background = err ? '#c53030' :
+                    '#0f2c1f'; t.textContent = msg;
+                document.body.appendChild(t);
+                setTimeout(() => t.remove(), 3000);
+            }
+
+            function showLoading(txt) { loadingText.textContent = txt;
+                loadingOverlay.style.display = 'flex'; }
+
+            function hideLoading() { loadingOverlay.style.display = 'none'; }
+
+            function validateField(fid, val) {
+                const el = document.getElementById(`ctrl_${fid}`); if (!el) return true;
+                el.classList.remove('field-error');
+                const v = val.trim(); if (v === '') return true;
+                let ok = true;
+                switch (fid) {
+                    case 'agent_id':
+                    case 'investor_id':
+                        ok = /^[0-9]{10}$/.test(v);
+                        break;
+                    case 'agent_email':
+                    case 'investor_email':
+                        ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+                        break;
+                    case 'agent_phone':
+                    case 'investor_phone':
+                        ok = /^0[0-9]{9}$/.test(v);
+                        break;
+                    case 'agent_iban':
+                    case 'investor_iban':
+                        ok = /^SA[0-9]{22}$/.test(v.toUpperCase());
+                        break;
+                    case 'capital_num':
+                        ok = /^[0-9,]+$/.test(v);
+                        break;
+                }
+                if (!ok) el.classList.add('field-error');
+                return ok;
+            }
+
+            function formatNum(v) { const n = v.replace(/[^0-9]/g, ''); return n === '' ? '' : Number(n)
+                .toLocaleString('en-US'); }
+
+            function syncAllViews(fid, val) {
+                const clean = val.trim() === '' ? '............' : val;
+                document.querySelectorAll(`[data-field="${fid}"]`).forEach(el => { el.innerText = clean; });
+                const tbl = document.getElementById(`tbl_${fid}`); if (tbl) tbl.innerText = clean;
+                const sig = document.getElementById(`sig_${fid}`); if (sig) sig.innerText = clean;
+                if (fid === 'court_city') { const c2 = document.getElementById('court_city_2'); if (c2) c2.innerText =
+                        clean; }
+                // تحديث الغلاف
+                if (fid === 'agent_name') { const cover = document.getElementById('cover_agent_name'); if (cover) cover
+                        .innerText = clean; }
+                if (fid === 'investor_name') { const cover = document.getElementById('cover_investor_name'); if (cover)
+                        cover.innerText = clean; }
+            }
+
+            function updateCtrl(fid, val) { const c = document.getElementById(`ctrl_${fid}`); if (c) c.value = val;
+                syncAllViews(fid, val);
+                autoSave(); }
+
+            function handleFieldInput(e) {
+                const fid = e.target.dataset.field; if (!fid) return;
+                let val = e.target.innerText || e.target.value;
+                if (fid === 'capital_num') { val = formatNum(val);
+                    e.target.innerText = val; }
+                validateField(fid, val);
+                updateCtrl(fid, val);
+            }
+
+            function handleControlInput(e) {
+                const fid = e.target.id.replace('ctrl_', ''); let val = e.target.value;
+                if (fid === 'capital_num') { val = formatNum(val);
+                    e.target.value = val; }
+                validateField(fid, val);
+                syncAllViews(fid, val);
+                autoSave();
+            }
+
+            function updateDisputeUI() {
+                document.getElementById('dispute_court').checked = currentData.dispute_method === 'court';
+                document.getElementById('dispute_arbitration').checked = currentData.dispute_method === 'arbitration';
+            }
+
+            function updatePayoutUI() {
+                const map = { monthly: 'شهري (نهاية كل شهر)', quarterly: 'ربع سنوي', thirdly: 'ثلث سنوي (كل 4 أشهر)', yearly: 'سنوي' };
+                const p = document.getElementById('tbl_payout_period'); if (p) p.innerText = map[currentData
+                    .payout_period] || currentData.payout_period;
+            }
+
+            function autoSave() {
+                try {
+                    document.querySelectorAll('#dynamic-controls input, #dynamic-controls select').forEach(ctrl => {
+                        const fid = ctrl.id.replace('ctrl_', '');
+                        if (fid && currentData.hasOwnProperty(fid)) currentData[fid] = ctrl.value;
+                    });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
+                } catch (e) {}
+            }
+
+            function loadSavedData() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) currentData = { ...defaultData, ...JSON.parse(saved) };
+                } catch (e) { currentData = { ...defaultData }; }
+            }
+
+            function clearAgentData() {
+                Object.keys(EMPTY_AGENT_DATA).forEach(k => { currentData[k] = ''; });
+                Object.keys(EMPTY_AGENT_DATA).forEach(k => {
+                    const ctrl = document.getElementById(`ctrl_${k}`); if (ctrl) ctrl.value = '';
+                    syncAllViews(k, '');
+                });
+                buildContractBody();
+                bindContentEditableEvents();
+                Object.keys(currentData).forEach(k => {
+                    if (!EMPTY_AGENT_DATA.hasOwnProperty(k)) syncAllViews(k, currentData[k]);
+                });
+                localStorage.removeItem(STORAGE_KEY);
+                autoSave();
+                showToast('✅ تم مسح جميع بيانات المدير (الطرف الأول) بنجاح');
+            }
+
+            function clearInvestorData() {
+                Object.keys(EMPTY_INVESTOR_DATA).forEach(k => { currentData[k] = ''; });
+                Object.keys(EMPTY_INVESTOR_DATA).forEach(k => {
+                    const ctrl = document.getElementById(`ctrl_${k}`); if (ctrl) ctrl.value = '';
+                    syncAllViews(k, '');
+                });
+                buildContractBody();
+                bindContentEditableEvents();
+                Object.keys(currentData).forEach(k => {
+                    if (!EMPTY_INVESTOR_DATA.hasOwnProperty(k)) syncAllViews(k, currentData[k]);
+                });
+                localStorage.removeItem(STORAGE_KEY);
+                autoSave();
+                showToast('✅ تم مسح جميع بيانات المستثمر (الطرف الثاني) بنجاح');
+            }
+
+            function buildControlPanel() {
+                const sections = [
+                    { title: '📅 معلومات تاريخ ومكان التعاقد', fields: [
+                            { id: 'contract_day', label: 'يوم التعاقد', type: 'text' },
+                            { id: 'contract_date_g', label: 'التاريخ الميلادي', type: 'text' },
+                            { id: 'contract_date_h', label: 'التاريخ الهجري', type: 'text' },
+                            { id: 'contract_city', label: 'مدينة التعاقد', type: 'text' }
+                        ] },
+                    { title: '👤 الطرف الأول (المدير)', fields: [
+                            { id: 'agent_name', label: 'اسم المدير الكامل', type: 'text' },
+                            { id: 'agent_nationality', label: 'الجنسية', type: 'text' },
+                            { id: 'agent_id', label: 'رقم الهوية', type: 'text' },
+                            { id: 'agent_id_source', label: 'مصدر الهوية', type: 'text' },
+                            { id: 'agent_id_date', label: 'تاريخ الإصدار', type: 'text' },
+                            { id: 'agent_address', label: 'العنوان الوطني', type: 'text' },
+                            { id: 'agent_email', label: 'البريد الإلكتروني', type: 'email' },
+                            { id: 'agent_phone', label: 'رقم الجوال', type: 'text' },
+                            { id: 'agent_bank', label: 'بنك المدير', type: 'text' },
+                            { id: 'agent_iban', label: 'آيبان IBAN', type: 'text' }
+                        ] },
+                    { title: '🏢 الطرف الثاني (المستثمر)', fields: [
+                            { id: 'investor_name', label: 'اسم المستثمر / الشركة', type: 'text' },
+                            { id: 'investor_nationality', label: 'الجنسية', type: 'text' },
+                            { id: 'investor_id', label: 'رقم الهوية / السجل', type: 'text' },
+                            { id: 'investor_id_source', label: 'مصدر السجل', type: 'text' },
+                            { id: 'investor_id_date', label: 'تاريخ الإصدار', type: 'text' },
+                            { id: 'investor_address', label: 'العنوان الوطني', type: 'text' },
+                            { id: 'investor_email', label: 'البريد الإلكتروني', type: 'email' },
+                            { id: 'investor_phone', label: 'رقم الجوال', type: 'text' },
+                            { id: 'investor_bank', label: 'بنك المستثمر', type: 'text' },
+                            { id: 'investor_iban', label: 'آيبان IBAN', type: 'text' }
+                        ] },
+                    { title: '💰 البيانات المالية والمدد', fields: [
+                            { id: 'capital_num', label: 'رأس المال (رقمياً)', type: 'text' },
+                            { id: 'capital_words', label: 'رأس المال (كتابةً)', type: 'text' },
+                            { id: 'duration', label: 'مدة المحفظة', type: 'text' },
+                            { id: 'start_date', label: 'تاريخ البداية', type: 'text' },
+                            { id: 'maturity_date', label: 'تاريخ الاستحقاق', type: 'text' },
+                            { id: 'payout_period', label: 'دورية الأرباح', type: 'select', options: [
+                                    { value: 'monthly', text: 'شهري' }, { value: 'quarterly', text: 'ربع سنوي' },
+                                    { value: 'thirdly', text: 'ثلث سنوي' }, { value: 'yearly', text: 'سنوي' }
+                                ] }
+                        ] },
+                    { title: '⚖️ تسوية النزاعات', fields: [
+                            { id: 'dispute_method', label: 'طريقة التسوية', type: 'select', options: [
+                                    { value: 'court', text: 'المحاكم المختصة' },
+                                    { value: 'arbitration', text: 'مركز التحكيم السعودي' }
+                                ] },
+                            { id: 'court_city', label: 'المدينة المختصة', type: 'text' }
+                        ] }
+                ];
+                let html = '';
+                sections.forEach((sec, idx) => {
+                    const isOpen = idx < 2 ? 'open' : '';
+                    html +=
+                        `<details ${isOpen} class="group border border-slate-100 rounded-xl overflow-hidden">
+                <summary class="flex justify-between items-center font-semibold text-slate-700 cursor-pointer list-none bg-slate-50 p-3 hover:bg-slate-100 transition">
+                    <span>${sec.title}</span><span class="transition group-open:rotate-180"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                </summary><div class="p-3 bg-white space-y-3">`;
+                    sec.fields.forEach(f => {
+                        html +=
+                            `<div><label class="block text-xs font-semibold text-slate-500 mb-1">${f.label}</label>`;
+                        if (f.type === 'select') {
+                            html +=
+                                `<select id="ctrl_${f.id}" class="w-full text-sm border border-slate-300 rounded-md px-3 py-1.5 focus:border-saudi-emerald outline-none bg-white">`;
+                            f.options.forEach(o => html +=
+                                `<option value="${o.value}">${o.text}</option>`);
+                            html += `</select>`;
+                        } else {
+                            html +=
+                                `<input type="${f.type}" id="ctrl_${f.id}" class="w-full text-sm border border-slate-300 rounded-md px-3 py-1.5 focus:border-saudi-emerald outline-none" placeholder="أدخل ${f.label}">`;
+                        }
+                        html += `</div>`;
+                    });
+                    html += `</div></details>`;
+                });
+                dynamicControls.innerHTML = html;
+                document.querySelectorAll('#dynamic-controls input, #dynamic-controls select').forEach(el => {
+                    el.addEventListener('input', handleControlInput);
+                    el.addEventListener('change', function() {
+                        if (el.id === 'ctrl_dispute_method') { currentData.dispute_method = el.value;
+                            updateDisputeUI(); } else if (el.id === 'ctrl_payout_period') { currentData
+                                .payout_period = el.value;
+                            updatePayoutUI(); }
+                        autoSave();
+                    });
+                });
+            }
+
+            function buildContractBody() {
+                const d = currentData;
+                const esc = v => v || '............';
+                contractBody.innerHTML = `
             <p class="font-bold text-center text-md bg-slate-100 py-3 rounded-lg border border-slate-200 text-saudi-dark">عقد استثمار وإدارة محفظة مستقلة (مشروع فزاع)</p>
             <p>بعون الله وتوفيقه، تم الاتفاق والتعاقد في يوم <span class="live-input-blank" contenteditable="true" data-field="contract_day">${esc(d.contract_day)}</span> التاريخ <span class="live-input-blank" contenteditable="true" data-field="contract_date_g">${esc(d.contract_date_g)}</span>م، الموافق <span class="live-input-blank" contenteditable="true" data-field="contract_date_h">${esc(d.contract_date_h)}</span>هـ، بمدينة (<span class="live-input-blank font-bold" contenteditable="true" data-field="contract_city">${esc(d.contract_city)}</span>) بين كل من:</p>
             <p><strong class="text-saudi-emerald">الطرف الأول (المدير والوكيل بالاستثمار):</strong><br> الاسم: <span class="live-input-blank font-bold" contenteditable="true" data-field="agent_name">${esc(d.agent_name)}</span>، الجنسية: <span class="live-input-blank" contenteditable="true" data-field="agent_nationality">${esc(d.agent_nationality)}</span>، هوية وطنية رقم: <span class="live-input-blank" contenteditable="true" data-field="agent_id">${esc(d.agent_id)}</span>، تاريخ الإصدار: <span class="live-input-blank" contenteditable="true" data-field="agent_id_date">${esc(d.agent_id_date)}</span>، صادرة من: <span class="live-input-blank" contenteditable="true" data-field="agent_id_source">${esc(d.agent_id_source)}</span>، عنوانه الوطني: <span class="live-input-blank" contenteditable="true" data-field="agent_address">${esc(d.agent_address)}</span>، بريد إلكتروني: <span class="live-input-blank text-xs font-mono" contenteditable="true" data-field="agent_email">${esc(d.agent_email)}</span>، جوال: <span class="live-input-blank font-mono" contenteditable="true" data-field="agent_phone">${esc(d.agent_phone)}</span> (ويشار إليه بـ"المدير" أو "الطرف الأول").</p>
             <p><strong class="text-saudi-emerald">الطرف الثاني (المستثمر والموكل):</strong><br> الاسم/الشركة: <span class="live-input-blank font-bold" contenteditable="true" data-field="investor_name">${esc(d.investor_name)}</span>، الجنسية: <span class="live-input-blank" contenteditable="true" data-field="investor_nationality">${esc(d.investor_nationality)}</span>، سجل تجاري رقم: <span class="live-input-blank" contenteditable="true" data-field="investor_id">${esc(d.investor_id)}</span>، تاريخ الإصدار: <span class="live-input-blank" contenteditable="true" data-field="investor_id_date">${esc(d.investor_id_date)}</span>، صادر من: <span class="live-input-blank" contenteditable="true" data-field="investor_id_source">${esc(d.investor_id_source)}</span>، عنوانها الوطني: <span class="live-input-blank" contenteditable="true" data-field="investor_address">${esc(d.investor_address)}</span>، بريد إلكتروني: <span class="live-input-blank text-xs font-mono" contenteditable="true" data-field="investor_email">${esc(d.investor_email)}</span>، جوال: <span class="live-input-blank font-mono" contenteditable="true" data-field="investor_phone">${esc(d.investor_phone)}</span> (ويشار إليه بـ"المستثمر" أو "الطرف الثاني").</p>
+
             <h4 class="font-bold text-saudi-dark border-b pb-1">تمهيد</h4>
             <p>حيث إن الطرف الأول يمتلك الخبرة في تجارة الأجهزة الإلكترونية وبطاقات الاتصالات وشحن الرصيد، وحيث يرغب الطرف الثاني في استثمار مبلغ نقدي لتشغيله في هذا النشاط وفق صيغة الوكالة بالاستثمار المتوافقة مع الشريعة والأنظمة السعودية، فقد اتفق الطرفان على إبرام هذا العقد وفق البنود الآتية.</p>
-            <!-- ... (بقية مواد العقد كاملة كما في النسخة السابقة، مختصرة هنا للتركيز) ... -->
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1">الفصل الأول: التعريفات</h3>
+            <p><strong>المادة (1):</strong> يكون للمصطلحات التالية المعاني المبينة أدناه أينما وردت في هذا العقد ما لم يقتضِ السياق خلاف ذلك:</p>
+            <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                <li><strong>المشروع:</strong> نشاط تجارة الأجهزة الإلكترونية وبطاقات الاتصالات وشحن الرصيد الذي يديره الطرف الأول.</li>
+                <li><strong>المحفظة الاستثمارية المستقلة:</strong> سجل مالي وتجاري مستقل يخصص للمستثمر، تقيد فيه جميع العمليات المالية الخاصة به، بما يشمل رأس المال، والمشتريات، والمبيعات، والأرباح، والخسائر، والمصروفات، والتحصيلات، دون اختلاط بمحافظ المستثمرين الآخرين.</li>
+                <li><strong>السياسة الاستثمارية:</strong> الضوابط والإجراءات التشغيلية التي يعتمدها المدير لإدارة المحافظ، بما في ذلك سياسات الشراء والبيع، وإدارة المخاطر، والائتمان، والتحصيل، وإدارة السيولة.</li>
+                <li><strong>صافي الأرباح:</strong> المبلغ المتبقي بعد خصم تكلفة البضاعة المباعة، والمصاريف التشغيلية، والرسوم البنكية، والخصومات التجارية، والمخصصات النظامية، والديون المعدومة، وأتعاب الإدارة المستحقة، وأي مصروفات مرتبطة مباشرة بالنشاط، وذلك من إجمالي الإيرادات المحصلة فعلياً.</li>
+                <li><strong>أتعاب الإدارة والتشغيل:</strong> مبلغ شهري ثابت قدره (500) ريال سعودي يستحقه المدير مقابل أعمال الإدارة والتشغيل والتسويق والتحصيل والمتابعة وخدمة العملاء وإعداد التقارير والأعمال الإدارية والمالية والتقنية اللازمة لإدارة المحفظة، ولا يعد هذا المبلغ ضماناً لرأس المال أو الأرباح أو عائداً استثمارياً.</li>
+                <li><strong>عمولة الأداء:</strong> نسبة (10%) من صافي الأرباح المحققة والمحصلة فعلياً، وتستحق للمدير نظير تحقيق وإدارة الأرباح وفق أحكام هذا العقد.</li>
+                <li><strong>القوة القاهرة:</strong> كل حادث استثنائي خارج عن إرادة الطرفين لا يمكن توقعه أو دفعه أو تلافي آثاره، ويترتب عليه استحالة تنفيذ الالتزام كلياً أو جزئياً، ومن ذلك الكوارث الطبيعية، والحرائق، والأوبئة، والقرارات الحكومية، والحروب، والانقطاعات التقنية العامة، وما في حكمها.</li>
+            </ul>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل الثاني: أحكام عامة</h3>
+            <p><strong>المادة (2): طبيعة العلاقة التعاقدية</strong></p>
+            <p>أ- يقر الطرفان بأن العلاقة الناشئة عن هذا العقد هي علاقة وكالة بالاستثمار بأجر، ويباشر الطرف الأول إدارة واستثمار رأس مال الطرف الثاني بصفته وكيلاً عنه، وفقاً لأحكام هذا العقد.</p>
+            <p>ب- لا يترتب على هذا العقد إنشاء شركة أو مضاربة أو شراكة أو علاقة عمل أو كفالة أو ضمان بين الطرفين، ولا يترتب عليه ضمان رأس المال أو تحقيق حد أدنى من الأرباح.</p>
+            <p>ج- لا يكون المدير مسؤولاً عن الخسائر التجارية الطبيعية الناتجة عن مخاطر النشاط، ما لم يثبت تعديه أو تفريطه أو إهماله الجسيم أو مخالفته الصريحة لأحكام هذا العقد.</p>
+            <p>د- يقر الطرف الثاني بإدراكه الكامل لطبيعة النشاط التجاري وما ينطوي عليه من مخاطر استثمارية، وأن الأرباح والخسائر تخضع لنتائج النشاط الفعلية.</p>
+            <p><strong>المادة (3): النظام الواجب التطبيق</strong></p>
+            <p>يخضع هذا العقد لأحكام الشريعة الإسلامية والأنظمة المعمول بها في المملكة العربية السعودية، ويُفسر ويُنفذ وفقاً لها، ويكون النص العربي هو المرجع المعتمد عند وجود أي ترجمة أو اختلاف في التفسير.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل الثالث: نطاق العقد</h3>
+            <p><strong>المادة (4): النشاط:</strong> يقتصر نشاط المدير على شراء وبيع الأجهزة الإلكترونية وبطاقات الاتصالات وشحن الرصيد، ولا يجوز استخدام أموال المستثمر في أي نشاط آخر دون موافقة خطية.</p>
+            <p><strong>المادة (5): صلاحيات المدير وعدم تدخل المستثمر:</strong> للمدير وحده إدارة العمليات التجارية واتخاذ قرارات البيع والشراء، ولا يحق للمستثمر التدخل في الإدارة اليومية.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل الرابع: التزامات المدير</h3>
+            <p><strong>المادة (6): الحسابات البنكية وفصل الأموال:</strong> يلتزم المدير باستخدام حساب بنكي منفصل باسم المنشأة التجارية للمشروع، ويفصل أموال المستثمرين فصلاً تاماً عن أمواله الشخصية، ويمنع خلطها نهائياً.</p>
+            <p><strong>المادة (7): حفظ المستندات والسجلات:</strong> يحتفظ المدير بجميع الفواتير وأوامر الشراء والبيع والعقود وكشوف الحسابات البنكية وسجلات التحصيل لمدة لا تقل عن (5) سنوات، وتكون هذه المستندات دليلاً على العمليات.</p>
+            <p><strong>المادة (8): التقارير الشفافة وتوثيق حالة الأرباح والتحصيل:</strong></p>
+            <p>أولاً (التقارير الدورية): يلتزم الطرف الأول بإرسال تقرير مالي شهري موحد للطرف الثاني خلال (10) أيام عمل من بداية كل شهر ميلادي عبر وسائل الاتصال المعتمدة.</p>
+            <p>ثانياً (توثيق حالة التحصيل والتعليق): لضمان موضوعية تأجيل الأرباح، يلتزم الطرف الأول بأن يشتمل التقرير المالي الشهري على بنود تفصيلية توثق الوقائع الفعلية، وتشمل: (إجمالي المبيعات، الأرباح الدفترية، الأرباح المحصلة نقداً، وبيان صريح وموثق بحجم العمليات والمعلقات المالية وأسباب تأخرها سواء من شركات التمويل أو تعثر العملاء)، ويعتبر هذا التقرير هو المستند المعتمد لإثبات وتوثيق حق المدير في تعليق أو تأجيل توزيع الأرباح وفقاً للمادة (22).</p>
+            <p>ثالثاً (حق المراجعة): يحق للطرف الثاني بموافقة الطرف الأول تعيين محاسب قانوني مرخص ومستقل لمراجعة سجلات محفظته الخاصة فقط عند وجود سبب مشروع، وتكون تكلفة المراجعة كاملة على عاتق الطرف الثاني.</p>
+            <p><strong>المادة (9): حق المراجعة:</strong> للمستثمر عند وجود سبب مشروع تعيين محاسب قانوني مستقل لمراجعة سجلات محفظته فقط، ويتحمل تكلفة المراجعة ما لم تثبت مخالفة المدير.</p>
+            <p><strong>المادة (10): الإخطار عن الحوادث الجوهرية:</strong> يخطر المدير المستثمر فوراً بأي حادث جوهري يؤثر على المحفظة (احتيال، تعثر كبير، مشاكل قانونية، خسائر غير عادية).</p>
+            <p><strong>المادة (11): حظر استخدام الأموال خارج النشاط:</strong> لا يجوز للمدير استخدام أموال المستثمر في أنشطة أخرى أو قروض أو استثمارات غير منصوص عليها.</p>
+            <p><strong>المادة (12): مسؤولية المدير:</strong> يكون المدير مسؤولاً عن تعويض الضرر الناتج عن تعديه، تفريطه، إهماله الجسيم، احتياله، إساءة استخدامه للأموال، أو مخالفته شروط العقد، بما في ذلك خلط الأموال. ولا يعتبر المدير ضامناً لرأس المال أو الأرباح في الحالات الطبيعية.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل الخامس: التزامات المستثمر</h3>
+            <p><strong>المادة (13): عدم التدخل:</strong> يقر المستثمر بعدم التدخل في الإدارة اليومية أو فرض تعليمات تشغيلية.</p>
+            <p><strong>المادة (14): تقديم رأس المال:</strong> يودع المستثمر رأس المال كاملاً في الحساب البنكي للمشروع، ويعتبر إشعار التحويل إثباتاً لسريان الاستثمار.</p>
+            <p><strong>المادة (15): الإفصاح ومكافحة غسل الأموال:</strong> يقدم المستثمر وثائق هوية سارية وبيانات مصدر الأموال (KYC)، ويقر بأن أمواله نظامية خالية من الشبهات. وللمدير الحق في رفض أو تعليق الاستثمار إذا تبين وجود اشتباه نظامي حتى صدور ما يثبت سلامة الأموال.</p>
+            <p><strong>المادة (16): السرية وعدم المنافسة:</strong> يحافظ المستثمر على سرية معلومات المشروع، ولا ينافس المدير في النشاط نفسه طوال مدة العقد وسنتين بعد انتهائه. وفي حال إفشاء المستثمر لأسرار المشروع، يحق للمدير المطالبة بالتعويض عن الأضرار الناتجة.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل السادس: المحافظ المستقلة والشفافية</h3>
+            <p><strong>المادة (17): إنشاء المحفظة:</strong> تخصص محفظة مستقلة برقم تسلسلي، وتفصل تماماً عن محافظ المستثمرين الآخرين.</p>
+            <p><strong>المادة (18): السجلات الإلكترونية:</strong> ينشئ المدير سجلات إلكترونية منفصلة تشمل: كشف حساب المحفظة، سجل العمليات، سجل الأرباح، سجل السحوبات، سجل إعادة الاستثمار، وسجل المصروفات، ويمكن للمستثمر الاطلاع عليها دورياً.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل السابع: الهيكل المالي وتوزيع الأرباح</h3>
+            <p><strong>المادة (19): رأس المال:</strong> رأس المال المقدم هو <span class="live-input-blank font-bold" contenteditable="true" data-field="capital_num">${esc(d.capital_num)}</span> ريال (فقط <span class="live-input-blank font-bold" contenteditable="true" data-field="capital_words">${esc(d.capital_words)}</span>).</p>
+            <p><strong>المادة (20): الرسوم:</strong> يقتطع من أرباح المحفظة: (أ) رسم اشتراك شهري (500 ريال). (ب) عمولة أداء للمدير (10% من صافي الأرباح). ولا يجوز خصم أي رسوم أخرى غير منصوص عليها.</p>
+            <p><strong>المادة (21): آلية توزيع الأرباح وخيارات التوزيع:</strong></p>
+            <p>أولاً (دورية التوزيع الاختيارية): يحق للطرف الثاني اختيار آلية دورية توزيع الأرباح المفضلة لديه من بين الخيارات التالية: (توزيع شهري، أو توزيع ربع سنوي، أو توزيع ثلث سنوي [كل أربعة أشهر]، أو توزيع سنوي)، ويتم توثيق وتثبيت الخيار المحدد في الملحق (أ) وجدول البيانات الأساسية للعقد.</p>
+            <p>ثانياً (طلب التحويل والإشعار): يحق للطرف الثاني طلب تحويل أرباحه المستحقة عند حلول موعدها المختار، بموجب إشعار كتابي يوجهه للطرف الأول (المدير).</p>
+            <p>ثالثاً (ربط التوزيع بالتحصيل الفعلي): تقيد الأرباح دورياً بالمحفظة بناءً على المبيعات، ولكن لا يلزم الطرف الأول بنقل وتحويل هذه الأرباح فعلياً إلا بعد تحصيلها نقداً ودخولها كسيولة حرة ومقبوضة في الحساب البنكي للمشروع، ولا يعتد بالأرباح الدفترية أو المبيعات المقسطة غير المحصلة.</p>
+            <p><strong>المادة (22): شروط وضوابط تأجيل تحويل الأرباح:</strong></p>
+            <p>تأكيداً على مبدأ الشفافية والعدالة، يقر الطرف الثاني صراحة وبشكل قاطع بأن حق الطرف الأول في تعليق أو تأجيل تحويل الأرباح المستحقة (كلياً أو جزئياً) لا يخضع لسلطة تقديرية مفتوحة، بل يكون مشروطاً ومرتبطاً بوقائع موضوعية وأسباب فعلية يتم إثباتها وتوثيقها ماليًا، وتنحصر في الحالات الآتية:</p>
+            <ol class="list-decimal list-inside pr-4 space-y-1 text-xs">
+                <li>تأخر صرف أو تحويل المبالغ والمستحقات المالية من شركات التمويل والمنصات الشريكة المتعاقد معها في المشروع.</li>
+                <li>عدم تحصيل الأقساط الدورية أو تعثر وتأخر العملاء الفعليين في سداد الالتزامات المترتبة عليهم.</li>
+                <li>وجود نقص أو عجز فعلي في السيولة النقدية الحرة للمحفظة نتيجة للحالتين المذكورتين أعلاه (1 و 2).</li>
+            </ol>
+            <p>ولا يعتبر هذا التأجيل أو التعليق المرتبط بالأسباب الموضحة أعلاه إخلاً بالعقد أو تماطلاً من طرف المدير، بل إجراءً نظامياً لحماية المحفظة واستقرار أصولها.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل الثامن: المخاطر وحدود المسؤولية</h3>
+            <p><strong>المادة (23): الإقرار بالمخاطر:</strong> يقر المستثمر بوجود مخاطر تجارية تشمل: تقلب الأسعار، انخفاض الطلب، تعثر العملاء، تأخر شركات التمويل، إلغاء الصفقات، تغير الأنظمة، القوة القاهرة، الهجمات الإلكترونية، الاحتيال من الغير، تعطل الأنظمة، مشاكل الموردين، ارتفاع التكاليف، نقص السيولة.</p>
+            <p><strong>المادة (24): عدم ضمان رأس المال أو الأرباح:</strong> لا يضمن المدير رأس المال ولا الأرباح، ويتحمل المستثمر المخاطر التجارية الطبيعية، ما لم يثبت تعدٍّ أو تفريط أو إهمال جسيم من المدير.</p>
+            <p><strong>المادة (25): سياسات إدارة المخاطر:</strong> يلتزم المدير بتوزيع الاستثمارات وعدم تركزها في بضاعة واحدة أو عميل واحد، واتخاذ إجراءات معقولة للحد من المخاطر.</p>
+            <p><strong>المادة (26): عدم مسؤولية المدير عن تعثر العملاء وجهات التمويل:</strong> إذا تعثر أحد العملاء أو أعلنت جهات التمويل عدم إمكانية التحصيل، فلا يتحمل المدير قيمة الدين ما لم يكن التعثر نتيجة تعدٍ أو تفريط أو مخالفة منه.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل التاسع: المدة والتصفية والانسحاب</h3>
+            <p><strong>المادة (27): مدة المحفظة:</strong> مدة الاستثمار <span class="live-input-blank" contenteditable="true" data-field="duration">${esc(d.duration)}</span> تبدأ من <span class="live-input-blank" contenteditable="true" data-field="start_date">${esc(d.start_date)}</span> وتنتهي في <span class="live-input-blank" contenteditable="true" data-field="maturity_date">${esc(d.maturity_date)}</span>.</p>
+            <p><strong>المادة (28): إجراءات الانسحاب الاختياري:</strong> يجب إشعار كتابي قبل 180 يوماً، تبدأ من تاريخ الاستلام. إذا توفرت سيولة تعاد الأموال قبل المدة دون إضرار بالمشروع. إذا لم تتوفر سيولة تستمر التصفية حتى نهاية المدة. يمنع إجبار المدير على بيع البضائع بخسارة أو الاقتراض لسداد رأس المال. يستمر استحقاق الأرباح حتى تاريخ التصفية الفعلية.</p>
+            <p><strong>المادة (29): التصفية النهائية:</strong> عند انتهاء المدة أو الوفاة، تصفى المحفظة وتعاد الأموال بعد استكمال الدورات التشغيلية وخصم المستحقات. تنتقل الحقوق للورثة بصك حصر رسمي. ويلتزم الورثة أو من يخلف المدير بإكمال إجراءات التصفية أو تعيين مدير بديل أو إنهاء المحفظة وفقاً للعقد.</p>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل العاشر: حل النزاعات</h3>
+            <p><strong>المادة (30): التفاوض:</strong> يسعى الطرفان لحل أي خلاف ودياً خلال 30 يوماً.</p>
+            <p><strong>المادة (31): الوساطة:</strong> يجوز الاتفاق على وساطة عبر مركز تحكيم معتمد.</p>
+            <p><strong>المادة (32): التحكيم أو القضاء:</strong> عند تعذر الحل الودي، يحال النزاع وفق الخيار المحدد أدناه (محكمة تجارية بمدينة <span class="live-input-blank" contenteditable="true" data-field="court_city">${esc(d.court_city)}</span>، أو تحكيم بموجب نظام التحكيم السعودي).</p>
+            <div class="mt-2 space-y-1.5 pr-4">
+                <label class="flex items-center gap-2"><input type="checkbox" id="dispute_court" class="rounded text-saudi-emerald" checked disabled><span>المحكمة التجارية المختصة بمدينة <span class="live-input-blank" contenteditable="true" data-field="court_city" id="court_city_2">${esc(d.court_city)}</span></span></label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="dispute_arbitration" class="rounded text-saudi-emerald" disabled><span>التحكيم بموجب نظام التحكيم السعودي</span></label>
+            </div>
+
+            <h3 class="text-base font-bold text-saudi-emerald border-b pb-1 page-break">الفصل الحادي عشر: أحكام عامة</h3>
+            <p><strong>المادة (33): التعديلات:</strong> لا تعديل إلا بموافقة كتابية من الطرفين.</p>
+            <p><strong>المادة (34): التنازل:</strong> لا يجوز للمستثمر التنازل عن المحفظة إلا بموافقة المدير الخطية.</p>
+            <p><strong>المادة (35): القوة القاهرة:</strong> تعفى الأطراف من المسؤولية عند الظروف القاهرة، ويلتزم المدير بمعالجة الأعطال التقنية بأسرع وقت.</p>
+            <p><strong>المادة (36): الوفاة:</strong> لا ينفسخ العقد بوفاة المستثمر، وتنتقل الحقوق للورثة بموجب صك حصر.</p>
+            <p><strong>المادة (37): ملكية الأنظمة والعلامات التجارية:</strong> جميع الأنظمة والبرامج والسياسات وقواعد البيانات والعلامات التجارية وطرق التشغيل مملوكة للطرف الأول ولا يكتسب المستثمر أي حق فيها.</p>
+            <p><strong>المادة (38): حجية التحويلات البنكية والإيصالات الإلكترونية:</strong> جميع التحويلات البنكية والإيصالات الإلكترونية وكشوف الحساب تعد حجة في الإثبات.</p>
+            <p><strong>المادة (39): وسائل الاتصال الرسمية والإشعارات:</strong> يعتمد البريد الإلكتروني والرسائل النصية وتطبيق واتساب وسائل اتصال رسمية بين الطرفين. ويعتبر الإشعار منتجاً لآثاره بمجرد إرساله إلى البيانات المعتمدة في العقد.</p>
+            <p><strong>المادة (40): حجية التوقيع الإلكتروني:</strong> يعتبر التوقيع الإلكتروني أو التوقيع عبر منصة معتمدة أو رمز التحقق أو التوقيع الرقمي حجة معتبرة إذا تم وفق الأنظمة السعودية.</p>
+            <p><strong>المادة (41): النسخ الإلكترونية الأصلية:</strong> يعتبر هذا العقد وملحقاته الإلكترونية والمحفوظة بصيغة PDF أو داخل نظام إدارة المحافظ نسخاً أصلية لها الحجية نفسها.</p>
+            <p><strong>المادة (42): القانون الواجب التطبيق:</strong> يخضع العقد للأنظمة السعودية.</p>
+
             <div class="page-break mt-8">
                 <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (أ): جدول البيانات الأساسية</h3>
-                ${generateTable('بيانات العقد', [['رقم العقد','FZ-2026-0001']])}
-                <!-- جداول الملحق (أ) مختصرة -->
+                ${generateTable('بيانات العقد', [
+                    ['رقم العقد','FAZ-2026-0001'],['رقم المحفظة','PF-001'],['UUID','550e8400-e29b-41d4-a716-446655440000'],['الإصدار','1.0'],['الحالة','ساري المفعول'],
+                    ['يوم التعاقد',`<span id="tbl_contract_day">${esc(d.contract_day)}</span>`],['التاريخ الميلادي',`<span id="tbl_contract_date_g">${esc(d.contract_date_g)}</span>`],['التاريخ الهجري',`<span id="tbl_contract_date_h">${esc(d.contract_date_h)}</span>`],['مدينة التعاقد',`<span id="tbl_contract_city">${esc(d.contract_city)}</span>`],['تاريخ الإنشاء','16/07/2026'],['وقت الإنشاء','10:30 صباحاً']
+                ])}
+                ${generateTable('بيانات الطرف الأول (المدير)', [
+                    ['الاسم',`<span id="tbl_agent_name">${esc(d.agent_name)}</span>`],['الجنسية',`<span id="tbl_agent_nationality">${esc(d.agent_nationality)}</span>`],['رقم الهوية',`<span id="tbl_agent_id">${esc(d.agent_id)}</span>`],['مصدر الهوية',`<span id="tbl_agent_id_source">${esc(d.agent_id_source)}</span>`],['تاريخ الإصدار',`<span id="tbl_agent_id_date">${esc(d.agent_id_date)}</span>`],['الجوال',`<span id="tbl_agent_phone">${esc(d.agent_phone)}</span>`],['البريد الإلكتروني',`<span id="tbl_agent_email">${esc(d.agent_email)}</span>`],['العنوان الوطني',`<span id="tbl_agent_address">${esc(d.agent_address)}</span>`],['البنك',`<span id="tbl_agent_bank">${esc(d.agent_bank)}</span>`],['IBAN',`<span id="tbl_agent_iban">${esc(d.agent_iban)}</span>`]
+                ])}
+                ${generateTable('بيانات الطرف الثاني (المستثمر)', [
+                    ['الاسم',`<span id="tbl_investor_name">${esc(d.investor_name)}</span>`],['الجنسية',`<span id="tbl_investor_nationality">${esc(d.investor_nationality)}</span>`],['رقم الهوية/السجل',`<span id="tbl_investor_id">${esc(d.investor_id)}</span>`],['مصدر الهوية',`<span id="tbl_investor_id_source">${esc(d.investor_id_source)}</span>`],['تاريخ الإصدار',`<span id="tbl_investor_id_date">${esc(d.investor_id_date)}</span>`],['الجوال',`<span id="tbl_investor_phone">${esc(d.investor_phone)}</span>`],['البريد الإلكتروني',`<span id="tbl_investor_email">${esc(d.investor_email)}</span>`],['العنوان الوطني',`<span id="tbl_investor_address">${esc(d.investor_address)}</span>`],['البنك',`<span id="tbl_investor_bank">${esc(d.investor_bank)}</span>`],['IBAN',`<span id="tbl_investor_iban">${esc(d.investor_iban)}</span>`]
+                ])}
+                ${generateTable('بيانات الاستثمار', [
+                    ['رأس المال (رقم)',`<span id="tbl_capital_num">${esc(d.capital_num)}</span> ريال`],['رأس المال (كتابة)',`<span id="tbl_capital_words">${esc(d.capital_words)}</span>`],['الرسوم الشهرية','500 ريال'],['نسبة المستثمر','90%'],['عمولة المدير','10%'],
+                    ['دورية الأرباح',`<span id="tbl_payout_period">شهري (نهاية كل شهر)</span>`],['مدة العقد',`<span id="tbl_duration">${esc(d.duration)}</span>`],['بداية الاستثمار',`<span id="tbl_start_date">${esc(d.start_date)}</span>`],['نهاية الاستثمار',`<span id="tbl_maturity_date">${esc(d.maturity_date)}</span>`]
+                ])}
+                ${generateTable('بيانات تسوية النزاعات', [
+                    ['طريقة التسوية',`<span id="tbl_dispute_method">${d.dispute_method==='court'?'المحاكم المختصة':'مركز التحكيم السعودي'}</span>`],['المدينة المختصة',`<span id="tbl_court_city">${esc(d.court_city)}</span>`]
+                ])}
             </div>
-            <!-- الملاحق ب، ج، د... مختصرة -->
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (ب): سياسة الاستثمار</h3>
+                <p>أولاً: تدار المحفظة الاستثمارية وفق مبادئ الحيطة والحذر وبما يحقق أفضل مصلحة للمستثمر.</p>
+                <p>ثانياً: يلتزم المدير باستثمار أموال المحفظة حصراً في نشاط تجارة الأجهزة الإلكترونية وبطاقات الاتصالات وشحن الرصيد، ولا يجوز استخدامها في أي نشاط آخر إلا بموافقة كتابية من المستثمر.</p>
+                <p>ثالثاً: يملك المدير كامل الصلاحية في اختيار الموردين والعملاء وآليات البيع والشراء والتحصيل وإدارة السيولة، بما يحقق أهداف الاستثمار.</p>
+                <p>رابعاً: يجوز للمدير الاحتفاظ بجزء من السيولة لمواجهة الالتزامات التشغيلية أو المخاطر التجارية متى اقتضت مصلحة المحفظة ذلك.</p>
+            </div>
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (ج): سياسة إدارة المخاطر</h3>
+                <p>يلتزم المدير بتطبيق الضوابط الآتية:</p>
+                <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                    <li>عدم تركيز الاستثمار في عميل واحد أو مورد واحد متى كان ذلك ممكناً.</li>
+                    <li>التحقق من الملاءة المالية للعملاء قبل البيع الآجل.</li>
+                    <li>متابعة التحصيل بشكل دوري.</li>
+                    <li>المحافظة على سيولة تشغيلية مناسبة.</li>
+                    <li>الاحتفاظ بسجلات مالية وإدارية دقيقة.</li>
+                    <li>اتخاذ الإجراءات المناسبة للحد من الاحتيال أو التعثر.</li>
+                </ul>
+            </div>
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (د): سياسة توزيع الأرباح</h3>
+                <p>تعتمد الأرباح وفق الضوابط الآتية:</p>
+                <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                    <li>تحتسب الأرباح بعد إقفال الفترة المالية.</li>
+                    <li>تخصم جميع المصروفات النظامية والتشغيلية قبل احتساب صافي الربح.</li>
+                    <li>لا تحول الأرباح إلا بعد تحصيلها فعلياً.</li>
+                    <li>تحول الأرباح إلى الحساب البنكي المعتمد للمستثمر.</li>
+                    <li>في حال وجود تعليق للتحويل وفق المادة (22)، يؤجل التحويل حتى زوال سبب التعليق.</li>
+                </ul>
+            </div>
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (هـ): سياسة الانسحاب والتصفية</h3>
+                <p>عند رغبة المستثمر بالانسحاب:</p>
+                <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                    <li>يقدم إشعاراً كتابياً قبل (180) يوماً.</li>
+                    <li>تبدأ إجراءات التصفية من تاريخ استلام الإشعار.</li>
+                    <li>تعاد الأموال بعد انتهاء الدورة التشغيلية وعدم الإضرار بالمحفظة.</li>
+                    <li>لا يجبر المدير على بيع البضائع بخسارة أو الاقتراض لسداد رأس المال.</li>
+                </ul>
+            </div>
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (و): نموذج التقرير المالي الشهري</h3>
+                <p>يتضمن التقرير على الأقل:</p>
+                <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                    <li>رقم المحفظة.</li><li>الفترة المالية.</li><li>رأس المال.</li><li>إجمالي المبيعات.</li><li>تكلفة البضاعة.</li><li>المصروفات.</li><li>صافي الأرباح.</li><li>الأرباح المحصلة.</li><li>الأرباح غير المحصلة.</li><li>الذمم المدينة.</li><li>الرصيد النقدي.</li><li>المبالغ المعلقة لدى شركات التمويل.</li><li>بيان أسباب أي تأخير في توزيع الأرباح.</li><li>توقيع المدير وتاريخ إصدار التقرير.</li>
+                </ul>
+            </div>
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (ز): نموذج إعادة الاستثمار</h3>
+                <p>في حال رغبة المستثمر بإعادة استثمار الأرباح:</p>
+                <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                    <li>رقم المحفظة.</li><li>اسم المستثمر.</li><li>قيمة الأرباح.</li><li>المبلغ المطلوب إعادة استثماره.</li><li>تاريخ التنفيذ.</li><li>توقيع المستثمر أو موافقته الإلكترونية.</li><li>توقيع المدير.</li>
+                </ul>
+            </div>
+
+            <div class="page-break mt-8">
+                <h3 class="font-bold text-saudi-dark text-md border-b-2 border-saudi-dark pb-2 mb-4">الملحق (ح): سجل العمليات والمصروفات</h3>
+                <p>يشمل السجل البيانات الآتية:</p>
+                <ul class="list-disc list-inside pr-4 space-y-1 text-xs">
+                    <li>تاريخ العملية.</li><li>نوع العملية (شراء / بيع / تحصيل / مصروف).</li><li>رقم الفاتورة.</li><li>اسم العميل أو المورد.</li><li>قيمة العملية.</li><li>حالة السداد.</li><li>الرصيد بعد العملية.</li><li>الملاحظات.</li>
+                </ul>
+            </div>
+
             <div class="grid grid-cols-2 gap-8 mt-12 text-xs signature-box">
                 <div class="border border-slate-200 p-4 rounded-xl bg-slate-50 print:border-black print:bg-transparent">
                     <h5 class="font-bold text-saudi-dark border-b pb-1 mb-2 text-center">الطرف الأول (المدير)</h5>
@@ -686,36 +1090,172 @@
                     <p><strong>التاريخ:</strong> ___ / ___ / ________م</p>
                 </div>
             </div>
-            `;
+        `;
+                bindContentEditableEvents();
+            }
 
-            // الدمج النهائي
-            contractBody.innerHTML = frontCover + mainContent + backCover;
-            bindContentEditableEvents();
-        }
+            function generateTable(title, rows) {
+                let html =
+                    `<table class="w-full border-collapse border border-slate-300 text-xs text-right mb-4"><thead><tr class="bg-slate-100"><th class="border p-2.5" colspan="2">${title}</th></tr></thead><tbody>`;
+                rows.forEach(r => html +=
+                    `<tr><td class="border p-2.5 font-bold w-1/3">${r[0]}</td><td class="border p-2.5">${r[1]}</td></tr>`);
+                html += `</tbody></table>`;
+                return html;
+            }
 
-        // ... (باقي الدوال generateTable, bindContentEditableEvents, exportToPDF, exportToWord, printContract, sendViaWhatsApp, bindGlobalEvents, init كما هي دون تغيير) ...
-        // يجب تضمين الدوال كاملة من الرد السابق لضمان العمل
+            function bindContentEditableEvents() {
+                contractBody.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                    el.removeEventListener('input', handleFieldInput);
+                    el.addEventListener('input', handleFieldInput);
+                });
+            }
 
-        function generateTable(title, rows) {
-            let html = `<table class="w-full border-collapse border border-slate-300 text-xs text-right mb-4"><thead><tr class="bg-slate-100"><th class="border p-2.5" colspan="2">${title}</th></tr></thead><tbody>`;
-            rows.forEach(r => html += `<tr><td class="border p-2.5 font-bold w-1/3">${r[0]}</td><td class="border p-2.5">${r[1]}</td></tr>`);
-            html += `</tbody></table>`;
-            return html;
-        }
+            async function exportToPDF() {
+                if (isExporting) return;
+                isExporting = true;
+                showLoading('جارٍ إنشاء PDF...');
+                try {
+                    const el = document.getElementById('printable-contract-area');
+                    const clone = el.cloneNode(true);
+                    clone.querySelectorAll('[contenteditable]').forEach(e => { e.removeAttribute('contenteditable');
+                        e.style.borderBottom = '1px dotted #888';
+                        e.style.backgroundColor = 'transparent'; });
+                    clone.querySelectorAll('.no-print').forEach(e => e.remove());
+                    clone.style.width = '210mm';
+                    clone.style.padding = '0';
+                    clone.style.boxSizing = 'border-box';
+                    clone.style.backgroundColor = 'white';
+                    clone.style.position = 'absolute';
+                    clone.style.top = '-9999px';
+                    clone.style.left = '-9999px';
+                    clone.style.zIndex = '-1';
+                    document.body.appendChild(clone);
+                    const canvas = await html2canvas(clone, { scale: 2, useCORS: true, logging: false, allowTaint: true,
+                        backgroundColor: '#ffffff' });
+                    document.body.removeChild(clone);
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                    const pw = pdf.internal.pageSize.getWidth(),
+                        ph = pdf.internal.pageSize.getHeight(),
+                        margin = 0;
+                    const iw = pw,
+                        ih = (canvas.height * iw) / canvas.width;
+                    let hl = ih,
+                        pos = 0;
+                    pdf.addImage(imgData, 'JPEG', 0, pos, iw, ih);
+                    hl -= ph;
+                    while (hl > 0) { pos = hl - ih;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, pos, iw, ih);
+                        hl -= ph; }
+                    const tp = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= tp; i++) { pdf.setPage(i);
+                        pdf.setFontSize(9);
+                        pdf.setTextColor(120);
+                        pdf.text('عقد استثمار - مشروع فزاع', pw / 2, 5, { align: 'center' });
+                        pdf.text(`صفحة ${i} من ${tp}`, pw / 2, ph - 5, { align: 'center' }); }
+                    pdf.save('عقد_استثمار_فزاع.pdf');
+                    showToast('✅ تم تصدير PDF');
+                } catch (e) { showToast('❌ فشل PDF', true); } finally { hideLoading();
+                    isExporting = false; }
+            }
 
-        // ... (باقي الأكواد مطابقة للإصدار السابق، تأكد من تضمينها كاملة) ...
+            async function exportToWord() {
+                if (isExporting) return;
+                isExporting = true;
+                showLoading('جارٍ إنشاء Word...');
+                try {
+                    const { Document, Packer, Paragraph, TextRun, ImageRun, convertMillimetersToTwip,
+                        AlignmentType } = docx;
+                    const children = [];
+                    let logo = null;
+                    try { const r = await fetch(LOGO_URL); const b = await r.blob(); logo = await new Promise((rs,
+                            rj) => { const fr = new FileReader();
+                            fr.onloadend = () => rs(fr.result);
+                            fr.onerror = rj;
+                            fr.readAsDataURL(b); }); } catch (e) {}
+                    if (logo) children.push(new Paragraph({ alignment: AlignmentType.CENTER, children: [
+                            new ImageRun({ data: logo, transformation: { width: 150, height: 80 } }) ] }));
+                    const text = document.getElementById('contract-body').innerText;
+                    text.split('\n').filter(p => p.trim() !== '').forEach(t => children.push(new Paragraph({
+                        children: [new TextRun({ text: t, font: 'Tajawal', size: 22 })],
+                        alignment: AlignmentType.RIGHT,
+                        spacing: { after: 100, line: 360 }
+                    })));
+                    const doc = new Document({ sections: [{ properties: { page: { margin: { top: convertMillimetersToTwip(
+                                        18), bottom: convertMillimetersToTwip(18),
+                                    left: convertMillimetersToTwip(20), right: convertMillimetersToTwip(20) } } },
+                            children
+                        }], styles: { default: { document: { run: { font: 'Tajawal', size: 22, rtl: true } } } } });
+                    const blob = await Packer.toBlob(doc);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'عقد_استثمار_فزاع.docx';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('✅ تم تصدير Word');
+                } catch (e) { showToast('❌ فشل Word', true); } finally { hideLoading();
+                    isExporting = false; }
+            }
 
-        function init() {
-            loadSavedData(); buildControlPanel(); buildContractBody(); bindGlobalEvents();
-            Object.keys(currentData).forEach(k => {
-                const c = document.getElementById(`ctrl_${k}`); if (c) c.value = currentData[k];
-                syncAllViews(k, currentData[k]);
-            });
-            updateDisputeUI(); updatePayoutUI();
-        }
+            function printContract() {
+                window.print();
+            }
 
-        window.addEventListener('DOMContentLoaded', init);
-    })();
-</script>
+            async function sendViaWhatsApp() {
+                if (isExporting) return;
+                isExporting = true;
+                showLoading('تحضير للمشاركة...');
+                try {
+                    const el = document.getElementById('printable-contract-area');
+                    const clone = el.cloneNode(true);
+                    clone.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
+                    clone.style.width = '210mm';
+                    clone.style.padding = '0';
+                    clone.style.position = 'absolute';
+                    clone.style.top = '-9999px';
+                    clone.style.left = '-9999px';
+                    document.body.appendChild(clone);
+                    const canvas = await html2canvas(clone, { scale: 2, useCORS: true, logging: false });
+                    document.body.removeChild(clone);
+                    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+                    const fd = new FormData();
+                    fd.append('file', blob, 'عقد_فزاع.pdf');
+                    const res = await fetch('https://transfer.sh/', { method: 'POST', body: fd });
+                    if (res.ok) { const link = await res.text();
+                        window.open(`https://wa.me/?text=${encodeURIComponent('📄 عقد استثمار: ' + link.trim())}`,
+                            '_blank');
+                        showToast('✅ تم فتح واتساب'); } else throw new Error('فشل');
+                } catch (e) { showToast('⚠️ تعذر الرفع التلقائي', true);
+                    await exportToPDF();
+                    window.open('https://wa.me/', '_blank'); } finally { hideLoading();
+                    isExporting = false; }
+            }
+
+            function bindGlobalEvents() {
+                document.getElementById('btn-clear-agent').addEventListener('click', clearAgentData);
+                document.getElementById('btn-reset').addEventListener('click', clearInvestorData);
+                document.getElementById('btn-print').addEventListener('click', printContract);
+                document.getElementById('btn-pdf').addEventListener('click', exportToPDF);
+                document.getElementById('btn-word').addEventListener('click', exportToWord);
+                document.getElementById('btn-whatsapp').addEventListener('click', sendViaWhatsApp);
+            }
+
+            function init() {
+                loadSavedData();
+                buildControlPanel();
+                buildContractBody();
+                bindGlobalEvents();
+                Object.keys(currentData).forEach(k => { const c = document.getElementById(`ctrl_${k}`); if (c) c.value =
+                        currentData[k];
+                    syncAllViews(k, currentData[k]); });
+                updateDisputeUI();
+                updatePayoutUI();
+            }
+
+            window.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
 </body>
 </html>
