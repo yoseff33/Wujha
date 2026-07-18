@@ -1,6 +1,23 @@
--- Row level security / policies placeholder
--- Adjust these policies to match your Supabase project security model
+-- ============================================
+-- RLS Policies - نظام فزاع ERP
+-- النظام داخلي للمستخدمين فقط (SuperAdmin, CFO, Accountant)
+-- لا يوجد مستثمرون يدخلون النظام
+-- ============================================
 
--- Example: allow authenticated users to read investors
--- CREATE POLICY "Allow authenticated read" ON investors
--- FOR SELECT USING (auth.role() = 'authenticated');
+-- تعطيل RLS لجميع الجداول (نظام داخلي)
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE investors DISABLE ROW LEVEL SECURITY;
+ALTER TABLE contracts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE chart_of_accounts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE journal_entries DISABLE ROW LEVEL SECURITY;
+ALTER TABLE journal_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE receipts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE payments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE profit_distributions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE profit_distribution_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE investor_transactions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications DISABLE ROW LEVEL SECURITY;
+ALTER TABLE files DISABLE ROW LEVEL SECURITY;
+ALTER TABLE settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE system_logs DISABLE ROW LEVEL SECURITY;
