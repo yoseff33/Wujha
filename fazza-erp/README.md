@@ -1,10 +1,24 @@
-# Fazza ERP
+# نظام فزاع ERP - النظام المالي والاستثماري
 
-مرحبًا — هذا المشروع هو هيكل لمشروع Fazza ERP.
+## نظرة عامة
+نظام تخطيط موارد المؤسسات (ERP) مالي واستثماري احترافي لشركة "فزاع"، مبني باستخدام أحدث التقنيات وجاهز للإنتاج.
 
-الملفات المضمنة في هذا المسار تم إنشاؤها كقالب للبدء السريع.
+## التقنيات المستخدمة
+- **Frontend:** HTML5, CSS3, JavaScript ES2024, Tailwind CSS
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** Supabase PostgreSQL
+- **Authentication:** Supabase Auth
+- **Real-time:** Supabase Realtime
+- **Storage:** Supabase Storage
 
-التشغيل:
-1. انسخ `fazza-erp/.env.example` إلى `.env` واملأ القيم.
-2. npm install
-3. npm run dev
+## المميزات الرئيسية
+- محاسبة مزدوجة (Double Entry Bookkeeping)
+- إدارة المستثمرين والعقود
+- سندات القبض والصرف
+- توزيع الأرباح
+- التقارير المالية (ميزان مراجعة، ميزانية عمومية، قائمة الدخل)
+- سجل التدقيق (Audit Log)
+- الإشعارات
+- دعم كامل للغة العربية RTL
+
+## هيكل المشروع
