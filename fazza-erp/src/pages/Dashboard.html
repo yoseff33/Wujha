@@ -1,13 +1,363 @@
-<!doctype html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>لوحة القيادة - Fazza ERP</title>
-  <style>body{font-family: Arial, sans-serif;direction: rtl;padding:20px}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فزاع - لوحة التحكم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; }
+        .card { transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .stat-card { border-right: 4px solid; }
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .sidebar-link { transition: all 0.2s ease; }
+        .sidebar-link:hover { background: rgba(255,255,255,0.1); border-right: 3px solid #3b82f6; }
+        .sidebar-link.active { background: rgba(255,255,255,0.15); border-right: 3px solid #3b82f6; }
+    </style>
 </head>
-<body>
-  <h1>لوحة القيادة</h1>
-  <p>مرحبًا بك في لوحة تحكم Fazza ERP.</p>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Main Container -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-72 bg-gradient-to-b from-slate-800 to-slate-900 text-white flex-shrink-0 hidden lg:flex flex-col">
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-building-columns text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">فزاع</h1>
+                        <p class="text-xs text-slate-400">النظام المالي والاستثماري</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+                <a href="/" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium">
+                    <i class="fas fa-th-large w-5 text-center"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/investors" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i class="fas fa-users w-5 text-center"></i>
+                    <span>المستثمرون</span>
+                </a>
+                <a href="/contracts" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i class="fas fa-file-contract w-5 text-center"></i>
+                    <span>العقود</span>
+                </a>
+                <a href="/accounting" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i class="fas fa-calculator w-5 text-center"></i>
+                    <span>المحاسبة</span>
+                </a>
+                <div class="pt-3 border-t border-slate-700">
+                    <p class="px-4 text-xs text-slate-500 uppercase mb-2">العمليات</p>
+                    <a href="/receipts" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-arrow-down text-green-400 w-5 text-center"></i>
+                        <span>سندات القبض</span>
+                    </a>
+                    <a href="/payments" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-arrow-up text-red-400 w-5 text-center"></i>
+                        <span>سندات الصرف</span>
+                    </a>
+                    <a href="/profit-distributions" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-chart-pie text-yellow-400 w-5 text-center"></i>
+                        <span>توزيع الأرباح</span>
+                    </a>
+                </div>
+                <div class="pt-3 border-t border-slate-700">
+                    <p class="px-4 text-xs text-slate-500 uppercase mb-2">التقارير</p>
+                    <a href="/reports/trial-balance" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-balance-scale w-5 text-center"></i>
+                        <span>ميزان المراجعة</span>
+                    </a>
+                    <a href="/reports/balance-sheet" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-file-invoice w-5 text-center"></i>
+                        <span>الميزانية العمومية</span>
+                    </a>
+                    <a href="/reports/income-statement" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-chart-line w-5 text-center"></i>
+                        <span>قائمة الدخل</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="p-4 border-t border-slate-700">
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center font-bold">م</div>
+                    <div>
+                        <p class="font-medium">محمد الأحمد</p>
+                        <p class="text-xs text-slate-400">مدير مالي</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Top Bar -->
+            <header class="bg-white shadow-sm sticky top-0 z-10">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center gap-4">
+                        <button class="lg:hidden text-slate-600">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-lg font-bold text-slate-800">لوحة التحكم</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="relative p-2 text-slate-500 hover:text-slate-700">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full pulse-dot"></span>
+                        </button>
+                        <span class="text-sm text-slate-500 hidden sm:block">
+                            <i class="far fa-calendar-alt ml-1"></i>
+                            <span id="currentDate"></span>
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-6 space-y-6" id="dashboardContent">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="card bg-white rounded-xl shadow-sm p-5 slide-in stat-card border-blue-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 mb-1">إجمالي المستثمرين</p>
+                                <p class="text-3xl font-bold text-slate-800" id="totalInvestors">0</p>
+                                <p class="text-xs text-emerald-600 mt-2">
+                                    <i class="fas fa-check-circle ml-1"></i>
+                                    <span id="activeInvestors">0</span> نشط
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-white rounded-xl shadow-sm p-5 slide-in stat-card border-emerald-500" style="animation-delay: 0.1s">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 mb-1">إجمالي الاستثمارات</p>
+                                <p class="text-3xl font-bold text-slate-800" id="totalInvestments">0</p>
+                                <p class="text-xs text-slate-500 mt-2">ريال سعودي</p>
+                            </div>
+                            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-sack-dollar text-emerald-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-white rounded-xl shadow-sm p-5 slide-in stat-card border-amber-500" style="animation-delay: 0.2s">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 mb-1">إجمالي الأرباح</p>
+                                <p class="text-3xl font-bold text-slate-800" id="totalProfits">0</p>
+                                <p class="text-xs text-slate-500 mt-2">ريال سعودي</p>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-chart-pie text-amber-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-white rounded-xl shadow-sm p-5 slide-in stat-card border-red-500" style="animation-delay: 0.3s">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-slate-500 mb-1">المسحوبات</p>
+                                <p class="text-3xl font-bold text-slate-800" id="totalWithdrawals">0</p>
+                                <p class="text-xs text-slate-500 mt-2">ريال سعودي</p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-arrow-trend-down text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts & Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <!-- Recent Activity -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800">النشاط الأخير</h3>
+                            <button class="text-sm text-blue-600 hover:text-blue-700">عرض الكل</button>
+                        </div>
+                        <div class="space-y-3" id="recentActivity">
+                            <p class="text-slate-400 text-sm text-center py-8">جاري تحميل البيانات...</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-sm p-5">
+                        <h3 class="font-bold text-slate-800 mb-4">إجراءات سريعة</h3>
+                        <div class="space-y-2">
+                            <button onclick="showModal('addInvestorModal')" class="w-full text-right px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg text-sm font-medium text-blue-700 transition-colors">
+                                <i class="fas fa-user-plus ml-2"></i> إضافة مستثمر جديد
+                            </button>
+                            <button onclick="showModal('addReceiptModal')" class="w-full text-right px-4 py-3 bg-green-50 hover:bg-green-100 rounded-lg text-sm font-medium text-green-700 transition-colors">
+                                <i class="fas fa-arrow-down ml-2"></i> إضافة سند قبض
+                            </button>
+                            <button onclick="showModal('addPaymentModal')" class="w-full text-right px-4 py-3 bg-red-50 hover:bg-red-100 rounded-lg text-sm font-medium text-red-700 transition-colors">
+                                <i class="fas fa-arrow-up ml-2"></i> إضافة سند صرف
+                            </button>
+                            <button onclick="showModal('addProfitModal')" class="w-full text-right px-4 py-3 bg-amber-50 hover:bg-amber-100 rounded-lg text-sm font-medium text-amber-700 transition-colors">
+                                <i class="fas fa-chart-pie ml-2"></i> توزيع أرباح
+                            </button>
+                        </div>
+
+                        <!-- Today's Summary -->
+                        <div class="mt-5 pt-4 border-t">
+                            <h4 class="text-sm font-medium text-slate-600 mb-3">ملخص اليوم</h4>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-500">قبوض اليوم</span>
+                                <span class="font-medium text-green-600" id="todayReceipts">0 ريال</span>
+                            </div>
+                            <div class="flex justify-between text-sm mt-2">
+                                <span class="text-slate-500">مدفوعات اليوم</span>
+                                <span class="font-medium text-red-600" id="todayPayments">0 ريال</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals Container (will be populated dynamically) -->
+    <div id="modalsContainer"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-SA', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // Format number as currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-SA', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Get investor stats
+                const { count: totalInvestors } = await supabase
+                    .from('investors')
+                    .select('*', { count: 'exact', head: true })
+                    .is('deleted_at', null);
+
+                const { count: activeInvestors } = await supabase
+                    .from('investors')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'active')
+                    .is('deleted_at', null);
+
+                const { data: investors } = await supabase
+                    .from('investors')
+                    .select('investment_capital, total_profit_earned, total_withdrawn, current_balance')
+                    .is('deleted_at', null);
+
+                const totalInvestments = investors?.reduce((sum, i) => sum + (i.investment_capital || 0), 0) || 0;
+                const totalProfits = investors?.reduce((sum, i) => sum + (i.total_profit_earned || 0), 0) || 0;
+                const totalWithdrawals = investors?.reduce((sum, i) => sum + (i.total_withdrawn || 0), 0) || 0;
+
+                // Today's transactions
+                const today = new Date().toISOString().split('T')[0];
+                const { data: receiptsToday } = await supabase
+                    .from('receipts')
+                    .select('amount')
+                    .eq('receipt_date', today)
+                    .is('deleted_at', null);
+                
+                const { data: paymentsToday } = await supabase
+                    .from('payments')
+                    .select('amount')
+                    .eq('payment_date', today)
+                    .is('deleted_at', null);
+
+                const todayReceiptsTotal = receiptsToday?.reduce((sum, r) => sum + (r.amount || 0), 0) || 0;
+                const todayPaymentsTotal = paymentsToday?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+
+                // Update UI
+                document.getElementById('totalInvestors').textContent = totalInvestors || 0;
+                document.getElementById('activeInvestors').textContent = activeInvestors || 0;
+                document.getElementById('totalInvestments').textContent = formatCurrency(totalInvestments);
+                document.getElementById('totalProfits').textContent = formatCurrency(totalProfits);
+                document.getElementById('totalWithdrawals').textContent = formatCurrency(totalWithdrawals);
+                document.getElementById('todayReceipts').textContent = formatCurrency(todayReceiptsTotal) + ' ريال';
+                document.getElementById('todayPayments').textContent = formatCurrency(todayPaymentsTotal) + ' ريال';
+
+                // Load recent activity
+                const { data: recentTransactions } = await supabase
+                    .from('investor_transactions')
+                    .select('*, investor:investors(full_name)')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                const activityDiv = document.getElementById('recentActivity');
+                if (recentTransactions && recentTransactions.length > 0) {
+                    activityDiv.innerHTML = recentTransactions.map(t => {
+                        const isDeposit = t.transaction_type === 'investment' || t.transaction_type === 'receipt';
+                        const isProfit = t.transaction_type === 'profit_distribution';
+                        const icon = isDeposit ? 'fa-arrow-down text-green-500' : 
+                                     isProfit ? 'fa-chart-pie text-amber-500' : 'fa-arrow-up text-red-500';
+                        const bgColor = isDeposit ? 'bg-green-100' : isProfit ? 'bg-amber-100' : 'bg-red-100';
+                        return `
+                        <div class="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                            <div class="w-10 h-10 ${bgColor} rounded-lg flex items-center justify-center">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-slate-700">${t.description || t.transaction_type}</p>
+                                <p class="text-xs text-slate-500">${t.investor?.full_name || ''} - ${new Date(t.created_at).toLocaleDateString('ar-SA')}</p>
+                            </div>
+                            <span class="font-bold ${isDeposit ? 'text-green-600' : isProfit ? 'text-amber-600' : 'text-red-600'}">
+                                ${formatCurrency(t.amount)} ريال
+                            </span>
+                        </div>`;
+                    }).join('');
+                } else {
+                    activityDiv.innerHTML = '<p class="text-slate-400 text-sm text-center py-8">لا توجد معاملات حديثة</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Show modal function
+        window.showModal = function(modalId) {
+            // Modal implementation would go here
+            alert('سيتم فتح النموذج: ' + modalId);
+        };
+
+        // Initialize
+        loadDashboard();
+
+        // Subscribe to realtime updates
+        supabase
+            .channel('dashboard-updates')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'investors' }, () => loadDashboard())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'receipts' }, () => loadDashboard())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => loadDashboard())
+            .subscribe();
+    </script>
 </body>
 </html>
