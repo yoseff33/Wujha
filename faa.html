@@ -28,8 +28,8 @@
 
     <style>
         /* ============================================================
-                   BASE / RESET
-                   ============================================================ */
+           BASE / RESET
+           ============================================================ */
         * {
             margin: 0;
             padding: 0;
@@ -63,8 +63,8 @@
         }
 
         /* ============================================================
-                   SIDEBAR
-                   ============================================================ */
+           SIDEBAR
+           ============================================================ */
         .sidebar {
             width: var(--sidebar-width);
             background: #1e1e1e;
@@ -205,8 +205,8 @@
         }
 
         /* ============================================================
-                   MAIN CONTENT
-                   ============================================================ */
+           MAIN CONTENT
+           ============================================================ */
         .main-content {
             flex: 1;
             margin-right: var(--sidebar-width);
@@ -222,8 +222,8 @@
         }
 
         /* ============================================================
-                   TOOLBAR
-                   ============================================================ */
+           TOOLBAR
+           ============================================================ */
         .toolbar {
             background: #fff;
             border: 1px solid #d0d0d0;
@@ -321,8 +321,8 @@
         }
 
         /* ============================================================
-                   PAGE SHEETS
-                   ============================================================ */
+           PAGE SHEETS
+           ============================================================ */
         .page-sheet {
             background: #fff;
             margin: 0 auto 30px;
@@ -333,7 +333,15 @@
             page-break-after: always;
             page-break-inside: avoid;
             transition: box-shadow 0.3s;
+            box-sizing: border-box;
         }
+
+        .page-sheet *,
+        .page-sheet *::before,
+        .page-sheet *::after {
+            box-sizing: border-box;
+        }
+
         .page-sheet:hover {
             box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
         }
@@ -376,8 +384,8 @@
         }
 
         /* ============================================================
-                   PAGE HEADER / FOOTER
-                   ============================================================ */
+           PAGE HEADER / FOOTER
+           ============================================================ */
         .page-header {
             display: flex;
             align-items: center;
@@ -422,8 +430,8 @@
         }
 
         /* ============================================================
-                   COVER
-                   ============================================================ */
+           COVER
+           ============================================================ */
         .cover-content {
             display: flex;
             flex-direction: column;
@@ -502,8 +510,8 @@
         }
 
         /* ============================================================
-                   COMPANY INFO
-                   ============================================================ */
+           COMPANY INFO
+           ============================================================ */
         .company-details {
             padding: 8px 0;
             flex: 1;
@@ -558,8 +566,8 @@
         }
 
         /* ============================================================
-                   TABLES
-                   ============================================================ */
+           TABLES
+           ============================================================ */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -573,6 +581,12 @@
             font-size: 0.85rem;
             line-height: 2;
             margin-top: 4px;
+            table-layout: fixed;
+        }
+        .ledger-table th,
+        .ledger-table td {
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
         .ledger-table th {
             background: #f0f0f0;
@@ -613,7 +627,6 @@
             background: #f8f4e8;
         }
 
-        /* table header repeat for print */
         .ledger-table thead {
             display: table-header-group;
         }
@@ -622,8 +635,8 @@
         }
 
         /* ============================================================
-                   NOTES
-                   ============================================================ */
+           NOTES
+           ============================================================ */
         .notes-area {
             flex: 1;
             background: repeating-linear-gradient(#fff, #fff 29px, #e0e0e0 30px);
@@ -644,15 +657,15 @@
         }
 
         /* ============================================================
-                   INDEX
-                   ============================================================ */
+           INDEX
+           ============================================================ */
         .index-table td {
             text-align: center;
         }
 
         /* ============================================================
-                   TOAST / NOTIFICATION
-                   ============================================================ */
+           TOAST / NOTIFICATION
+           ============================================================ */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -686,190 +699,255 @@
         }
 
         /* ============================================================
-                   PRINT STYLES
-                   ============================================================ */
+           A4 EXACT PRINT
+           ============================================================ */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        @page portraitPage {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        @page landscapePage {
+            size: A4 landscape;
+            margin: 0;
+        }
+
         @media print {
+
             html,
             body {
-                background: white !important;
+                width: 100%;
+                height: auto;
                 margin: 0 !important;
                 padding: 0 !important;
-                min-height: 100vh !important;
+                background: #fff !important;
+                overflow: visible !important;
+            }
+
+            body {
+                display: block !important;
             }
 
             .sidebar,
             .mobile-menu-btn,
             .toolbar,
             .overlay,
+            .toast,
             .no-print {
                 display: none !important;
             }
 
             .main-content {
-                margin: 0 !important;
-                width: 100% !important;
-                padding: 0 !important;
                 display: block !important;
-                background: white !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                overflow: visible !important;
             }
 
             #pagesContainer {
                 display: block !important;
-                padding: 0 !important;
+                width: 100% !important;
                 margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
             }
 
             .page-sheet {
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 auto !important;
-                page-break-after: always !important;
-                page-break-inside: avoid !important;
-                width: 100% !important;
-                height: auto !important;
-                padding: 12mm 10mm 14mm 10mm !important;
-                background: white !important;
-                border-radius: 0 !important;
-                min-height: auto !important;
+                position: relative !important;
                 display: block !important;
+                margin: 0 auto !important;
+                box-shadow: none !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: #fff !important;
+                overflow: hidden !important;
+
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                break-after: page !important;
+                page-break-after: always !important;
+
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .page-sheet.portrait {
-                page: portrait;
+                page: portraitPage;
+
+                width: 210mm !important;
+                height: 297mm !important;
+                min-width: 210mm !important;
+                max-width: 210mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+
+                padding: 12mm 10mm 14mm !important;
             }
+
             .page-sheet.landscape {
-                page: landscape;
+                page: landscapePage;
+
+                width: 297mm !important;
+                height: 210mm !important;
+                min-width: 297mm !important;
+                max-width: 297mm !important;
+                min-height: 210mm !important;
+                max-height: 210mm !important;
+
+                padding: 10mm 12mm 12mm !important;
             }
 
-            .page-sheet::after {
-                opacity: 0.04 !important;
-                font-size: 5rem !important;
+            .page-inner {
+                position: relative !important;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
             }
 
-            .page-sheet .page-inner {
-                display: block !important;
-                min-height: auto !important;
-                height: auto !important;
+            .page-header {
+                flex: 0 0 auto !important;
+                margin-bottom: 4mm !important;
+                padding-bottom: 2mm !important;
+                border-bottom: 0.5mm solid #000 !important;
+            }
+
+            .page-footer {
+                flex: 0 0 auto !important;
+                margin-top: auto !important;
+                padding-top: 2mm !important;
+                border-top: 0.3mm solid #000 !important;
+            }
+
+            .table-responsive {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .ledger-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+                margin: 0 !important;
+                font-size: 7.5pt !important;
+                line-height: 1.25 !important;
+            }
+
+            .ledger-table thead {
+                display: table-header-group !important;
+            }
+
+            .ledger-table tbody {
+                display: table-row-group !important;
+            }
+
+            .ledger-table tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
             }
 
             .ledger-table th {
+                height: 7mm !important;
+                padding: 1mm 0.8mm !important;
+                border: 0.25mm solid #000 !important;
                 background: #f0f0f0 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .ledger-table tbody tr:nth-child(even) td {
-                background-color: #fafafa !important;
+                font-size: 7pt !important;
+                line-height: 1.15 !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
+
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
-            .ledger-table td[contenteditable="true"] {
-                background: transparent !important;
+            .ledger-table td {
+                height: 5mm !important;
+                min-height: 5mm !important;
+                padding: 0.5mm 0.8mm !important;
+                border: 0.25mm solid #000 !important;
+                font-size: 7pt !important;
+                line-height: 1.15 !important;
+                overflow: hidden !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
             }
-            .ledger-table td[contenteditable="true"]:focus {
-                background: transparent !important;
+
+            .ledger-table tbody tr:nth-child(even) td {
+                background: #fafafa !important;
+
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .ledger-table td[contenteditable="true"],
+            .ledger-table td[contenteditable="true"]:focus,
+            .ledger-table td[contenteditable="true"]:hover {
                 box-shadow: none !important;
             }
 
-            .notes-area {
-                border: 1px solid #aaa !important;
-                background: repeating-linear-gradient(#fff, #fff 29px, #e0e0e0 30px) !important;
+            .page-sheet::after {
+                font-size: 45pt !important;
+                color: rgba(0, 0, 0, 0.025) !important;
+
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
             .cover-content {
-                border: 3px double #000 !important;
+                height: 100% !important;
+                min-height: 0 !important;
+                border: 0.7mm double #000 !important;
             }
+
             .cover-border {
-                border: 2px solid #000 !important;
-                background: #fcfcfc !important;
-            }
-            .cover-stamp {
-                border: 2px solid #000 !important;
-                background: #f8f8f8 !important;
+                width: 85% !important;
+                max-width: 135mm !important;
+                padding: 12mm 8mm !important;
+                border: 0.5mm solid #000 !important;
             }
 
-            .page-footer {
-                border-top: 1px solid #000 !important;
-            }
-            .page-header {
-                border-bottom: 2px solid #000 !important;
-            }
+            .notes-area {
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
+                border: 0.3mm solid #999 !important;
+                background: repeating-linear-gradient(#fff, #fff 7.6mm, #ddd 7.8mm) !important;
 
-            .ledger-table {
-                font-size: 0.75rem !important;
-                line-height: 1.8 !important;
-            }
-            .ledger-table th {
-                font-size: 0.7rem !important;
-                padding: 3px 3px !important;
-            }
-            .ledger-table td {
-                padding: 2px 4px !important;
-                height: 26px !important;
-                min-height: 26px !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .info-table .lined input {
-                border-bottom: 1px dashed #999 !important;
+                border: 0 !important;
+                border-bottom: 0.25mm dashed #999 !important;
             }
 
             #qrcode img,
             #qrcode canvas {
-                max-width: 80px !important;
-                height: auto !important;
+                width: 25mm !important;
+                height: 25mm !important;
             }
 
-            .page-sheet:hover {
-                box-shadow: none !important;
-            }
-
-            /* prevent orphans */
-            .ledger-table tbody tr {
-                page-break-inside: avoid !important;
-            }
-            .ledger-table thead {
-                display: table-header-group !important;
-            }
-
-            /* force page breaks at section boundaries */
-            .page-sheet[data-page-id="cover"] {
-                page-break-after: always !important;
-            }
-            .page-sheet[data-page-id="company"] {
-                page-break-after: always !important;
-            }
-            .page-sheet[data-page-id="index"] {
-                page-break-after: always !important;
-            }
-            .page-sheet[data-page-id="journal"] {
-                page-break-after: always !important;
-            }
-            .page-sheet[data-page-id="ledger"] {
-                page-break-after: always !important;
+            .page-sheet:last-child {
+                break-after: auto !important;
+                page-break-after: auto !important;
             }
         }
 
         /* ============================================================
-                   @PAGE RULES
-                   ============================================================ */
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        @page portrait {
-            size: A4 portrait;
-            margin: 0;
-        }
-        @page landscape {
-            size: A4 landscape;
-            margin: 0;
-        }
-
-        /* ============================================================
-                   RESPONSIVE
-                   ============================================================ */
+           RESPONSIVE
+           ============================================================ */
         @media screen and (max-width: 1024px) {
             .page-sheet.portrait,
             .page-sheet.landscape {
@@ -1093,8 +1171,8 @@
         }
 
         /* ============================================================
-                   SCROLLBAR STYLING (desktop)
-                   ============================================================ */
+           SCROLLBAR STYLING (desktop)
+           ============================================================ */
         .main-content::-webkit-scrollbar {
             width: 6px;
         }
@@ -1110,8 +1188,8 @@
         }
 
         /* ============================================================
-                   UTILITY
-                   ============================================================ */
+           UTILITY
+           ============================================================ */
         .hidden {
             display: none !important;
         }
@@ -1188,7 +1266,7 @@
             // ================================================================
             //  CONFIG
             // ================================================================
-            const ROWS_PER_PAGE = 28;
+            const ROWS_PER_PAGE = 25;
             const SAVE_DEBOUNCE_MS = 800;
             const STORAGE_KEY = 'ledger_data_v2';
 
@@ -1267,7 +1345,6 @@
                 }
                 toastEl.textContent = msg;
                 toastEl.className = 'toast ' + (type || 'info');
-                // force reflow
                 void toastEl.offsetWidth;
                 toastEl.classList.add('show');
                 toastTimer = setTimeout(() => {
@@ -1309,7 +1386,6 @@
                     }
                 });
 
-                // Populate tables with empty rows
                 allSheets.forEach((item) => {
                     const def = item.def;
                     if (def.type !== 'cover' && def.type !== 'company' && def.type !== 'index' && def.type !==
@@ -1321,22 +1397,12 @@
                     }
                 });
 
-                // Build index after pages exist
                 buildIndexTable();
-
-                // Update page numbers
                 updateAllPageNumbers();
-
-                // Generate QR / barcodes
                 generateQRCodes();
-
-                // Restore saved data
                 restoreData();
-
-                // Update nav
                 updateNavActive();
 
-                // Set initial label
                 const first = document.querySelector('.page-sheet');
                 if (first) {
                     const t = first.querySelector('.page-title');
@@ -1358,7 +1424,6 @@
 
                 let inner = '<div class="page-inner">';
 
-                // HEADER
                 inner += `
                         <div class="page-header">
                             <div class="header-logo">
@@ -1372,7 +1437,6 @@
                         </div>
                     `;
 
-                // BODY
                 if (def.type === 'cover') {
                     inner += coverHTML();
                 } else if (def.type === 'company') {
@@ -1395,7 +1459,6 @@
                             </table></div>`;
                 }
 
-                // FOOTER
                 inner += `
                         <div class="page-footer">
                             <span class="footer-date">التاريخ: ____/____/____</span>
@@ -1403,10 +1466,9 @@
                         </div>
                     `;
 
-                inner += '</div>'; // .page-inner
+                inner += '</div>';
                 el.innerHTML = inner;
 
-                // Make all table cells editable (except header)
                 makeCellsEditable(el);
 
                 return { element: el, id: sheetId };
@@ -1495,15 +1557,12 @@
             function makeCellsEditable(el) {
                 const tds = el.querySelectorAll('td:not([contenteditable])');
                 tds.forEach(td => {
-                    // skip index column (first) — keep as number
                     const isFirst = td.parentElement && td === td.parentElement.firstElementChild;
                     if (isFirst && td.textContent.trim().match(/^\d+$/)) {
-                        // keep it as-is
                         return;
                     }
                     td.contentEditable = 'true';
                 });
-                // Also make cover info spans editable
                 const coverSpans = el.querySelectorAll('.cover-info span[contenteditable="true"]');
                 coverSpans.forEach(s => { s.contentEditable = 'true'; });
             }
@@ -1521,7 +1580,6 @@
                     let title = titleEl ? titleEl.textContent : 'صفحة';
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td>${idx + 1}</td><td>${title}</td><td>${idx + 1}</td>`;
-                    // make index cells editable? no, keep as reference
                     tbody.appendChild(tr);
                 });
             }
@@ -1536,7 +1594,6 @@
                     const span = sheet.querySelector('.page-num');
                     if (span) span.textContent = (idx + 1) + ' / ' + total;
                 });
-                // Also update index if needed
                 buildIndexTable();
             }
 
@@ -1544,7 +1601,6 @@
             //  QR / BARCODE
             // ================================================================
             function generateQRCodes() {
-                // Cover QR
                 const qrContainer = document.getElementById('qrcode');
                 if (qrContainer && typeof QRCode !== 'undefined') {
                     qrContainer.innerHTML = '';
@@ -1557,7 +1613,6 @@
                     } catch (e) { /* ignore */ }
                 }
 
-                // Company QR
                 const companyQR = document.getElementById('companyQR');
                 if (companyQR && typeof QRCode !== 'undefined') {
                     companyQR.innerHTML = '';
@@ -1570,7 +1625,6 @@
                     } catch (e) { /* ignore */ }
                 }
 
-                // Barcode
                 const barcodeSvg = document.getElementById('barcode');
                 if (barcodeSvg && typeof JsBarcode !== 'undefined') {
                     try {
@@ -1655,7 +1709,6 @@
                     pages: {}
                 };
 
-                // Company info
                 const inputs = document.querySelectorAll('.info-table input');
                 const company = {};
                 inputs.forEach(inp => {
@@ -1664,13 +1717,11 @@
                 });
                 data.company = company;
 
-                // Notes
                 const notesAreas = document.querySelectorAll('.notes-area');
                 if (notesAreas.length) {
                     data.notes = notesAreas[0].innerHTML;
                 }
 
-                // Table data
                 const tables = document.querySelectorAll('.ledger-table');
                 tables.forEach((table, idx) => {
                     const type = table.dataset.tableType || 'unknown';
@@ -1690,7 +1741,6 @@
                     data.pages[key] = rows;
                 });
 
-                // Cover editable spans
                 const coverSpans = document.querySelectorAll('.cover-info span[contenteditable="true"]');
                 const coverData = [];
                 coverSpans.forEach(span => coverData.push(span.innerHTML));
@@ -1729,7 +1779,6 @@
                     const data = JSON.parse(raw);
                     if (!data || data.version !== 2) return;
 
-                    // Company
                     if (data.company) {
                         const inputs = document.querySelectorAll('.info-table input');
                         inputs.forEach(inp => {
@@ -1740,7 +1789,6 @@
                         });
                     }
 
-                    // Notes
                     if (data.notes) {
                         const notesAreas = document.querySelectorAll('.notes-area');
                         if (notesAreas.length) {
@@ -1748,7 +1796,6 @@
                         }
                     }
 
-                    // Cover spans
                     if (data.coverSpans) {
                         const spans = document.querySelectorAll('.cover-info span[contenteditable="true"]');
                         spans.forEach((span, idx) => {
@@ -1758,7 +1805,6 @@
                         });
                     }
 
-                    // Tables
                     const tables = document.querySelectorAll('.ledger-table');
                     tables.forEach((table, idx) => {
                         const type = table.dataset.tableType || 'unknown';
@@ -1774,7 +1820,6 @@
                             const rowData = rowsData[r] || [];
                             for (let c = 0; c < Math.min(cells.length, rowData.length); c++) {
                                 if (c === 0 && cells[c]) {
-                                    // keep index number
                                     continue;
                                 }
                                 if (cells[c]) {
@@ -1798,7 +1843,6 @@
                 showToast('تم حذف جميع البيانات', 'error');
                 saveStatus.textContent = '✓ فارغ';
                 saveStatus.style.color = '#888';
-                // Reload page to reset
                 location.reload();
             }
 
@@ -1820,7 +1864,6 @@
                         const sheetName = (titleEl ? titleEl.textContent : 'صفحة ' + (idx + 1)).slice(0, 31);
                         const table = sheet.querySelector('.ledger-table');
                         if (!table) {
-                            // Try to extract text content for non-table pages
                             const textContent = sheet.innerText || '';
                             const ws = XLSX.utils.aoa_to_sheet([
                                 [sheetName],
@@ -1830,7 +1873,6 @@
                             return;
                         }
 
-                        // Build 2D array from table
                         const data = [];
                         const rows = table.querySelectorAll('tr');
                         rows.forEach(tr => {
@@ -1842,7 +1884,6 @@
                         });
 
                         const ws = XLSX.utils.aoa_to_sheet(data);
-                        // Auto column widths
                         const colWidths = [];
                         if (data.length) {
                             const colCount = data[0].length;
@@ -1876,97 +1917,138 @@
             }
 
             // ================================================================
-            //  EXPORT: PDF (html2canvas + jsPDF)
+            //  EXPORT: PDF (html2canvas + jsPDF) – A4 EXACT VERSION
             // ================================================================
-            function exportPdf() {
+            async function exportPdf() {
+                if (
+                    typeof html2canvas === 'undefined' ||
+                    typeof window.jspdf === 'undefined'
+                ) {
+                    showToast(
+                        'مكتبة PDF غير محملة، تأكد من الاتصال بالإنترنت',
+                        'error'
+                    );
+                    return;
+                }
+
+                const sheets = Array.from(
+                    document.querySelectorAll('.page-sheet')
+                );
+
+                if (!sheets.length) {
+                    showToast('لا توجد صفحات للتصدير', 'error');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+
+                let pdf = null;
+
+                const originalScrollX = window.scrollX;
+                const originalScrollY = window.scrollY;
+
                 try {
-                    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
-                        showToast('مكتبة PDF غير محملة، تأكد من الاتصال بالإنترنت', 'error');
-                        return;
-                    }
+                    showToast('جاري تجهيز ملف PDF...', 'info');
 
-                    const sheets = document.querySelectorAll('.page-sheet');
-                    if (!sheets.length) {
-                        showToast('لا توجد صفحات للتصدير', 'error');
-                        return;
-                    }
+                    window.scrollTo(0, 0);
 
-                    const { jsPDF } = window.jspdf;
-                    let pdf = null;
-                    let isFirst = true;
-                    let totalPages = sheets.length;
-
-                    // Process each page sequentially
-                    const processSheet = (index) => {
-                        if (index >= totalPages) {
-                            // All done
-                            if (pdf) {
-                                pdf.save('الدفتر_المحاسبي.pdf');
-                                showToast('تم تصدير PDF بنجاح', 'success');
-                            }
-                            return;
-                        }
-
+                    for (let index = 0; index < sheets.length; index++) {
                         const sheet = sheets[index];
-                        const isLandscape = sheet.classList.contains('landscape');
+                        const isLandscape =
+                            sheet.classList.contains('landscape');
 
-                        html2canvas(sheet, {
+                        const orientation = isLandscape
+                            ? 'landscape'
+                            : 'portrait';
+
+                        const pageWidth = isLandscape ? 297 : 210;
+                        const pageHeight = isLandscape ? 210 : 297;
+
+                        const canvas = await html2canvas(sheet, {
                             scale: 2,
                             useCORS: true,
-                            allowTaint: true,
+                            allowTaint: false,
                             logging: false,
                             backgroundColor: '#ffffff',
+                            scrollX: 0,
+                            scrollY: 0,
+                            windowWidth: sheet.scrollWidth,
+                            windowHeight: sheet.scrollHeight,
                             width: sheet.scrollWidth,
                             height: sheet.scrollHeight,
-                            windowWidth: sheet.scrollWidth,
-                            windowHeight: sheet.scrollHeight
-                        }).then(canvas => {
-                            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                            const orientation = isLandscape ? 'landscape' : 'portrait';
-                            const format = isLandscape ? 'a4' : 'a4';
 
-                            if (isFirst) {
-                                pdf = new jsPDF({
-                                    orientation: orientation,
-                                    unit: 'mm',
-                                    format: format,
-                                    compress: true
-                                });
-                                isFirst = false;
-                            } else {
-                                pdf.addPage({
-                                    orientation: orientation,
-                                    format: format
-                                });
+                            onclone: clonedDocument => {
+                                const clonedSheet =
+                                    clonedDocument.getElementById(sheet.id);
+
+                                if (!clonedSheet) return;
+
+                                clonedSheet.style.margin = '0';
+                                clonedSheet.style.boxShadow = 'none';
+                                clonedSheet.style.borderRadius = '0';
+                                clonedSheet.style.transform = 'none';
+
+                                if (isLandscape) {
+                                    clonedSheet.style.width = '297mm';
+                                    clonedSheet.style.height = '210mm';
+                                    clonedSheet.style.minHeight = '210mm';
+                                    clonedSheet.style.maxHeight = '210mm';
+                                } else {
+                                    clonedSheet.style.width = '210mm';
+                                    clonedSheet.style.height = '297mm';
+                                    clonedSheet.style.minHeight = '297mm';
+                                    clonedSheet.style.maxHeight = '297mm';
+                                }
                             }
-
-                            const pdfWidth = pdf.internal.pageSize.getWidth();
-                            const pdfHeight = pdf.internal.pageSize.getHeight();
-                            const imgWidth = canvas.width;
-                            const imgHeight = canvas.height;
-                            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-                            const w = imgWidth * ratio;
-                            const h = imgHeight * ratio;
-                            const x = (pdfWidth - w) / 2;
-                            const y = (pdfHeight - h) / 2;
-
-                            pdf.addImage(imgData, 'JPEG', x, y, w, h);
-
-                            // Process next
-                            processSheet(index + 1);
-                        }).catch(err => {
-                            console.error('html2canvas error:', err);
-                            showToast('خطأ في معالجة الصفحة ' + (index + 1), 'error');
-                            processSheet(index + 1); // continue anyway
                         });
-                    };
 
-                    showToast('جاري تحضير PDF...', 'info');
-                    processSheet(0);
+                        const imageData = canvas.toDataURL(
+                            'image/jpeg',
+                            0.98
+                        );
 
-                } catch (e) {
-                    console.error('PDF export error:', e);
-                    showToast('خطأ في تصدير PDF: ' + e.message, 'error');
+                        if (!pdf) {
+                            pdf = new jsPDF({
+                                orientation,
+                                unit: 'mm',
+                                format: 'a4',
+                                compress: true,
+                                putOnlyUsedFonts: true
+                            });
+                        } else {
+                            pdf.addPage('a4', orientation);
+                        }
+
+                        pdf.addImage(
+                            imageData,
+                            'JPEG',
+                            0,
+                            0,
+                            pageWidth,
+                            pageHeight,
+                            undefined,
+                            'FAST'
+                        );
+                    }
+
+                    pdf.save('الدفتر_المحاسبي_A4.pdf');
+
+                    showToast(
+                        'تم تصدير ملف PDF بمقاس A4',
+                        'success'
+                    );
+                } catch (error) {
+                    console.error('PDF export error:', error);
+
+                    showToast(
+                        'تعذر تصدير PDF: ' + error.message,
+                        'error'
+                    );
+                } finally {
+                    window.scrollTo(
+                        originalScrollX,
+                        originalScrollY
+                    );
                 }
             }
 
@@ -1979,7 +2061,6 @@
                     showToast('لا توجد صفحة نشطة', 'error');
                     return;
                 }
-                // Hide other pages, print this one
                 const all = document.querySelectorAll('.page-sheet');
                 all.forEach(s => s.style.display = 'none');
                 active.style.display = 'block';
@@ -2000,7 +2081,6 @@
             // ================================================================
             function bindEvents() {
 
-                // Sidebar toggle
                 sidebarToggle.addEventListener('click', () => {
                     sidebar.classList.toggle('collapsed');
                 });
@@ -2015,7 +2095,6 @@
                     overlay.style.display = 'none';
                 });
 
-                // Close sidebar on resize to desktop
                 window.addEventListener('resize', () => {
                     if (window.innerWidth >= 768) {
                         sidebar.classList.remove('open');
@@ -2023,7 +2102,6 @@
                     }
                 });
 
-                // Navigation links (delegated)
                 sidebarNav.addEventListener('click', (e) => {
                     const link = e.target.closest('a');
                     if (link && link.dataset.page) {
@@ -2032,7 +2110,6 @@
                     }
                 });
 
-                // Toolbar buttons
                 document.getElementById('btnPrint').addEventListener('click', printActive);
                 document.getElementById('btnPrintAll').addEventListener('click', printAll);
                 document.getElementById('btnPdf').addEventListener('click', exportPdf);
@@ -2043,22 +2120,18 @@
                 });
                 document.getElementById('btnReset').addEventListener('click', resetData);
 
-                // Auto-save on input
                 document.addEventListener('input', (e) => {
                     const target = e.target;
-                    // Check if it's an editable cell, notes, input, or contenteditable
                     if (target.closest('.ledger-table td[contenteditable="true"]') ||
                         target.closest('.notes-area') ||
                         target.closest('.info-table input') ||
                         target.closest('.cover-info span[contenteditable="true"]')) {
                         debouncedSave();
-                        // Update status
                         saveStatus.textContent = '⏳ حفظ...';
                         saveStatus.style.color = '#e67e22';
                     }
                 });
 
-                // Update page label on scroll
                 let scrollTimeout = null;
                 window.addEventListener('scroll', () => {
                     if (scrollTimeout) return;
@@ -2074,7 +2147,6 @@
                     }, 150);
                 });
 
-                // Keyboard shortcut: Ctrl+S
                 document.addEventListener('keydown', (e) => {
                     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                         e.preventDefault();
@@ -2083,7 +2155,6 @@
                     }
                 });
 
-                // Before unload, save
                 window.addEventListener('beforeunload', () => {
                     if (saveTimeout) {
                         clearTimeout(saveTimeout);
@@ -2099,12 +2170,10 @@
                 buildNav();
                 buildAllPages();
                 bindEvents();
-                // Update page numbers after any dynamic changes
                 setTimeout(updateAllPageNumbers, 200);
                 showToast('الدفتر المحاسبي جاهز', 'info');
             }
 
-            // Run when DOM ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
