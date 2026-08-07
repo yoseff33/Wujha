@@ -2,23 +2,49 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SUPABASE_URL = localStorage.getItem('wujha_supabase_url') || 'https://blnwohxbrundwiachkon.supabase.co';
 const SUPABASE_ANON_KEY = localStorage.getItem('wujha_supabase_anon_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbndvaHhicnVuZHdpYWNoa29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc5ODUsImV4cCI6MjA5ODc2Mzk4NX0.4ffpJ_GcV51Znrt0mVz2VBWFI46HgxDcRE4SlAvk10Q';
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// دالة مساعدة لتأكيد تنسيق الرقم بالصيغة الدولية E.164
+function formatSAPhone(phone) {
+  if (!phone) return '';
+  let cleaned = phone.trim().replace(/[^\d+]/g, '');
+  if (cleaned.startsWith('05')) {
+    return '+966' + cleaned.substring(1);
+  } else if (cleaned.startsWith('5')) {
+    return '+966' + cleaned;
+  } else if (cleaned.startsWith('966')) {
+    return '+' + cleaned;
+  } else if (!cleaned.startsWith('+')) {
+    return '+' + cleaned;
+  }
+  return cleaned;
+}
+
 export async function signIn(phone, password) {
-  return supabase.auth.signInWithPassword({ phone, password });
+  const formattedPhone = formatSAPhone(phone);
+  return await supabase.auth.signInWithPassword({ 
+    phone: formattedPhone, 
+    password 
+  });
 }
 
 export async function signUp({ name, phone, email, password, userType, commercialRegister }) {
-  const result = await supabase.auth.signUp({
-    phone, email: email || undefined, password,
-    options: { data: { name, user_type: userType, commercial_register: commercialRegister || null } }
+  const formattedPhone = formatSAPhone(phone);
+  
+  // التسجيل يتكفل به التريجر handle_new_auth_user بقاعدة البيانات تلقائياً
+  return await supabase.auth.signUp({
+    phone: formattedPhone,
+    email: email || undefined,
+    password,
+    options: { 
+      data: { 
+        name, 
+        user_type: userType, 
+        commercial_register: commercialRegister || null 
+      } 
+    }
   });
-  if (result.error || !result.data.user) return result;
-  const { error } = await supabase.from('users').upsert({
-    id: result.data.user.id, name, phone, email: email || null,
-    user_type: userType, commercial_register: commercialRegister || null
-  });
-  return { data: result.data, error };
 }
 
 export const db = {
@@ -29,10 +55,12 @@ export const db = {
   notifications: () => supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(20)
 };
 
-export function requireRole(roles) {
-  return supabase.auth.getSession().then(({ data }) => {
-    const role = data.session?.user?.user_metadata?.user_type;
-    if (!data.session || (roles.length && !roles.includes(role))) location.href = 'login.html';
-    return data.session;
-  });
+export async function requireRole(roles = []) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const role = session?.user?.user_metadata?.user_type;
+  
+  if (!session || (roles.length && !roles.includes(role))) {
+    window.location.href = 'login.html';
+  }
+  return session;
 }
