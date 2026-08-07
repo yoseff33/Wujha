@@ -1,19 +1,7 @@
-import { supabase } from './supabase-client.js';
-
-export async function createMockPayment({ dealId, amount, gateway = 'Mada' }) {
-  const transactionId = `WJH-${Date.now()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-  const { data, error } = await supabase.from('payments').insert({
-    deal_id: dealId, amount, transaction_id: transactionId,
-    payment_gateway: gateway, status: 'pending'
-  }).select().single();
-  if (!error) localStorage.setItem(`payment:${dealId}`, JSON.stringify(data));
-  return { data, error, checkoutUrl: `deal-view.html?id=${dealId}&payment=${transactionId}` };
+// لا توجد بوابة دفع مفعلة في هذا الإصدار.
+// يجب إنشاء جلسة الدفع والتحقق من Webhook داخل Supabase Edge Function أو خادم موثوق.
+export async function createPayment() {
+  throw new Error('الدفع الإلكتروني غير متاح حتى يتم ربط مزود دفع مرخص من الخادم.');
 }
 
-export async function confirmMockPayment(paymentId, dealId) {
-  const payment = await supabase.from('payments').update({ status: 'paid' }).eq('id', paymentId);
-  if (!payment.error) await supabase.from('deals').update({ status: 'paid_held' }).eq('id', dealId);
-  return payment;
-}
-
-export const supportedGateways = ['Mada', 'Tabby', 'Tamara'];
+export const supportedGateways = [];
