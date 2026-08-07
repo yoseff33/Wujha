@@ -5,43 +5,27 @@ const SUPABASE_ANON_KEY = localStorage.getItem('wujha_supabase_anon_key') || 'ey
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// دالة مساعدة لتأكيد تنسيق الرقم بالصيغة الدولية E.164
-function formatSAPhone(phone) {
-  if (!phone) return '';
-  let cleaned = phone.trim().replace(/[^\d+]/g, '');
-  if (cleaned.startsWith('05')) {
-    return '+966' + cleaned.substring(1);
-  } else if (cleaned.startsWith('5')) {
-    return '+966' + cleaned;
-  } else if (cleaned.startsWith('966')) {
-    return '+' + cleaned;
-  } else if (!cleaned.startsWith('+')) {
-    return '+' + cleaned;
-  }
-  return cleaned;
-}
-
-export async function signIn(phone, password) {
-  const formattedPhone = formatSAPhone(phone);
+// تسجيل الدخول بالإيميل وكلمة المرور
+export async function signIn(email, password) {
   return await supabase.auth.signInWithPassword({ 
-    phone: formattedPhone, 
+    email: email.trim(), 
     password 
   });
 }
 
+// إنشاء حساب جديد بالإيميل
 export async function signUp({ name, phone, email, password, userType, commercialRegister }) {
-  const formattedPhone = formatSAPhone(phone);
-  
-  // التسجيل يتكفل به التريجر handle_new_auth_user بقاعدة البيانات تلقائياً
+  const cleanCr = commercialRegister && commercialRegister.trim() !== '' ? commercialRegister.trim() : null;
+
   return await supabase.auth.signUp({
-    phone: formattedPhone,
-    email: email || undefined,
-    password,
+    email: email.trim(),
+    password: password,
     options: { 
       data: { 
-        name, 
+        name: name.trim(), 
+        phone: phone ? phone.trim() : null,
         user_type: userType, 
-        commercial_register: commercialRegister || null 
+        commercial_register: cleanCr 
       } 
     }
   });
