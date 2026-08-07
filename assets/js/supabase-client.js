@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const SUPABASE_URL = localStorage.getItem('wujha_supabase_url') || 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_URL = localStorage.getItem('wujha_supabase_url') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbndvaHhicnVuZHdpYWNoa29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc5ODUsImV4cCI6MjA5ODc2Mzk4NX0.4ffpJ_GcV51Znrt0mVz2VBWFI46HgxDcRE4SlAvk10Q';
 const SUPABASE_ANON_KEY = localStorage.getItem('wujha_supabase_anon_key') || 'YOUR_ANON_KEY';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
