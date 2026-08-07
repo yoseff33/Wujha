@@ -1,50 +1,85 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const SUPABASE_URL = localStorage.getItem('wujha_supabase_url') || 'https://blnwohxbrundwiachkon.supabase.co';
-const SUPABASE_ANON_KEY = localStorage.getItem('wujha_supabase_anon_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbndvaHhicnVuZHdpYWNoa29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc5ODUsImV4cCI6MjA5ODc2Mzk4NX0.4ffpJ_GcV51Znrt0mVz2VBWFI46HgxDcRE4SlAvk10Q';
+const DEFAULT_URL = 'https://blnwohxbrundwiachkon.supabase.co';
+const DEFAULT_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbndvaHhicnVuZHdpYWNoa29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc5ODUsImV4cCI6MjA5ODc2Mzk4NX0.4ffpJ_GcV51Znrt0mVz2VBWFI46HgxDcRE4SlAvk10Q';
+const url = localStorage.getItem('wujha_supabase_url') || DEFAULT_URL;
+const anonKey = localStorage.getItem('wujha_supabase_anon_key') || DEFAULT_ANON_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(url, anonKey, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
 
-// تسجيل الدخول بالإيميل وكلمة المرور
-export async function signIn(email, password) {
-  return await supabase.auth.signInWithPassword({ 
-    email: email.trim(), 
-    password 
-  });
-}
-
-// إنشاء حساب جديد بالإيميل
-export async function signUp({ name, phone, email, password, userType, commercialRegister }) {
-  const cleanCr = commercialRegister && commercialRegister.trim() !== '' ? commercialRegister.trim() : null;
-
-  return await supabase.auth.signUp({
-    email: email.trim(),
-    password: password,
-    options: { 
-      data: { 
-        name: name.trim(), 
-        phone: phone ? phone.trim() : null,
-        user_type: userType, 
-        commercial_register: cleanCr 
-      } 
-    }
-  });
-}
-
-export const db = {
-  products: () => supabase.from('products').select('*, seller:users!seller_id(name, phone)').eq('status', 'active').order('created_at', { ascending: false }),
-  deal: (id) => supabase.from('deals').select('*, product:products(*), buyer:users!buyer_id(*), seller:users!seller_id(*)').eq('id', id).single(),
-  createDeal: (payload) => supabase.from('deals').insert(payload).select().single(),
-  disputes: (dealId) => supabase.from('disputes').select('*').eq('deal_id', dealId).order('created_at', { ascending: false }),
-  notifications: () => supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(20)
+export const auth = {
+  session: () => supabase.auth.getSession(),
+  signIn: (phone, password) => supabase.auth.signInWithPassword({ phone, password }),
+  signUp: ({ name, phone, email, password, userType, commercialRegister }) => supabase.auth.signUp({
+    phone,
+    email: email || undefined,
+    password,
+    options: { data: { name, phone, user_type: userType, commercial_register: commercialRegister || null } }
+  }),
+  signOut: () => supabase.auth.signOut(),
+  resetPassword: email => supabase.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}${location.pathname.replace(/login\/$/, 'profile/')}` }),
+  updatePassword: password => supabase.auth.updateUser({ password }),
+  onChange: callback => supabase.auth.onAuthStateChange(callback)
 };
 
-export async function requireRole(roles = []) {
-  const { data: { session } } = await supabase.auth.getSession();
-  const role = session?.user?.user_metadata?.user_type;
-  
-  if (!session || (roles.length && !roles.includes(role))) {
-    window.location.href = 'login.html';
-  }
-  return session;
-}
+export const profiles = {
+  mine: () => supabase.from('users').select('*').single(),
+  update: (id, payload) => supabase.from('users').update(payload).eq('id', id).select().single(),
+  requestDeletion: (userId, reason) => supabase.from('account_deletion_requests').insert({ user_id: userId, reason }).select().single()
+};
+
+export const products = {
+  list: () => supabase.from('products').select('id,seller_id,title,description,price,category,condition,main_image,vin,location,is_guaranteed,status,created_at,seller:users!seller_id(name)').eq('status', 'active').order('created_at', { ascending: false }),
+  mine: userId => supabase.from('products').select('*').eq('seller_id', userId).order('created_at', { ascending: false }),
+  create: payload => supabase.from('products').insert(payload).select().single(),
+  update: (id, payload) => supabase.from('products').update(payload).eq('id', id).select().single(),
+  remove: id => supabase.from('products').delete().eq('id', id)
+};
+
+export const deals = {
+  listMine: (userId, role) => {
+    let query = supabase.from('deals').select('id,buyer_id,seller_id,status,deal_price,escrow_fee,vat,total_amount_paid,created_at,product:products(title)').order('created_at', { ascending: false });
+    if (role === 'buyer') query = query.eq('buyer_id', userId);
+    if (role === 'seller') query = query.eq('seller_id', userId);
+    return query;
+  },
+  get: id => supabase.from('deals').select('*,product:products(*),buyer:users!buyer_id(id,name),seller:users!seller_id(id,name)').eq('id', id).single(),
+  findCounterparty: phone => supabase.rpc('find_deal_counterparty', { requested_phone: phone }),
+  create: payload => supabase.from('deals').insert(payload).select().single(),
+  transition: (dealId, nextStatus) => supabase.rpc('transition_deal', { requested_deal_id: dealId, requested_status: nextStatus })
+};
+
+export const disputes = {
+  list: dealId => supabase.from('disputes').select('*,opener:users!opened_by(name)').eq('deal_id', dealId).order('created_at', { ascending: false }),
+  open: payload => supabase.from('disputes').insert(payload).select().single(),
+  resolve: (disputeId, resolution, response) => supabase.rpc('resolve_dispute', { requested_dispute_id: disputeId, requested_resolution: resolution, requested_response: response })
+};
+
+export const invoices = {
+  getByDeal: dealId => supabase.from('invoices').select('*,deal:deals(deal_price,total_amount_paid,status)').eq('deal_id', dealId).single()
+};
+
+export const notifications = {
+  list: () => supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(30),
+  markRead: id => supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id)
+};
+
+export const admin = {
+  deletionRequests: () => supabase.from('account_deletion_requests').select('*,user:users(name,phone,email)').order('requested_at', { ascending: false }),
+  reviewDeletion: (id, status) => supabase.from('account_deletion_requests').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id).select().single(),
+  settings: () => supabase.from('platform_settings').select('*').single(),
+  updateSettings: payload => supabase.from('platform_settings').update(payload).eq('id', true).select().single()
+};
+
+// Backward-compatible exports used by older pages.
+export const getSession = auth.session;
+export const signIn = auth.signIn;
+export const signOut = auth.signOut;
+export const signUp = auth.signUp;
+export const getMyProfile = profiles.mine;
+export const updateMyProfile = profiles.update;
+export const requestAccountDeletion = profiles.requestDeletion;
+export const findDealCounterparty = deals.findCounterparty;
+export const db = { products: products.list, deal: deals.get, createDeal: deals.create, disputes: disputes.list, notifications: notifications.list };
