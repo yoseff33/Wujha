@@ -2,7 +2,7 @@ const A = 'rounded-2xl border border-slate-200 bg-white shadow-sm';
 const money = n => new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(n || 0);
 const base = document.body.dataset.base || '';
 
-// دالة تنظيف وتنسيق رقم الجوال للصيغة الدولية +966
+// دالة تنظيف وتنسيق رقم الجوال للصيغة الدولية +966 عند التسجيل
 const formatSAPhone = (phone) => {
   if (!phone) return '';
   let cleaned = phone.trim().replace(/[^\d+]/g, '');
@@ -19,9 +19,9 @@ const formatSAPhone = (phone) => {
 };
 
 const pages = {
-login: `<section class="mx-auto max-w-md ${A} p-7"><p class="text-sm font-bold text-emerald-700">مرحباً بعودتك</p><h1 class="mt-2 text-3xl font-black">تسجيل الدخول</h1><form id="loginForm" class="mt-7 space-y-4"><label class="block text-sm font-bold">رقم الجوال<input name="phone" dir="ltr" required placeholder="+9665xxxxxxxx" class="mt-2 w-full rounded-xl border p-3"></label><label class="block text-sm font-bold">كلمة المرور<input name="password" type="password" required class="mt-2 w-full rounded-xl border p-3"></label><button type="submit" class="w-full rounded-xl bg-emerald-700 p-3 font-bold text-white">دخول آمن</button><p id="formMessage" class="text-sm font-bold"></p></form><p class="mt-5 text-center text-sm">ليس لديك حساب؟ <a class="font-bold text-emerald-700" href="${base}register/">أنشئ حساباً</a></p></section>`,
+login: `<section class="mx-auto max-w-md ${A} p-7"><p class="text-sm font-bold text-emerald-700">مرحباً بعودتك</p><h1 class="mt-2 text-3xl font-black">تسجيل الدخول</h1><form id="loginForm" class="mt-7 space-y-4"><label class="block text-sm font-bold">البريد الإلكتروني<input name="email" type="email" dir="ltr" required placeholder="example@domain.com" class="mt-2 w-full rounded-xl border p-3"></label><label class="block text-sm font-bold">كلمة المرور<input name="password" type="password" required class="mt-2 w-full rounded-xl border p-3"></label><button type="submit" class="w-full rounded-xl bg-emerald-700 p-3 font-bold text-white">دخول آمن</button><p id="formMessage" class="text-sm font-bold"></p></form><p class="mt-5 text-center text-sm">ليس لديك حساب؟ <a class="font-bold text-emerald-700" href="${base}register/">أنشئ حساباً</a></p></section>`,
 
-register: `<section class="mx-auto max-w-xl ${A} p-7"><p class="text-sm font-bold text-emerald-700">انضم إلى وجهة</p><h1 class="mt-2 text-3xl font-black">إنشاء حساب موثّق</h1><form id="registerForm" class="mt-7 grid gap-4 sm:grid-cols-2"><label class="text-sm font-bold">الاسم الكامل<input name="name" required class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold">الجوال<input name="phone" dir="ltr" required placeholder="+9665xxxxxxxx" class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold">البريد الإلكتروني<input name="email" type="email" dir="ltr" class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold">نوع الحساب<select name="userType" id="userType" class="mt-2 w-full rounded-xl border p-3"><option value="buyer">مشتري</option><option value="seller">بائع / تاجر</option><option value="admin">أدمن (بدعوة فقط)</option></select></label><label id="crField" class="hidden text-sm font-bold sm:col-span-2">رقم السجل التجاري<input name="commercialRegister" class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold sm:col-span-2">كلمة المرور<input name="password" type="password" minlength="8" required class="mt-2 w-full rounded-xl border p-3"></label><button type="submit" class="rounded-xl bg-emerald-700 p-3 font-bold text-white sm:col-span-2">إنشاء الحساب</button><p id="formMessage" class="text-sm font-bold sm:col-span-2"></p></form></section>`,
+register: `<section class="mx-auto max-w-xl ${A} p-7"><p class="text-sm font-bold text-emerald-700">انضم إلى وجهة</p><h1 class="mt-2 text-3xl font-black">إنشاء حساب موثّق</h1><form id="registerForm" class="mt-7 grid gap-4 sm:grid-cols-2"><label class="text-sm font-bold">الاسم الكامل<input name="name" required class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold">البريد الإلكتروني<input name="email" type="email" dir="ltr" required placeholder="example@domain.com" class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold">الجوال<input name="phone" dir="ltr" required placeholder="+9665xxxxxxxx" class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold">نوع الحساب<select name="userType" id="userType" class="mt-2 w-full rounded-xl border p-3"><option value="buyer">مشتري</option><option value="seller">بائع / تاجر</option><option value="admin">أدمن (بدعوة فقط)</option></select></label><label id="crField" class="hidden text-sm font-bold sm:col-span-2">رقم السجل التجاري<input name="commercialRegister" class="mt-2 w-full rounded-xl border p-3"></label><label class="text-sm font-bold sm:col-span-2">كلمة المرور<input name="password" type="password" minlength="8" required class="mt-2 w-full rounded-xl border p-3"></label><button type="submit" class="rounded-xl bg-emerald-700 p-3 font-bold text-white sm:col-span-2">إنشاء الحساب</button><p id="formMessage" class="text-sm font-bold sm:col-span-2"></p></form></section>`,
 
 marketplace: `<div class="flex flex-wrap items-end justify-between gap-4"><div><p class="font-bold text-emerald-700">سوق وجهة المفتوح</p><h1 class="text-3xl font-black">تسوّق بثقة، وادفع بضمان</h1></div><a href="${base}create-deal/" class="rounded-xl bg-amber-400 px-5 py-3 font-black">+ أضف إعلانك في السوق</a></div><section class="mt-6 ${A} p-4"><div class="grid gap-3 md:grid-cols-[1fr_auto]"><input id="marketSearch" placeholder="ابحث بكلمة أو رقم الهيكل VIN" class="rounded-xl border p-3"><div id="filters" class="flex flex-wrap gap-2">${['الكل','قطع غيار','أجهزة وإلكترونيات','أثاث منزلي','خدمات تقنية وتسويق'].map((x,i)=>`<button data-filter="${x}" class="rounded-full px-4 py-2 text-sm font-bold ${i?'bg-slate-100':'bg-emerald-700 text-white'}">${x}</button>`).join('')}</div></div></section><div id="productGrid" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>`,
 
@@ -180,19 +180,19 @@ document.addEventListener('submit', async e => {
     const api = await import('./supabase-client.js');
     const fd = Object.fromEntries(new FormData(e.target));
     
-    // تحويل رقم الجوال للصيغة الدولية الرسمية
+    // تنسيق رقم الجوال عند إنشاء حساب جديد فقط
     if (fd.phone) {
       fd.phone = formatSAPhone(fd.phone);
     }
 
     const result = e.target.id === 'loginForm' 
-      ? await api.signIn(fd.phone, fd.password) 
+      ? await api.signIn(fd.email, fd.password) 
       : await api.signUp(fd);
 
     if (result.error) throw result.error;
 
     msg.className = 'text-sm font-bold text-emerald-700';
-    msg.textContent = e.target.id === 'loginForm' ? 'تم الدخول بنجاح.' : 'تم إنشاء الحساب؛ تحقق من رسالة التأكيد.';
+    msg.textContent = e.target.id === 'loginForm' ? 'تم الدخول بنجاح.' : 'تم إنشاء الحساب؛ تحقق من البريد إن وُجد.';
   } catch (err) {
     msg.className = 'text-sm font-bold text-red-700';
     msg.textContent = err.message || 'تعذر إتمام العملية.';
