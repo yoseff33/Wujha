@@ -2,7 +2,37 @@ const A = 'rounded-2xl border border-slate-200 bg-white shadow-sm';
 const money = n => new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(n);
 const base = document.body.dataset.base || '';
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[char]);
-const normalizePhone = value => String(value || '').replace(/[\s()-]/g, '').replace(/^05/, '+9665');
+const normalizePhone = value => {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (/^5\d{8}$/.test(digits)) return `+966${digits}`;
+  if (/^05\d{8}$/.test(digits)) return `+966${digits.slice(1)}`;
+  if (/^9665\d{8}$/.test(digits)) return `+${digits}`;
+  return String(value || '').trim();
+};
+const setupSaudiPhoneInputs = () => {
+  document.querySelectorAll('input[name="phone"],input[name="counterparty_phone"]').forEach(input => {
+    if (input.readOnly || input.dataset.saudiPhoneReady) return;
+    input.dataset.saudiPhoneReady = 'true';
+    input.type = 'tel';
+    input.inputMode = 'numeric';
+    input.pattern = '5[0-9]{8}';
+    input.minLength = 9;
+    input.maxLength = 9;
+    input.placeholder = '5XXXXXXXX';
+    input.autocomplete = 'tel-national';
+    input.className = 'min-w-0 flex-1 bg-transparent px-3 py-3 outline-none';
+    const wrapper = document.createElement('div');
+    wrapper.dir = 'ltr';
+    wrapper.className = 'mt-2 flex w-full items-center overflow-hidden rounded-xl border bg-white focus-within:ring-2 focus-within:ring-emerald-600';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.append(input);
+    const prefix = document.createElement('span');
+    prefix.textContent = '+966';
+    prefix.className = 'select-none border-r bg-slate-100 px-3 py-3 font-bold text-slate-700';
+    prefix.setAttribute('aria-hidden', 'true');
+    wrapper.prepend(prefix);
+  });
+};
 const setBusy = (button, busy, busyText = 'جارٍ التنفيذ...') => {
   if (!button) return;
   if (busy) button.dataset.originalText = button.textContent;
@@ -34,6 +64,7 @@ function shell(content){return `<header class="border-b bg-white"><nav class="mx
 
 const page = document.body.dataset.page;
 document.getElementById('app').innerHTML = shell(pages[page] || '<h1>الصفحة غير موجودة</h1>');
+setupSaudiPhoneInputs();
 
 if(page==='marketplace') initMarket();
 if(page==='createDeal') initWizard();
