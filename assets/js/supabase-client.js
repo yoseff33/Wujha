@@ -51,6 +51,20 @@ export const deals = {
   transition: (dealId, nextStatus) => supabase.rpc('transition_deal', { requested_deal_id: dealId, requested_status: nextStatus })
 };
 
+export const invitations = {
+  create: payload => supabase.rpc('create_deal_invitation', {
+    invitee_phone: payload.inviteePhone,
+    invitee_name: payload.inviteeName,
+    creator_role: payload.creatorRole,
+    external_ad_url: payload.externalUrl || '',
+    category: payload.category,
+    fee_bearer: payload.feeBearer,
+    installment_enabled: payload.installments,
+    deal_price: payload.dealPrice,
+    inspection_hours: payload.inspectionHours
+  })
+};
+
 export const disputes = {
   list: dealId => supabase.from('disputes').select('*,opener:users!opened_by(name)').eq('deal_id', dealId).order('created_at', { ascending: false }),
   open: payload => supabase.from('disputes').insert(payload).select().single(),
