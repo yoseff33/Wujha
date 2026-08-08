@@ -64,7 +64,26 @@ function shell(content){return `<header class="border-b bg-white"><nav class="mx
 
 const page = document.body.dataset.page;
 document.getElementById('app').innerHTML = shell(pages[page] || '<h1>الصفحة غير موجودة</h1>');
+if(page==='createDeal'){
+  const step=document.querySelector('[data-step="2"]');
+  const phone=step.querySelector('input[name="counterparty_phone"]');
+  const names=document.createElement('div');
+  names.className='grid gap-3 sm:grid-cols-2';
+  names.innerHTML='<input name="invitee_first_name" minlength="2" placeholder="الاسم الأول (مطلوب إذا لم يكن مسجلًا)" class="rounded-xl border p-3"><input name="invitee_last_name" minlength="2" placeholder="الاسم الأخير (مطلوب إذا لم يكن مسجلًا)" class="rounded-xl border p-3">';
+  step.insertBefore(names,phone);
+}
 setupSaudiPhoneInputs();
+if(page==='register'){
+  const query=new URLSearchParams(location.search),form=document.getElementById('registerForm');
+  if(query.get('phone'))form.elements.phone.value=query.get('phone').replace(/\D/g,'').slice(-9);
+  if(query.get('name'))form.elements.name.value=query.get('name');
+  if(['buyer','seller'].includes(query.get('role'))){
+    form.elements.userType.value=query.get('role');
+    const seller=query.get('role')==='seller',field=document.getElementById('crField');
+    field.classList.toggle('hidden',!seller);
+    field.querySelector('input').required=seller;
+  }
+}
 
 if(page==='marketplace') initMarket();
 if(page==='createDeal') initWizard();
@@ -105,7 +124,25 @@ function initWizard(){
       const {data:matches,error:lookupError}=await api.findDealCounterparty(phone);
       if(lookupError)throw lookupError;
       const counterparty=matches?.[0];
-      if(!counterparty)throw new Error('لم نجد حسابًا مسجلًا بهذا الجوال. اطلب من الطرف الآخر إنشاء حساب أولًا.');
+      const inviteeName=`${values.invitee_first_name} ${values.invitee_last_name}`.trim();
+      if(!counterparty){
+        if(String(values.invitee_first_name||'').trim().length<2||String(values.invitee_last_name||'').trim().length<2)throw new Error('العميل غير مسجل؛ أدخل الاسم الأول والأخير لإرسال الدعوة.');
+        const {data:invitation,error:invitationError}=await api.invitations.create({inviteePhone:phone,inviteeName,creatorRole:values.role,externalUrl:values.external_url,category:values.category,feeBearer:values.fee_bearer,installments:values.installments==='on',dealPrice:Number(values.deal_price),inspectionHours:Number(values.inspection_days)*24});
+        if(invitationError)throw invitationError;
+        const expectedRole=values.role==='buyer'?'seller':'buyer';
+        const registerUrl=new URL(`${base}register/`,location.href);
+        registerUrl.searchParams.set('invite',invitation.token);
+        registerUrl.searchParams.set('phone',phone);
+        registerUrl.searchParams.set('name',inviteeName);
+        registerUrl.searchParams.set('role',expectedRole);
+        const shareText=`مرحبًا ${inviteeName}، لديك طلب صفقة على منصة وجهة. سجل حسابك بالرقم المدعو لقبول الصفقة: ${registerUrl.href}`;
+        document.getElementById('dealSummary').textContent=`تم إنشاء دعوة معلقة باسم ${inviteeName}. ستتحول إلى صفقة تلقائيًا بعد تسجيل العميل.`;
+        document.getElementById('waShare').href=`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(shareText)}`;
+        document.getElementById('openDeal').href=registerUrl.href;
+        document.getElementById('openDeal').textContent='فتح رابط التسجيل';
+        document.getElementById('copyDeal').onclick=async()=>{await navigator.clipboard.writeText(registerUrl.href);document.getElementById('copyDeal').textContent='تم النسخ';};
+        step=6;show();return;
+      }
       if(values.role==='buyer'&&counterparty.user_type!=='seller')throw new Error('عند اختيار دور المشتري يجب أن يكون الطرف الآخر مسجلًا كبائع.');
       if(values.role==='seller'&&counterparty.user_type!=='buyer')throw new Error('عند اختيار دور البائع يجب أن يكون الطرف الآخر مسجلًا كمشتري.');
       const payload={
