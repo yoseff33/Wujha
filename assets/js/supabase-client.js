@@ -102,6 +102,13 @@ export const admin = {
   updateSettings: payload => supabase.from('platform_settings').update(payload).eq('id', true).select().single()
 };
 
+export const compliance = {
+  accept: (userId,documentType,documentVersion) => supabase.from('user_consents').upsert({user_id:userId,document_type:documentType,document_version:documentVersion}),
+  reportProduct: (userId,productId,reason) => supabase.from('product_reports').insert({reported_by:userId,product_id:productId,reason}),
+  reports: () => supabase.from('product_reports').select('*,product:products(title),reporter:users!reported_by(name)').order('created_at',{ascending:false}),
+  auditLogs: () => supabase.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(100)
+};
+
 // Backward-compatible exports used by older pages.
 export const getSession = auth.session;
 export const signIn = auth.signIn;
