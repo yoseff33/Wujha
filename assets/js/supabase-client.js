@@ -60,7 +60,7 @@ export const locations = {
 
 export const deals = {
   listMine: (userId, role) => {
-    let query = supabase.from('deals').select('id,buyer_id,seller_id,status,deal_price,escrow_fee,vat,total_amount_paid,created_at,product:products(title)').order('created_at', { ascending: false });
+    let query = supabase.from('deals').select('id,buyer_id,seller_id,status,deal_price,escrow_fee,installment_fee,vat,total_amount_paid,seller_net,fee_bearer,created_at,product:products(title)').order('created_at', { ascending: false });
     if (role === 'buyer') query = query.eq('buyer_id', userId);
     if (role === 'seller') query = query.eq('seller_id', userId);
     return query;

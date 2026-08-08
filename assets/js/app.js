@@ -89,6 +89,8 @@ if(page==='register'){
 if(page==='marketplace'){initMarket();document.getElementById('productGrid').addEventListener('click',e=>{const link=e.target.closest('a[href*="create-deal/?product="]');if(!link)return;e.preventDefault();const id=new URL(link.href).searchParams.get('product');location.href=`${base}product-details/?id=${encodeURIComponent(id)}`;});}
 if(page==='productDetail') initProductDetail();
 if(page==='createDeal') initWizard();
+if(page==='createDeal') setupFeePreview();
+applyCommercialCopy();
 if(page==='register') document.getElementById('userType').addEventListener('change',e=>{const field=document.getElementById('crField'),input=field.querySelector('input'),seller=e.target.value==='seller';field.classList.toggle('hidden',!seller);input.required=seller;});
 initAuth();
 
@@ -190,10 +192,11 @@ async function initAuth(){
   if((page==='login'||page==='register')&&session){location.href=`${base}${rolePath(role)}`;return;}
   if(page==='profile')await loadProfile(api,session.user.id);
   if(['buyer','seller','admin'].includes(page))await loadDashboard(api,session.user.id,role);
+  if(page==='admin')await setupFeeAdmin(api);
   if(page==='marketplace'){await setupProductLocations(api);await setupMarketplace(api,session,role);}
-  if(page==='dealView')await loadDeal(api,session.user,role);
+  if(page==='dealView')await loadDealV2(api,session.user,role);
   if(page==='dispute')await loadDisputes(api,session.user,role);
-  if(page==='invoice')await loadInvoice(api);
+  if(page==='invoice')await loadInvoiceV2(api);
   if(page==='login')setupPasswordReset(api);
 }
 
@@ -214,3 +217,50 @@ async function setupProductLocations(api){const form=document.getElementById('pr
 function setupPasswordReset(api){const button=document.getElementById('forgotPassword');if(!button)return;button.onclick=async()=>{const email=prompt('أدخل البريد الإلكتروني المرتبط بالحساب:');if(!email)return;const {error}=await api.auth.resetPassword(email),msg=document.getElementById('formMessage');msg.textContent=error?error.message:'أرسلنا رابط استعادة كلمة المرور إلى بريدك.';msg.className=`text-sm ${error?'text-red-700':'text-emerald-700'}`;};}
 
 document.addEventListener('submit',async e=>{if(!['loginForm','registerForm'].includes(e.target.id))return;e.preventDefault();const form=e.target,msg=document.getElementById('formMessage'),button=form.querySelector('button[type="submit"],button:not([type])');setBusy(button,true);msg.textContent='جارٍ التحقق...';try{const api=await import('./supabase-client.js'),fd=Object.fromEntries(new FormData(form));fd.phone=normalizePhone(fd.phone);const result=form.id==='loginForm'?await api.signIn(fd.phone,fd.password):await api.signUp(fd);if(result.error)throw result.error;msg.className='text-sm text-emerald-700';if(result.data.session){const role=result.data.user?.user_metadata?.user_type||'buyer';msg.textContent='تم الدخول بنجاح، جارٍ نقلك للوحة الحساب...';const next=new URLSearchParams(location.search).get('next');location.href=next&&next.startsWith(location.origin)?next:`${base}${rolePath(role)}`;}else msg.textContent='تم إنشاء الحساب؛ أكّد الجوال أو البريد ثم سجّل الدخول.';}catch(err){msg.className='text-sm text-red-700';msg.textContent=err.message||'تعذر إتمام العملية.';}finally{setBusy(button,false);}});
+
+function applyCommercialCopy(){
+  const replacements=new Map([
+    ['رسوم الوساطة 2.5% بحد أدنى 50 ر.س ما لم تظهر شروط خاصة قبل اعتماد الصفقة، وتطبق الضريبة على الرسوم فقط.','رسوم خدمة وجهة 5% بحد أدنى 50 ر.س. عند اختيار التقسيط تضاف رسوم 7%. يتحمل كامل الرسوم المشتري أو البائع حسب الاختيار المعروض قبل الاعتماد. لا تُحصّل ضريبة قيمة مضافة حاليًا لأن المنشأة غير مسجلة فيها.'],
+    ['إتاحة تابي وتمارا','طلب التقسيط عند توفر مزود معتمد — رسوم 7%']
+  ]);
+  const walker=document.createTreeWalker(document.getElementById('app'),NodeFilter.SHOW_TEXT);
+  while(walker.nextNode())for(const [from,to] of replacements)if(walker.currentNode.nodeValue.includes(from))walker.currentNode.nodeValue=walker.currentNode.nodeValue.replace(from,to);
+  if(['terms','escrow','privacy'].includes(page)){
+    const article=document.querySelector('article');
+    if(article){const notice=document.createElement('section');notice.className='mt-7 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7';notice.innerHTML='<strong>إفصاح الدفع والضريبة:</strong> لا توجد حاليًا شراكة أو بوابة دفع/تقسيط مفعلة. لا تحتجز المنصة أي مبلغ قبل الربط بمزود مرخص. رسوم وجهة 5% بحد أدنى 50 ر.س، ورسوم خدمة التقسيط 7% عند اختياره، ويتحملها المشتري أو البائع فقط. المنشأة غير مسجلة في ضريبة القيمة المضافة، ولذلك لا تُحصّل ضريبة حاليًا.';article.append(notice);}
+  }
+}
+
+function setupFeePreview(){
+  const form=document.getElementById('dealWizard');if(!form)return;
+  const bearer=form.elements.fee_bearer;
+  if(bearer){[...bearer.options].filter(x=>x.value==='split').forEach(x=>x.remove());}
+  const price=form.elements.deal_price,installments=form.elements.installments;
+  const preview=document.createElement('div');preview.id='feePreview';preview.className='rounded-xl border border-amber-200 bg-emerald-50 p-4 text-sm leading-7';
+  const step4=form.querySelector('[data-step="4"]');if(step4)step4.append(preview);
+  const render=()=>{const value=Math.max(Number(price?.value)||0,0),platform=Math.max(value*.05,50),bnpl=installments?.checked?value*.07:0,totalFees=platform+bnpl,isBuyer=bearer?.value!=='seller';preview.innerHTML=`<strong>ملخص الرسوم قبل الاعتماد</strong><br>رسوم وجهة (5%، حد أدنى 50 ر.س): ${money(platform)}<br>رسوم التقسيط (7%): ${money(bnpl)}<br>ضريبة القيمة المضافة: غير مطبقة حاليًا<br>يتحمل الرسوم: ${isBuyer?'المشتري':'البائع'}<br><strong>إجمالي دفع المشتري: ${money(value+(isBuyer?totalFees:0))}</strong><br>صافي البائع: ${money(value-(isBuyer?0:totalFees))}${installments?.checked?'<br><span class="text-amber-800">التقسيط طلب مبدئي وغير متاح للدفع حتى اعتماد وربط المزود.</span>':''}`;};
+  [price,bearer,installments].filter(Boolean).forEach(x=>x.addEventListener('input',render));render();
+}
+
+async function setupFeeAdmin(api){
+  const host=document.getElementById('dashboardContent');if(!host)return;
+  const {data:s,error}=await api.admin.settings();
+  const card=document.createElement('section');card.className='mt-8 rounded-xl border p-5';
+  if(error){card.textContent=`تعذر تحميل إعدادات الرسوم: ${error.message}`;host.append(card);return;}
+  card.innerHTML=`<h3 class="text-lg font-black">إعدادات الرسوم والدفع</h3><form id="feeSettingsForm" class="mt-4 grid gap-3 sm:grid-cols-2"><label>رسوم وجهة %<input name="fee_percent" type="number" min="0" max="100" step="0.01" value="${Number(s.fee_percent||5)}" class="mt-1 w-full rounded-xl border p-3"></label><label>الحد الأدنى ر.س<input name="minimum_fee" type="number" min="0" step="0.01" value="${Number(s.minimum_fee||50)}" class="mt-1 w-full rounded-xl border p-3"></label><label>رسوم التقسيط %<input name="installment_fee_percent" type="number" min="0" max="100" step="0.01" value="${Number(s.installment_fee_percent||7)}" class="mt-1 w-full rounded-xl border p-3"></label><label>حالة مزود الدفع<input readonly value="${escapeHtml(s.payment_provider_status||'not_connected')}" class="mt-1 w-full rounded-xl border bg-slate-100 p-3"></label><button class="rounded-xl bg-emerald-700 p-3 font-bold text-white sm:col-span-2">حفظ الإعدادات</button><p id="feeSettingsMessage" class="text-sm sm:col-span-2"></p></form><p class="mt-3 text-xs text-slate-600">الضريبة متوقفة حتى تسجيل المنشأة وإضافة الرقم الضريبي. لا تفعّل مزود الدفع قبل العقد والربط الآمن والتحقق من Webhook.</p>`;
+  host.append(card);card.querySelector('form').onsubmit=async e=>{e.preventDefault();const raw=Object.fromEntries(new FormData(e.target)),out=card.querySelector('#feeSettingsMessage'),{error}=await api.admin.updateSettings({fee_percent:Number(raw.fee_percent),minimum_fee:Number(raw.minimum_fee),installment_fee_percent:Number(raw.installment_fee_percent)});out.textContent=error?error.message:'تم حفظ إعدادات الرسوم للصفقات الجديدة.';out.className=`text-sm sm:col-span-2 ${error?'text-red-700':'text-emerald-700'}`;};
+}
+
+async function loadDealV2(api,user,role){
+  const el=document.getElementById('dealContent'),id=new URLSearchParams(location.search).get('id');if(!id){el.textContent='رابط الصفقة ناقص: لا يوجد رقم صفقة.';return;}
+  const {data:d,error}=await api.deals.get(id);if(error){el.textContent=`تعذر تحميل الصفقة: ${error.message}`;return;}
+  const transitions=[];if(role==='seller'&&d.status==='pending_acceptance')transitions.push(['seller_confirmed','تأكيد قبول الصفقة']);if(role==='buyer'&&d.status==='seller_confirmed')transitions.push(['delivered','تأكيد استلام السلعة']);if(role==='buyer'&&d.status==='delivered')transitions.push(['completed','تأكيد نجاح المعاينة']);if(['buyer','seller'].includes(role)&&['pending_acceptance','seller_confirmed'].includes(d.status))transitions.push(['cancelled','إلغاء الصفقة']);
+  el.innerHTML=`<div class="flex flex-wrap justify-between gap-3"><div><p class="font-bold text-emerald-700">الصفقة ${escapeHtml(d.id.slice(0,8))}</p><h1 class="text-3xl font-black">${escapeHtml(d.product?.title||'صفقة مباشرة')}</h1></div><span class="rounded-full bg-amber-100 px-4 py-2 font-bold text-amber-800">${escapeHtml(d.status)}</span></div><p class="mt-4">المشتري: ${escapeHtml(d.buyer?.name)} — البائع: ${escapeHtml(d.seller?.name)}</p><dl class="mt-6 divide-y rounded-xl border px-4"><div class="flex justify-between py-3"><dt>قيمة الصفقة</dt><dd>${money(d.deal_price)}</dd></div><div class="flex justify-between py-3"><dt>رسوم وجهة (${Number(d.fee_percent_snapshot||5)}%)</dt><dd>${money(d.escrow_fee)}</dd></div><div class="flex justify-between py-3"><dt>رسوم التقسيط</dt><dd>${money(d.installment_fee||0)}</dd></div><div class="flex justify-between py-3"><dt>ضريبة القيمة المضافة</dt><dd>${d.vat_applied?money(d.vat):'غير مطبقة'}</dd></div><div class="flex justify-between py-3"><dt>يتحمل الرسوم</dt><dd>${d.fee_bearer==='seller'?'البائع':'المشتري'}</dd></div><div class="flex justify-between py-3 font-black"><dt>إجمالي دفع المشتري</dt><dd>${money(d.total_amount_paid)}</dd></div><div class="flex justify-between py-3"><dt>صافي البائع</dt><dd>${money(d.seller_net??d.deal_price)}</dd></div></dl>${d.installment_enabled?'<p class="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">اختيار التقسيط مسجل، لكن الدفع به غير متاح حتى اعتماد وربط مزود رسمي.</p>':''}<div class="mt-5 flex flex-wrap gap-3">${transitions.map(([status,label])=>`<button data-transition="${status}" class="rounded-xl bg-emerald-700 px-4 py-2 font-bold text-white">${label}</button>`).join('')}<a href="${base}dispute-center/?deal=${encodeURIComponent(d.id)}" class="rounded-xl border border-red-300 px-4 py-2 font-bold text-red-700">النزاعات</a>${d.status==='completed'?`<a href="${base}invoice-view/?deal=${encodeURIComponent(d.id)}" class="rounded-xl border px-4 py-2 font-bold">المستند المالي</a>`:''}</div><p id="dealActionMessage" class="mt-3 text-sm"></p>`;
+  el.onclick=async e=>{const status=e.target.dataset.transition;if(!status)return;setBusy(e.target,true);const {error}=await api.deals.transition(d.id,status);if(error){document.getElementById('dealActionMessage').textContent=error.message;setBusy(e.target,false);}else loadDealV2(api,user,role);};
+}
+
+async function loadInvoiceV2(api){
+  const el=document.getElementById('invoiceContent'),dealId=new URLSearchParams(location.search).get('deal');if(!dealId){el.textContent='رابط المستند لا يحتوي رقم الصفقة.';return;}
+  const {data:i,error}=await api.invoices.getByDeal(dealId);if(error){el.textContent=error.code==='PGRST116'?'لم يُنشأ مستند مالي لهذه الصفقة بعد.':error.message;return;}
+  el.innerHTML=`<div class="flex justify-between border-b pb-5"><div><h1 class="text-3xl font-black text-emerald-800">وجهة</h1><p>${i.is_tax_invoice?'فاتورة ضريبية':'فاتورة/مستند رسوم غير ضريبي'}</p></div><div class="text-left"><strong>${escapeHtml(i.invoice_number)}</strong><p>${new Date(i.generated_at).toLocaleDateString('ar-SA')}</p></div></div>${!i.is_tax_invoice?'<p class="mt-5 rounded-xl bg-amber-50 p-4 text-sm">المنشأة غير مسجلة في ضريبة القيمة المضافة؛ هذا المستند ليس فاتورة ضريبية ولم تُحصّل ضريبة.</p>':''}<dl class="mt-6 divide-y"><div class="flex justify-between py-3"><dt>المشتري</dt><dd>${escapeHtml(i.buyer_name)}</dd></div><div class="flex justify-between py-3"><dt>رسوم وجهة</dt><dd>${money(i.total_escrow_fee)}</dd></div><div class="flex justify-between py-3"><dt>رسوم التقسيط</dt><dd>${money(i.installment_fee||0)}</dd></div>${i.is_tax_invoice?`<div class="flex justify-between py-3"><dt>ضريبة القيمة المضافة</dt><dd>${money(i.total_vat)}</dd></div>`:''}<div class="flex justify-between py-3"><dt>صافي مستحق البائع</dt><dd>${money(i.net_payable_to_seller)}</dd></div></dl><button onclick="print()" class="mt-5 rounded-xl bg-emerald-700 px-5 py-3 font-bold text-white print:hidden">طباعة</button>`;
+}

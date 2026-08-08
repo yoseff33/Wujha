@@ -1704,7 +1704,7 @@
         <div class="section-heading">
           <div class="section-kicker"><i class="fa-solid fa-calculator"></i> احسبها قبل تبدأ</div>
           <h2>اعرف تكلفة الصفقة بكل وضوح</h2>
-          <p>أدخل مبلغ المعاملة وشاهد رسوم الوساطة والضريبة قبل إنشاء الصفقة.</p>
+          <p>أدخل مبلغ المعاملة وشاهد رسوم وجهة والتقسيط قبل إنشاء الصفقة.</p>
         </div>
 
         <div class="calc-card" data-aos="fade-up">
@@ -1726,8 +1726,7 @@
               <div class="field">
                 <label>من يتحمل الرسوم؟</label>
                 <div class="payer-options">
-                  <button type="button" class="payer-btn ripple-effect" id="btnBuyer" data-payer="buyer">المشتري</button>
-                  <button type="button" class="payer-btn active-payer ripple-effect" id="btnSplit" data-payer="split">مناصفة</button>
+                  <button type="button" class="payer-btn active-payer ripple-effect" id="btnBuyer" data-payer="buyer">المشتري</button>
                   <button type="button" class="payer-btn ripple-effect" id="btnSeller" data-payer="seller">البائع</button>
                 </div>
               </div>
@@ -1743,12 +1742,12 @@
 
             <div class="calc-result">
               <div class="result-row">
-                <span>رسوم الوساطة 3%</span>
-                <strong id="feeAmount">150.00 ر.س</strong>
+                <span>رسوم وجهة 5% (حد أدنى 50 ر.س)</span>
+                <strong id="feeAmount">250.00 ر.س</strong>
               </div>
               <div class="result-row">
-                <span>ضريبة القيمة المضافة 15%</span>
-                <strong id="vatAmount">22.50 ر.س</strong>
+                <span>رسوم خدمة التقسيط 7%</span>
+                <strong id="vatAmount">0.00 ر.س</strong>
               </div>
               <div class="result-row">
                 <span>حصة المشتري من الرسوم</span>
@@ -1769,7 +1768,7 @@
               </div>
 
               <p class="calc-disclaimer">
-                تنبيه: التقسيط يخضع لموافقة مزود الخدمة وشروطه، وقد تختلف الرسوم حسب وسيلة الدفع ونوع الصفقة.
+                المنشأة غير مسجلة في ضريبة القيمة المضافة؛ لا تُحصّل ضريبة حاليًا. التقسيط غير متاح للدفع حتى اعتماد وربط مزود رسمي.
               </p>
             </div>
           </div>
@@ -2111,7 +2110,7 @@
       });
 
       // Calculator
-      let currentPayer = "split";
+      let currentPayer = "buyer";
       const amountInput = document.getElementById("amountInput");
       const installmentToggle = document.getElementById("installmentToggle");
 
@@ -2132,24 +2131,20 @@
 
       function calculateFees() {
         const amount = Math.max(parseFloat(amountInput.value) || 0, 0);
-        const fee = amount * 0.03;
-        const vat = fee * 0.15;
-        const totalFees = fee + vat;
+        const fee = Math.max(amount * 0.05, 50);
+        const installmentFee = installmentToggle.checked ? amount * 0.07 : 0;
+        const totalFees = fee + installmentFee;
 
         let buyerFee = 0;
         let sellerFee = 0;
 
         if (currentPayer === "buyer") buyerFee = totalFees;
         if (currentPayer === "seller") sellerFee = totalFees;
-        if (currentPayer === "split") {
-          buyerFee = totalFees / 2;
-          sellerFee = totalFees / 2;
-        }
 
         const buyerTotal = amount + buyerFee;
 
         document.getElementById("feeAmount").textContent = money(fee);
-        document.getElementById("vatAmount").textContent = money(vat);
+        document.getElementById("vatAmount").textContent = money(installmentFee);
         document.getElementById("buyerFee").textContent = money(buyerFee);
         document.getElementById("sellerFee").textContent = money(sellerFee);
         document.getElementById("totalWithFees").textContent = money(buyerTotal);
