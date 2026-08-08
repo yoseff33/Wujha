@@ -25,7 +25,12 @@ export const auth = {
 };
 
 export const profiles = {
-  mine: () => supabase.from('users').select('*').single(),
+  mine: async () => {
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError) return { data: null, error: authError };
+    if (!authData.user) return { data: null, error: new Error('لا توجد جلسة مستخدم نشطة.') };
+    return supabase.from('users').select('*').eq('id', authData.user.id).maybeSingle();
+  },
   update: (id, payload) => supabase.from('users').update(payload).eq('id', id).select().single(),
   requestDeletion: (userId, reason) => supabase.from('account_deletion_requests').insert({ user_id: userId, reason }).select().single()
 };
