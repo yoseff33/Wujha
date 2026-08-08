@@ -11,7 +11,9 @@ export const supabase = createClient(url, anonKey, {
 
 export const auth = {
   session: () => supabase.auth.getSession(),
-  signIn: (phone, password) => supabase.auth.signInWithPassword({ phone, password }),
+  signIn: (identifier, password) => String(identifier).includes('@')
+    ? supabase.auth.signInWithPassword({ email: String(identifier).trim().toLowerCase(), password })
+    : supabase.auth.signInWithPassword({ phone: identifier, password }),
   signUp: ({ name, phone, email, password, userType, commercialRegister }) => supabase.auth.signUp({
     phone,
     email: email || undefined,
@@ -92,7 +94,8 @@ export const disputes = {
 };
 
 export const invoices = {
-  getByDeal: dealId => supabase.from('invoices').select('*,deal:deals(deal_price,total_amount_paid,status)').eq('deal_id', dealId).single()
+  getByDeal: dealId => supabase.from('invoices').select('*,deal:deals(deal_price,total_amount_paid,status)').eq('deal_id', dealId).single(),
+  listMine: () => supabase.from('invoices').select('*,deal:deals(deal_price,status)').order('generated_at',{ascending:false})
 };
 
 export const notifications = {
@@ -104,7 +107,39 @@ export const admin = {
   deletionRequests: () => supabase.from('account_deletion_requests').select('*,user:users(name,phone,email)').order('requested_at', { ascending: false }),
   reviewDeletion: (id, status) => supabase.from('account_deletion_requests').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id).select().single(),
   settings: () => supabase.from('platform_settings').select('*').single(),
-  updateSettings: payload => supabase.from('platform_settings').update(payload).eq('id', true).select().single()
+  updateSettings: payload => supabase.from('platform_settings').update(payload).eq('id', true).select().single(),
+  stats: () => supabase.rpc('admin_dashboard_stats'),
+  users: () => supabase.from('users').select('id,name,email,phone,user_type,account_status,is_verified,created_at').order('created_at',{ascending:false}),
+  setUserStatus: (id,status,reason) => supabase.rpc('admin_set_user_status',{requested_user:id,new_status:status,reason}),
+  deals: () => supabase.from('deals').select('*,buyer:users!buyer_id(name),seller:users!seller_id(name),product:products(title)').order('created_at',{ascending:false}),
+  cancelDeal: (id,reason) => supabase.rpc('admin_cancel_deal',{requested_deal:id,reason}),
+  releases: () => supabase.from('release_requests').select('*,seller:users(name),deal:deals(deal_price)').order('requested_at',{ascending:false}),
+  reviewRelease: (id,decision,note) => supabase.rpc('admin_review_release',{requested_id:id,decision,requested_note:note||null}),
+  withdrawals: () => supabase.from('withdrawal_requests').select('*,user:users(name,phone)').order('requested_at',{ascending:false}),
+  reviewWithdrawal: (id,decision,reference,note) => supabase.rpc('admin_review_withdrawal',{requested_id:id,decision,requested_reference:reference||null,requested_note:note||null}),
+  tickets: () => supabase.from('support_tickets').select('*,user:users(name,phone)').order('created_at',{ascending:false}),
+  updateTicket: (id,payload) => supabase.from('support_tickets').update(payload).eq('id',id).select().single(),
+  categories: () => supabase.from('market_categories').select('*').order('sort_order'),
+  saveCategory: payload => payload.id?supabase.from('market_categories').update(payload).eq('id',payload.id).select().single():supabase.from('market_categories').insert(payload).select().single(),
+  legalDocuments: () => supabase.from('legal_documents').select('*').order('document_type'),
+  saveLegal: payload => supabase.from('legal_documents').upsert(payload).select().single()
+};
+
+export const operations = {
+  delivery: dealId => supabase.from('deal_deliveries').select('*').eq('deal_id',dealId).maybeSingle(),
+  saveDelivery: payload => supabase.from('deal_deliveries').upsert(payload,{onConflict:'deal_id'}).select().single(),
+  requestRelease: (dealId,note) => supabase.rpc('request_deal_release',{requested_deal_id:dealId,requested_note:note||null}),
+  releases: () => supabase.from('release_requests').select('*,deal:deals(deal_price)').order('requested_at',{ascending:false}),
+  wallet: userId => supabase.from('wallet_entries').select('*').eq('user_id',userId).order('created_at',{ascending:false}),
+  withdrawals: userId => supabase.from('withdrawal_requests').select('*').eq('user_id',userId).order('requested_at',{ascending:false}),
+  requestWithdrawal: amount => supabase.rpc('request_withdrawal',{requested_amount:Number(amount)}),
+  tickets: userId => supabase.from('support_tickets').select('*').eq('user_id',userId).order('created_at',{ascending:false}),
+  createTicket: payload => supabase.from('support_tickets').insert(payload).select().single(),
+  categories: () => supabase.from('market_categories').select('*').eq('active',true).order('sort_order'),
+  legal: type => supabase.from('legal_documents').select('*').eq('document_type',type).maybeSingle(),
+  evidence: dealId => supabase.from('dispute_evidence').select('*').eq('deal_id',dealId).order('created_at'),
+  uploadEvidence: async (userId,dealId,file) => {const path=`${userId}/${dealId}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'')}`;const uploaded=await supabase.storage.from('dispute-evidence').upload(path,file,{contentType:file.type});if(uploaded.error)return uploaded;return supabase.from('dispute_evidence').insert({deal_id:dealId,uploaded_by:userId,storage_path:path,file_name:file.name,mime_type:file.type,file_size:file.size}).select().single();},
+  evidenceUrl: path => supabase.storage.from('dispute-evidence').createSignedUrl(path,300)
 };
 
 export const compliance = {
