@@ -122,7 +122,10 @@ export const admin = {
   categories: () => supabase.from('market_categories').select('*').order('sort_order'),
   saveCategory: payload => payload.id?supabase.from('market_categories').update(payload).eq('id',payload.id).select().single():supabase.from('market_categories').insert(payload).select().single(),
   legalDocuments: () => supabase.from('legal_documents').select('*').order('document_type'),
-  saveLegal: payload => supabase.from('legal_documents').upsert(payload).select().single()
+  saveLegal: payload => supabase.from('legal_documents').upsert(payload).select().single(),
+  storefront: () => supabase.from('storefront_settings').select('*').eq('id',true).single(),
+  updateStorefront: payload => supabase.from('storefront_settings').update({...payload,updated_at:new Date().toISOString()}).eq('id',true).select().single(),
+  uploadSiteAsset: async file => {const ext=(file.name.split('.').pop()||'webp').toLowerCase(),path=`hero/hero-${Date.now()}.${ext}`;const uploaded=await supabase.storage.from('site-assets').upload(path,file,{contentType:file.type,upsert:false});if(uploaded.error)return uploaded;const {data}=supabase.storage.from('site-assets').getPublicUrl(path);return {data:{path,url:data.publicUrl},error:null};}
 };
 
 export const operations = {
@@ -137,6 +140,7 @@ export const operations = {
   createTicket: payload => supabase.from('support_tickets').insert(payload).select().single(),
   categories: () => supabase.from('market_categories').select('*').eq('active',true).order('sort_order'),
   legal: type => supabase.from('legal_documents').select('*').eq('document_type',type).maybeSingle(),
+  storefront: () => supabase.from('storefront_settings').select('*').eq('id',true).maybeSingle(),
   evidence: dealId => supabase.from('dispute_evidence').select('*').eq('deal_id',dealId).order('created_at'),
   uploadEvidence: async (userId,dealId,file) => {const path=`${userId}/${dealId}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'')}`;const uploaded=await supabase.storage.from('dispute-evidence').upload(path,file,{contentType:file.type});if(uploaded.error)return uploaded;return supabase.from('dispute_evidence').insert({deal_id:dealId,uploaded_by:userId,storage_path:path,file_name:file.name,mime_type:file.type,file_size:file.size}).select().single();},
   evidenceUrl: path => supabase.storage.from('dispute-evidence').createSignedUrl(path,300)
