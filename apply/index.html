@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>تقديم طلب | وجهة — تقسيط منتجات واستفسار سيولة</title>
+  <meta name="description" content="قدّم طلب تقسيط منتج أو استفسارًا عن السيولة عبر وجهة. نموذج بسيط، حاسبة توضيحية، ومراجعة قبل التحويل إلى واتساب." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://wujha.shop/apply.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="وجهة | WUJHA" />
+  <meta property="og:locale" content="ar_SA" />
+  <meta property="og:title" content="تقديم طلب | وجهة" />
+  <meta property="og:description" content="أرسل طلبك في دقيقة واحدة. تقسيط منتج أو استفسار سيولة، ثم مراجعة عبر واتساب." />
+  <meta property="og:url" content="https://wujha.shop/apply.html" />
+  <meta property="og:image" content="https://wujha.shop/assets/images/og-default.jpg" />
+
+  <meta name="theme-color" content="#0B1E3F" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B1E3F'/><text x='50' y='70' font-size='58' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23C9A24B'>و</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+  <script src="site-config.js"></script>
+
+  <style>
+    :root {
+      --c-primary: #0B1E3F;
+      --c-primary-light: #1A3463;
+      --c-primary-soft: #EEF1F7;
+      --c-secondary: #C9A24B;
+      --c-secondary-light: #E0BE6A;
+      --c-secondary-soft: #FBF6EA;
+      --c-bg: #FBFAF7;
+      --c-white: #FFFFFF;
+      --c-text: #111827;
+      --c-muted: #5B6577;
+      --c-border: #E6E8EC;
+      --c-success: #0F9D58;
+      --c-error: #C5221F;
+      --c-warning: #B45309;
+      --radius-sm: 10px;
+      --radius: 16px;
+      --radius-lg: 22px;
+      --shadow-sm: 0 1px 2px rgba(11, 30, 63, .06);
+      --shadow: 0 6px 20px -8px rgba(11, 30, 63, .16);
+      --shadow-lg: 0 20px 40px -20px rgba(11, 30, 63, .28);
+      --ff: "Tajawal", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      --container: 1180px;
+      --transition: .22s cubic-bezier(.2, .7, .2, 1);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0; font-family: var(--ff); background: var(--c-bg);
+      color: var(--c-text); line-height: 1.75; font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+    ::selection { background: var(--c-secondary-soft); color: var(--c-primary); }
+    h1, h2, h3, h4 { margin: 0; font-weight: 800; line-height: 1.3; color: var(--c-primary); }
+    p { margin: 0; }
+
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: 20px; }
+
+    /* ====== الهيدر (مطابق للـ index) ====== */
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; height: 72px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-light) 100%);
+      display: grid; place-items: center; color: var(--c-secondary);
+    }
+    .logo-mark svg { width: 22px; height: 22px; }
+    .logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .logo-ar { font-size: 20px; font-weight: 800; color: var(--c-primary); }
+    .logo-en { font-size: 10px; letter-spacing: 2.5px; color: var(--c-secondary); font-weight: 700; margin-top: 4px; }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .header-actions .btn { padding: 10px 16px; font-size: 13px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; border-radius: 999px; font-weight: 700; font-size: 14.5px;
+      border: 1.5px solid transparent; transition: var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--c-primary); color: #fff; }
+    .btn-primary:hover { background: var(--c-primary-light); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: var(--c-secondary); color: var(--c-primary); }
+    .btn-secondary:hover { background: var(--c-secondary-light); transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--c-primary); border-color: var(--c-primary); }
+    .btn-outline:hover { background: var(--c-primary-soft); }
+    .btn-ghost { background: transparent; color: var(--c-muted); border: none; padding: 10px 14px; }
+    .btn-ghost:hover { background: var(--c-primary-soft); color: var(--c-primary); }
+    .btn-wa { background: #25D366; color: #fff; }
+    .btn-wa:hover { background: #1FB554; }
+    .btn-lg { padding: 16px 28px; font-size: 16px; }
+    .btn-block { width: 100%; }
+
+    /* ====== هيرو الصفحة ====== */
+    .page-hero {
+      background:
+        radial-gradient(600px 300px at 90% -20%, rgba(201,162,75,.18), transparent 60%),
+        linear-gradient(135deg, var(--c-primary) 0%, #071631 100%);
+      color: #fff;
+      padding: 48px 0 40px;
+    }
+    .page-hero h1 { color: #fff; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 10px; }
+    .page-hero p { color: rgba(255,255,255,.75); max-width: 700px; font-size: 15px; }
+    .page-hero .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 999px;
+      background: rgba(201,162,75,.12); border: 1px solid rgba(201,162,75,.3);
+      color: var(--c-secondary-light); font-size: 12.5px; font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .page-hero .badge::before {
+      content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c-secondary);
+    }
+
+    /* ====== شريط الخطوات ====== */
+    .steps-bar {
+      background: var(--c-white);
+      border-bottom: 1px solid var(--c-border);
+      padding: 20px 0;
+    }
+    .steps-ol {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; justify-content: space-between; gap: 8px;
+      max-width: 720px; margin-inline: auto;
+    }
+    .steps-ol li {
+      flex: 1; text-align: center; position: relative;
+      color: var(--c-muted); font-size: 12.5px; font-weight: 600;
+    }
+    .steps-ol li::before {
+      content: attr(data-num);
+      display: block; width: 34px; height: 34px; margin: 0 auto 6px;
+      border-radius: 50%; background: var(--c-border); color: var(--c-muted);
+      display: grid; place-items: center; font-weight: 800; font-size: 14px;
+      transition: var(--transition);
+    }
+    .steps-ol li:not(:last-child)::after {
+      content: ""; position: absolute; top: 17px; left: -8px; right: 50%;
+      height: 2px; background: var(--c-border); z-index: 0;
+    }
+    .steps-ol li.active { color: var(--c-primary); }
+    .steps-ol li.active::before { background: var(--c-primary); color: var(--c-secondary); }
+    .steps-ol li.done { color: var(--c-secondary); }
+    .steps-ol li.done::before {
+      content: "✓"; background: var(--c-secondary); color: #fff; font-size: 16px;
+    }
+    .steps-ol li.done:not(:last-child)::after { background: var(--c-secondary); }
+
+    /* ====== حاوية النموذج ====== */
+    .apply-wrap { padding: 40px 0 80px; }
+    .apply-panel {
+      background: var(--c-white); border-radius: var(--radius-lg);
+      padding: 36px 32px; box-shadow: var(--shadow-lg);
+      border: 1px solid var(--c-border);
+      max-width: 780px; margin-inline: auto;
+    }
+    [data-panel] { display: none; }
+    [data-panel].active { display: block; animation: fadeIn .25s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .panel-head { margin-bottom: 28px; }
+    .panel-head h2 { font-size: 22px; margin-bottom: 6px; }
+    .panel-head p { color: var(--c-muted); font-size: 14px; }
+
+    /* ====== اختيار النوع ====== */
+    .type-select { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+    .type-option {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+      padding: 22px 20px; border-radius: var(--radius); background: var(--c-bg);
+      border: 2px solid var(--c-border); text-align: right; cursor: pointer;
+      transition: var(--transition);
+    }
+    .type-option:hover { border-color: var(--c-secondary-light); }
+    .type-option[aria-pressed="true"] {
+      border-color: var(--c-secondary);
+      background: linear-gradient(180deg, var(--c-secondary-soft), var(--c-white));
+    }
+    .type-option-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: var(--c-white); border: 1px solid var(--c-border);
+      color: var(--c-primary);
+    }
+    .type-option-icon svg { width: 22px; height: 22px; }
+    .type-option h4 { font-size: 16px; }
+    .type-option p { color: var(--c-muted); font-size: 13px; }
+    .type-option[aria-pressed="true"] .type-option-icon {
+      background: var(--c-primary); color: var(--c-secondary); border-color: var(--c-primary);
+    }
+
+    /* ====== حقول النموذج ====== */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;
+      color: var(--c-primary);
+    }
+    .field label .req { color: var(--c-error); margin-inline-start: 4px; }
+    .field .hint { color: var(--c-muted); font-size: 12.5px; margin-top: 6px; }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%; padding: 13px 14px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--c-border); background: var(--c-white);
+      font-family: inherit; font-size: 15px; color: var(--c-text);
+      transition: var(--transition);
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none; border-color: var(--c-secondary);
+      box-shadow: 0 0 0 3px rgba(201,162,75,.15);
+    }
+    .field textarea { min-height: 100px; resize: vertical; }
+    .field.has-error input,
+    .field.has-error select,
+    .field.has-error textarea { border-color: var(--c-error); }
+    .field .err {
+      display: none; color: var(--c-error); font-size: 12.5px;
+      margin-top: 6px; font-weight: 600;
+    }
+    .field.has-error .err { display: block; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ====== الحاسبة ====== */
+    .calculator {
+      margin: 24px 0; padding: 22px;
+      background: linear-gradient(180deg, var(--c-secondary-soft), var(--c-white));
+      border: 1.5px solid var(--c-secondary);
+      border-radius: var(--radius);
+    }
+    .calculator h3 {
+      font-size: 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    }
+    .calculator h3 svg { width: 20px; height: 20px; color: var(--c-secondary); }
+    .calc-quick {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+    }
+    .calc-quick button {
+      padding: 6px 12px; border-radius: 999px;
+      background: var(--c-white); border: 1px solid var(--c-border);
+      color: var(--c-text); font-size: 12.5px; font-weight: 600;
+      transition: var(--transition);
+    }
+    .calc-quick button:hover { border-color: var(--c-secondary); color: var(--c-primary); }
+    .calc-result {
+      margin-top: 16px; padding: 16px; border-radius: var(--radius-sm);
+      background: var(--c-white); border: 1px dashed var(--c-secondary);
+      display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    }
+    .calc-result-label { font-size: 13px; color: var(--c-muted); }
+    .calc-result-value {
+      font-size: 20px; font-weight: 800; color: var(--c-primary); letter-spacing: -.3px;
+    }
+    .calc-disclaimer {
+      font-size: 12px; color: var(--c-muted); margin-top: 10px; line-height: 1.6;
+    }
+
+    /* ====== التنبيهات ====== */
+    .notice {
+      padding: 14px 16px; border-radius: var(--radius-sm);
+      font-size: 13.5px; line-height: 1.7; margin: 16px 0;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .notice svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px; }
+    .notice-info { background: var(--c-primary-soft); color: var(--c-primary); border-right: 3px solid var(--c-primary); }
+    .notice-warn { background: #FEF7E6; color: #7A5410; border-right: 3px solid var(--c-warning); }
+    .notice-success { background: #E6F4EA; color: #0F6E3C; border-right: 3px solid var(--c-success); }
+    .notice-locked { background: #F5F3EE; color: var(--c-muted); border-right: 3px solid var(--c-muted); }
+
+    /* ====== صندوق الإقرارات ====== */
+    .consent-box {
+      padding: 14px 16px; border-radius: var(--radius-sm);
+      background: var(--c-bg); border: 1px solid var(--c-border);
+      margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start;
+      cursor: pointer; transition: var(--transition);
+    }
+    .consent-box:hover { border-color: var(--c-secondary-light); }
+    .consent-box input[type="checkbox"] {
+      width: 18px; height: 18px; margin: 3px 0 0 0;
+      accent-color: var(--c-primary); cursor: pointer; flex-shrink: 0;
+    }
+    .consent-box span { font-size: 13.5px; color: var(--c-text); line-height: 1.7; }
+    .consent-box span a { color: var(--c-secondary); text-decoration: underline; font-weight: 600; }
+    .consent-box.has-error {
+      border-color: var(--c-error); background: #FEF2F2;
+    }
+    .consent-box .err {
+      display: none; color: var(--c-error); font-size: 12px; margin-top: 4px; font-weight: 600;
+    }
+    .consent-box.has-error .err { display: block; }
+
+    /* ====== أزرار التنقل ====== */
+    .nav-buttons {
+      display: flex; justify-content: space-between; gap: 12px;
+      margin-top: 28px; padding-top: 22px;
+      border-top: 1px solid var(--c-border);
+    }
+    .nav-buttons .btn { flex: 1; }
+    .nav-buttons .btn-ghost { flex: 0 0 auto; }
+
+    /* ====== صفحة المراجعة ====== */
+    .review-card {
+      padding: 20px; border-radius: var(--radius);
+      background: var(--c-bg); border: 1px solid var(--c-border);
+      margin-bottom: 16px;
+    }
+    .review-card h3 {
+      font-size: 15px; margin-bottom: 14px; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .review-card h3 button {
+      background: none; border: none; color: var(--c-secondary);
+      font-size: 12.5px; font-weight: 700; cursor: pointer;
+    }
+    .review-row {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 8px 0; border-bottom: 1px dashed var(--c-border);
+      font-size: 14px;
+    }
+    .review-row:last-child { border-bottom: none; }
+    .review-row .key { color: var(--c-muted); }
+    .review-row .val { font-weight: 700; color: var(--c-primary); text-align: left; }
+
+    /* ====== التفويض (معطّل) ====== */
+    .auth-locked {
+      padding: 20px; border-radius: var(--radius);
+      background: #F5F3EE; border: 1.5px dashed var(--c-border);
+      color: var(--c-muted); font-size: 13.5px; line-height: 1.75;
+      display: flex; gap: 12px; align-items: flex-start;
+      margin: 20px 0;
+    }
+    .auth-locked svg { width: 22px; height: 22px; color: var(--c-muted); flex-shrink: 0; margin-top: 2px; }
+    .auth-locked strong { color: var(--c-primary); display: block; margin-bottom: 4px; font-size: 14px; }
+
+    /* ====== استجابة ====== */
+    @media (max-width: 700px) {
+      .apply-panel { padding: 24px 20px; }
+      .type-select { grid-template-columns: 1fr; }
+      .field-row { grid-template-columns: 1fr; }
+      .steps-ol li { font-size: 11px; }
+      .steps-ol li::before { width: 30px; height: 30px; font-size: 13px; }
+      .steps-ol li:not(:last-child)::after { top: 15px; }
+      .nav-buttons { flex-direction: column-reverse; }
+      .nav-buttons .btn { flex: 1; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ الهيدر ============ -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="وجهة — الرئيسية">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 4 21l8-4 8 4L12 2z"/>
+          </svg>
+        </span>
+        <span class="logo-text">
+          <span class="logo-ar">وجهة</span>
+          <span class="logo-en">WUJHA</span>
+        </span>
+      </a>
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-outline">الرئيسية</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ هيرو ============ -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="badge">طلبك في دقيقة</span>
+      <h1>قدّم طلبك الآن</h1>
+      <p>أكمل الخطوات الأربع، ثم راجع طلبك قبل تحويلك إلى واتساب. لا نطلب رقم هوية أو بيانات بنكية عبر هذه الصفحة.</p>
+    </div>
+  </section>
+
+  <!-- ============ شريط الخطوات ============ -->
+  <div class="steps-bar">
+    <div class="container">
+      <ol class="steps-ol" id="stepsBar" aria-label="خطوات الطلب">
+        <li data-step="1" data-num="1" class="active">نوع الطلب</li>
+        <li data-step="2" data-num="2">التفاصيل</li>
+        <li data-step="3" data-num="3">بياناتك</li>
+        <li data-step="4" data-num="4">المراجعة</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ============ النموذج ============ -->
+  <main class="apply-wrap">
+    <div class="container">
+      <div class="apply-panel">
+
+        <!-- ============ الخطوة 1: نوع الطلب ============ -->
+        <section data-panel="1" class="active" aria-labelledby="h-step1">
+          <div class="panel-head">
+            <h2 id="h-step1">اختر نوع الطلب</h2>
+            <p>اختر ما يناسب حالتك، وسيتبدل النموذج تلقائيًا.</p>
+          </div>
+
+          <div class="type-select" role="group" aria-label="نوع الطلب">
+            <button type="button" class="type-option" data-type-btn="product" aria-pressed="false">
+              <span class="type-option-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 8H3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"/>
+                  <path d="M3 8l2-4h14l2 4"/>
+                  <path d="M9 12v4M15 12v4"/>
+                </svg>
+              </span>
+              <h4>تقسيط منتجات</h4>
+              <p>تشتري منتجًا فعليًا بالتقسيط وفق شروط المزود.</p>
+            </button>
+
+            <button type="button" class="type-option" data-type-btn="cash" aria-pressed="false">
+              <span class="type-option-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M8 12h8M12 8v8"/>
+                </svg>
+              </span>
+              <h4>استفسار سيولة</h4>
+              <p>استفسار مبدئي، دون ربطه بأي مزود حتى يتم التحقق.</p>
+            </button>
+          </div>
+
+          <div class="notice notice-info" id="typeNotice" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span id="typeNoticeText"></span>
+          </div>
+
+          <div class="nav-buttons">
+            <span></span>
+            <button type="button" class="btn btn-primary" data-next disabled>التالي</button>
+          </div>
+        </section>
+
+        <!-- ============ الخطوة 2: التفاصيل ============ -->
+        <section data-panel="2" aria-labelledby="h-step2">
+          <div class="panel-head">
+            <h2 id="h-step2">تفاصيل الطلب</h2>
+            <p id="detailsSubtitle">أدخل تفاصيل طلبك.</p>
+          </div>
+
+          <!-- حقول المنتج -->
+          <div data-type-fields="product" style="display:none">
+            <div class="field" data-field="productName">
+              <label for="productName">اسم المنتج ووصفه <span class="req">*</span></label>
+              <input id="productName" name="productName" type="text" placeholder="مثال: آيفون 15 برو 256 جيجا" maxlength="120" autocomplete="off" />
+              <p class="hint">اذكر اسم المنتج والمواصفات المهمة.</p>
+              <p class="err">يرجى إدخال اسم المنتج.</p>
+            </div>
+
+            <div class="field-row">
+              <div class="field" data-field="productPrice">
+                <label for="productPrice">سعر المنتج (ريال) <span class="req">*</span></label>
+                <input id="productPrice" name="productPrice" type="number" min="100" max="50000" step="1" placeholder="3000" inputmode="numeric" />
+                <p class="err">أدخل سعرًا صحيحًا بين 100 و50,000 ريال.</p>
+              </div>
+
+              <div class="field" data-field="provider">
+                <label for="provider">الجهة المفضلة <span class="req">*</span></label>
+                <select id="provider" name="provider">
+                  <option value="">اختر الجهة</option>
+                </select>
+                <p class="err">يرجى اختيار الجهة.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- حقول السيولة -->
+          <div data-type-fields="cash" style="display:none">
+            <div class="notice notice-warn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+              <span>لا ننشر أي ادعاء بأن تابي أو تمارا أو غيرهما يتيحون صرف النقد. هذا استفسار مبدئي فقط، وسنتواصل معك للتحقق من الآلية المتاحة والأنظمة ذات العلاقة.</span>
+            </div>
+
+            <div class="field-row">
+              <div class="field" data-field="cashAmount">
+                <label for="cashAmount">المبلغ المطلوب (ريال) <span class="req">*</span></label>
+                <input id="cashAmount" name="cashAmount" type="number" min="500" max="50000" step="1" placeholder="5000" inputmode="numeric" />
+                <p class="err">أدخل مبلغًا بين 500 و50,000 ريال.</p>
+              </div>
+
+              <div class="field" data-field="cashProvider">
+                <label for="cashProvider">الجهة <span class="req">*</span></label>
+                <select id="cashProvider" name="cashProvider">
+                  <option value="">اختر الجهة</option>
+                </select>
+                <p class="hint">حاليًا «أخرى / غير محدد» فقط متاحة حتى يتم التحقق.</p>
+                <p class="err">يرجى اختيار الجهة.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- الحاسبة -->
+          <div class="calculator" id="calculatorBox">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2"/>
+                <path d="M8 6h8M8 10h8M8 14h4M8 18h4"/>
+              </svg>
+              حاسبة الأقساط التوضيحية
+            </h3>
+
+            <div class="field-row">
+              <div class="field" style="margin:0">
+                <label for="calcAmount">المبلغ (ريال)</label>
+                <input id="calcAmount" type="number" min="0" step="1" placeholder="3000" inputmode="numeric" />
+              </div>
+              <div class="field" style="margin:0">
+                <label for="calcPeriod">عدد الدفعات</label>
+                <select id="calcPeriod"></select>
+              </div>
+            </div>
+
+            <div class="calc-quick" id="quickAmounts" aria-label="مبالغ سريعة"></div>
+
+            <div class="calc-result">
+              <span class="calc-result-label">قيمة الدفعة التقريبية</span>
+              <span class="calc-result-value" id="calcResult">—</span>
+            </div>
+
+            <p class="calc-disclaimer" id="calcDisclaimer"></p>
+          </div>
+
+          <div class="nav-buttons">
+            <button type="button" class="btn btn-ghost" data-prev>السابق</button>
+            <button type="button" class="btn btn-primary" data-next>التالي</button>
+          </div>
+        </section>
+
+        <!-- ============ الخطوة 3: بياناتك ============ -->
+        <section data-panel="3" aria-labelledby="h-step3">
+          <div class="panel-head">
+            <h2 id="h-step3">بياناتك</h2>
+            <p>نحتاج فقط الاسم ورقم الجوال للتواصل معك.</p>
+          </div>
+
+          <div class="field" data-field="fullName">
+            <label for="fullName">الاسم الكامل <span class="req">*</span></label>
+            <input id="fullName" name="fullName" type="text" autocomplete="name" placeholder="مثال: محمد عبدالله" maxlength="80" />
+            <p class="err">يرجى إدخال الاسم الكامل (3 أحرف على الأقل).</p>
+          </div>
+
+          <div class="field" data-field="phone">
+            <label for="phone">رقم الجوال السعودي <span class="req">*</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" maxlength="16" />
+            <p class="hint">مثال: 05XXXXXXXX أو +9665XXXXXXXX</p>
+            <p class="err">رقم الجوال غير صحيح. يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.</p>
+          </div>
+
+          <div class="field" data-field="notes">
+            <label for="notes">ملاحظات إضافية (اختياري)</label>
+            <textarea id="notes" name="notes" maxlength="400" placeholder="أي تفاصيل أخرى تساعدنا على فهم طلبك..."></textarea>
+            <p class="hint"><span id="notesCount">0</span> / 400 حرف</p>
+          </div>
+
+          <div class="notice notice-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>لا تشارك رقم هويتك أو بيانات بطاقتك أو حسابك البنكي عبر واتساب. هذه الصفحة لا تجمع أي بيانات حساسة.</span>
+          </div>
+
+          <div class="nav-buttons">
+            <button type="button" class="btn btn-ghost" data-prev>السابق</button>
+            <button type="button" class="btn btn-primary" data-next>التالي</button>
+          </div>
+        </section>
+
+        <!-- ============ الخطوة 4: المراجعة ============ -->
+        <section data-panel="4" aria-labelledby="h-step4">
+          <div class="panel-head">
+            <h2 id="h-step4">راجع طلبك قبل الإرسال</h2>
+            <p>تأكد من صحة البيانات، ثم أكّد الإقرارات واتبع الخطوة الأخيرة.</p>
+          </div>
+
+          <div id="reviewContainer"></div>
+
+          <!-- إشعار التفويض (معطّل) -->
+          <div class="auth-locked" id="authLocked" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <div>
+              <strong>تفويض إعادة بيع المنتج — قيد المراجعة القانونية</strong>
+              <span id="authLockedText"></span>
+            </div>
+          </div>
+
+          <h3 style="margin: 24px 0 12px; font-size:16px">الإقرارات المطلوبة</h3>
+          <div id="consentsContainer"></div>
+
+          <div class="notice notice-warn" style="margin-top: 20px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+            <span id="whatsappDisclaimer"></span>
+          </div>
+
+          <div class="nav-buttons">
+            <button type="button" class="btn btn-ghost" data-prev>السابق</button>
+            <button type="button" class="btn btn-wa btn-lg" id="submitBtn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M17.5 14.4c-.3-.2-1.8-.9-2-1s-.5-.1-.7.2-.8 1-1 1.2-.4.2-.7 0c-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6l.5-.6c.2-.2.2-.3.3-.5s0-.4 0-.6-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7 0 1.6 1.2 3.1 1.4 3.3s2.4 3.6 5.7 5.1c3.4 1.4 3.4.9 4 .8.6-.1 1.8-.7 2.1-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.1-.6-.2z M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.3c1.4.7 3 1.1 4.7 1.1 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
+              </svg>
+              تأكيد الطلب والمتابعة عبر واتساب
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+
+    var CFG = window.WUJHA_CONFIG || {};
+    var state = {
+      step: 1,
+      type: null,
+      productName: "",
+      productPrice: "",
+      provider: "",
+      cashAmount: "",
+      cashProvider: "",
+      fullName: "",
+      phone: "",
+      notes: "",
+      consents: {},
+      calcAmount: "",
+      calcPeriod: CFG.calculator ? CFG.calculator.defaultPeriod : 4
+    };
+
+    /* ===== أدوات مساعدة ===== */
+    function $(sel, root) { return (root || document).querySelector(sel); }
+    function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+    function escapeHTML(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+    function fmtCurrency(n) {
+      var v = parseFloat(n) || 0;
+      return v.toLocaleString("ar-SA", { maximumFractionDigits: 2 }) + " ر.س";
+    }
+    function getProviderById(id) {
+      return (CFG.providers || []).find(function (p) { return p.id === id; });
+    }
+
+    /* ===== تعبئة خيارات الجهات من الإعدادات ===== */
+    function populateProviderSelects() {
+      var providerSelect = $("#provider");
+      var cashProviderSelect = $("#cashProvider");
+      var productOpts = ['<option value="">اختر الجهة</option>'];
+      var cashOpts = ['<option value="">اختر الجهة</option>'];
+      (CFG.providers || []).forEach(function (p) {
+        if (p.enabledForProduct) {
+          productOpts.push('<option value="' + escapeHTML(p.id) + '">' + escapeHTML(p.name) + '</option>');
+        }
+        if (p.enabledForCash) {
+          cashOpts.push('<option value="' + escapeHTML(p.id) + '">' + escapeHTML(p.name) + '</option>');
+        }
+      });
+      if (providerSelect) providerSelect.innerHTML = productOpts.join("");
+      if (cashProviderSelect) cashProviderSelect.innerHTML = cashOpts.join("");
+    }
+
+    /* ===== حاسبة الأقساط ===== */
+    function populateCalculator() {
+      var periodSelect = $("#calcPeriod");
+      var quickWrap = $("#quickAmounts");
+      var disclaimer = $("#calcDisclaimer");
+      if (!periodSelect || !CFG.calculator) return;
+
+      periodSelect.innerHTML = (CFG.calculator.periods || [4, 6, 12])
+        .map(function (n) {
+          return '<option value="' + n + '"' + (n === CFG.calculator.defaultPeriod ? " selected" : "") + ">" + n + " دفعات</option>";
+        }).join("");
+
+      quickWrap.innerHTML = (CFG.calculator.quickAmounts || []).map(function (a) {
+        return '<button type="button" data-quick="' + a + '">' + a.toLocaleString("ar-SA") + "</button>";
+      }).join("");
+
+      disclaimer.textContent = CFG.calculator.disclaimer || "";
+
+      quickWrap.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-quick]");
+        if (!btn) return;
+        $("#calcAmount").value = btn.getAttribute("data-quick");
+        updateCalc();
+      });
+
+      $("#calcAmount").addEventListener("input", updateCalc);
+      periodSelect.addEventListener("change", updateCalc);
+    }
+
+    function updateCalc() {
+      var amount = parseFloat($("#calcAmount").value) || 0;
+      var period = parseInt($("#calcPeriod").value, 10) || 4;
+      var out = $("#calcResult");
+      if (amount > 0 && period > 0) {
+        var monthly = amount / period;
+        out.textContent = monthly.toLocaleString("ar-SA", { maximumFractionDigits: 2 }) + " ر.س / دفعة";
+      } else {
+        out.textContent = "—";
+      }
+    }
+
+    /* ===== التنقل بين الخطوات ===== */
+    function setStep(n) {
+      state.step = n;
+      $$("[data-panel]").forEach(function (p) {
+        p.classList.toggle("active", Number(p.getAttribute("data-panel")) === n);
+      });
+      $$("#stepsBar li").forEach(function (li) {
+        var s = Number(li.getAttribute("data-step"));
+        li.classList.toggle("active", s === n);
+        li.classList.toggle("done", s < n);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (n === 4) renderReview();
+      if (n === 2) syncCalcFromType();
+    }
+
+    function syncCalcFromType() {
+      var calcAmount = $("#calcAmount");
+      if (!calcAmount || calcAmount.value) return;
+      if (state.type === "product" && state.productPrice) calcAmount.value = state.productPrice;
+      if (state.type === "cash" && state.cashAmount) calcAmount.value = state.cashAmount;
+      updateCalc();
+    }
+
+    /* ===== اختيار النوع ===== */
+    function selectType(type) {
+      state.type = type;
+      $$("[data-type-btn]").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-type-btn") === type));
+      });
+      $$("[data-type-fields]").forEach(function (f) {
+        f.style.display = f.getAttribute("data-type-fields") === type ? "" : "none";
+      });
+      var typeInfo = CFG.requestTypes && CFG.requestTypes[type];
+      var noticeEl = $("#typeNotice");
+      var noticeText = $("#typeNoticeText");
+      if (typeInfo && typeInfo.notice) {
+        noticeEl.style.display = "flex";
+        noticeText.textContent = typeInfo.notice;
+      } else {
+        noticeEl.style.display = "none";
+      }
+      $("#detailsSubtitle").textContent = type === "product"
+        ? "أدخل تفاصيل المنتج والجهة المفضلة."
+        : "أدخل المبلغ المطلوب والجهة.";
+      // زر التالي في الخطوة 1
+      var nextBtn1 = $('[data-panel="1"] [data-next]');
+      if (nextBtn1) nextBtn1.disabled = !type;
+    }
+
+    /* ===== التحقق ===== */
+    function setError(fieldName, hasError) {
+      var el = document.querySelector('[data-field="' + fieldName + '"]');
+      if (el) el.classList.toggle("has-error", !!hasError);
+    }
+
+    function validateName(v) {
+      var t = (v || "").trim();
+      var min = (CFG.limits && CFG.limits.nameMinLength) || 3;
+      var max = (CFG.limits && CFG.limits.nameMaxLength) || 80;
+      if (t.length < min || t.length > max) return false;
+      if (!/[A-Za-z\u0600-\u06FF]/.test(t)) return false;
+      return true;
+    }
+
+    function validatePhone(v) {
+      var t = (v || "").replace(/[\s-]/g, "");
+      // 05XXXXXXXX | 5XXXXXXXX | 9665XXXXXXXX | +9665XXXXXXXX
+      return /^(?:\+966|966|0)?5\d{8}$/.test(t);
+    }
+
+    function validateStep2() {
+      var ok = true;
+      if (state.type === "product") {
+        var name = ($("#productName").value || "").trim();
+        if (name.length < 2) { setError("productName", true); ok = false; }
+        else setError("productName", false);
+
+        var price = parseFloat($("#productPrice").value) || 0;
+        var lim = CFG.limits || {};
+        if (price < (lim.productMinPrice || 100) || price > (lim.productMaxPrice || 50000)) {
+          setError("productPrice", true); ok = false;
+        } else setError("productPrice", false);
+
+        if (!$("#provider").value) { setError("provider", true); ok = false; }
+        else setError("provider", false);
+      } else if (state.type === "cash") {
+        var amt = parseFloat($("#cashAmount").value) || 0;
+        var lm = CFG.limits || {};
+        if (amt < (lm.cashMinAmount || 500) || amt > (lm.cashMaxAmount || 50000)) {
+          setError("cashAmount", true); ok = false;
+        } else setError("cashAmount", false);
+
+        if (!$("#cashProvider").value) { setError("cashProvider", true); ok = false; }
+        else setError("cashProvider", false);
+      }
+      return ok;
+    }
+
+    function validateStep3() {
+      var ok = true;
+      if (!validateName($("#fullName").value)) { setError("fullName", true); ok = false; }
+      else setError("fullName", false);
+
+      if (!validatePhone($("#phone").value)) { setError("phone", true); ok = false; }
+      else setError("phone", false);
+
+      return ok;
+    }
+
+    /* ===== مزامنة الحقول مع الحالة ===== */
+    function syncState() {
+      state.productName = ($("#productName").value || "").trim();
+      state.productPrice = $("#productPrice").value;
+      state.provider = $("#provider").value;
+      state.cashAmount = $("#cashAmount").value;
+      state.cashProvider = $("#cashProvider").value;
+      state.fullName = ($("#fullName").value || "").trim();
+      state.phone = ($("#phone").value || "").replace(/[\s-]/g, "");
+      state.notes = ($("#notes").value || "").trim();
+      state.calcAmount = $("#calcAmount").value;
+      state.calcPeriod = $("#calcPeriod").value;
+    }
+
+    /* ===== عرض صفحة المراجعة ===== */
+    function renderReview() {
+      syncState();
+      var box = $("#reviewContainer");
+      var rows = [];
+
+      var typeLabel = state.type === "product" ? "تقسيط منتج" : "استفسار سيولة";
+      rows.push({ k: "نوع الطلب", v: typeLabel });
+
+      if (state.type === "product") {
+        var prov = getProviderById(state.provider);
+        rows.push({ k: "المنتج", v: state.productName });
+        rows.push({ k: "السعر", v: fmtCurrency(state.productPrice) });
+        rows.push({ k: "الجهة", v: prov ? prov.name : "—" });
+      } else {
+        var prov2 = getProviderById(state.cashProvider);
+        rows.push({ k: "المبلغ المطلوب", v: fmtCurrency(state.cashAmount) });
+        rows.push({ k: "الجهة", v: prov2 ? prov2.name : "—" });
+      }
+
+      if (state.calcAmount && state.calcPeriod) {
+        var monthly = (parseFloat(state.calcAmount) / parseInt(state.calcPeriod, 10)).toFixed(2);
+        rows.push({ k: "حساب تقريبي", v: fmtCurrency(state.calcAmount) + " ÷ " + state.calcPeriod + " = " + fmtCurrency(monthly) + "/دفعة" });
+      }
+
+      rows.push({ k: "الاسم", v: state.fullName });
+      rows.push({ k: "الجوال", v: state.phone });
+      if (state.notes) rows.push({ k: "ملاحظات", v: state.notes });
+
+      box.innerHTML =
+        '<div class="review-card">' +
+          '<h3>ملخص الطلب <button type="button" data-edit="2">تعديل</button></h3>' +
+          rows.map(function (r) {
+            return '<div class="review-row"><span class="key">' + escapeHTML(r.k) + '</span><span class="val">' + escapeHTML(r.v) + '</span></div>';
+          }).join("") +
+        "</div>";
+
+      box.querySelector('[data-edit="2"]').addEventListener("click", function () { setStep(2); });
+
+      // إشعار التفويض (معطّل)
+      var authBox = $("#authLocked");
+      if (CFG.authorization && CFG.authorization.enabled === false) {
+        authBox.hidden = false;
+        $("#authLockedText").textContent = CFG.authorization.disabledNotice || "";
+      } else {
+        authBox.hidden = true;
+      }
+
+      // الإقرارات العامة
+      var consentsBox = $("#consentsContainer");
+      var consentsHTML = (CFG.formConsents || []).map(function (c, idx) {
+        var id = "consent_" + c.id;
+        var checked = state.consents[c.id] ? " checked" : "";
+        var link = c.link ? ' <a href="' + escapeHTML(c.link.href) + '" target="_blank" rel="noopener">' + escapeHTML(c.link.text) + "</a>" : "";
+        return (
+          '<label class="consent-box" data-consent="' + c.id + '">' +
+            '<input type="checkbox" id="' + id + '" data-consent-id="' + c.id + '"' + (c.required ? " required" : "") + checked + " />" +
+            "<span>" + escapeHTML(c.text) + link + "</span>" +
+          "</label>"
+        );
+      }).join("");
+      consentsBox.innerHTML = consentsHTML;
+
+      // مستمعات التغيير
+      $$("[data-consent-id]", consentsBox).forEach(function (cb) {
+        cb.addEventListener("change", function () {
+          state.consents[cb.getAttribute("data-consent-id")] = cb.checked;
+          cb.closest(".consent-box").classList.remove("has-error");
+        });
+      });
+
+      // نص تنبيه واتساب
+      $("#whatsappDisclaimer").textContent = (CFG.disclaimers && CFG.disclaimers.whatsapp) || "";
+    }
+
+    /* ===== التحقق النهائي ===== */
+    function validateConsents() {
+      var ok = true;
+      (CFG.formConsents || []).forEach(function (c) {
+        if (!c.required) return;
+        var el = document.querySelector('[data-consent="' + c.id + '"]');
+        var checked = !!state.consents[c.id];
+        if (!checked) {
+          ok = false;
+          if (el) el.classList.add("has-error");
+        }
+      });
+      return ok;
+    }
+
+    /* ===== بناء رسالة واتساب ===== */
+    function buildMessage() {
+      var lines = [];
+      lines.push("طلب جديد من موقع وجهة");
+      lines.push("");
+      lines.push("نوع الطلب: " + (state.type === "product" ? "تقسيط منتج" : "استفسار سيولة"));
+
+      if (state.type === "product") {
+        lines.push("المنتج: " + state.productName);
+        lines.push("السعر: " + state.productPrice + " ريال");
+        var prov = getProviderById(state.provider);
+        lines.push("الجهة: " + (prov ? prov.name : state.provider));
+      } else {
+        lines.push("المبلغ المطلوب: " + state.cashAmount + " ريال");
+        var prov2 = getProviderById(state.cashProvider);
+        lines.push("الجهة: " + (prov2 ? prov2.name : state.cashProvider));
+      }
+
+      if (state.calcAmount && state.calcPeriod) {
+        var monthly = (parseFloat(state.calcAmount) / parseInt(state.calcPeriod, 10)).toFixed(2);
+        lines.push("حساب تقريبي: " + state.calcAmount + " ÷ " + state.calcPeriod + " = " + monthly + " ريال/دفعة");
+      }
+
+      lines.push("");
+      lines.push("الاسم: " + state.fullName);
+      lines.push("الجوال: " + state.phone);
+      if (state.notes) lines.push("ملاحظات: " + state.notes);
+      lines.push("");
+      lines.push("أرغب في معرفة التفاصيل والشروط المتاحة.");
+
+      return lines.join("\n");
+    }
+
+    function submitToWhatsApp() {
+      syncState();
+      if (!validateConsents()) {
+        // التمرير إلى أول حقل ناقص
+        var first = $(".consent-box.has-error");
+        if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      var msg = buildMessage();
+      var url = (CFG.contact && CFG.contact.whatsappUrl ? CFG.contact.whatsappUrl : "https://wa.me/966565464718")
+        + "?text=" + encodeURIComponent(msg);
+      window.open(url, "_blank", "noopener");
+    }
+
+    /* ===== ربط الأحداث ===== */
+    function bindEvents() {
+      // أزرار اختيار النوع
+      $$("[data-type-btn]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          selectType(b.getAttribute("data-type-btn"));
+        });
+      });
+
+      // أزرار التنقل
+      $$("[data-next]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          if (state.step === 1) {
+            if (!state.type) return;
+            setStep(2);
+          } else if (state.step === 2) {
+            if (!validateStep2()) return;
+            syncState();
+            setStep(3);
+          } else if (state.step === 3) {
+            if (!validateStep3()) return;
+            syncState();
+            setStep(4);
+          }
+        });
+      });
+
+      $$("[data-prev]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          syncState();
+          if (state.step > 1) setStep(state.step - 1);
+        });
+      });
+
+      // حفظ قيم الحقول عند الكتابة
+      ["#productName", "#productPrice", "#provider", "#cashAmount", "#cashProvider", "#fullName", "#phone", "#notes"].forEach(function (sel) {
+        var el = $(sel);
+        if (!el) return;
+        el.addEventListener("input", syncState);
+        el.addEventListener("change", syncState);
+      });
+
+      // عداد الملاحظات
+      var notes = $("#notes");
+      var counter = $("#notesCount");
+      if (notes && counter) {
+        notes.addEventListener("input", function () {
+          counter.textContent = notes.value.length;
+        });
+      }
+
+      // إرسال
+      var submitBtn = $("#submitBtn");
+      if (submitBtn) submitBtn.addEventListener("click", submitToWhatsApp);
+
+      // قراءة نوع الطلب من URL
+      var params = new URLSearchParams(window.location.search);
+      var t = params.get("type");
+      if (t === "product" || t === "cash") {
+        selectType(t);
+      }
+    }
+
+    /* ===== تهيئة ===== */
+    function init() {
+      populateProviderSelects();
+      populateCalculator();
+      bindEvents();
+      updateCalc();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
