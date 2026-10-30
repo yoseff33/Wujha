@@ -1,12 +1,12 @@
-# robots.txt for wujha.shop
-# وجهة | WUJHA
+# robots.txt for wujha.shop — وجهة | WUJHA
 
 User-agent: *
 Allow: /
 
-# منع فهرسة الملفات التقنية والإعدادات
+# منع فهرسة ملفات الإعدادات والتقنية
 Disallow: /site-config.js
 Disallow: /assets/data/
+Disallow: /404.html
 
 # محركات البحث الرئيسية — سماح كامل
 User-agent: Googlebot
