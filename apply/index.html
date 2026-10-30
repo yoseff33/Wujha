@@ -292,3 +292,342 @@
         <div class="nav-buttons">
           <button type="button" class="btn btn-ghost" data-prev>السابق</button>
           <button type="button" class="btn btn-primary" data-next>التالي</button>
+        </div>
+      </section>
+
+      <section data-panel="4" aria-labelledby="h-step4">
+        <div class="panel-head">
+          <h2 id="h-step4">راجع طلبك قبل الإرسال</h2>
+          <p>تأكد من صحة البيانات، ثم أكّد الإقرارات واتبع الخطوة الأخيرة.</p>
+        </div>
+        <div id="reviewContainer"></div>
+        <div class="auth-locked" id="authLocked" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div><strong>تفويض إعادة بيع المنتج — قيد المراجعة</strong><span id="authLockedText"></span></div>
+        </div>
+        <h3 style="margin:24px 0 12px;font-size:16px">الإقرارات المطلوبة</h3>
+        <div id="consentsContainer"></div>
+        <div class="notice notice-warn" style="margin-top:20px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          <span id="whatsappDisclaimer"></span>
+        </div>
+        <div class="nav-buttons">
+          <button type="button" class="btn btn-ghost" data-prev>السابق</button>
+          <button type="button" class="btn btn-wa btn-lg" id="submitBtn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.8-.9-2-1s-.5-.1-.7.2-.8 1-1 1.2-.4.2-.7 0c-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6l.5-.6c.2-.2.2-.3.3-.5s0-.4 0-.6-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7 0 1.6 1.2 3.1 1.4 3.3s2.4 3.6 5.7 5.1c3.4 1.4 3.4.9 4 .8.6-.1 1.8-.7 2.1-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.1-.6-.2z M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.3c1.4.7 3 1.1 4.7 1.1 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+            تأكيد الطلب والمتابعة عبر واتساب
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var CFG = window.WUJHA_CONFIG || {};
+  var state = {
+    step: 1, type: null,
+    productName: "", productPrice: "", provider: "",
+    cashAmount: "", cashProvider: "",
+    fullName: "", phone: "", notes: "",
+    consents: {},
+    calcAmount: "", calcPeriod: (CFG.calculator && CFG.calculator.defaultPeriod) || 4
+  };
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fmt(n) { return (parseFloat(n) || 0).toLocaleString("ar-SA", { maximumFractionDigits: 2 }) + " ر.س"; }
+  function getProvider(id) { return (CFG.providers || []).find(function (p) { return p.id === id; }); }
+
+  function populateProviderSelects() {
+    var p1 = $("#provider"), p2 = $("#cashProvider");
+    var o1 = ['<option value="">اختر الجهة</option>'];
+    var o2 = ['<option value="">اختر الجهة</option>'];
+    (CFG.providers || []).forEach(function (p) {
+      if (p.enabledForProduct) o1.push('<option value="' + esc(p.id) + '">' + esc(p.name) + "</option>");
+      if (p.enabledForCash) o2.push('<option value="' + esc(p.id) + '">' + esc(p.name) + "</option>");
+    });
+    if (p1) p1.innerHTML = o1.join("");
+    if (p2) p2.innerHTML = o2.join("");
+  }
+
+  function populateCalculator() {
+    var ps = $("#calcPeriod"), qw = $("#quickAmounts"), dis = $("#calcDisclaimer");
+    if (!ps || !CFG.calculator) return;
+    ps.innerHTML = (CFG.calculator.periods || [4, 6, 12]).map(function (n) {
+      return '<option value="' + n + '"' + (n === CFG.calculator.defaultPeriod ? " selected" : "") + ">" + n + " دفعات</option>";
+    }).join("");
+    qw.innerHTML = (CFG.calculator.quickAmounts || []).map(function (a) {
+      return '<button type="button" data-quick="' + a + '">' + a.toLocaleString("ar-SA") + "</button>";
+    }).join("");
+    dis.textContent = CFG.calculator.disclaimer || "";
+    qw.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-quick]");
+      if (!b) return;
+      $("#calcAmount").value = b.getAttribute("data-quick");
+      updateCalc();
+    });
+    $("#calcAmount").addEventListener("input", updateCalc);
+    ps.addEventListener("change", updateCalc);
+  }
+
+  function updateCalc() {
+    var a = parseFloat($("#calcAmount").value) || 0;
+    var p = parseInt($("#calcPeriod").value, 10) || 4;
+    var out = $("#calcResult");
+    if (a > 0 && p > 0) out.textContent = (a / p).toLocaleString("ar-SA", { maximumFractionDigits: 2 }) + " ر.س / دفعة";
+    else out.textContent = "—";
+  }
+
+  function setStep(n) {
+    state.step = n;
+    $$("[data-panel]").forEach(function (p) { p.classList.toggle("active", Number(p.getAttribute("data-panel")) === n); });
+    $$("#stepsBar li").forEach(function (li) {
+      var s = Number(li.getAttribute("data-step"));
+      li.classList.toggle("active", s === n);
+      li.classList.toggle("done", s < n);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (n === 4) renderReview();
+    if (n === 2) syncCalcFromType();
+  }
+
+  function syncCalcFromType() {
+    var ca = $("#calcAmount");
+    if (!ca || ca.value) return;
+    if (state.type === "product" && state.productPrice) ca.value = state.productPrice;
+    if (state.type === "cash" && state.cashAmount) ca.value = state.cashAmount;
+    updateCalc();
+  }
+
+  function selectType(type) {
+    state.type = type;
+    $$("[data-type-btn]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-type-btn") === type)); });
+    $$("[data-type-fields]").forEach(function (f) { f.style.display = f.getAttribute("data-type-fields") === type ? "" : "none"; });
+    var info = CFG.requestTypes && CFG.requestTypes[type];
+    var ne = $("#typeNotice"), nt = $("#typeNoticeText");
+    if (info && info.notice) { ne.style.display = "flex"; nt.textContent = info.notice; } else { ne.style.display = "none"; }
+    $("#detailsSubtitle").textContent = type === "product" ? "أدخل تفاصيل المنتج والجهة المفضلة." : "أدخل المبلغ المطلوب والجهة.";
+    var nb = document.querySelector('[data-panel="1"] [data-next]');
+    if (nb) nb.disabled = !type;
+  }
+
+  function setError(name, has) {
+    var el = document.querySelector('[data-field="' + name + '"]');
+    if (el) el.classList.toggle("has-error", !!has);
+  }
+  function validName(v) {
+    var t = (v || "").trim(); var min = (CFG.limits && CFG.limits.nameMinLength) || 3; var max = (CFG.limits && CFG.limits.nameMaxLength) || 80;
+    if (t.length < min || t.length > max) return false;
+    if (!/[A-Za-z\u0600-\u06FF]/.test(t)) return false;
+    return true;
+  }
+  function validPhone(v) { return /^(?:\+966|966|0)?5\d{8}$/.test((v || "").replace(/[\s-]/g, "")); }
+
+  function validateStep2() {
+    var ok = true;
+    if (state.type === "product") {
+      if (($("#productName").value || "").trim().length < 2) { setError("productName", true); ok = false; } else setError("productName", false);
+      var price = parseFloat($("#productPrice").value) || 0;
+      var l = CFG.limits || {};
+      if (price < (l.productMinPrice || 100) || price > (l.productMaxPrice || 50000)) { setError("productPrice", true); ok = false; } else setError("productPrice", false);
+      if (!$("#provider").value) { setError("provider", true); ok = false; } else setError("provider", false);
+    } else if (state.type === "cash") {
+      var amt = parseFloat($("#cashAmount").value) || 0; var l2 = CFG.limits || {};
+      if (amt < (l2.cashMinAmount || 500) || amt > (l2.cashMaxAmount || 50000)) { setError("cashAmount", true); ok = false; } else setError("cashAmount", false);
+      if (!$("#cashProvider").value) { setError("cashProvider", true); ok = false; } else setError("cashProvider", false);
+    }
+    return ok;
+  }
+  function validateStep3() {
+    var ok = true;
+    if (!validName($("#fullName").value)) { setError("fullName", true); ok = false; } else setError("fullName", false);
+    if (!validPhone($("#phone").value)) { setError("phone", true); ok = false; } else setError("phone", false);
+    return ok;
+  }
+
+  function syncState() {
+    state.productName = ($("#productName").value || "").trim();
+    state.productPrice = $("#productPrice").value;
+    state.provider = $("#provider").value;
+    state.cashAmount = $("#cashAmount").value;
+    state.cashProvider = $("#cashProvider").value;
+    state.fullName = ($("#fullName").value || "").trim();
+    state.phone = ($("#phone").value || "").replace(/[\s-]/g, "");
+    state.notes = ($("#notes").value || "").trim();
+    state.calcAmount = $("#calcAmount").value;
+    state.calcPeriod = $("#calcPeriod").value;
+  }
+
+  function renderReview() {
+    syncState();
+    var box = $("#reviewContainer");
+    var rows = [];
+    rows.push({ k: "نوع الطلب", v: state.type === "product" ? "تقسيط منتج" : "استفسار سيولة" });
+    if (state.type === "product") {
+      var pr = getProvider(state.provider);
+      rows.push({ k: "المنتج", v: state.productName });
+      rows.push({ k: "السعر", v: fmt(state.productPrice) });
+      rows.push({ k: "الجهة", v: pr ? pr.name : "—" });
+    } else {
+      var pr2 = getProvider(state.cashProvider);
+      rows.push({ k: "المبلغ المطلوب", v: fmt(state.cashAmount) });
+      rows.push({ k: "الجهة", v: pr2 ? pr2.name : "—" });
+    }
+    if (state.calcAmount && state.calcPeriod) {
+      var m = (parseFloat(state.calcAmount) / parseInt(state.calcPeriod, 10)).toFixed(2);
+      rows.push({ k: "حساب تقريبي", v: fmt(state.calcAmount) + " ÷ " + state.calcPeriod + " = " + fmt(m) + "/دفعة" });
+    }
+    rows.push({ k: "الاسم", v: state.fullName });
+    rows.push({ k: "الجوال", v: state.phone });
+    if (state.notes) rows.push({ k: "ملاحظات", v: state.notes });
+
+    box.innerHTML =
+      '<div class="review-card">' +
+        '<h3>ملخص الطلب <button type="button" data-edit="2">تعديل</button></h3>' +
+        rows.map(function (r) {
+          return '<div class="review-row"><span class="key">' + esc(r.k) + '</span><span class="val">' + esc(r.v) + '</span></div>';
+        }).join("") +
+      "</div>";
+
+    box.querySelector('[data-edit="2"]').addEventListener("click", function () { setStep(2); });
+
+    var authBox = $("#authLocked");
+    if (CFG.authorization && CFG.authorization.enabled === false) {
+      authBox.hidden = false;
+      $("#authLockedText").textContent = CFG.authorization.disabledNotice || "";
+    } else { authBox.hidden = true; }
+
+    var cb = $("#consentsContainer");
+    cb.innerHTML = (CFG.formConsents || []).map(function (c) {
+      var checked = state.consents[c.id] ? " checked" : "";
+      var link = c.link ? ' <a href="' + esc(c.link.href) + '" target="_blank" rel="noopener">' + esc(c.link.text) + "</a>" : "";
+      return (
+        '<label class="consent-box" data-consent="' + c.id + '">' +
+          '<input type="checkbox" data-consent-id="' + c.id + '"' + (c.required ? " required" : "") + checked + " />" +
+          "<span>" + esc(c.text) + link + "</span>" +
+        "</label>"
+      );
+    }).join("");
+
+    $$("[data-consent-id]", cb).forEach(function (el) {
+      el.addEventListener("change", function () {
+        state.consents[el.getAttribute("data-consent-id")] = el.checked;
+        el.closest(".consent-box").classList.remove("has-error");
+      });
+    });
+
+    $("#whatsappDisclaimer").textContent = (CFG.disclaimers && CFG.disclaimers.whatsapp) || "";
+  }
+
+  function validateConsents() {
+    var ok = true;
+    (CFG.formConsents || []).forEach(function (c) {
+      if (!c.required) return;
+      var el = document.querySelector('[data-consent="' + c.id + '"]');
+      if (!state.consents[c.id]) { ok = false; if (el) el.classList.add("has-error"); }
+    });
+    return ok;
+  }
+
+  function buildMessage() {
+    var L = [];
+    L.push("طلب جديد من موقع وجهة");
+    L.push("");
+    L.push("نوع الطلب: " + (state.type === "product" ? "تقسيط منتج" : "استفسار سيولة"));
+    if (state.type === "product") {
+      L.push("المنتج: " + state.productName);
+      L.push("السعر: " + state.productPrice + " ريال");
+      var pr = getProvider(state.provider);
+      L.push("الجهة: " + (pr ? pr.name : state.provider));
+    } else {
+      L.push("المبلغ المطلوب: " + state.cashAmount + " ريال");
+      var pr2 = getProvider(state.cashProvider);
+      L.push("الجهة: " + (pr2 ? pr2.name : state.cashProvider));
+    }
+    if (state.calcAmount && state.calcPeriod) {
+      var m = (parseFloat(state.calcAmount) / parseInt(state.calcPeriod, 10)).toFixed(2);
+      L.push("حساب تقريبي: " + state.calcAmount + " ÷ " + state.calcPeriod + " = " + m + " ريال/دفعة");
+    }
+    L.push("");
+    L.push("الاسم: " + state.fullName);
+    L.push("الجوال: " + state.phone);
+    if (state.notes) L.push("ملاحظات: " + state.notes);
+    L.push("");
+    L.push("أرغب في معرفة التفاصيل والشروط المتاحة.");
+    return L.join("\n");
+  }
+
+  function submit() {
+    syncState();
+    if (!validateConsents()) {
+      var f = $(".consent-box.has-error");
+      if (f) f.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    var wa = (CFG.contact && CFG.contact.whatsappUrl) ? CFG.contact.whatsappUrl : "https://wa.me/966565464718";
+    var url = wa + "?text=" + encodeURIComponent(buildMessage());
+    window.open(url, "_blank", "noopener");
+  }
+
+  function bindEvents() {
+    $$("[data-type-btn]").forEach(function (b) {
+      b.addEventListener("click", function () { selectType(b.getAttribute("data-type-btn")); });
+    });
+    $$("[data-next]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (state.step === 1) { if (!state.type) return; setStep(2); }
+        else if (state.step === 2) { if (!validateStep2()) return; syncState(); setStep(3); }
+        else if (state.step === 3) { if (!validateStep3()) return; syncState(); setStep(4); }
+      });
+    });
+    $$("[data-prev]").forEach(function (b) {
+      b.addEventListener("click", function () { syncState(); if (state.step > 1) setStep(state.step - 1); });
+    });
+    ["#productName", "#productPrice", "#provider", "#cashAmount", "#cashProvider", "#fullName", "#phone", "#notes"].forEach(function (s) {
+      var el = $(s); if (!el) return;
+      el.addEventListener("input", syncState);
+      el.addEventListener("change", syncState);
+    });
+    var nt = $("#notes"), nc = $("#notesCount");
+    if (nt && nc) nt.addEventListener("input", function () { nc.textContent = nt.value.length; });
+    var sb = $("#submitBtn");
+    if (sb) sb.addEventListener("click", submit);
+  }
+
+  function handleParams() {
+    var p = new URLSearchParams(window.location.search);
+    var t = p.get("type");
+    var prov = p.get("provider");
+    if (t === "product" || t === "cash") selectType(t);
+    if (prov && t) {
+      var provider = (CFG.providers || []).find(function (x) { return x.id === prov; });
+      if (provider) {
+        if (t === "product" && provider.enabledForProduct) { var s1 = $("#provider"); if (s1) s1.value = prov; }
+        if (t === "cash" && provider.enabledForCash) { var s2 = $("#cashProvider"); if (s2) s2.value = prov; }
+      }
+    }
+  }
+
+  function init() {
+    populateProviderSelects();
+    populateCalculator();
+    bindEvents();
+    handleParams();
+    updateCalc();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+</body>
+</html>
