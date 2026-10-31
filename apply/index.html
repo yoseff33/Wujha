@@ -307,6 +307,8 @@
         </div>
         <h3 style="margin:24px 0 12px;font-size:16px">الإقرارات المطلوبة</h3>
         <div id="consentsContainer"></div>
+        <label class="consent-box"><input type="checkbox" id="followupConsent"><span>أوافق على حفظ اسمي ورقم جوالي ونوع الطلب والجهة المختارة لدى وجهة لمتابعة طلبي عبر واتساب. <a href="/privacy/" target="_blank" rel="noopener">سياسة الخصوصية</a><br><small>اختياري؛ يمكنك المتابعة عبر واتساب بدون حفظ بيانات المتابعة في الموقع.</small></span></label>
+        <p id="followupMessage" role="status" aria-live="polite" style="color:#a12828;margin-top:12px"></p>
         <div class="notice notice-warn" style="margin-top:20px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
           <span id="whatsappDisclaimer"></span>
@@ -566,7 +568,7 @@
     return L.join("\n");
   }
 
-  function submit() {
+  async function submit() {
     syncState();
     if (!validateConsents()) {
       var f = $(".consent-box.has-error");
@@ -575,7 +577,23 @@
     }
     var wa = (CFG.contact && CFG.contact.whatsappUrl) ? CFG.contact.whatsappUrl : "https://wa.me/966565464718";
     var url = wa + "?text=" + encodeURIComponent(buildMessage());
-    window.open(url, "_blank", "noopener");
+    if (!$("#followupConsent").checked) {
+      window.open(url, "_blank", "noopener");
+      return;
+    }
+    var button = $("#submitBtn");
+    button.disabled = true;
+    $("#followupMessage").textContent = "جارٍ حفظ بيانات المتابعة…";
+    try {
+      var module = await import('/assets/js/lead-capture.js');
+      await module.captureLead(state, true);
+      $("#followupMessage").textContent = "تم حفظ بيانات المتابعة، جارٍ فتح واتساب…";
+      window.location.assign(url);
+    } catch (error) {
+      $("#followupMessage").textContent = error.message || "تعذر حفظ بيانات المتابعة. أعد المحاولة أو ألغِ خيار الحفظ وتابع عبر واتساب.";
+    } finally {
+      button.disabled = false;
+    }
   }
 
   function bindEvents() {
@@ -629,5 +647,6 @@
   else init();
 })();
 </script>
+<script type="module" src="/assets/js/visit-tracker.js"></script>
 </body>
 </html>

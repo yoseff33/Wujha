@@ -1,4 +1,5 @@
 import { supabase } from './cms-client.js';
+import {mountLeadsAdmin} from './leads-admin.js';
 import {mountBlocksEditor, syncBlockImages} from './content-blocks-admin.js';
 const $ = s => document.querySelector(s);
 const table = () => supabase.from('wujha_cms_content');
@@ -77,4 +78,5 @@ $('#dashboard').addEventListener('click',async e=>{
   try{if(b.dataset.action==='toggle')check(await table().update({published:!row.published,updated_at:new Date().toISOString()}).eq('id',row.id).select().single());else check(await table().delete().eq('id',row.id).select().single());await load();message('تم تحديث المحتوى.');}catch(error){message(error.message,true);}finally{b.disabled=false;}
 });
 const updateBlocks=mountBlocksEditor(supabase,{notify:message,refresh:load});
+mountLeadsAdmin(supabase);
 init();

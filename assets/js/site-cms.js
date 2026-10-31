@@ -1,5 +1,6 @@
 // Public content only. Draft visibility and mutations are enforced by Supabase RLS.
 import {supabase} from './cms-client.js';
+import './visit-tracker.js';
 import {mountVisualContent} from './site-highlights.js';
 const imageUrl=value=>{try{const u=new URL(value);return u.protocol==='https:'?u.href:'';}catch{return '';}};
 function node(tag,text,className){const el=document.createElement(tag);if(text!=null)el.textContent=text;if(className)el.className=className;return el;}
