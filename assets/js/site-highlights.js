@@ -1,13 +1,14 @@
 import {blockRows,element,infoCard,featureCard,safeImage,slidesFor} from './content-blocks.js';
 export function mountVisualContent(rows,main){
  const features=blockRows(rows,'feature'),highlights=blockRows(rows,'highlight'),infos=blockRows(rows,'infographic');
+ if(features.length){const defaults=main.querySelector('#defaultBenefits');if(defaults)defaults.hidden=true;}
  if(features.length||highlights.length){const section=element('section',null,'wj-social-content');section.setAttribute('aria-label','مميزات وجهة والهايلايت');const wrap=element('div',null,'cms-container');
   if(features.length){const grid=element('div',null,'wj-feature-grid');features.forEach(row=>grid.append(featureCard(row.data)));wrap.append(grid);}
   const groups=highlights.map(row=>({...row.data,slides:slidesFor(row.data,rows)})).filter(g=>g.slides.length);
   if(groups.length){const title=element('h2','تعرّف علينا أكثر','wj-highlights-heading'),rail=element('div',null,'wj-highlights');rail.setAttribute('aria-label','هايلايت وجهة');groups.forEach((g,i)=>{const button=element('button',null,'wj-highlight'),ring=element('span',null,'wj-highlight-ring'),img=element('img');img.src=safeImage(g.cover)||g.slides[0].url;img.alt='';img.loading='lazy';img.width=96;img.height=96;ring.append(img);button.type='button';button.setAttribute('aria-label','فتح هايلايت '+g.title);button.append(ring,element('span',g.title,'wj-highlight-title'));button.addEventListener('click',()=>openStories(groups,i,button));rail.append(button);});wrap.append(title,rail);}
-  section.append(wrap);const hero=main.querySelector('.hero');if(hero)hero.after(section);else main.prepend(section);
+  section.append(wrap);const anchor=(!features.length&&main.querySelector('#defaultBenefits'))||main.querySelector('.hero');if(anchor)anchor.after(section);else main.prepend(section);
  }
- if(infos.length){const section=element('section',null,'wj-info-section'),wrap=element('div',null,'cms-container'),grid=element('div',null,'wj-info-grid');wrap.append(element('h2','وجهة باختصار','wj-highlights-heading'));infos.forEach(row=>grid.append(infoCard(row.data)));wrap.append(grid);section.append(wrap);main.insertBefore(section,main.querySelector('.final-cta'));}
+ if(infos.length){const section=element('section',null,'wj-info-section'),wrap=element('div',null,'cms-container'),grid=element('div',null,'wj-info-grid');wrap.append(element('h2','وجهة باختصار','wj-highlights-heading'));infos.forEach(row=>grid.append(infoCard(row.data)));wrap.append(grid);section.append(wrap);const slot=main.querySelector('[data-cms-slot="infographics"]');if(slot){slot.hidden=false;slot.replaceChildren(section);}else main.insertBefore(section,main.querySelector('.final-cta'));}
 }
 function openStories(groups,start,opener){
  document.querySelector('.wj-stories')?.close();

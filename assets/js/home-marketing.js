@@ -1,0 +1,9 @@
+const cfg=window.WUJHA_CONFIG||{};
+const toggle=document.querySelector('[data-menu-toggle]'),menu=document.getElementById('mobileNav');
+if(toggle&&menu){toggle.onclick=()=>{menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden));toggle.setAttribute('aria-label',menu.hidden?'فتح القائمة':'إغلاق القائمة');};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.focus();}});}
+const wa=cfg.contact?.whatsappUrl;for(const a of document.querySelectorAll('[data-whatsapp]')){if(/^https:\/\/wa\.me\/[0-9]+$/.test(wa||''))a.href=wa;}
+const section=document.getElementById('credentials'),list=document.getElementById('credsGrid');
+if(section&&list){const items=(cfg.credentials?.list||[]).filter(c=>c.active);for(const c of items){const card=document.createElement('article');card.className='credential-card';if(c.logo){try{const url=new URL(c.logo,location.origin);if(['http:','https:'].includes(url.protocol)){const img=document.createElement('img');img.src=url.href;img.alt=c.providerNameAr||'';img.loading='lazy';card.append(img);}}catch{}}const h=document.createElement('h3');h.textContent=c.providerNameAr;const p=document.createElement('p');p.textContent=c.officialLabel||c.typeLabel;card.append(h,p);list.append(card);}section.hidden=!items.length||cfg.credentials.showSection===false;}
+
+const legacyArticles={'difference-tabby-tamara':'/blog/tabby-vs-tamara/','bnpl-saudi-guide':'/blog/liquidity-and-installments/','installment-basics':'/blog/before-applying/','calculate-installment':'/blog/before-applying/','cash-liquidity-vs-loan':'/blog/liquidity-and-installments/','cash-from-bnpl':'/blog/liquidity-and-installments/','fees-and-obligations':'/blog/before-applying/'};
+if(location.pathname==='/blog/'&&legacyArticles[location.hash.slice(1)])location.replace(legacyArticles[location.hash.slice(1)]);

@@ -4,7 +4,7 @@ import {mountBlocksEditor, syncBlockImages} from './content-blocks-admin.js';
 const $ = s => document.querySelector(s);
 const table = () => supabase.from('wujha_cms_content');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const pages = {'/':'الرئيسية','/services/':'الخدمات','/tamara/':'تمارا','/quara/':'كوارا','/emkan/':'إمكان','/tamam/':'تمام','/blog/':'المدونة','/faq/':'الأسئلة الشائعة','/about/':'من نحن','/contact/':'تواصل معنا'};
+const pages = {'/':'الرئيسية','/tabby/':'تابي','/blog/liquidity-and-installments/':'دليل السيولة والتقسيط','/blog/tabby-vs-tamara/':'الفرق بين تابي وتمارا','/blog/before-applying/':'قبل تقديم الطلب','/services/':'الخدمات','/tamara/':'تمارا','/quara/':'كوارا','/emkan/':'إمكان','/tamam/':'تمام','/blog/':'المدونة','/faq/':'الأسئلة الشائعة','/about/':'من نحن','/contact/':'تواصل معنا'};
 let rows = [], active = false;
 const message = (text, error = false) => { $('#status').textContent = text; $('#status').classList.toggle('error', error); };
 const safeImage = value => { try {const u=new URL(value);return u.protocol==='https:'?u.href:'';} catch{return '';} };
