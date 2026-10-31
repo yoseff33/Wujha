@@ -1,5 +1,5 @@
 // Public content only. Draft visibility and mutations are enforced by Supabase RLS.
-import {supabase} from './supabase-client.js';
+import {supabase} from './cms-client.js';
 const imageUrl=value=>{try{const u=new URL(value);return u.protocol==='https:'?u.href:'';}catch{return '';}};
 function node(tag,text,className){const el=document.createElement(tag);if(text!=null)el.textContent=text;if(className)el.className=className;return el;}
 function meta(key,value,property=false){if(!value)return;const attr=property?'property':'name';let el=document.head.querySelector(`meta[${attr}="${key}"]`);if(!el){el=document.createElement('meta');el.setAttribute(attr,key);document.head.append(el);}el.content=value;}
