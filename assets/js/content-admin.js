@@ -1,4 +1,4 @@
-import { supabase } from './supabase-client.js';
+import { supabase } from './cms-client.js';
 const $ = s => document.querySelector(s);
 const table = () => supabase.from('wujha_cms_content');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
