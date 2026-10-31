@@ -1,4 +1,5 @@
 import { supabase } from './cms-client.js';
+import {mountBlocksEditor, syncBlockImages} from './content-blocks-admin.js';
 const $ = s => document.querySelector(s);
 const table = () => supabase.from('wujha_cms_content');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -29,6 +30,7 @@ function loadSeo() {const form=$('#seoForm'),row=rows.find(r=>r.kind==='seo'&&r.
 function preview() {const f=$('#seoForm').elements;$('#seoPreview').innerHTML=`<small>https://wujha.shop${esc(f.slug.value)}</small><h3>${esc(f.title.value||'عنوان الصفحة')}</h3><p>${esc(f.description.value||'وصف الصفحة كما سيظهر بشكل تقريبي في البحث.')}</p>`;}
 async function load() {
   rows=check(await table().select('*').order('sort_order').order('updated_at',{ascending:false}))||[];
+  updateBlocks(rows);
   imageOptions();
   const settings=rows.find(r=>r.kind==='settings'&&r.slug==='home');
   fill($('#settingsForm'),settings?.data||{served_count:0,completed_count:0,years_count:0,show_stats:false});
@@ -55,7 +57,9 @@ $('#imageForm').onsubmit=e=>{e.preventDefault();run(e.target,async()=>{
   const raw=Object.fromEntries(new FormData(e.target)),old=rows.find(r=>r.id===raw.id),file=e.target.elements.file.files[0];let url=old?.data.url;
   if(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>8388608)throw Error('اختر صورة JPG أو PNG أو WebP بحجم حتى 8MB.');const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type],path=`images/${crypto.randomUUID()}.${ext}`;check(await supabase.storage.from('wujha-content').upload(path,file,{contentType:file.type}));url=supabase.storage.from('wujha-content').getPublicUrl(path).data.publicUrl;}
   if(!url)throw Error('اختر صورة أولًا.');
-  await save({kind:'image',slug:old?.slug||crypto.randomUUID(),data:{url,title:raw.title.trim(),alt:raw.alt.trim()},published:e.target.elements.published.checked,sort_order:Number(raw.sort_order)});
+  const imageData={url,title:raw.title.trim(),alt:raw.alt.trim()};
+  await save({kind:'image',slug:old?.slug||crypto.randomUUID(),data:imageData,published:e.target.elements.published.checked,sort_order:Number(raw.sort_order)});
+  if(old)await syncBlockImages(supabase,rows,old.slug,imageData);
   e.target.reset();imageId.value='';e.target.elements.file.required=true;
 });};
 $('#reviewForm').onsubmit=e=>{e.preventDefault();run(e.target,async()=>{const raw=Object.fromEntries(new FormData(e.target)),old=rows.find(r=>r.id===raw.id);await save({kind:'review',slug:old?.slug||crypto.randomUUID(),data:{name:raw.name.trim(),text:raw.text.trim(),rating:Number(raw.rating)},published:e.target.elements.published.checked,sort_order:Number(raw.sort_order)});e.target.reset();e.target.elements.id.value='';});};
@@ -72,4 +76,5 @@ $('#dashboard').addEventListener('click',async e=>{
   b.disabled=true;
   try{if(b.dataset.action==='toggle')check(await table().update({published:!row.published,updated_at:new Date().toISOString()}).eq('id',row.id).select().single());else check(await table().delete().eq('id',row.id).select().single());await load();message('تم تحديث المحتوى.');}catch(error){message(error.message,true);}finally{b.disabled=false;}
 });
+const updateBlocks=mountBlocksEditor(supabase,{notify:message,refresh:load});
 init();

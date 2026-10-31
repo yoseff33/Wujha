@@ -1,5 +1,6 @@
 // Public content only. Draft visibility and mutations are enforced by Supabase RLS.
 import {supabase} from './cms-client.js';
+import {mountVisualContent} from './site-highlights.js';
 const imageUrl=value=>{try{const u=new URL(value);return u.protocol==='https:'?u.href:'';}catch{return '';}};
 function node(tag,text,className){const el=document.createElement(tag);if(text!=null)el.textContent=text;if(className)el.className=className;return el;}
 function meta(key,value,property=false){if(!value)return;const attr=property?'property':'name';let el=document.head.querySelector(`meta[${attr}="${key}"]`);if(!el){el=document.createElement('meta');el.setAttribute(attr,key);document.head.append(el);}el.content=value;}
@@ -19,6 +20,6 @@ async function load(){
  if(s.show_stats){const [el,wrap]=section('وجهة بالأرقام','cms-statistics'),grid=node('div',null,'cms-grid');for(const [value,label] of [[s.served_count,'عميل خدمنا'],[s.completed_count,'طلب مكتمل'],[s.years_count,'سنوات خبرة']]){const item=node('article');const number=Number(value);item.append(node('strong',new Intl.NumberFormat('ar-SA').format(Number.isFinite(number)?Math.max(0,number):0)),node('p',label));grid.append(item);}wrap.append(grid);content.append(el);}
  const images=data.filter(r=>r.kind==='image'&&imageUrl(r.data.url));if(images.length){const [el,wrap]=section(s.gallery_title||'من صورنا','cms-gallery'),grid=node('div',null,'cms-grid');images.forEach(r=>{const figure=node('figure'),img=node('img');img.src=imageUrl(r.data.url);img.alt=r.data.alt||r.data.title||'';img.loading='lazy';img.width=640;img.height=440;figure.append(img,node('figcaption',r.data.title));grid.append(figure);});wrap.append(grid);content.append(el);}
  const reviews=data.filter(r=>r.kind==='review');if(reviews.length){const [el,wrap]=section(s.reviews_title||'آراء عملائنا','cms-reviews'),grid=node('div',null,'cms-grid');reviews.forEach(r=>{const card=node('article'),rating=Math.min(5,Math.max(1,Number(r.data.rating)||1)),stars=node('div','★'.repeat(rating));stars.className='cms-stars';stars.setAttribute('aria-label',`التقييم ${rating} من 5`);card.append(stars,node('blockquote',r.data.text),node('strong',r.data.name));grid.append(card);});wrap.append(grid);content.append(el);}
- const main=document.querySelector('main');if(main)main.insertBefore(content,main.querySelector('.final-cta'));
+ const main=document.querySelector('main');if(main){main.insertBefore(content,main.querySelector('.final-cta'));mountVisualContent(data,main);}
 }
 load().catch(()=>console.info('تم عرض محتوى الموقع الافتراضي.'));
