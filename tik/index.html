@@ -6,6 +6,14 @@
 <title>فزاع - سيولة تابي فورية</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Google Analytics 4 - Fazzaa Tik landing page -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-14CR4J2GEC"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());
+gtag('config','G-14CR4J2GEC',{page_title:'فزاع - صفحة تيك'});
+</script>
 <!-- TikTok Pixel Code Start -->
 <script>
 !function (w, d, t) {
@@ -63,6 +71,7 @@ const whatsappLink=document.getElementById('whatsappLink');
 whatsappLink.href='https://wa.me/'+INTERNATIONAL_NUMBER+'?text='+encodeURIComponent(WHATSAPP_MESSAGE);
 document.getElementById('displayPhone').textContent='+966 '+PHONE_NUMBER.substring(1,3)+' '+PHONE_NUMBER.substring(3,6)+' '+PHONE_NUMBER.substring(6);
 whatsappLink.addEventListener('click',function(){
+ if(typeof window.gtag==='function')window.gtag('event','whatsapp_click',{page_section:'tik',button_label:'للتواصل عبر الواتساب',contact_method:'whatsapp'});
  if(window.ttq&&typeof window.ttq.track==='function'){
   window.ttq.track('Contact',{content_name:'WhatsApp Contact',content_type:'product',description:'WhatsApp button click'});
  }
@@ -73,6 +82,7 @@ async function copyNum(){
   else{
    const el=document.createElement('textarea');el.value=PHONE_NUMBER;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.select();const copied=document.execCommand('copy');document.body.removeChild(el);if(!copied)throw new Error('Copy failed');
   }
+  if(typeof window.gtag==='function')window.gtag('event','phone_copy',{page_section:'tik',contact_method:'copy_phone'});
   alert('تم نسخ الرقم: '+PHONE_NUMBER);
  }catch(error){alert('تعذر النسخ تلقائياً، الرقم: '+PHONE_NUMBER)}
 }
