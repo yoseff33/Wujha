@@ -1,0 +1,522 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دفتر المستثمرين | إدارة الأرباح</title>
+<style>
+:root{
+  --navy:#10223c;--gold:#b99455;--bg:#f5f6f8;
+  --line:#e3e7ed;--green:#087e60;--red:#b63838;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#17243a;
+font-family:Tahoma,Arial,sans-serif}
+header{background:var(--navy);color:white;padding:22px 5%}
+header h1{margin:0;font-size:24px}
+header p{margin:7px 0 0;color:#cdd6e2;font-size:13px}
+main{max-width:1250px;margin:auto;padding:22px 14px}
+.panel,.stat{background:white;border:1px solid var(--line);
+border-radius:15px;padding:18px;margin-bottom:17px}
+h2{font-size:18px;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.field{display:flex;flex-direction:column;gap:7px}
+label{font-size:13px;font-weight:bold}
+input,select{width:100%;padding:12px;border:1px solid #d7dce5;
+border-radius:9px;background:white;font-size:14px}
+button{border:0;border-radius:9px;padding:12px 17px;
+cursor:pointer;font-weight:bold}
+.primary{background:var(--navy);color:white}
+.gold{background:var(--gold);color:#17243a}
+.secondary{background:#e9edf3;color:#17243a}
+.danger{background:#fff0f0;color:var(--red)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{margin:0}
+.stat small{color:#69778a}
+.stat strong{display:block;font-size:23px;margin-top:10px}
+.positive{color:var(--green)}
+.negative{color:var(--red)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{padding:13px 11px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:#f0f3f7;font-size:12px}
+td{font-size:13px}
+.note{font-size:12px;color:#718096;line-height:1.8}
+.preview{background:#f4f7fa;border-radius:12px;padding:15px;
+margin-top:15px;line-height:2}
+.preview strong{color:var(--green)}
+.hidden{display:none}
+@media(max-width:800px){
+.grid,.stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+.grid{grid-template-columns:1fr}
+.stats{grid-template-columns:repeat(2,1fr)}
+header h1{font-size:20px}
+}
+@media print{
+header,.no-print,.actions,button{display:none!important}
+body{background:white}
+.panel,.stat{border:0}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>دفتر المستثمرين</h1>
+<p>إدارة العمليات والأرباح والعمولات بشكل مستقل</p>
+</header>
+
+<main>
+<section class="panel no-print">
+<h2>المستثمرون</h2>
+<div class="grid">
+<div class="field">
+<label>عرض حساب المستثمر</label>
+<select id="investorFilter"></select>
+</div>
+<div class="field">
+<label>إضافة مستثمر جديد</label>
+<input id="newInvestor" placeholder="اسم المستثمر">
+</div>
+<div class="field" style="justify-content:end">
+<button class="gold" onclick="addInvestor()">إضافة مستثمر</button>
+</div>
+</div>
+<p class="note">يوسف ونايف حسابان مستقلان. اختيار "جميع المستثمرين" يعرض الإجمالي فقط.</p>
+</section>
+
+<section class="stats">
+<div class="stat">
+<small>إجمالي العمليات</small>
+<strong id="totalOrders">0</strong>
+</div>
+<div class="stat">
+<small>إجمالي الربح قبل عمولة المسوّق</small>
+<strong id="grossProfit">0</strong>
+</div>
+<div class="stat">
+<small>عمولات المسوّقين</small>
+<strong id="totalMarketing">0</strong>
+</div>
+<div class="stat">
+<small>صافي الأرباح</small>
+<strong class="positive" id="netProfit">0</strong>
+</div>
+</section>
+
+<section class="panel no-print">
+<h2>إضافة عملية جديدة</h2>
+<div class="grid">
+<div class="field">
+<label>المستثمر</label>
+<select id="investor"></select>
+</div>
+<div class="field">
+<label>اسم العميل / رقم الطلب</label>
+<input id="customer" placeholder="اسم العميل أو رقم الطلب">
+</div>
+<div class="field">
+<label>الجهة التمويلية</label>
+<select id="provider" onchange="updatePackageOptions();calculate()">
+<option value="tabby">وفي + تابي</option>
+<option value="tamara">وفي + تمارا</option>
+<option value="neo">وفي + نيو</option>
+<option value="emkan">إمكان</option>
+<option value="mis">MIS Pay</option>
+</select>
+</div>
+<div class="field">
+<label>الباقة</label>
+<select id="package" onchange="applyPackage()"></select>
+</div>
+<div class="field">
+<label>سعر المنتج / قيمة العملية</label>
+<input id="price" type="number" min="0" step=".01" oninput="calculate()">
+</div>
+<div class="field">
+<label>المبلغ المحوّل للعميل</label>
+<input id="customerCash" type="number" min="0" step=".01" oninput="calculate()">
+</div>
+<div class="field">
+<label>الدفعة الأولى</label>
+<input id="firstPayment" type="number" min="0" step=".01" oninput="calculate()">
+</div>
+<div class="field">
+<label>من يتحمل الدفعة الأولى؟</label>
+<select id="firstPayer" onchange="calculate()">
+<option value="customer">العميل يدفعها</option>
+<option value="us">نحن ندفعها</option>
+</select>
+</div>
+<div class="field">
+<label>عمولة المسوّق</label>
+<select id="commissionPreset" onchange="setCommission()">
+<option value="0">بدون عمولة</option>
+<option value="50">50 ريال</option>
+<option value="100">100 ريال</option>
+<option value="150">150 ريال</option>
+<option value="custom">مبلغ مخصص</option>
+</select>
+</div>
+<div class="field">
+<label>قيمة عمولة المسوّق (ريال)</label>
+<input id="commission" type="number" min="0" step=".01" value="0"
+oninput="calculate()">
+</div>
+<div class="field">
+<label>اسم المسوّق (اختياري)</label>
+<input id="marketerName" placeholder="اسم المسوّق">
+</div>
+<div class="field">
+<label>التاريخ</label>
+<input id="orderDate" type="date">
+</div>
+</div>
+
+<div class="preview" id="preview"></div>
+<div class="actions">
+<button class="primary" id="saveButton" onclick="saveOrder()">حفظ العملية</button>
+<button class="secondary" onclick="resetForm()">تفريغ النموذج</button>
+</div>
+<p class="note">
+تنبيه: تُحسب الرسوم على سعر المنتج. في باقات إمكان وMIS Pay
+يلزم التأكد من قيمة المنتج الفعلية قبل اعتماد الربح.
+</p>
+</section>
+
+<section class="panel">
+<h2 id="ledgerTitle">سجل العمليات</h2>
+<div class="actions no-print">
+<button class="secondary" onclick="window.print()">طباعة كشف الحساب</button>
+<button class="secondary" onclick="exportJSON()">تصدير نسخة احتياطية</button>
+<button class="secondary" onclick="document.getElementById('importFile').click()">
+استيراد نسخة احتياطية
+</button>
+<input type="file" id="importFile" accept=".json" class="hidden"
+onchange="importJSON(event)">
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>التاريخ</th><th>المستثمر</th><th>العميل</th>
+<th>المنصة</th><th>الباقة</th><th>سعر المنتج</th>
+<th>رسوم وفي</th><th>رسوم التقسيط</th>
+<th>الدفعة علينا</th><th>تحويل العميل</th>
+<th>الربح</th><th>عمولة المسوّق</th><th>الصافي</th>
+<th class="no-print">الإجراءات</th>
+</tr>
+</thead>
+<tbody id="ledgerBody"></tbody>
+</table>
+</div>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const KEY="investor_ledger_v3";
+
+const defaultInvestors=[
+{id:"yousef",name:"يوسف"},
+{id:"nayef",name:"نايف"}
+];
+
+const providers={
+tabby:{name:"وفي + تابي",rate:5.5,wafi:4},
+tamara:{name:"وفي + تمارا",rate:7,wafi:4},
+neo:{name:"وفي + نيو",rate:5.5,wafi:4},
+emkan:{name:"إمكان",rate:5.9,wafi:0},
+mis:{name:"MIS Pay",rate:5.9,wafi:0}
+};
+
+const regularPackages=[
+{label:"800",price:1252,cash:813,first:313},
+{label:"1000",price:1500,cash:975,first:375},
+{label:"1300",price:2000,cash:1300,first:500},
+{label:"1600",price:2500,cash:1625,first:625},
+{label:"2400",price:3752,cash:2438,first:938}
+];
+
+const emkanPackages=[
+{label:"200",price:null,cash:340,first:140},
+{label:"400",price:null,cash:660,first:260},
+{label:"600",price:null,cash:980,first:380},
+{label:"800",price:null,cash:1300,first:500}
+];
+
+let data=loadData();
+let editingId=null;
+
+function el(id){return document.getElementById(id)}
+function number(id){return Math.max(0,Number(el(id).value)||0)}
+function money(n){
+return Number(n||0).toLocaleString("ar-SA",{
+minimumFractionDigits:2,maximumFractionDigits:2
+})+" ر.س";
+}
+function escapeHTML(v){
+return String(v??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",
+'"':"&quot;","'":"&#39;"
+})[c]);
+}
+function loadData(){
+try{
+const saved=JSON.parse(localStorage.getItem(KEY));
+if(saved && Array.isArray(saved.orders) && Array.isArray(saved.investors)){
+const ids=new Set(saved.investors.map(x=>x.id));
+for(const inv of defaultInvestors){
+if(!ids.has(inv.id))saved.investors.push(inv);
+}
+return saved;
+}
+}catch(e){}
+return {investors:[...defaultInvestors],orders:[]};
+}
+function persist(){
+try{
+localStorage.setItem(KEY,JSON.stringify(data));
+return true;
+}catch(e){
+alert("تعذر حفظ البيانات. صدّر نسخة احتياطية وتحقق من مساحة المتصفح.");
+return false;
+}
+}
+function refreshInvestors(){
+const previousFilter=el("investorFilter").value;
+const previousInvestor=el("investor").value;
+el("investorFilter").innerHTML=
+'<option value="all">جميع المستثمرين</option>'+
+data.investors.map(x=>
+`<option value="${escapeHTML(x.id)}">${escapeHTML(x.name)}</option>`
+).join("");
+el("investor").innerHTML=data.investors.map(x=>
+`<option value="${escapeHTML(x.id)}">${escapeHTML(x.name)}</option>`
+).join("");
+el("investorFilter").value=
+previousFilter==="all"||data.investors.some(x=>x.id===previousFilter)
+?previousFilter:"all";
+el("investor").value=
+data.investors.some(x=>x.id===previousInvestor)
+?previousInvestor:"yousef";
+}
+function addInvestor(){
+const name=el("newInvestor").value.trim();
+if(!name)return alert("اكتب اسم المستثمر");
+if(data.investors.some(x=>x.name===name))
+return alert("المستثمر موجود مسبقًا");
+data.investors.push({id:"inv_"+Date.now(),name});
+if(!persist())return;
+el("newInvestor").value="";
+refreshInvestors();
+render();
+}
+function updatePackageOptions(){
+const p=el("provider").value;
+const packages=p==="emkan"?emkanPackages:
+p==="mis"?[]:regularPackages;
+el("package").innerHTML=
+'<option value="custom">باقة مخصصة</option>'+
+packages.map((x,i)=>
+`<option value="${i}">باقة ${x.label} ريال</option>`
+).join("");
+el("package").value=packages.length?"0":"custom";
+applyPackage();
+}
+function applyPackage(){
+const p=el("provider").value;
+const index=el("package").value;
+if(index!=="custom"){
+const list=p==="emkan"?emkanPackages:regularPackages;
+const item=list[Number(index)];
+if(item){
+el("price").value=item.price??"";
+el("firstPayment").value=item.first;
+el("customerCash").value=item.cash;
+}
+}else{
+el("price").value="";
+el("firstPayment").value="";
+el("customerCash").value="";
+}
+calculate();
+}
+function setCommission(){
+const v=el("commissionPreset").value;
+if(v!=="custom")el("commission").value=v;
+calculate();
+}
+function calculate(){
+const price=number("price");
+const p=providers[el("provider").value];
+const wafi=price*p.wafi/100;
+const providerFee=price*p.rate/100;
+const first=el("firstPayer").value==="us"
+?number("firstPayment"):0;
+const customerCash=number("customerCash");
+const commission=number("commission");
+const settlement=price-wafi-providerFee;
+const gross=settlement-first-customerCash;
+const net=gross-commission;
+
+el("preview").innerHTML=`
+رسوم وفي: <b>${money(wafi)}</b><br>
+رسوم ${escapeHTML(p.name)}: <b>${money(providerFee)}</b><br>
+صافي التسوية بعد رسوم المنصات: <b>${money(settlement)}</b><br>
+الدفعة الأولى علينا: <b>${money(first)}</b><br>
+المبلغ المحوّل للعميل: <b>${money(customerCash)}</b><br>
+الربح قبل عمولة المسوّق: <b>${money(gross)}</b><br>
+عمولة المسوّق: <b>${money(commission)}</b><br>
+<strong>صافي الربح التقديري: ${money(net)}</strong>
+`;
+return {price,wafi,providerFee,first,customerCash,
+commission,settlement,gross,net};
+}
+function saveOrder(){
+const investorId=el("investor").value;
+const customer=el("customer").value.trim();
+const provider=el("provider").value;
+const date=el("orderDate").value;
+if(!investorId||!customer||!date)
+return alert("حدد المستثمر واسم العميل والتاريخ");
+if(el("price").value===""||number("price")<=0)
+return alert("أدخل سعر المنتج الفعلي");
+const calc=calculate();
+if(calc.net<0&&!confirm("صافي العملية سالب. هل تريد حفظها؟"))return;
+const order={
+id:editingId||"ord_"+Date.now(),
+investorId,customer,provider,date,
+packageLabel:el("package").value==="custom"?"مخصصة":
+el("package").selectedOptions[0].textContent,
+firstPayment:number("firstPayment"),
+firstPayer:el("firstPayer").value,
+marketerName:el("marketerName").value.trim(),
+...calc
+};
+if(editingId){
+const index=data.orders.findIndex(x=>x.id===editingId);
+if(index<0)return;
+data.orders[index]=order;
+}else data.orders.push(order);
+if(!persist())return;
+resetForm();
+render();
+}
+function resetForm(){
+editingId=null;
+el("saveButton").textContent="حفظ العملية";
+el("customer").value="";
+el("marketerName").value="";
+el("commissionPreset").value="0";
+el("commission").value="0";
+el("firstPayer").value="customer";
+el("orderDate").value=new Date().toLocaleDateString("en-CA");
+updatePackageOptions();
+}
+function editOrder(id){
+const o=data.orders.find(x=>x.id===id);
+if(!o)return;
+editingId=id;
+el("investor").value=o.investorId;
+el("customer").value=o.customer;
+el("provider").value=o.provider;
+updatePackageOptions();
+el("package").value="custom";
+el("price").value=o.price;
+el("customerCash").value=o.customerCash;
+el("firstPayment").value=o.firstPayment;
+el("firstPayer").value=o.firstPayer;
+el("commission").value=o.commission;
+el("commissionPreset").value="custom";
+el("marketerName").value=o.marketerName||"";
+el("orderDate").value=o.date;
+el("saveButton").textContent="حفظ التعديل";
+calculate();
+window.scrollTo({top:350,behavior:"smooth"});
+}
+function deleteOrder(id){
+if(!confirm("هل تريد حذف العملية نهائيًا؟"))return;
+data.orders=data.orders.filter(x=>x.id!==id);
+if(!persist())return;
+render();
+}
+function render(){
+const filter=el("investorFilter").value;
+const orders=data.orders.filter(x=>
+filter==="all"||x.investorId===filter);
+const sum=k=>orders.reduce((a,x)=>a+(Number(x[k])||0),0);
+el("totalOrders").textContent=orders.length;
+el("grossProfit").textContent=money(sum("gross"));
+el("totalMarketing").textContent=money(sum("commission"));
+el("netProfit").textContent=money(sum("net"));
+const investor=data.investors.find(x=>x.id===filter);
+el("ledgerTitle").textContent=filter==="all"?
+"سجل جميع العمليات":"كشف حساب المستثمر: "+investor?.name;
+el("ledgerBody").innerHTML=orders.slice()
+.sort((a,b)=>b.date.localeCompare(a.date))
+.map(o=>{
+const name=data.investors.find(x=>x.id===o.investorId)?.name||"—";
+return `<tr>
+<td>${escapeHTML(o.date)}</td>
+<td>${escapeHTML(name)}</td>
+<td>${escapeHTML(o.customer)}</td>
+<td>${escapeHTML(providers[o.provider]?.name||o.provider)}</td>
+<td>${escapeHTML(o.packageLabel)}</td>
+<td>${money(o.price)}</td>
+<td>${money(o.wafi)}</td>
+<td>${money(o.providerFee)}</td>
+<td>${money(o.first)}</td>
+<td>${money(o.customerCash)}</td>
+<td>${money(o.gross)}</td>
+<td>${money(o.commission)}</td>
+<td class="${o.net>=0?"positive":"negative"}"><b>${money(o.net)}</b></td>
+<td class="no-print">
+<button class="secondary" onclick="editOrder('${o.id}')">تعديل</button>
+<button class="danger" onclick="deleteOrder('${o.id}')">حذف</button>
+</td></tr>`;
+}).join("")||
+'<tr><td colspan="14">لا توجد عمليات مسجلة لهذا المستثمر.</td></tr>';
+}
+function exportJSON(){
+const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="investors-backup-"+new Date().toISOString().slice(0,10)+".json";
+a.click();
+URL.revokeObjectURL(url);
+}
+async function importJSON(event){
+const file=event.target.files[0];
+if(!file)return;
+try{
+const imported=JSON.parse(await file.text());
+if(!Array.isArray(imported.investors)||!Array.isArray(imported.orders))
+throw Error("صيغة غير صحيحة");
+if(!confirm("سيتم استبدال السجلات الحالية بالنسخة المستوردة. متابعة؟"))return;
+data=imported;
+const ids=new Set(data.investors.map(x=>x.id));
+defaultInvestors.forEach(x=>{
+if(!ids.has(x.id))data.investors.push(x);
+});
+if(!persist())return;
+refreshInvestors();
+resetForm();
+render();
+}catch(e){alert("تعذر استيراد الملف: "+e.message)}
+finally{event.target.value=""}
+}
+el("investorFilter").addEventListener("change",render);
+refreshInvestors();
+resetForm();
+render();
+persist();
+</script>
+</body>
+</html>
+
