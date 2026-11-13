@@ -28,26 +28,33 @@ gtag('config','G-14CR4J2GEC',{page_title:'فزاع - صفحة تيك'});
 </script>
 <!-- TikTok Pixel Code End -->
 <style>
-:root{--primary-color:#111;--accent-color:#e8e1c9;--white:#fff;--tabby-green:#37b376;--whatsapp-green:#25D366;--bg-gradient:linear-gradient(135deg,#f8f5eb 0%,#e8e1c9 100%)}
+:root{--primary-color:#f8fafc;--accent-color:#d6b56d;--white:#111827;--tabby-green:#37b376;--whatsapp-green:#20c96b;--bg-gradient:radial-gradient(ellipse at top,#17243b 0%,#090e19 58%,#05080f 100%)}
 *{box-sizing:border-box}
-body{margin:0;padding:20px;font-family:'Cairo',sans-serif;background:var(--bg-gradient);min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{width:100%;max-width:400px;background:var(--white);padding:40px 25px;border-radius:35px;box-shadow:0 20px 50px rgba(0,0,0,.1);text-align:center;position:relative}
-.logo-container img{width:120px;height:120px;object-fit:contain;border-radius:50%;border:4px solid var(--accent-color);margin-bottom:15px;background:#fff}
-.badge{display:inline-flex;align-items:center;gap:5px;background:var(--tabby-green);color:#fff;padding:5px 15px;border-radius:50px;font-size:13px;font-weight:700;margin-bottom:20px}
-h1{font-size:30px;font-weight:900;color:var(--primary-color);margin:5px 0}
-.p-desc{font-size:17px;color:#555;margin-bottom:30px}
-.btn-pulse{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;background:var(--whatsapp-green);color:#fff;text-decoration:none;padding:15px;border-radius:20px;transition:.3s;animation:pulse-animation 2s infinite}
-.btn-pulse:hover{background:#1ebe5d}
+body{margin:0;padding:24px;font-family:'Cairo',sans-serif;background:var(--bg-gradient);color:#f8fafc;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:100%;max-width:460px;background:linear-gradient(160deg,rgba(24,36,57,.98),rgba(10,16,28,.99));padding:36px 25px 30px;border:1px solid rgba(214,181,109,.2);border-radius:30px;box-shadow:0 25px 80px rgba(0,0,0,.55),0 0 50px rgba(47,91,145,.12);text-align:center;position:relative;overflow:hidden}
+.card:before{content:"";position:absolute;inset:0 15% auto;height:1px;background:linear-gradient(90deg,transparent,rgba(214,181,109,.7),transparent)}
+.logo-container img{width:112px;height:112px;object-fit:contain;border-radius:50%;border:2px solid rgba(214,181,109,.65);margin-bottom:16px;background:#fff;padding:5px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.badge{display:inline-flex;align-items:center;gap:7px;background:rgba(55,179,118,.14);color:#6ee7a5;border:1px solid rgba(55,179,118,.35);padding:6px 16px;border-radius:50px;font-size:13px;font-weight:700;margin-bottom:17px}
+h1{font-size:29px;font-weight:900;color:#fff;margin:5px 0}
+.p-desc{font-size:16px;color:#b8c4d6;margin:8px 0 27px}
+.btn-pulse{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#20c96b,#159b50);color:#fff;text-decoration:none;padding:16px;border-radius:18px;transition:.3s;box-shadow:0 10px 28px rgba(32,201,107,.2);animation:pulse-animation 2.5s infinite}
+.btn-pulse:hover{background:linear-gradient(135deg,#27d977,#159b50);transform:translateY(-2px)}
 .btn-content{display:flex;flex-direction:column}
 .btn-pulse i{font-size:30px}
 .btn-pulse .main-text{font-size:19px;font-weight:700}
-.btn-pulse .sub-text{font-size:14px;opacity:.9;margin-top:2px}
-@keyframes pulse-animation{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
-.fallback-section{margin-top:30px;padding-top:20px;border-top:1px dashed #ddd}
-.phone-number-box{direction:ltr;display:inline-flex;align-items:center;gap:10px;background:#f8f8f8;padding:10px 20px;border-radius:50px;font-weight:bold;font-size:18px;cursor:pointer;border:1px solid #eee;margin-top:10px;font-family:'Cairo',sans-serif}
-.phone-number-box:hover{background:#eee}
-.tabby-logo-container{margin-top:30px}
-.tabby-logo{width:100px;height:auto;filter:grayscale(.2)}
+.btn-pulse .sub-text{font-size:13px;opacity:.92;margin-top:2px}
+@keyframes pulse-animation{0%,100%{box-shadow:0 10px 28px rgba(32,201,107,.18)}50%{box-shadow:0 10px 36px rgba(32,201,107,.36)}}
+.fallback-section{margin-top:25px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12)}
+.fallback-section>div{font-size:13px;color:#9eacc0!important}
+.phone-number-box{direction:ltr;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;background:linear-gradient(135deg,rgba(214,181,109,.16),rgba(214,181,109,.07));padding:15px 18px;border-radius:16px;font-weight:900;font-size:27px;letter-spacing:1px;color:#f5d58c;cursor:pointer;border:1px solid rgba(214,181,109,.5);margin-top:12px;font-family:'Cairo',sans-serif;box-shadow:inset 0 0 22px rgba(214,181,109,.04),0 8px 25px rgba(0,0,0,.18)}
+.phone-number-box i{font-size:17px!important;color:#f5d58c!important}
+.phone-number-box:hover{background:rgba(214,181,109,.22);border-color:#f5d58c}
+.tabby-logo-container{margin-top:27px;padding-top:21px;border-top:1px solid rgba(255,255,255,.1)}
+.partners-title{font-size:12px;color:#9eacc0;margin-bottom:13px;font-weight:700}
+.partner-logos{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.partner-logo-tile{width:78px;height:62px;display:flex;align-items:center;justify-content:center;padding:8px;background:#fff;border:1px solid rgba(255,255,255,.8);border-radius:13px;box-shadow:0 5px 16px rgba(0,0,0,.18)}
+.partner-logo-tile img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}
+@media(max-width:380px){.card{padding:30px 18px}.partner-logos{gap:7px}.partner-logo-tile{width:69px;height:58px}.phone-number-box{font-size:24px}}
 </style>
 <!-- Fazzaa attribution and engagement analytics v1 -->
 <script id="fazzaa_advanced_tracking">
@@ -94,7 +101,14 @@ window.addEventListener('pagehide',accrue);
 </a>
 <div class="fallback-section"><div style="font-size:13px;color:#888">أو انسخ الرقم مباشرة</div>
 <button type="button" class="phone-number-box" onclick="copyNum()"><i class="far fa-copy" style="font-size:14px;color:#aaa"></i><span id="displayPhone">+966 56 546 4718</span></button></div>
-<div class="tabby-logo-container"><img src="https://i0.wp.com/ksalogo.com/wp-content/uploads/2025/02/Tabby-01.png?fit=1000%2C1000&ssl=1" class="tabby-logo" alt="Tabby"></div>
+<div class="tabby-logo-container">
+<div class="partners-title">شعارات الجهات</div>
+<div class="partner-logos">
+<div class="partner-logo-tile"><img src="https://i0.wp.com/ksalogo.com/wp-content/uploads/2025/02/Tabby-01.png?fit=1000%2C1000&ssl=1" alt="Tabby"></div>
+<div class="partner-logo-tile"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVcKmE1ORCjsmfuQjYAl7lrAZ5QAbkk-RZwg&amp;s" alt="شعار جهة 1"></div>
+<div class="partner-logo-tile"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAaNSOq36UMf2hg6A_VbCfgrJNS-VSNMWxkw&amp;s" alt="شعار جهة 2"></div>
+<div class="partner-logo-tile"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPagc6L3oP4iWHiCOEHgUYuTzAy_ql9paVNQ&amp;s" alt="شعار جهة 3"></div>
+</div></div>
 </div>
 <script>
 const PHONE_NUMBER='0565464718';
